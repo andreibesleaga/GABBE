@@ -1,0 +1,45 @@
+{
+  "_comment": "Swarm Configuration - Defines the network topology of the multi-agent system.",
+  "swarm_id": "project-alpha-swarm",
+  "topology_type": "star | mesh | hierarchical",
+  
+  "orchestrator": {
+    "agent_id": "loki-planner-01",
+    "endpoint": "http://localhost:8000"
+  },
+
+  "agents": [
+    {
+      "role": "frontend-coder",
+      "agent_id": "fe-01",
+      "transport": "sse",
+      "endpoint": "http://localhost:8001/events",
+      "capabilities": ["react", "css", "jest"]
+    },
+    {
+      "role": "backend-coder",
+      "agent_id": "be-01",
+      "transport": "http",
+      "endpoint": "http://localhost:8002/api",
+      "capabilities": ["node", "sql", "api"]
+    },
+    {
+      "role": "security-audit",
+      "agent_id": "sec-01",
+      "transport": "stdio",
+      "command": "python3 agents/security_agent.py",
+      "capabilities": ["sast", "audit"]
+    }
+  ],
+
+  "channels": {
+    "broadcast": "redis://localhost:6379/broadcast",
+    "tasks": "amqp://guest:guest@localhost:5672/tasks"
+  },
+
+  "policies": {
+    "max_hops": 5,
+    "timeout_ms": 30000,
+    "retry_count": 3
+  }
+}

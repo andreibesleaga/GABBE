@@ -1,0 +1,54 @@
+{
+  "name": "My Project Design Tokens",
+  "version": "1.0.0",
+  "tokens": {
+    "colors": {
+      "primary": {
+        "50": "#eef2ff",
+        "100": "#e0e7ff",
+        "500": "#6366f1",
+        "600": "#4f46e5",
+        "900": "#312e81"
+      },
+      "surface": {
+        "light": "#ffffff",
+        "dark": "#0f172a"
+      },
+      "text": {
+        "primary": "#1e293b",
+        "secondary": "#64748b",
+        "inverted": "#ffffff"
+      },
+      "status": {
+        "success": "#22c55e",
+        "warning": "#f59e0b",
+        "error": "#ef4444"
+      }
+    },
+    "typography": {
+      "fonts": {
+        "sans": "Inter, system-ui, sans-serif",
+        "mono": "Fira Code, monospace"
+      },
+      "weights": {
+        "regular": 400,
+        "medium": 500,
+        "bold": 700
+      }
+    },
+    "spacing": {
+      "base": "4px",
+      "scale": [0, 1, 2, 4, 8, 16, 32, 64]
+    },
+    "radius": {
+      "sm": "4px",
+      "md": "8px",
+      "lg": "16px",
+      "full": "9999px"
+    },
+    "shadows": {
+      "sm": "0 1px 2px 0 rgb(0 0 0 / 0.05)",
+      "md": "0 4px 6px -1px rgb(0 0 0 / 0.1)"
+    }
+  }
+}

@@ -1,0 +1,412 @@
+{
+  "_comment": "MCP (Model Context Protocol) server configuration template",
+  "_comment2": "Customise for your project. Security rules: prod databases = read-only, dev = read-write.",
+  "_comment3": "Install instructions: see skills/00-index.md MCP Server Catalog section",
+
+  "mcpServers": {
+
+    "_section_essential": "=== ESSENTIAL (install for every project) ===",
+
+    "context7": {
+      "_description": "Up-to-date SDK docs — prevents API hallucination. HIGHLY RECOMMENDED.",
+      "command": "npx",
+      "args": ["@context7/mcp-server"],
+      "env": {}
+    },
+
+    "sequential-thinking": {
+      "_description": "Structured chain-of-thought before acting. Improves reasoning quality.",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"],
+      "env": {}
+    },
+
+    "brave-search": {
+      "_description": "Authoritative web research with source filtering.",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-brave-search"],
+      "env": {
+        "BRAVE_API_KEY": "${BRAVE_API_KEY}"
+      }
+    },
+
+    "filesystem": {
+      "_description": "Access local project files for knowledge ingestion (RAG).",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "./"],
+      "env": {}
+    },
+
+    "_section_version_control": "=== VERSION CONTROL & PROJECT MANAGEMENT ===",
+
+    "github": {
+      "_description": "PR review, code search, issue management, git history.",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_TOKEN}"
+      }
+    },
+
+    "_section_database": "=== DATABASES ===",
+
+    "postgres-dev": {
+      "_description": "PostgreSQL for development — READ-WRITE allowed.",
+      "_security": "DEVELOPMENT ONLY — never use read-write in production",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-postgres"],
+      "env": {
+        "POSTGRES_CONNECTION_STRING": "${DATABASE_URL_DEV}"
+      }
+    },
+
+    "postgres-prod": {
+      "_description": "PostgreSQL for production — READ-ONLY. Schema introspection only.",
+      "_security": "PRODUCTION — read-only access enforced by database user permissions",
+      "_enable_only_when_needed": true,
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-postgres"],
+      "env": {
+        "POSTGRES_CONNECTION_STRING": "${DATABASE_URL_PROD_READONLY}"
+      }
+    },
+
+    "_section_security": "=== SECURITY & CODE QUALITY ===",
+
+    "semgrep": {
+      "_description": "SAST code scanning, security analysis, custom rules.",
+      "command": "python",
+      "args": ["-m", "semgrep_mcp"],
+      "env": {
+        "SEMGREP_APP_TOKEN": "${SEMGREP_APP_TOKEN}"
+      }
+    },
+
+    "_section_observability": "=== OBSERVABILITY & MONITORING ===",
+
+    "sentry": {
+      "_description": "Error tracking, bug context, performance issues.",
+      "command": "npx",
+      "args": ["-y", "@sentry/mcp"],
+      "env": {
+        "SENTRY_AUTH_TOKEN": "${SENTRY_AUTH_TOKEN}",
+        "SENTRY_ORG": "${SENTRY_ORG}",
+        "SENTRY_PROJECT": "${SENTRY_PROJECT}"
+      }
+    },
+
+    "_section_browser": "=== BROWSER & WEB ===",
+
+    "playwright": {
+      "_description": "Browser automation for visual TDD and E2E testing.",
+      "command": "npx",
+      "args": ["@playwright/mcp", "--headless"],
+      "env": {}
+    },
+
+    "tavily": {
+      "_description": "Real-time web search and content extraction. Use for research.skill.",
+      "command": "npx",
+      "args": ["-y", "tavily-mcp"],
+      "env": {
+        "TAVILY_API_KEY": "${TAVILY_API_KEY}"
+      }
+    },
+
+    "_section_optional": "=== OPTIONAL — Enable as needed ===",
+
+    "gitlab": {
+      "_enabled": false,
+      "_description": "GitLab alternative to GitHub MCP.",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-gitlab"],
+      "env": {
+        "GITLAB_PERSONAL_ACCESS_TOKEN": "${GITLAB_TOKEN}",
+        "GITLAB_API_URL": "https://gitlab.com"
+      }
+    },
+
+    "jira": {
+      "_enabled": false,
+      "_description": "Jira Cloud task interaction — read/update tickets.",
+      "command": "npx",
+      "args": ["-y", "aashari/mcp-server-atlassian-jira"],
+      "env": {
+        "ATLASSIAN_SITE_NAME": "${JIRA_SITE}",
+        "ATLASSIAN_USER_EMAIL": "${JIRA_EMAIL}",
+        "ATLASSIAN_API_TOKEN": "${JIRA_API_TOKEN}"
+      }
+    },
+
+    "notion": {
+      "_enabled": false,
+      "_description": "Notion workspace access — pages, databases, docs.",
+      "command": "npx",
+      "args": ["-y", "@notionhq/notion-mcp-server"],
+      "env": {
+        "OPENAPI_MCP_HEADERS": "{\"Authorization\": \"Bearer ${NOTION_TOKEN}\"}"
+      }
+    },
+
+    "qdrant": {
+      "_enabled": false,
+      "_description": "Semantic memory layer — vector search for long-term knowledge.",
+      "command": "npx",
+      "args": ["-y", "mcp-server-qdrant"],
+      "env": {
+        "QDRANT_URL": "${QDRANT_URL}",
+        "QDRANT_API_KEY": "${QDRANT_API_KEY}",
+        "COLLECTION_NAME": "project-knowledge"
+      }
+    },
+
+    "datadog": {
+      "_enabled": false,
+      "_description": "Monitoring, alerts, observability queries.",
+      "command": "npx",
+      "args": ["-y", "@datadog/mcp-server"],
+      "env": {
+        "DD_API_KEY": "${DATADOG_API_KEY}",
+        "DD_APP_KEY": "${DATADOG_APP_KEY}"
+      }
+    },
+
+    "grafana": {
+      "_enabled": false,
+      "_description": "Dashboard search, datasource queries, incident management.",
+      "command": "npx",
+      "args": ["-y", "@grafana/mcp-server"],
+      "env": {
+        "GRAFANA_URL": "${GRAFANA_URL}",
+        "GRAFANA_API_KEY": "${GRAFANA_API_KEY}"
+      }
+    },
+
+    "aws-core": {
+      "_enabled": false,
+      "_description": "AWS core services — documentation, CDK, Lambda.",
+      "command": "npx",
+      "args": ["-y", "@aws/mcp-server-core"],
+      "env": {
+        "AWS_ACCESS_KEY_ID": "${AWS_ACCESS_KEY_ID}",
+        "AWS_SECRET_ACCESS_KEY": "${AWS_SECRET_ACCESS_KEY}",
+        "AWS_REGION": "${AWS_REGION}"
+      }
+    },
+
+    "kubernetes": {
+      "_enabled": false,
+      "_security": "Read-only recommended for production cluster",
+      "_description": "Cluster state, pod logs, deployment management.",
+      "command": "npx",
+      "args": ["-y", "mcp-server-kubernetes"],
+      "env": {
+        "KUBECONFIG": "${KUBECONFIG}"
+      }
+    },
+
+    "slack": {
+      "_enabled": false,
+      "_description": "Workspace channels, DMs, message history.",
+      "command": "npx",
+      "args": ["-y", "@slack/mcp-server"],
+      "env": {
+        "SLACK_BOT_TOKEN": "${SLACK_BOT_TOKEN}",
+        "SLACK_TEAM_ID": "${SLACK_TEAM_ID}"
+      }
+    },
+
+    "figma": {
+      "_enabled": false,
+      "_description": "Design-to-code context, component specs, FigJam.",
+      "command": "npx",
+      "args": ["-y", "@figma/mcp-server"],
+      "env": {
+        "FIGMA_ACCESS_TOKEN": "${FIGMA_ACCESS_TOKEN}"
+      }
+    },
+
+    "dbhub": {
+      "_enabled": false,
+      "_description": "Universal DB client (MySQL, MariaDB, PG, SQL Server).",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-dbhub"],
+      "env": {}
+    },
+
+    "mongodb": {
+      "_enabled": false,
+      "_description": "MongoDB exploration and query tool.",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-mongodb-lens"],
+      "env": {
+        "MONGODB_CONNECTION_STRING": "${MONGODB_URI}"
+      }
+    },
+
+    "redis": {
+      "_enabled": false,
+      "_description": "Redis interaction and key management.",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-redis"],
+      "env": {
+        "REDIS_URL": "${REDIS_URL}"
+      }
+    },
+
+    "sqlite": {
+      "_enabled": false,
+      "_description": "SQLite database explorer (read-only recommended).",
+      "command": "npx",
+      "args": ["-y", "sqlite-mcp"],
+      "env": {
+        "SQLITE_PATH": "./database.sqlite"
+      }
+    },
+
+    "pinecone": {
+      "_enabled": false,
+      "_description": "Vector database for semantic search.",
+      "command": "npx",
+      "args": ["-y", "pinecone-mcp"],
+      "env": {
+        "PINECONE_API_KEY": "${PINECONE_API_KEY}"
+      }
+    },
+
+    "chroma": {
+      "_enabled": false,
+      "_description": "Open-source embedding database.",
+      "command": "npx",
+      "args": ["-y", "chromadb-mcp"],
+      "env": {}
+    },
+
+    "weaviate": {
+      "_enabled": false,
+      "_description": "Vector search engine.",
+      "command": "npx",
+      "args": ["-y", "weaviate-mcp"],
+      "env": {
+        "WEAVIATE_URL": "${WEAVIATE_URL}",
+        "WEAVIATE_API_KEY": "${WEAVIATE_API_KEY}"
+      }
+    },
+
+    "confluence": {
+      "_enabled": false,
+      "_description": "Confluence pages and spaces.",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-confluence"],
+      "env": {
+        "ATLASSIAN_URL": "${CONFLUENCE_URL}",
+        "ATLASSIAN_USERNAME": "${CONFLUENCE_EMAIL}",
+        "ATLASSIAN_API_TOKEN": "${CONFLUENCE_TOKEN}"
+      }
+    },
+
+    "linear": {
+      "_enabled": false,
+      "_description": "Linear issue tracking and project management.",
+      "command": "npx",
+      "args": ["-y", "linear-mcp-server"],
+      "env": {
+        "LINEAR_API_KEY": "${LINEAR_API_KEY}"
+      }
+    },
+
+    "sonarqube": {
+      "_enabled": false,
+      "_description": "Code quality and security analysis.",
+      "command": "npx",
+      "args": ["-y", "sonarqube-mcp"],
+      "env": {
+        "SONAR_URL": "${SONAR_URL}",
+        "SONAR_TOKEN": "${SONAR_TOKEN}"
+      }
+    },
+
+    "firecrawl": {
+      "_enabled": false,
+      "_description": "Turn websites into LLM-ready markdown.",
+      "command": "npx",
+      "args": ["-y", "firecrawl-mcp"],
+      "env": {
+        "FIRECRAWL_API_KEY": "${FIRECRAWL_API_KEY}"
+      }
+    },
+
+    "duckduckgo": {
+      "_enabled": false,
+      "_description": "Privacy-focused web search.",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-duckduckgo"],
+      "env": {}
+    },
+
+    "snyk": {
+      "_enabled": false,
+      "_description": "Vulnerability scanning for code and dependencies.",
+      "command": "npx",
+      "args": ["-y", "snyk-mcp-server"],
+      "env": {
+        "SNYK_TOKEN": "${SNYK_TOKEN}"
+      }
+    },
+
+    "gitleaks": {
+      "_enabled": false,
+      "_description": "Secret detection in git repositories.",
+      "command": "npx",
+      "args": ["-y", "gitleaks-mcp"],
+      "env": {}
+    },
+
+    "jupyter": {
+      "_enabled": false,
+      "_description": "Execute Python code in Jupyter notebooks.",
+      "command": "npx",
+      "args": ["-y", "jupyter-mcp-server"],
+      "env": {}
+    },
+
+    "zapier": {
+      "_enabled": false,
+      "_description": "Connect to 6,000+ apps via Zapier.",
+      "command": "npx",
+      "args": ["-y", "@zapier/mcp-server"],
+      "env": {
+        "ZAPIER_NLA_API_KEY": "${ZAPIER_NLA_API_KEY}"
+      }
+    },
+
+    "stripe": {
+      "_enabled": false,
+      "_description": "Search and manage Stripe resources.",
+      "command": "npx",
+      "args": ["-y", "@stripe/mcp-server"],
+      "env": {
+        "STRIPE_API_KEY": "${STRIPE_SECRET_KEY}"
+      }
+    }
+  },
+
+  "_security_rules": {
+    "prod_databases": "Read-only access only — use dedicated read-only DB user",
+    "dev_databases": "Read-write allowed — never point dev config at production DB",
+    "secrets_policy": "All credentials via environment variables — never hardcoded in this file",
+    "file_system": "Restrict to project directory only — no access to /etc, /home, system dirs",
+    "kubernetes_prod": "Read-only mode only — no exec, no delete, no scale in production",
+    "browser_ci": "Headless mode only for CI — headed mode for local debugging only"
+  },
+
+  "_environment_variables_required": [
+    "BRAVE_API_KEY — from https://api.search.brave.com/register",
+    "GITHUB_TOKEN — GitHub Personal Access Token with repo scope",
+    "DATABASE_URL_DEV — PostgreSQL connection string (development)",
+    "DATABASE_URL_PROD_READONLY — PostgreSQL read-only connection (production, optional)",
+    "SEMGREP_APP_TOKEN — from https://semgrep.dev/settings/tokens (optional)",
+    "SENTRY_AUTH_TOKEN — from Sentry Settings > API Keys (optional)",
+    "TAVILY_API_KEY — from https://tavily.com (optional, for research.skill)"
+  ]
+}

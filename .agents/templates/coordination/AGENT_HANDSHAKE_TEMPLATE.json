@@ -1,0 +1,37 @@
+{
+  "_comment": "Agent Handshake Message - Sent on initial connection to establish compatibility.",
+  "meta": {
+    "timestamp": "ISO8601_TIMESTAMP",
+    "version": "1.0.0"
+  },
+  "identity": {
+    "agent_id": "UUID_V4",
+    "name": "agent-name",
+    "role": "coder | reviewer | architect | manager",
+    "version": "1.0.0"
+  },
+  "protocols": {
+    "supported": ["mcp-1.0", "a2a-v1", "http-jsonrpc-2.0"],
+    "preferred": "mcp-1.0"
+  },
+  "transport": {
+    "type": "stdio | sse | websocket | http",
+    "endpoint": "http://localhost:3000/messages",
+    "encoding": "json"
+  },
+  "capabilities": [
+    {
+      "name": "search",
+      "description": "Can search the web",
+      "cost_per_call": 0.01
+    },
+    {
+      "name": "file_edit",
+      "description": "Can modify local files"
+    }
+  ],
+  "security": {
+    "auth_method": "bearer_token | mutual_tls | none",
+    "public_key": "optional-pem-string"
+  }
+}

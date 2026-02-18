@@ -1,0 +1,46 @@
+{
+  "_comment": "Vector Database Configuration for RAG / Long-Term Memory",
+  "enabled": true,
+  "provider": "qdrant | pinecone | chroma | pgvector",
+  
+  "connection": {
+    "url": "http://localhost:6333",
+    "api_key": "${VECTOR_DB_API_KEY}",
+    "cloud_region": "us-east-1"
+  },
+
+  "collections": {
+    "semantic_memory": {
+      "name": "loki_semantic_memory",
+      "dimension": 1536,
+      "metric": "cosine",
+      "description": "Long-term knowledge storage"
+    },
+    "episodic_memory": {
+      "name": "loki_episodic_memory",
+      "dimension": 1536,
+      "metric": "cosine",
+      "description": "Past decision vectors"
+    }
+  },
+
+  "embedding_model": {
+    "provider": "openai | cohere | huggingface",
+    "model_name": "text-embedding-3-small",
+    "batch_size": 100
+  },
+
+  "retrieval": {
+    "top_k": 5,
+    "min_score": 0.75,
+    "rerank": true,
+    "timeout_ms": 5000
+  },
+
+  "fallback": {
+    "enabled": true,
+    "strategies": ["sqlite_fts", "filesystem_grep"],
+    "sqlite_path": "loki/memory/semantic/knowledge.db",
+    "filesystem_root": "loki/memory/semantic/"
+  }
+}

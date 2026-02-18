@@ -1,0 +1,48 @@
+version: v2beta1
+name: ${PROJECT_NAME}
+
+# Pipeline defines the workflow steps for deploying
+pipelines:
+  dev:
+    run: |-
+      run_dependencies --all
+      create_deployments --all
+      start_dev app
+
+# Deployments define how to deploy the application
+deployments:
+  app:
+    helm:
+      chart:
+        name: ./chart
+      values:
+        image: ${IMAGE_NAME}
+        service:
+          ports:
+            - 8080
+
+# Dev configuration for hot-reloading and terminal access
+dev:
+  app:
+    imageSelector: ${IMAGE_NAME}
+    devImage: ghcr.io/loft-sh/devspace-containers/javascript:3
+    
+    # Sync file changes from local to remote container
+    sync:
+      - path: ./
+        excludePaths:
+          - node_modules/
+          - .git/
+
+    # Port forwarding to access application on localhost
+    ports:
+      - port: 8080 # Maps localhost:8080 to container:8080
+      - port: 9229 # Debugger port
+
+    # Open a terminal inside the container
+    terminal:
+      command: ./dev-start.sh
+
+    # Open link in browser when ready
+    open:
+      url: http://localhost:8080

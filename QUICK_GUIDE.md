@@ -49,17 +49,17 @@ python3 GABBE/init.py
 #      - .gemini/settings.json (Gemini)
 
 ```
-# 4. Initialize Your Agent with the Mission
-#    - Open the generated file: `SETUP_MISSION.md`
-#    - Copy the entire content.
-#    - Paste it into your AI Agent's chat window (first message).
-#    - This aligns the agent with your project context immediately.
+## 4. Initialize Your Agent with the Mission
+    - Open the generated file: `SETUP_MISSION.md`
+    - Copy the entire content.
+    - Paste it into your AI Agent's chat window (first message).
+    - This aligns the agent with your project context immediately.
 
-# 5. Refine Context (The "Human-in-the-Loop" Step)
-#    - Open `.agents/AGENTS.md`: Check `Tech Stack` section.
-#      - Verify `test_cmd` and `lint_cmd` match your project.
-#    - Open `.agents/CONSTITUTION.md`: Review project laws.
-#      - Adjust Article I (Directives) if needed.
+## 5. Refine Context (The "Human-in-the-Loop" Step)
+    - Open `.agents/AGENTS.md`: Check `Tech Stack` section.
+    - Verify `test_cmd` and `lint_cmd` match your project.
+    - Open `.agents/CONSTITUTION.md`: Review project laws.
+    - Adjust Article I (Directives) if needed.
 
 ---
 
@@ -528,8 +528,8 @@ No human needed for:
 | Skill | Triggers |
 |---|---|
 | `code-review`, `tdd-cycle`, `browser-tdd`, `refactor`, `debug`, `api-design`, `db-migration` | review, test, visual, refactor, bug, API, migration |
-| `git-workflow`, `documentation`, `spec-writer`, `spec-analyze`, `adr-writer` | commit, docs, spec, analyze spec, ADR |
-| `agentic-linter`, `clean-coder`, `mobile-dev`, `visual-design`, `vibe-coding` | boundary, clean code, mobile, design, vibe |
+| `git-workflow`, `documentation`, `spec-writer`, `spec-analyze`, `adr-writer`, `secure-coding` | commit, docs, spec, analyze spec, ADR, secure |
+| `agentic-linter`, `clean-coder`, `mobile-dev`, `visual-design`, `vibe-coding`, `ci-autofix` | boundary, clean, mobile, design, vibe, fix |
 
 ### Architecture & Design
 | Skill | Triggers |
@@ -543,29 +543,40 @@ No human needed for:
 |---|---|
 | `security-audit`, `threat-model`, `privacy-audit`, `compliance-review`, `legal-review` | security, threat, privacy, SOC2, legal |
 | `access-control`, `data-governance`, `backup-recovery`, `queue-management` | rbac, lineage, backup, dlq |
-| `reliability-sre`, `performance-optimization`, `performance-audit`, `incident-response`, `system-benchmark` | SRE, perf, profile, incident, load test |
-| `accessibility`, `tech-debt`, `arch-debt`, `hazard-analysis`, `reliability-engineering`, `production-health` | a11y, debt, coupling, fmea, tmr, loop avoidance |
+| `reliability-sre`, `performance`, `performance-audit`, `incident-response`, `system-benchmark`, `cost-optimization` | SRE, perf, profile, incident, load, cost |
+| `accessibility`, `tech-debt`, `arch-debt`, `hazard-analysis`, `production-health`, `dependency-security` | a11y, debt, skew, fmea, tmr, deps |
 
 ### Strategy & Agentic
 | Skill | Triggers |
 |---|---|
 | `business-case`, `design-thinking`, `systems-thinking`, `research` | ROI, empathy, loops, research |
 | `req-elicitation`, `req-review` | gather reqs, audit specs |
-| `agentic-patterns`, `multi-agent-orch`, `agent-protocol`, `agent-interop` | agentic, swarm, protocol, connect |
+| `agentic-patterns`, `multi-agent-orch`, `agent-protocol`, `agent-interop`, `swarm-consensus` | agentic, swarm, protocol, connect, vote |
 | `knowledge-gap`, `self-heal`, `session-resume`, `sdlc-checkpoint`, `knowledge-connect` | unsure, fix, resume, checkpoint, RAG |
-| `integrity-check`, `audit-trail`, `system-lifecycle` | verify, log, traceability |
+| `integrity-check`, `audit-trail`, `system-lifecycle`, `episodic-consolidation` | verify, log, trace, consolidation |
 | `emerging-tech`, `legacy-modernization` | future, legacy |
 
 ## Templates Reference
 
 | Category | Templates |
 |---|---|
-| **Core** | `AGENTS`, `MCP_CONFIG`, `DEVCONTAINER`, `DEV_SPACE`, `PLAN`, `TASKS`, `AUDIT_LOG`, `SDLC_TRACKER`, `SESSION_SNAPSHOT`, `SWARM_CONFIG`, `AGENT_HANDSHAKE` |
-| **Arch** | `ADR`, `ARCH_DECISION_FRAMEWORK`, `ARCHITECTURE_DECISION_MATRIX`, `ARCHITECTURE_REVIEW`, `ARCHITECTURE_VIEWS`, `C4_ARCHITECTURE`, `CONTEXT_MAP`, `DOMAIN_MODEL`, `SYSTEM_CONTEXT`, `SWARM_ARCHITECTURE`, `DESIGN_PATTERN_USAGE` |
-| **Reqs** | `PRD`, `SPEC`, `BUSINESS_CASE`, `CAPABILITY_MAP`, `EMPATHY_MAP`, `NFR`, `QUALITY_ATTRIBUTES`, `REQUIREMENTS_REVIEW`, `STAKEHOLDER_REGISTER`, `SYSTEM_ANALYSIS`, `TRACEABILITY_MATRIX`, `ETHICAL_IMPACT_ASSESSMENT` |
-| **Eng** | `CLEAN_CODE_CHECKLIST`, `SECURITY_CHECKLIST`, `THREAT_MODEL`, `TECH_DEBT`, `TEST_PLAN`, `TEST_CASE`, `INTEGRATION_SPEC`, `DATA_PIPELINE`, `DESIGN_TOKENS`, `E2E_TEST_SUITE` |
+| **Core** | `AGENTS`, `MCP_CONFIG`, `DEVCONTAINER`, `DEV_SPACE`, `PLAN`, `TASKS`, `AUDIT_LOG`, `SDLC_TRACKER`, `SESSION_SNAPSHOT`, `SWARM_CONFIG`, `AGENT_HANDSHAKE`, `SYSTEM_ANALYSIS` |
+| **Arch** | `ADR`, `ARCH_DECISION_FRAMEWORK`, `ARCHITECTURE_DECISION_MATRIX`, `ARCHITECTURE_REVIEW`, `ARCHITECTURE_VIEWS`, `C4_ARCHITECTURE`, `CONTEXT_MAP`, `DOMAIN_MODEL`, `SYSTEM_CONTEXT`, `SWARM_ARCHITECTURE`, `DESIGN_PATTERN_USAGE`, `CAPABILITY_MAP`, `LEGACY_AUDIT` |
+| **Reqs** | `PRD`, `SPEC`, `BUSINESS_CASE`, `CAPABILITY_MAP`, `EMPATHY_MAP`, `NFR`, `QUALITY_ATTRIBUTES`, `REQUIREMENTS_REVIEW`, `STAKEHOLDER_REGISTER`, `TRACEABILITY_MATRIX`, `ETHICAL_IMPACT_ASSESSMENT` |
+| **Eng** | `CLEAN_CODE_CHECKLIST`, `SECURITY_CHECKLIST`, `THREAT_MODEL`, `TECH_DEBT`, `TEST_PLAN`, `TEST_CASE`, `INTEGRATION_SPEC`, `DATA_PIPELINE`, `DESIGN_TOKENS`, `E2E_TEST_SUITE`, `SAFETY_POLICY` |
 | **Ops** | `DEPLOY_CONFIG`, `INFRA_PLAN`, `BUG_REPORT`, `INCIDENT_POSTMORTEM`, `LEGACY_AUDIT`, `ADAPTIVE_SYSTEM`, `AGENT_PROFILE`, `COST_OPTIMIZATION_REPORT`, `CAPACITY_PLAN`, `RELEASE_READINESS_REPORT`, `BENCHMARK_REPORT` |
 | **Product** | `USER_STORY_MAP`, `KNOWLEDGE_MAP` |
+ 
+ ## Guides Reference
+ 
+ | Category | Guides |
+ |---|---|
+ | **Stack** | `js-ts-nodejs`, `go-lang`, `php-laravel`, `python-fastapi-ai`, `sql-nosql` |
+ | **Arch** | `systems-architecture`, `critical-systems-arch`, `event-driven-architecture`, `monolith`, `microservices` |
+ | **Agentic** | `agentic-patterns`, `multi-agent-systems`, `autonomous-swarm-patterns`, `agent-communication` |
+ | **Lifecycle** | `full-system-lifecycle`, `testing-strategy`, `production-health`, `compliance-audit`, `strategic-analysis` |
+ | **Integration** | `enterprise-patterns`, `knowledge-integration`, `no-code-integration`, `api-standards` |
+ | **UI/UX** | `visual-design-system`, `a2ui-protocols`, `agent-ui` |
 
 ---
 

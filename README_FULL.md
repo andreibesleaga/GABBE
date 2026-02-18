@@ -577,6 +577,8 @@ All 120+ skills live in `skills/` subdirectories. Invoke by mentioning the trigg
 | `coding/ci-autofix.skill.md` | ci fix, autofix | Auto-fix CI failures |
 | `coding/tool-construction.skill.md` | build tool, mcp | Tool building |
 | `coding/ui-gen.skill.md` | ui, dashboard | Generative UI |
+| `coding/secure-coding.skill.md` | secure code, owasp | Security-first coding |
+| `coding/file-processing.skill.md` | file, parse | File manipulation |
 
 ### 2. Architecture (`architecture/`)
 | Skill | Triggers | Purpose |
@@ -589,6 +591,11 @@ All 120+ skills live in `skills/` subdirectories. Invoke by mentioning the trigg
 | `architecture/domain-model.skill.md` | domain, ddd | Context mapping |
 | `architecture/api-design.skill.md` | api, openapi | API contract design |
 | `architecture/legacy-modernization.skill.md` | cobol, legacy | Modernization |
+| `architecture/middleware-design.skill.md` | middleware, pipeline | Middleware patterns |
+| `architecture/state-management.skill.md` | state, redux, store | State strategy |
+| `architecture/realtime-comm.skill.md` | socket, realtime | Websockets/Events |
+| `architecture/graphql-schema.skill.md` | graphql, schema | Schema design |
+| `architecture/event-governance.skill.md` | event, kafka | Event schema registry |
 
 ### 3. Operations & SRE (`ops/`)
 | Skill | Triggers | Purpose |
@@ -601,6 +608,11 @@ All 120+ skills live in `skills/` subdirectories. Invoke by mentioning the trigg
 | `ops/cloud-deploy.skill.md` | deploy, aws | Cloud deployment |
 | `ops/infra-devops.skill.md` | terraform, iac | Infrastructure as Code |
 | `ops/cost-optimization.skill.md` | cost, finops | Cost reduction |
+| `ops/caching-strategy.skill.md` | cache, redis | Caching patterns |
+| `ops/release-management.skill.md` | release, semver | Release coordination |
+| `ops/memory-optimization.skill.md` | memory, leak | Memory profiling |
+| `ops/queue-management.skill.md` | queue, dead letter | Job queue handling |
+| `ops/production-verifier.skill.md` | verify prod, smoke | Post-deploy check |
 
 ### 4. Security (`security/`)
 | Skill | Triggers | Purpose |
@@ -616,6 +628,12 @@ All 120+ skills live in `skills/` subdirectories. Invoke by mentioning the trigg
 | `security/legal-review.skill.md` | legal, ip, license | IP & License check |
 | `security/traceability-audit.skill.md` | trace, reqs | V-Model Traceability |
 | `security/safety-scan.skill.md` | safety scan | Pre-commit safety |
+| `security/reliability-engineering.skill.md` | reliability, mtbf | System reliability |
+| `security/dependency-security.skill.md` | dep check, snyk | Supply chain security |
+| `security/backup-recovery.skill.md` | backup, restore | Disaster recovery |
+| `security/log-analysis.skill.md` | log audit, splunk | Security log review |
+| `security/network-security.skill.md` | firewall, netsec | Network hardening |
+| `security/hazard-analysis.skill.md` | hazard, fmea | Safety hazard analysis |
 
 ### 5. Product, Data & Core (`product/`, `data/`, `core/`, `coordination/`)
 | Skill | Triggers | Purpose |
@@ -624,12 +642,23 @@ All 120+ skills live in `skills/` subdirectories. Invoke by mentioning the trigg
 | `product/req-elicitation.skill.md` | gather reqs | Elicit requirements |
 | `product/spec-writer.skill.md` | spec, PRD | Write verification specs |
 | `product/accessibility.skill.md` | a11y, wcag | Accessibility Audit |
+| `product/user-story-mapping.skill.md` | story map, journey | User journey mapping |
+| `product/stakeholder-management.skill.md` | stakeholder, raci | RACI & Interest map |
+| `product/design-thinking.skill.md` | empathize, ideate | Design thinking loop |
+| `product/spec-analyze.skill.md` | analyze spec, gap | Spec gap analysis |
+| `product/market-analysis.skill.md` | market, competitor | Market research |
 | `data/data-engineering.skill.md` | etl, spark | Data pipelines |
 | `data/db-migration.skill.md` | migration, sql | DB Schema changes |
+| `data/data-governance.skill.md` | lineage, catalog | Data governance |
+| `data/sql-optimization.skill.md` | sql opt, index | Query performance |
 | `coding/testing-strategy.skill.md` | test strategy, pyramid | Testing Pyramid Strategy |
 | `product/green-software.skill.md` | green, carbon | Sustainable Software |
 | `ops/enterprise-integration.skill.md` | erp, legacy | Enterprise Patterns |
 | `coordination/multi-agent-orch.skill.md` | swarm, delegate | Agent coordination |
+| `coordination/swarm-consensus.skill.md` | vote, consensus | Swarm decision making |
+| `coordination/agentic-linter.skill.md` | arch lint, boundaries | Architecture enforcement |
+| `coordination/meta-prompting.skill.md` | meta prompt, improve | Prompt engineering |
+| `coordination/agent-interop.skill.md` | interop, connect | Cross-agent comms |
 | `core/research.skill.md` | research, find | Deep research |
 | `core/self-heal.skill.md` | fix error, heal | Auto-recovery |
 | `core/system-lifecycle.skill.md` | traceability | Trace Req->Code |
@@ -643,6 +672,10 @@ All 120+ skills live in `skills/` subdirectories. Invoke by mentioning the trigg
 | `brain/consciousness-loop.skill.md` | ooda, self | Recursive self-reference (System 2) |
 | `brain/self-improvement.skill.md` | evolve, mutate | Evolutionary prompt rewriting |
 | `brain/learning-adaptation.skill.md` | learn, plasticity | Reinforcement learning & memory |
+| `brain/episodic-consolidation.skill.md` | consolidate, sleep | Memory consolidation |
+| `brain/neuroscience-foundations.skill.md` | neuro, theory | Cognitive theory base |
+| `brain/epistemology-knowledge.skill.md` | truth, justify | Knowledge validation |
+| `brain/cognitive-architectures.skill.md` | cognitive arch | Cognitive patterns |
 
 See `skills/00-index.md` for full details including context costs.
 
@@ -675,6 +708,10 @@ All templates now live in categorized subdirectories under `.agents/templates/`.
 | `architecture/CAPABILITY_MAP_TEMPLATE.md` | Capability Map | Business Capability mapping |
 | `architecture/LEGACY_AUDIT_TEMPLATE.md` | Legacy Audit | Mainframe/Legacy system analysis |
 | `architecture/QUALITY_ATTRIBUTES_TEMPLATE.md` | Quality Attributes | NFR Definitions (SLAs/SLOs) |
+| `architecture/CONTEXT_MAP_TEMPLATE.md` | Context Map | Bounded Context map |
+| `architecture/CAPABILITY_MAP_TEMPLATE.md` | Capability Map | Business capabilities |
+| `architecture/SYSTEM_CONTEXT_TEMPLATE.md` | System Context | C4 System Context |
+| `architecture/LEGACY_AUDIT_TEMPLATE.md` | Legacy Audit | Mainframe/Legacy review |
 
 ### Ops & Security (`templates/ops/`, `templates/security/`)
 | Template | Purpose |
@@ -709,6 +746,7 @@ All templates now live in categorized subdirectories under `.agents/templates/`.
 | `core/TASKS_TEMPLATE.md` | Atomic Task breakdown |
 | `core/AUDIT_LOG_TEMPLATE.md` | Project Audit Trail |
 | `core/SDLC_TRACKER.md` | Phase progress board |
+| `core/SYSTEM_ANALYSIS_TEMPLATE.md` | System Analysis | Root cause & dynamics |
 | `core/SESSION_SNAPSHOT_TEMPLATE.md` | Complete project state |
 | `core/TRACEABILITY_MATRIX_TEMPLATE.md` | Traceability Matrix | Req -> Code -> Test trace |
 | `core/BUG_REPORT_TEMPLATE.md` | Bug Report | Structured bug reporting |
@@ -893,6 +931,16 @@ See `loki/README.md` for full Loki Mode documentation.
 | `guides/beyond-llms.md` | AI Theory | Neuro-symbolic, Genetic Algos, Active Inference |
 | `.agents/skills/brain/` | **Neuro-Arch** | **The Brain Metaphor: Cognitive Software Patterns** |
 | `guides/monolith.md` | Monolith | Vertical slices, modular monolith, Strangler Fig |
+
+### Subject-Specific Guides
+| Topic | Guide |
+|---|---|
+| **Product** | `guides/product-requirements.md` (PRD/Spec), `guides/strategic-analysis.md` (Strategy) |
+| **Architecture** | `guides/critical-systems-arch.md`, `guides/event-driven-architecture.md` |
+| **Integration** | `guides/knowledge-integration.md`, `guides/no-code-integration.md`, `guides/api-standards.md` |
+| **Agents** | `guides/actor-agent-frameworks.md`, `guides/autonomous-swarm-patterns.md`, `guides/agent-communication.md` |
+| **UI/UX** | `guides/visual-design-system.md`, `guides/a2ui-protocols.md`, `guides/agent-ui.md` |
+| **Lifecycle** | `guides/production-health.md`, `guides/beyond-llms.md` |
 
 ---
 

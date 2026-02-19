@@ -54,6 +54,17 @@ python3 init.py
 cp -r GABBE/.agents .
 chmod +x .agents/setup-context.sh && .agents/setup-context.sh
 ```
+
+### 🌍 Cross-Platform Support
+- **Linux / macOS / WSL:** Native support.
+- **Windows (Native):**
+  - Use `python init.py` (Symlinks automatically fallback to file copies if needed).
+  - Use `.agents/scripts/setup-context.ps1` instead of `.sh`.
+- **Android (Termux) / iOS (iSH):**
+  - Install Python: `pkg install python` (Termux) or `apk add python3` (iSH).
+  - Run `python3 init.py`.
+  - *Note:* Symlinks are emulated or copied depending on shell permissions.
+
 ---
 
 ## 🚀 Common Actions (Copy-Paste Prompts)

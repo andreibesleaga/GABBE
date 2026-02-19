@@ -47,6 +47,8 @@ def build_tech_map_from_skills(agents_dir):
             
             # Normalize to list
             if isinstance(tags, str):
+                # Remove brackets first if present
+                tags = tags.strip("[]")
                 tags = [t.strip() for t in tags.split(",")]
             
             skill_name = meta.get("name", skill_file.stem.replace(".skill", ""))
@@ -182,6 +184,19 @@ def create_symlink(source, target):
 
         os.symlink(link_path, target)
         print(f"  {GREEN}✓ Linked {target.name} -> {link_path}{NC}")
+    except OSError as e:
+        # Fallback for Windows (no admin rights) or restricted environments
+        print(f"  {YELLOW}! Symlink failed ({e}), falling back to copy...{NC}")
+        try:
+            if source.is_dir():
+                if target.exists(): shutil.rmtree(target)
+                shutil.copytree(source, target)
+            else:
+                if target.exists(): target.unlink()
+                shutil.copy2(source, target)
+            print(f"  {GREEN}✓ Copied {target.name} (Symlink fallback){NC}")
+        except Exception as e2:
+             print(f"  {RED}x Failed to copy {target}: {e2}{NC}")
     except Exception as e:
         print(f"  {RED}x Failed to link {target}: {e}{NC}")
 

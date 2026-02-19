@@ -13,7 +13,8 @@
 
 set -e
 
-AGENTS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+AGENTS_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
 PROJECT_ROOT="$(cd "${AGENTS_DIR}/.." && pwd)"
 
 GREEN='\033[0;32m'
@@ -143,6 +144,27 @@ if [ ! -d "${PROJECT_ROOT}/.agent/skills" ]; then
   echo -e "  ${GREEN}✓${NC} .agent/skills/ -> ../.agents/skills/"
 else
   echo -e "  ${YELLOW}!${NC} .agent/skills/ already exists (not a symlink — skipped)"
+fi
+
+# Cursor and VS Code: Compile skills
+if [ -f "${AGENTS_DIR}/scripts/compile_skills.py" ]; then
+    echo -e "${YELLOW}Compiling skills for Cursor and VS Code...${NC}"
+    
+    # Cursor
+    python3 "${AGENTS_DIR}/scripts/compile_skills.py" \
+        --platform "Cursor" \
+        --skills-dir "${AGENTS_DIR}/skills" \
+        --target-dir "${PROJECT_ROOT}/.cursor/rules" \
+        --project-root "${PROJECT_ROOT}"
+
+    # VS Code / Copilot
+    python3 "${AGENTS_DIR}/scripts/compile_skills.py" \
+        --platform "VS Code" \
+        --skills-dir "${AGENTS_DIR}/skills" \
+        --target-dir "${PROJECT_ROOT}/.github/skills" \
+        --project-root "${PROJECT_ROOT}"
+else
+    echo -e "${RED}x Warning: compile_skills.py not found. Skipping Cursor/VS Code skill generation.${NC}"
 fi
 
 echo ""

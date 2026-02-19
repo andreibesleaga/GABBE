@@ -208,73 +208,39 @@ author: GABBE-Kit
 
 def setup_skills_for_platform(platform, skills_src_dir, target_dir):
     """
-    Distributes skills to platform-specific formats.
+    Setup Skills for selected platform using the external compiler script.
     """
-    print(f"\n{BLUE}→ Setting up skills for {platform}...{NC}")
-    target_dir.mkdir(parents=True, exist_ok=True)
+    print(f"\n{BLUE}→ Setting up skills used by {platform}...{NC}")
     
-    # Get all .skill.md files recursively
-    skill_files = list(skills_src_dir.rglob("*.skill.md"))
-    
-    count = 0
-    for skill_file in skill_files:
-        content = skill_file.read_text()
-        meta, content_with_fm = ensure_yaml_frontmatter(content, skill_file.name)
-        
-        # Slugify name for files/commands (e.g. "Agent Interop" -> "agent-interop")
-        raw_name = meta.get("name", skill_file.stem.replace(".skill", ""))
-        skill_slug = raw_name.lower().replace(" ", "-")
-        skill_desc = meta.get("description", f"Skill for {raw_name}")
-
-        if platform == "Cursor":
-            # Flatten structure: .cursor/rules/skill-slug.mdc
-            dest_file = target_dir / f"{skill_slug}.mdc"
-            
-            # Cursor-specific frontmatter
-            cursor_fm = f"""---
-description: {skill_desc}
-globs: *
-alwaysApply: false
----
-"""
-            # Strip existing FM and prepend Cursor FM
-            start_body = content_with_fm.find("---", 3) + 3
-            body = content_with_fm[start_body:].strip()
-            
-            final_content = cursor_fm + "\n" + body
-            dest_file.write_text(final_content)
-            count += 1
-
-        elif platform == "VS Code" or platform == "GitHub Copilot":
-            # Structure: .github/skills/<skill-slug>/SKILL.md
-            skill_folder = target_dir / skill_slug
-            skill_folder.mkdir(exist_ok=True)
-            
-            # Symlink the README/SKILL.md
-            dest_file = skill_folder / "SKILL.md"
-            create_symlink(skill_file, dest_file)
-            
-            # Generate config.json for Copilot Extensions
-            config = {
-                "name": skill_slug,
-                "description": skill_desc,
-                "version": "1.0.0",
-                "slashCommands": [
-                    {
-                        "name": skill_slug,
-                        "description": skill_desc
-                    }
-                ]
-            }
-            (skill_folder / "config.json").write_text(json.dumps(config, indent=2))
-            count += 1
-            
-        elif platform == "Claude Code":
-            # Symlink directory is handled at top level, but if we need flattening:
-            # Claude supports nested, so standard symlink of 'skills' dir is best.
-            pass
-
-    print(f"  {GREEN}✓ Processed {count} skills for {platform}{NC}")
+    # Use external script for skill compilation to ensure consistency with setup-context.sh
+    compile_script = AGENTS_DIR / "scripts" / "compile_skills.py"
+    if compile_script.exists():
+        try:
+            import subprocess
+            cmd = [
+                sys.executable, 
+                str(compile_script),
+                "--platform", platform,
+                "--skills-dir", str(AGENTS_DIR / "skills"),
+                # For Cursor, target is .cursor/rules. For others, .github/skills usually.
+                # However, the init logic passes specific target_dir. 
+                # We need to respect that or map it.
+                # compile_skills.py expects a specific structure for 'All' or specific for others.
+                # The arguments passed to this function in main() are:
+                # Cursor: cursor_rules_dir (.cursor/rules)
+                # VS Code: gh_dir / "skills" (.github/skills)
+                # Claude: .claude/skills (symlinked, so maybe skipped here or handled by script)
+                
+                "--target-dir", str(target_dir),
+                "--project-root", str(PROJECT_ROOT)
+            ]
+            subprocess.run(cmd, check=True)
+            print(f"  {GREEN}✓ Processed skills for {platform}{NC}")
+        except Exception as e:
+            print(f"{RED}Error running skill compiler: {e}{NC}")
+    else:
+        print(f"{RED}Warning: compile_skills.py not found at {compile_script}{NC}")
+        # Fallback logic could go here, but we want to enforce the script usage.
 
 
 # --- Main Logic ---

@@ -13,8 +13,8 @@ We model the agent as a **Cognitive Turing Machine** with distinct functional ar
 ```mermaid
 graph TD
     subgraph "Sensation & Action (Body)"
-        S[Sensors (Logs/Inputs)] -->|Perception| P[Feature Binding]
-        M[Motor (Tools)] -->|Action| W[World]
+        S["Sensors (Logs/Inputs)"] -->|Perception| P[Feature Binding]
+        M["Motor (Tools)"] -->|Action| W[World]
         W -->|Feedback| S
     end
 

@@ -20,10 +20,10 @@ AI coding agents suffer from three compounding problems:
 **This kit solves all three** through:
 - Explicit context (AGENTS.md — single source of truth for every agent)
 - Deterministic workflows (SDD Lifecycle, TDD Cycle, RARV Loop)
-- Enforced checkpoints (7-Gate Quality System, human-in-the-loop triggers)
+- Enforced checkpoints (10-Gate Quality System, human-in-the-loop triggers)
 - Persistent memory (SESSION_SNAPSHOT, CONTINUITY.md, AUDIT_LOG.md)
 
-**ROI:** Repositories using this approach see ~28% reduction in agent runtime and ~16% reduction in token usage through explicit context, cached decisions, and SDLC memory.
+**ROI:** Repositories using this approach could see reduction in agent runtime and in token usage through explicit context, cached decisions, and SDLC memory.
 
 ---
 

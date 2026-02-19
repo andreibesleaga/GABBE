@@ -1,8 +1,7 @@
-import os
 import subprocess
 import shlex
-from pathlib import Path
 from .config import PROJECT_ROOT, Colors, GABBE_DIR, REQUIRED_FILES
+
 
 def check_files():
     """Verify presence of critical files."""
@@ -11,6 +10,7 @@ def check_files():
         if not f.exists():
             missing.append(f)
     return missing
+
 
 def parse_agents_config():
     """Extract commands from the '## Commands' section of AGENTS.md.
@@ -29,7 +29,7 @@ def parse_agents_config():
 
     for line in content.splitlines():
         line = line.strip()
-        
+
         # Enter the Commands section
         # We look for "##" followed by something containing "Commands"
         if line.startswith("##") and "commands" in line.lower():
@@ -49,18 +49,23 @@ def parse_agents_config():
             key, val = line.split(":", 1)
             key = key.strip().lower()
             val = val.strip()
-            
+
             # Remove optional surrounding quotes
-            if (val.startswith('"') and val.endswith('"')) or (val.startswith("'") and val.endswith("'")):
+            if (val.startswith('"') and val.endswith('"')) or (
+                val.startswith("'") and val.endswith("'")
+            ):
                 val = val[1:-1].strip()
 
             if key in ["test", "lint", "security_scan", "build"]:
                 if val:
                     config[key] = val
                 else:
-                    print(f"{Colors.WARNING}Warning: Empty command value for '{key}' in AGENTS.md{Colors.ENDC}")
+                    print(
+                        f"{Colors.WARNING}Warning: Empty command value for '{key}' in AGENTS.md{Colors.ENDC}"
+                    )
 
     return config
+
 
 def run_command(cmd, name):
     """Run a shell command safely without shell=True."""
@@ -72,11 +77,14 @@ def run_command(cmd, name):
             print(f"  {Colors.GREEN}✓ {name} Passed{Colors.ENDC}")
             return True
         else:
-            print(f"  {Colors.FAIL}x {name} Failed (Exit Code {result.returncode}){Colors.ENDC}")
+            print(
+                f"  {Colors.FAIL}x {name} Failed (Exit Code {result.returncode}){Colors.ENDC}"
+            )
             return False
     except Exception as e:
         print(f"  {Colors.FAIL}x Execution Error: {e}{Colors.ENDC}")
         return False
+
 
 def run_verification():
     """Run all integrity checks."""
@@ -95,7 +103,9 @@ def run_verification():
 
     # 2. Project State / DB
     if not (GABBE_DIR / "state.db").exists():
-        print(f"{Colors.WARNING}[WARN] Database not initialized (Run 'gabbe init'){Colors.ENDC}")
+        print(
+            f"{Colors.WARNING}[WARN] Database not initialized (Run 'gabbe init'){Colors.ENDC}"
+        )
 
     # 3. Dynamic Checks (Tests/Lint)
     config = parse_agents_config()
@@ -104,7 +114,9 @@ def run_verification():
         if not run_command(config["test"], "Tests"):
             all_passed = False
     else:
-        print(f"  {Colors.YELLOW}No test command found in AGENTS.md [## Commands] section{Colors.ENDC}")
+        print(
+            f"  {Colors.YELLOW}No test command found in AGENTS.md [## Commands] section{Colors.ENDC}"
+        )
 
     if "lint" in config and config["lint"]:
         if not run_command(config["lint"], "Linter"):

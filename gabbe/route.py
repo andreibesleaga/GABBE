@@ -48,7 +48,7 @@ def detect_pii(prompt):
 def route_request(prompt):
     """Arbitrate between Local and Remote LLM."""
     print(f"{Colors.HEADER}🔀 Cost-Effective Router{Colors.ENDC}")
-    print(f"  Prompt: \"{prompt[:50]}...\"")
+    print(f'  Prompt: "{prompt[:50]}..."')
 
     has_pii = detect_pii(prompt)
 

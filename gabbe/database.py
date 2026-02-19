@@ -4,6 +4,7 @@ from .config import DB_PATH, GABBE_DIR, Colors
 # Increment this whenever the schema changes.
 SCHEMA_VERSION = 2
 
+
 def _migrate(conn):
     """Apply pending schema migrations in order."""
     c = conn.cursor()
@@ -14,7 +15,7 @@ def _migrate(conn):
         # If already in a transaction or locked, we proceed but log a warning if possible,
         # or we rely on the fact that this is usually the first call.
         pass
-        
+
     c.execute("CREATE TABLE IF NOT EXISTS schema_version (version INTEGER)")
     c.execute("SELECT version FROM schema_version")
     row = c.fetchone()
@@ -22,39 +23,41 @@ def _migrate(conn):
 
     if current < 1:
         # v1: initial schema
-        c.execute('''CREATE TABLE IF NOT EXISTS tasks
+        c.execute("""CREATE TABLE IF NOT EXISTS tasks
                      (id INTEGER PRIMARY KEY AUTOINCREMENT,
                       title TEXT NOT NULL UNIQUE,
                       status TEXT DEFAULT 'TODO',
                       tags TEXT,
                       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP)''')
+                      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP)""")
 
-        c.execute('''CREATE TABLE IF NOT EXISTS project_state
+        c.execute("""CREATE TABLE IF NOT EXISTS project_state
                      (key TEXT PRIMARY KEY,
                       value TEXT,
-                      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP)''')
+                      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP)""")
 
-        c.execute('''CREATE TABLE IF NOT EXISTS events
+        c.execute("""CREATE TABLE IF NOT EXISTS events
                      (id INTEGER PRIMARY KEY AUTOINCREMENT,
                       timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
                       actor TEXT,
                       action TEXT,
                       message TEXT,
-                      context_summary TEXT)''')
+                      context_summary TEXT)""")
 
-        c.execute('''CREATE TABLE IF NOT EXISTS genes
+        c.execute("""CREATE TABLE IF NOT EXISTS genes
                      (id INTEGER PRIMARY KEY AUTOINCREMENT,
                       skill_name TEXT,
                       prompt_content TEXT,
                       success_rate REAL DEFAULT 0.0,
                       generation INTEGER DEFAULT 0,
-                      created_at DATETIME DEFAULT CURRENT_TIMESTAMP)''')
+                      created_at DATETIME DEFAULT CURRENT_TIMESTAMP)""")
 
     if current < 2:
         # v2: ensure UNIQUE index on tasks.title (no-op if table was just created above)
         try:
-            c.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_tasks_title ON tasks(title)")
+            c.execute(
+                "CREATE UNIQUE INDEX IF NOT EXISTS idx_tasks_title ON tasks(title)"
+            )
         except sqlite3.OperationalError as e:
             if "already exists" not in str(e).lower():
                 raise

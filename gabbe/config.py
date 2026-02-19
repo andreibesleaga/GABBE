@@ -2,20 +2,33 @@ import os
 import warnings
 from pathlib import Path
 
-# Paths — PROJECT_ROOT is set to the current working directory at import time,
-# which is the intended project root when invoking the `gabbe` CLI.
-# Tests should patch `gabbe.config.PROJECT_ROOT` (and derivative paths) directly.
-PROJECT_ROOT = Path(os.getcwd())
+# Paths — PROJECT_ROOT is determined by looking for marker files (.gabbe, .git, pyproject.toml)
+# upwards from the current working directory.
+def _find_project_root(start_path):
+    current = start_path.resolve()
+    for _ in range(10):  # Limit recursion depth
+        if (current / ".gabbe").exists() or (current / ".git").exists() or (current / "pyproject.toml").exists():
+            return current
+        parent = current.parent
+        if parent == current:
+            break
+        current = parent
+    return start_path.resolve()  # Fallback to CWD
+
+PROJECT_ROOT = _find_project_root(Path(os.getcwd()))
 
 # Regex Patterns
 import re
+
 PII_PATTERNS = [
-    re.compile(r'[\w\.-]+@[\w\.-]+\.[a-zA-Z]{2,}'),          # email
-    re.compile(r'\b\d{3}[-.\s]\d{3}[-.\s]\d{4}\b'),           # US phone
+    re.compile(r"[\w\.-]+@[\w\.-]+\.[a-zA-Z]{2,}"),  # email
+    re.compile(r"\b\d{3}[-.\s]\d{3}[-.\s]\d{4}\b"),  # US phone
     # re.compile(r'\b\d{9}\b'),                               # REMOVED: matches any 9-digit number
-    re.compile(r'\b\d{3}-\d{2}-\d{4}\b'),                     # SSN (dashes)
-    re.compile(r'\b(?:\d{4}[-\s]?){3}\d{4}\b'),               # credit card
-    re.compile(r'(?i)\b(?:password|passwd|api[_\-]?key|secret|token)\s*[:=]\s*\S+'),  # credentials
+    re.compile(r"\b\d{3}-\d{2}-\d{4}\b"),  # SSN (dashes)
+    re.compile(r"\b(?:\d{4}[-\s]?){3}\d{4}\b"),  # credit card
+    re.compile(
+        r"(?i)\b(?:password|passwd|api[_\-]?key|secret|token)\s*[:=]\s*\S+"
+    ),  # credentials
 ]
 GABBE_DIR = PROJECT_ROOT / ".gabbe"
 DB_PATH = GABBE_DIR / "state.db"
@@ -38,8 +51,9 @@ REQUIRED_FILES = [
 GABBE_CONFIG_FILE = GABBE_DIR / "config.json"
 if GABBE_CONFIG_FILE.exists():
     import json
+
     try:
-        with open(GABBE_CONFIG_FILE, 'r') as f:
+        with open(GABBE_CONFIG_FILE, "r") as f:
             extra_config = json.load(f)
             # Example: extend required files
             if "required_files" in extra_config:
@@ -49,7 +63,9 @@ if GABBE_CONFIG_FILE.exists():
         warnings.warn(f"Failed to load extra config from {GABBE_CONFIG_FILE}: {e}")
 
 # LLM Config
-GABBE_API_URL = os.environ.get("GABBE_API_URL", "https://api.openai.com/v1/chat/completions")
+GABBE_API_URL = os.environ.get(
+    "GABBE_API_URL", "https://api.openai.com/v1/chat/completions"
+)
 GABBE_API_KEY = os.environ.get("GABBE_API_KEY")
 GABBE_API_MODEL = os.environ.get("GABBE_API_MODEL", "gpt-4o")
 
@@ -81,16 +97,17 @@ ROUTE_COMPLEXITY_THRESHOLD = _safe_int("GABBE_ROUTE_THRESHOLD", 50)
 # UI Config
 PROGRESS_BAR_LEN = 20
 
+
 # Colors for CLI
 class Colors:
-    HEADER = '\033[95m'
-    GREEN = '\033[92m'
-    YELLOW = '\033[93m'
-    BLUE = '\033[94m'
-    MAGENTA = '\033[35m'
-    CYAN = '\033[96m'
-    WARNING = '\033[93m'
-    FAIL = '\033[91m'
-    ENDC = '\033[0m'
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
+    HEADER = "\033[95m"
+    GREEN = "\033[92m"
+    YELLOW = "\033[93m"
+    BLUE = "\033[94m"
+    MAGENTA = "\033[35m"
+    CYAN = "\033[96m"
+    WARNING = "\033[93m"
+    FAIL = "\033[91m"
+    ENDC = "\033[0m"
+    BOLD = "\033[1m"
+    UNDERLINE = "\033[4m"

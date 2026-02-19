@@ -2,10 +2,9 @@ import os
 import re
 import tempfile
 import hashlib
-from pathlib import Path
 from datetime import datetime
 from .database import get_db
-from .config import PROJECT_ROOT, Colors, TASKS_FILE
+from .config import Colors, TASKS_FILE
 import logging
 
 logger = logging.getLogger("gabbe.sync")
@@ -19,8 +18,8 @@ def parse_markdown_tasks(content):
 
     Supports both legacy full-file parsing and new marker-based parsing.
     """
-    lines_to_parse = content.split('\n')
-    
+    lines_to_parse = content.split("\n")
+
     # If markers are present, only parse between them
     if _MARKER_START in content and _MARKER_END in content:
         try:
@@ -28,28 +27,32 @@ def parse_markdown_tasks(content):
             end_idx = content.find(_MARKER_END)
             if start_idx < end_idx:
                 section = content[start_idx:end_idx]
-                lines_to_parse = section.split('\n')
-                logger.debug("Found markers, parsing %d chars of marked content", len(section))
+                lines_to_parse = section.split("\n")
+                logger.debug(
+                    "Found markers, parsing %d chars of marked content", len(section)
+                )
         except Exception as e:
-            logger.warning("Failed to parse between markers, falling back to full file: %s", e)
+            logger.warning(
+                "Failed to parse between markers, falling back to full file: %s", e
+            )
 
     tasks = []
     for line in lines_to_parse:
         if line.strip().startswith("- ["):
-            match = re.match(r'- \[(.)\] (.*)', line.strip())
+            match = re.match(r"- \[(.)\] (.*)", line.strip())
             if match:
                 char = match.group(1)
                 title = match.group(2).strip()
 
-                status = 'TODO'
-                if char.lower() == 'x':
-                    status = 'DONE'
-                elif char == '/':
-                    status = 'IN_PROGRESS'
+                status = "TODO"
+                if char.lower() == "x":
+                    status = "DONE"
+                elif char == "/":
+                    status = "IN_PROGRESS"
 
                 # Generate a content hash to detect changes
                 content_hash = hashlib.md5(f"{title}|{status}".encode()).hexdigest()
-                tasks.append({'title': title, 'status': status, 'hash': content_hash})
+                tasks.append({"title": title, "status": status, "hash": content_hash})
     return tasks
 
 
@@ -57,11 +60,11 @@ def _generate_task_lines(tasks):
     """Generate just the list of task lines."""
     lines = []
     for task in tasks:
-        char = ' '
-        if task['status'] == 'DONE':
-            char = 'x'
-        elif task['status'] == 'IN_PROGRESS':
-            char = '/'
+        char = " "
+        if task["status"] == "DONE":
+            char = "x"
+        elif task["status"] == "IN_PROGRESS":
+            char = "/"
         lines.append(f"- [{char}] {task['title']}")
     return "\n".join(lines)
 
@@ -106,7 +109,7 @@ def _atomic_write(path, content):
     dir_ = path.parent
     fd, tmp_path = tempfile.mkstemp(dir=dir_, prefix=".tmp_tasks_")
     try:
-        with os.fdopen(fd, 'w', encoding='utf-8') as f:
+        with os.fdopen(fd, "w", encoding="utf-8") as f:
             f.write(content)
         os.replace(tmp_path, path)
     except Exception:
@@ -117,6 +120,16 @@ def _atomic_write(path, content):
         raise
 
 
+def _calculate_state_hash(tasks):
+    """Calculate a single hash for the entire list of tasks."""
+    if not tasks:
+        return "0"
+    # Sort by title to ensure consistent ordering for hashing
+    sorted_tasks = sorted(tasks, key=lambda x: x['title'])
+    combined = "".join(t['hash'] for t in sorted_tasks)
+    return hashlib.md5(combined.encode()).hexdigest()
+
+
 def sync_tasks():
     """Bidirectional sync for TASKS.md based on content changes."""
     print(f"{Colors.HEADER}🔄 Syncing Tasks...{Colors.ENDC}")
@@ -125,39 +138,66 @@ def sync_tasks():
         c = conn.cursor()
 
         # Check existing data
-        c.execute("SELECT count(*) FROM tasks")
-        db_count = c.fetchone()[0]
+        c.execute("SELECT title, status FROM tasks")
+        db_rows = c.fetchall()
+        db_tasks = []
+        for row in db_rows:
+             # Use named access (sqlite3.Row or dict from tests)
+             title = row["title"] if isinstance(row, dict) else row[0]
+             status = row["status"] if isinstance(row, dict) else row[1]
+             # Actually, sqlite3.Row supports both. But pure tuples don't support ["title"].
+             # The previous code used [0] so it assumed tuple-like.
+             # The test passes dicts.
+             # To be safe for both production (sqlite3.Row) and tests (dict),
+             # we should check if it's a dict.
+             # BUT sqlite3.Row is not a dict.
+             
+             # Let's just try named access if we trust row_factory is set, 
+             # OR fallback to index if it's a tuple.
+             # However, since I want to fix the test failure without changing the test,
+             # I should support dict access.
+             
+             # Wait, in production it IS sqlite3.Row.
+             # sqlite3.Row['title'] works.
+             # Test mock is distinct {'title': ...}.
+             # So direct ['title'] access works for BOTH!
+             
+             title = row['title']
+             status = row['status']
+             
+             content_hash = hashlib.md5(f"{title}|{status}".encode()).hexdigest()
+             db_tasks.append({'title': title, 'status': status, 'hash': content_hash})
 
         file_exists = TASKS_FILE.exists()
-        
-        # If both exist, allow logic to decide based on timestamps or content, 
-        # but defaulting to FILE wins if it's newer or DB is empty.
-        
-        # NOTE: mtime is brittle. We should look at content diffs.
-        # However, for this fix, we stick to the logic: 
-        # If file is newer -> Import
-        # If DB is newer -> Export
-        # But we improve IMPORT to not destroy history.
+        file_tasks = []
+        if file_exists:
+            content = TASKS_FILE.read_text(encoding="utf-8")
+            file_tasks = parse_markdown_tasks(content)
 
-        file_mtime = TASKS_FILE.stat().st_mtime if file_exists else 0
+        # 1. Check content equality first (Fast Path)
+        if _calculate_state_hash(db_tasks) == _calculate_state_hash(file_tasks):
+             print(f"  {Colors.GREEN}✓ Synchronized (No changes detected).{Colors.ENDC}")
+             return
+
+        # 2. Decide Sync Direction
+        db_count = len(db_tasks)
+        file_count = len(file_tasks)
         db_mtime = get_db_timestamp(c)
-
-        if db_count == 0 and file_exists:
+        file_mtime = TASKS_FILE.stat().st_mtime if file_exists else 0
+        
+        if db_count == 0 and file_count > 0:
              print(f"  {Colors.BLUE}Bootstrap: Importing from TASKS.md{Colors.ENDC}")
-             import_from_md(c, TASKS_FILE.read_text())
+             import_from_md(c, file_tasks)
              conn.commit()
 
-        elif not file_exists and db_count > 0:
+        elif file_count == 0 and db_count > 0:
              print(f"  {Colors.BLUE}Bootstrap: Exporting to TASKS.md{Colors.ENDC}")
              export_to_md(c)
 
-        elif db_count == 0 and not file_exists:
-             print(f"  {Colors.GREEN}Nothing to sync (both empty).{Colors.ENDC}")
-        
         elif file_mtime >= db_mtime:
              # File is newer (or equal). Check for actual changes.
              print(f"  {Colors.BLUE}Checking TASKS.md for new updates...{Colors.ENDC}")
-             import_from_md(c, TASKS_FILE.read_text())
+             import_from_md(c, file_tasks)
              conn.commit()
         
         else:
@@ -169,26 +209,29 @@ def sync_tasks():
         conn.close()
 
 
-def import_from_md(c, content):
-    tasks = parse_markdown_tasks(content)
+def import_from_md(c, tasks_or_content):
+    if isinstance(tasks_or_content, str):
+        tasks = parse_markdown_tasks(tasks_or_content)
+    else:
+        tasks = tasks_or_content
     now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     stats = {"updated": 0, "inserted": 0, "skipped": 0}
 
     for t in tasks:
         # Check if task exists
-        c.execute("SELECT id, title, status FROM tasks WHERE title = ?", (t['title'],))
+        c.execute("SELECT id, title, status FROM tasks WHERE title = ?", (t["title"],))
         row = c.fetchone()
 
         if row:
             db_id, db_title, db_status = row
             # Calculate DB hash
             db_hash = hashlib.md5(f"{db_title}|{db_status}".encode()).hexdigest()
-            
-            if t['hash'] != db_hash:
+
+            if t["hash"] != db_hash:
                 # Actual change detected
                 c.execute(
                     "UPDATE tasks SET status = ?, updated_at = ? WHERE id = ?",
-                    (t['status'], now, db_id)
+                    (t["status"], now, db_id),
                 )
                 stats["updated"] += 1
             else:
@@ -196,47 +239,61 @@ def import_from_md(c, content):
         else:
             c.execute(
                 "INSERT INTO tasks (title, status, updated_at) VALUES (?, ?, ?)",
-                (t['title'], t['status'], now)
+                (t["title"], t["status"], now),
             )
             stats["inserted"] += 1
 
-    print(f"  {Colors.GREEN}✓ Sync Complete: {stats['inserted']} new, {stats['updated']} updated, {stats['skipped']} unchanged.{Colors.ENDC}")
+    print(
+        f"  {Colors.GREEN}✓ Sync Complete: {stats['inserted']} new, {stats['updated']} updated, {stats['skipped']} unchanged.{Colors.ENDC}"
+    )
 
 
 def export_to_md(c):
     c.execute("SELECT * FROM tasks ORDER BY id")
     db_tasks = c.fetchall()
-    
+
     new_task_lines = _generate_task_lines(db_tasks)
-    
+
     # Default content for new file
-    final_content = f"# Project Tasks\n\n{_MARKER_START}\n{new_task_lines}\n{_MARKER_END}\n"
+    final_content = (
+        f"# Project Tasks\n\n{_MARKER_START}\n{new_task_lines}\n{_MARKER_END}\n"
+    )
 
     # Read existing if present to preserve custom content
     if TASKS_FILE.exists():
         try:
-            content = TASKS_FILE.read_text(encoding='utf-8')
+            content = TASKS_FILE.read_text(encoding="utf-8")
             if _MARKER_START in content and _MARKER_END in content:
                 # Splicing logic
                 start_idx = content.find(_MARKER_START) + len(_MARKER_START)
                 end_idx = content.find(_MARKER_END)
-                
+
                 if start_idx < end_idx:
                     logger.debug("Splicing %d tasks into existing file", len(db_tasks))
-                    final_content = content[:start_idx] + "\n" + new_task_lines + "\n" + content[end_idx:]
+                    final_content = (
+                        content[:start_idx]
+                        + "\n"
+                        + new_task_lines
+                        + "\n"
+                        + content[end_idx:]
+                    )
                 else:
-                    logger.warning("Markers found but malformed. Overwriting task section.")
+                    logger.warning(
+                        "Markers found but malformed. Overwriting task section."
+                    )
             else:
                 # Legacy fallback: Try to preserve header/preamble
                 first_task_idx = content.find("- [")
                 if first_task_idx != -1:
-                    logger.info("No markers found. Preserving preamble before first task.")
+                    logger.info(
+                        "No markers found. Preserving preamble before first task."
+                    )
                     preamble = content[:first_task_idx].rstrip()
                     final_content = f"{preamble}\n\n{_MARKER_START}\n{new_task_lines}\n{_MARKER_END}\n"
                 else:
                     logger.info("No markers or tasks found. Appending to file.")
                     final_content = f"{content.rstrip()}\n\n{_MARKER_START}\n{new_task_lines}\n{_MARKER_END}\n"
-                
+
         except Exception as e:
             logger.error("Error reading TASKS.md: %s", e)
 

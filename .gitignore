@@ -1,9 +1,13 @@
 docs
 TASKS.md
 __pycache__
+*.pyc
 .venv
 venv
 *.egg-info
+dist/
+build/
+.coverage
 .pytest_cache
 
 # Environment secrets

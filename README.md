@@ -36,7 +36,6 @@ The `init.py` script is a **Universal Skill Compiler**. It detects your AI tools
 - **Gemini**: Wires up `.gemini/settings.json`
 
 ```bash
-```bash
 # 1. Run the Wizard
 python3 init.py
 ```

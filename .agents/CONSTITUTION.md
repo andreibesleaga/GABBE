@@ -174,7 +174,7 @@ logger.error(`Validation failed`, { fields: Object.keys(req.body) }); // OK: fie
 > Add project-specific constitutional rules below.
 > Each article should: state the rule, explain why it exists, give an example.
 
-### Article VIII — [User Defined]
+### Article IX — [User Defined]
 <!-- This section is reserved for project-specific rules added by the user or init.py -->
 <!-- Example: Tenant Isolation, Audit Trails, or Performance Budgets -->
 

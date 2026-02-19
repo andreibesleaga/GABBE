@@ -21,6 +21,8 @@ Entry point: `gabbe` (defined in `pyproject.toml → [project.scripts]`)
 | `GABBE_LLM_TEMPERATURE` | `0.7` | Sampling temperature (0.0–1.0) |
 | `GABBE_LLM_TIMEOUT` | `30` | HTTP timeout for LLM calls (seconds) |
 | `GABBE_ROUTE_THRESHOLD` | `50` | Complexity score above which a prompt routes REMOTE |
+| `GABBE_LLM_MAX_RETRIES`| `3` | (Internal) Number of retry attempts for LLM calls |
+| `GABBE_LOG_LEVEL` | `INFO` | Logging level (DEBUG, INFO, WARNING, ERROR) |
 
 ---
 
@@ -64,12 +66,13 @@ gabbe db --init
 Bidirectional sync between `TASKS.md` and the SQLite `tasks` table.
 
 **Logic:**
-1. Both empty → print "Nothing to sync"
-2. DB empty, file exists → import from file (bootstrap)
-3. File missing, DB has data → export to file (bootstrap)
-4. File newer than DB → import from file (upsert by title)
-5. DB newer than file → export to file (atomic write)
-6. Equal timestamps → "Already in sync"
+1. **Marker-Based Sync**: Looks for `<!-- GABBE:TASKS:START -->` and `<!-- GABBE:TASKS:END -->`.
+    - If found, ONLY updates the content between these markers.
+    - Preserves all other content (notes, headers) in `TASKS.md`.
+2. **Legacy Fallback**: If no markers are found, it behaves as a full-file overwrite (or wraps content in markers on first export).
+3. **Conflict Resolution**:
+    - File newer than DB → Import tasks between markers.
+    - DB newer than file → Export tasks between markers (atomic write).
 
 ```bash
 gabbe sync

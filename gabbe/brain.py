@@ -1,8 +1,11 @@
 import random
 import json
+import logging
 from .config import Colors
 from .database import get_db
 from .llm import call_llm
+
+logger = logging.getLogger("gabbe.brain")
 
 def activate_brain():
     """Run the Active Inference Loop with Real LLM."""
@@ -24,6 +27,7 @@ def activate_brain():
 
     state_desc = f"Project State: {todo} TODO, {in_progress} IN_PROGRESS, {done} DONE (Total: {total})."
     print(f"  {Colors.BLUE}Observation:{Colors.ENDC} {state_desc}")
+    logger.info("Brain Observation: %s", state_desc)
 
     # 2. Prediction & Action Selection via LLM
     system_prompt = (
@@ -46,6 +50,7 @@ def activate_brain():
 
     if action:
         print(f"  {Colors.GREEN}Selected Action:{Colors.ENDC} {action}")
+        logger.info("Brain Selected Action: %s", action)
     else:
         print(f"  {Colors.FAIL}Brain Freeze (API Error){Colors.ENDC}")
 

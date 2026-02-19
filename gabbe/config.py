@@ -5,6 +5,7 @@ from pathlib import Path
 PROJECT_ROOT = Path(os.getcwd())
 GABBE_DIR = PROJECT_ROOT / ".gabbe"
 DB_PATH = GABBE_DIR / "state.db"
+TASKS_FILE = PROJECT_ROOT / "TASKS.md"
 
 # Agent Config
 AGENTS_DIR = PROJECT_ROOT / ".agents"

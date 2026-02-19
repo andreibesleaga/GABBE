@@ -7,7 +7,7 @@ from .database import get_db
 from .config import PROJECT_ROOT, Colors, TASKS_FILE
 
 # TASKS_FILE is defined in config or here
-TASKS_FILE = PROJECT_ROOT / "TASKS.md"
+# TASKS_FILE is defined in config
 
 def parse_markdown_tasks(content):
     """Parse TASKS.md content into a list of dicts."""
@@ -86,7 +86,8 @@ def sync_tasks():
         print(f"  {Colors.BLUE}Importing changes from TASKS.md...{Colors.ENDC}")
         # Identify changes? For now, we clear and re-import to be safe/simple
         # A real implementation would diff by ID/Title
-        c.execute("DELETE FROM tasks") 
+        # Upsert Strategy: Update existing by Title, Insert new.
+        # This preserves IDs for existing tasks.
         import_from_md(c, TASKS_FILE.read_text())
         conn.commit()
     
@@ -103,10 +104,25 @@ def sync_tasks():
 def import_from_md(c, content):
     tasks = parse_markdown_tasks(content)
     now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    stats = {"updated": 0, "inserted": 0}
+    
     for t in tasks:
-        c.execute("INSERT INTO tasks (title, status, updated_at) VALUES (?, ?, ?)", 
-                  (t['title'], t['status'], now))
-    print(f"  {Colors.GREEN}✓ Imported {len(tasks)} tasks.{Colors.ENDC}")
+        # Check if exists by title
+        c.execute("SELECT id FROM tasks WHERE title = ?", (t['title'],))
+        row = c.fetchone()
+        
+        if row:
+            # Update
+            c.execute("UPDATE tasks SET status = ?, updated_at = ? WHERE id = ?", 
+                      (t['status'], now, row[0]))
+            stats["updated"] += 1
+        else:
+            # Insert
+            c.execute("INSERT INTO tasks (title, status, updated_at) VALUES (?, ?, ?)", 
+                      (t['title'], t['status'], now))
+            stats["inserted"] += 1
+            
+    print(f"  {Colors.GREEN}✓ Sync Complete: {stats['inserted']} new, {stats['updated']} updated.{Colors.ENDC}")
     
 def export_to_md(c):
     c.execute("SELECT * FROM tasks ORDER BY id")

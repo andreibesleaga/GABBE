@@ -4,22 +4,27 @@ from .config import Colors
 from .llm import call_llm
 
 def calculate_complexity(prompt):
-    """Estimate complexity score (0-100) using LLM."""
+    """Estimate complexity score (0-100). uses Heuristics first, then LLM."""
+    # 1. Heuristics (Save money/time)
+    if len(prompt) < 100 and "```" not in prompt:
+        print(f"  {Colors.CYAN}Complexity Analysis (Heuristic): Simple{Colors.ENDC}")
+        return 10, "Heuristic: Short prompt, no code blocks"
+
     print(f"  {Colors.CYAN}Analyzing Complexity via LLM...{Colors.ENDC}")
     
     system_prompt = "You are a complexity analyzer. Rate the following coding task complexity from 0-100. Return ONLY a JSON object: {\"score\": 50, \"reason\": \"explanation\"}."
     
-    response = call_llm(prompt, system_prompt)
-    
     try:
+        response = call_llm(prompt, system_prompt)
         data = json.loads(response)
         return data.get("score", 50), data.get("reason", "No reason provided")
-    except:
-        # Fallback heuristic if LLM fails or returns bad JSON
+    except Exception as e:
+        # Fallback heuristic if LLM fails
+        print(f"  {Colors.WARNING}LLM Analysis Failed: {e}{Colors.ENDC}")
         score = 0
         if len(prompt) > 500: score += 40
         if "architect" in prompt.lower(): score += 30
-        return score, "Fallback Heuristic"
+        return score, "Fallback Heuristic (LLM Error)"
 
 def detect_pii(prompt):
     """Simple PII detection (Regex based to avoid leaking PII to LLM)."""

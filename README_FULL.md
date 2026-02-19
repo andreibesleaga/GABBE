@@ -111,39 +111,47 @@ python3 init.py
 
 The new CLI provides a robust interface for the Agentic Kit.
 
+### Prerequisites
+- Python 3.8+
+- **LLM API Key**: For Brain/Route features, set `GABBE_API_KEY` (OpenAI-compatible).
+
 ### Installation
-The CLI is zero-dependency and runs with standard Python 3.
+The CLI is now a Python package.
 
 ```bash
-# It is automatically installed/configured by init.py
-# You can run it via:
-python3 -m gabbe.main [command]
-# Or if installed globally:
-gabbe [command]
+# 1. Install locally (Recommended)
+pip install -e .
+
+# 2. Verify installation
+gabbe --help
 ```
 
 ### How to Use
 
 #### Setup
 ```bash
-python3 -m gabbe.main init
+# 1. Generate Context Configs
+python3 init.py
+
+# 2. Initialize Database
+gabbe init
 ```
 
 #### Daily Workflow
 ```bash
 # Check status
-python3 -m gabbe.main status
+gabbe status
 
 # Sync tasks (manual edits)
-python3 -m gabbe.main sync
+gabbe sync
 
-# Optimize a skill
-python3 -m gabbe.main brain evolve --skill tdd-cycle
+# Optimize a skill (Requires GABBE_API_KEY)
+gabbe brain evolve --skill tdd-cycle
 ```
 
 #### Verification
 ```bash
-python3 -m gabbe.main verify
+gabbe verify
 ```
 
 ### Core Commands

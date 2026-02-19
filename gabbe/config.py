@@ -11,6 +11,11 @@ AGENTS_DIR = PROJECT_ROOT / ".agents"
 SKILLS_DIR = AGENTS_DIR / "skills"
 LOKI_DIR = AGENTS_DIR / "loki"
 
+# LLM Config
+GABBE_API_URL = os.environ.get("GABBE_API_URL", "https://api.openai.com/v1/chat/completions")
+GABBE_API_KEY = os.environ.get("GABBE_API_KEY")
+GABBE_API_MODEL = os.environ.get("GABBE_API_MODEL", "gpt-4-turbo-preview")
+
 # Colors for CLI
 class Colors:
     HEADER = '\033[95m'

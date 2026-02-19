@@ -119,15 +119,30 @@ Multi-agent swarm with 30+ specialized personas for projects >5 features or >20 
 
 The core of GABBE 2.0 is the **Zero-Dependency CLI** (`gabbe`) which powers the "Hybrid Mode". It bridges the gap between flexible Markdown files and a robust SQLite database.
 
+### Prerequisites
+- Python 3.8+
+- **LLM API Key**: For Brain/Route features, set `GABBE_API_KEY` (OpenAI-compatible).
+
+### Installation
+The CLI is a Python package.
+
+```bash
+# 1. Install locally (Recommended)
+pip install -e .
+
+# 2. Verify installation
+gabbe --help
+```
+
 ### Core Commands
 | Command | Description |
 |---|---|
-| `gabbe init` | Initialize the kit in your project (interactive wizard). |
+| `gabbe init` | Initialize the SQLite Database (Run this after `python init.py`). |
 | `gabbe sync` | **Hybrid Sync**: Bidirectional sync between `TASKS.md` and SQLite DB. |
 | `gabbe verify`| **Enforcer**: programmable integrity check (files, tests, lint). |
 | `gabbe status`| **Dashboard**: Visualizes project phase and task progress. |
-| `gabbe brain` | **Meta-Cognition**: Activates Active Inference loop or Evolutionary Prompt Optimization. |
-| `gabbe route` | **Cost Router**: Arbitrates between Local and Remote LLMs based on task complexity. |
+| `gabbe brain` | **Meta-Cognition**: Activates Active Inference loop or Evolutionary Prompt Optimization (Requires API Key). |
+| `gabbe route` | **Cost Router**: Arbitrates between Local and Remote LLMs based on task complexity (Requires API Key). |
 
 ### Architecture
 GABBE 2.0 uses a **Hybrid Architecture** where agents and humans interact via Markdown, but the system of record is SQLite.
@@ -138,7 +153,7 @@ graph TD
         Edit[Edit TASKS.md]
     end
 
-    subgraph CLI["GABBE CLI 2.0"]
+    subgraph CLI["GABBE CLI 2.0 (pip installed)"]
         Sync[gabbe sync]
         Verify[gabbe verify]
         Brain[gabbe brain]
@@ -162,24 +177,28 @@ graph TD
 
 #### Setup
 ```bash
-python3 -m gabbe.main init
+# 1. Generate Context Configs
+python3 init.py
+
+# 2. Initialize Database
+gabbe init
 ```
 
 #### Daily Workflow
 ```bash
 # Check status
-python3 -m gabbe.main status
+gabbe status
 
 # Sync tasks (manual edits)
-python3 -m gabbe.main sync
+gabbe sync
 
-# Optimize a skill
-python3 -m gabbe.main brain evolve --skill tdd-cycle
+# Optimize a skill (Requires GABBE_API_KEY)
+gabbe brain evolve --skill tdd-cycle
 ```
 
 #### Verification
 ```bash
-python3 -m gabbe.main verify
+gabbe verify
 ```
 
 ---

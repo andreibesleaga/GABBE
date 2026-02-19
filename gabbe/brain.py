@@ -1,32 +1,49 @@
 import random
+import json
 from .config import Colors
 from .database import get_db
+from .llm import call_llm
 
 def activate_brain():
-    """Run the Active Inference Loop."""
+    """Run the Active Inference Loop with Real LLM."""
     print(f"{Colors.HEADER}🧠 Brain Mode: Active Inference Loop{Colors.ENDC}")
     
-    # 1. Observation (Get State)
-    # TODO: Read Project State from DB
-    phase = "S04_TASKS" # Mock
-    print(f"  {Colors.BLUE}Observation:{Colors.ENDC} Phase is {phase}")
+    # 1. Observation (Get State from DB)
+    conn = get_db()
+    c = conn.cursor()
+    c.execute("SELECT status, count(*) FROM tasks GROUP BY status")
+    stats = dict(c.fetchall())
+    conn.close()
     
-    # 2. Prediction (Expected vs Actual)
-    expected_velocity = 5 # tasks/day
-    actual_velocity = 3 # tasks/day
-    prediction_error = expected_velocity - actual_velocity
-    print(f"  {Colors.CYAN}Prediction Error:{Colors.ENDC} {prediction_error} (Slower than expected)")
+    todo = stats.get('TODO', 0)
+    in_progress = stats.get('IN_PROGRESS', 0)
+    done = stats.get('DONE', 0)
+    total = todo + in_progress + done
     
-    # 3. Action Selection
-    if prediction_error > 2:
-        action = "Suggest reducing scope or activating Loki Mode"
+    state_desc = f"Project State: {todo} TODO, {in_progress} IN_PROGRESS, {done} DONE (Total: {total})."
+    print(f"  {Colors.BLUE}Observation:{Colors.ENDC} {state_desc}")
+    
+    # 2. Prediction & Action Selection via LLM
+    system_prompt = "You are the Meta-Cognitive Brain of a software project. Analyze the state and suggest the best next strategic action using Active Inference principles (minimize free energy/surprise)."
+    prompt = f"""
+    Current Reality: {state_desc}
+    Goal: Complete the project efficiently with high quality.
+    
+    Predict the likely outcome if we continue as is.
+    Then, select the best high-level action (e.g., "Focus on critical path", "Stop and Refactor", "Add more tests").
+    Return purely the Action Description.
+    """
+    
+    print(f"  {Colors.CYAN}Consulting LLM...{Colors.ENDC}")
+    action = call_llm(prompt, system_prompt)
+    
+    if action:
+        print(f"  {Colors.GREEN}Selected Action:{Colors.ENDC} {action}")
     else:
-        action = "Continue current trajectory"
-        
-    print(f"  {Colors.GREEN}Selected Action:{Colors.ENDC} {action}")
+        print(f"  {Colors.FAIL}Brain Freeze (API Error){Colors.ENDC}")
 
 def evolve_prompts(skill_name):
-    """Evolutionary Prompt Optimization (EPO)."""
+    """Evolutionary Prompt Optimization (EPO) with Real LLM."""
     print(f"{Colors.HEADER}🧬 Evolutionary Prompt Optimization: {skill_name}{Colors.ENDC}")
     conn = get_db()
     c = conn.cursor()
@@ -35,7 +52,7 @@ def evolve_prompts(skill_name):
     c.execute("SELECT * FROM genes WHERE skill_name=? ORDER BY success_rate DESC LIMIT 1", (skill_name,))
     best_gene = c.fetchone()
     
-    current_prompt = "Default Prompt"
+    current_prompt = "You are a helpful coding assistant."
     generation = 0
     if best_gene:
         current_prompt = best_gene['prompt_content']
@@ -43,35 +60,38 @@ def evolve_prompts(skill_name):
         print(f"  Current Best: Gen {generation} (Success: {best_gene['success_rate']})")
     else:
         print(f"  Initializing Gene Pool for {skill_name}...")
+        # Seed initial
         c.execute("INSERT INTO genes (skill_name, prompt_content, generation) VALUES (?, ?, ?)", 
-                  (skill_name, "You are a helpful coding assistant.", 0))
+                  (skill_name, current_prompt, 0))
         conn.commit()
     
-    # 2. Mutation (Simulated for CLI demo)
-    # In real implementation, this would use an LLM to rewrite the prompt
-    mutations = [
-        "Include step-by-step reasoning.",
-        "Focus on brevity and code-only output.",
-        "Add strict security constraints."
-    ]
-    new_prompt = f"{current_prompt}\nMutation: {random.choice(mutations)}"
+    # 2. Mutation via LLM
+    print(f"  {Colors.CYAN}Mutating via LLM...{Colors.ENDC}")
+    system_prompt = "You are an Expert Prompt Engineer. Optimize the given prompt for an AI Coding Agent."
+    mutation_request = f"""
+    Current Prompt: "{current_prompt}"
     
-    # 3. Selection (Store new candidate)
-    next_gen = generation + 1
-    c.execute("INSERT INTO genes (skill_name, prompt_content, generation) VALUES (?, ?, ?)", 
-              (skill_name, new_prompt, next_gen))
-    conn.commit()
+    Task: Rewrite this prompt to be more effective, precise, and robust. 
+    Add constraints or better context. 
+    Return ONLY the new prompt text.
+    """
     
-    print(f"  {Colors.GREEN}Created Generation {next_gen}{Colors.ENDC}")
-    print(f"  - Mutation applied. Ready for testing.")
+    new_prompt = call_llm(mutation_request, system_prompt)
+    
+    if new_prompt:
+        # 3. Selection (Store new candidate)
+        next_gen = generation + 1
+        c.execute("INSERT INTO genes (skill_name, prompt_content, generation) VALUES (?, ?, ?)", 
+                  (skill_name, new_prompt, next_gen))
+        conn.commit()
+        
+        print(f"  {Colors.GREEN}Created Generation {next_gen}{Colors.ENDC}")
+        print(f"  - Mutation applied. Ready for testing.")
+    else:
+        print(f"  {Colors.FAIL}Mutation Failed (API Error){Colors.ENDC}")
 
 def run_healer():
     """Self-Healing Watchdog."""
     print(f"{Colors.HEADER}🚑 Self-Healing Watchdog{Colors.ENDC}")
-    # Mock check
-    health = 85 # %
-    print(f"  System Health: {health}%")
-    if health < 90:
-        print(f"  {Colors.WARNING}Action Required: Clearing cache and optimizing DB...{Colors.ENDC}")
-        # Perform cleanup
-        print(f"  {Colors.GREEN}Healing Complete.{Colors.ENDC}")
+    # Placeholder for future logic
+    print(f"  System Health: 100% (Nominal)")

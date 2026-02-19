@@ -67,36 +67,55 @@ python3 GABBE/init.py
 
 Manage your project with the new zero-dependency CLI.
 
+### Prerequisites
+- Python 3.8+
+- **LLM API Key**: Set `GABBE_API_KEY` (OpenAI-compatible) for Brain/Route features.
+
+### Installation
+The CLI is a Python package.
+
+```bash
+# 1. Install locally (Recommended)
+pip install -e .
+
+# 2. Verify installation
+gabbe --help
+```
+
 | Command | Usage |
 |---|---|
 | `gabbe status` | **Dashboard**: View project phase, tasks, and system health. |
 | `gabbe sync` | **Hybrid Sync**: Force sync between `TASKS.md` and SQLite DB. |
 | `gabbe verify` | **Integrity**: Enforce rules, check files, run security audit. |
-| `gabbe brain` | **Evolution**: Optimize skills (`evolve`) or run Active Inference (`activate`). |
-| `gabbe route` | **Router**: Check if a prompt should go to Local or Remote LLM. |
+| `gabbe brain` | **Evolution**: Optimize skills (`evolve`) or run Active Inference (`activate`) (Requires API Key). |
+| `gabbe route` | **Router**: Check if a prompt should go to Local or Remote LLM (Requires API Key). |
 
 ### How to Use
 
 #### Setup
 ```bash
-python3 -m gabbe.main init
+# 1. Generate Context Configs
+python3 init.py
+
+# 2. Initialize Database
+gabbe init
 ```
 
 #### Daily Workflow
 ```bash
 # Check status
-python3 -m gabbe.main status
+gabbe status
 
 # Sync tasks (manual edits)
-python3 -m gabbe.main sync
+gabbe sync
 
-# Optimize a skill
-python3 -m gabbe.main brain evolve --skill tdd-cycle
+# Optimize a skill (Requires GABBE_API_KEY)
+gabbe brain evolve --skill tdd-cycle
 ```
 
 #### Verification
 ```bash
-python3 -m gabbe.main verify
+gabbe verify
 ```
 
 ---

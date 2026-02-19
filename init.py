@@ -427,7 +427,7 @@ def main():
     # --- Step 4: Generate AGENTS.md ---
     print(f"\n{YELLOW}Part 4: Configuring Installed Kit{NC}")
     
-    template_path = AGENTS_DIR / "templates/AGENTS_TEMPLATE.md"
+    template_path = AGENTS_DIR / "templates/coordination/AGENTS_TEMPLATE.md"
     if template_path.exists():
         content = template_path.read_text()
         

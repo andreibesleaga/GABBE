@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gabbe"
+version = "0.2.0"
+description = "Generative Architectural Brain Base Engine - Agentic Engineering Kit"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "CC-BY-SA-4.0"}
+authors = [
+  {name = "Andrei Nicolae Besleaga"}
+]
+dependencies = [
+    "requests",
+]
+
+[project.scripts]
+gabbe = "gabbe.main:main"
+
+[project.urls]
+"Homepage" = "https://github.com/andreibesleaga/GABBE"

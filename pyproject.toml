@@ -12,8 +12,27 @@ license = {text = "CC-BY-SA-4.0"}
 authors = [
   {name = "Andrei Nicolae Besleaga"}
 ]
+keywords = ["agentic", "ai", "engineering", "cli", "llm", "brain-mode"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: Other/Proprietary License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries :: Application Frameworks",
+]
 dependencies = [
-    "requests",
+    "requests>=2.28",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov",
 ]
 
 [project.scripts]
@@ -21,3 +40,6 @@ gabbe = "gabbe.main:main"
 
 [project.urls]
 "Homepage" = "https://github.com/andreibesleaga/GABBE"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

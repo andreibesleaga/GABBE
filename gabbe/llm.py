@@ -1,16 +1,25 @@
 import requests
 import json
-import sys
-from .config import GABBE_API_URL, GABBE_API_KEY, GABBE_API_MODEL, Colors
+from .config import GABBE_API_URL, GABBE_API_KEY, GABBE_API_MODEL, LLM_TEMPERATURE, LLM_TIMEOUT, Colors
 
-def call_llm(prompt, system_prompt="You are a helpful assistant."):
+def call_llm(prompt, system_prompt="You are a helpful assistant.", temperature=None, timeout=None):
     """
-    Generic function to call an LLM via API.
-    Uses OpenAI-compatible format by default.
+    Call an LLM via an OpenAI-compatible API.
+
+    Raises EnvironmentError if GABBE_API_KEY is not set so callers can
+    distinguish missing configuration from actual API failures.
+    Returns the response string on success, or None on network/API error.
     """
     if not GABBE_API_KEY:
-        print(f"{Colors.WARNING}⚠️  GABBE_API_KEY not set. Using mock response.{Colors.ENDC}")
-        return "Log: API Key missing. Returning mock response."
+        raise EnvironmentError(
+            "GABBE_API_KEY is not set. "
+            "Set the environment variable before using LLM features."
+        )
+
+    if temperature is None:
+        temperature = LLM_TEMPERATURE
+    if timeout is None:
+        timeout = LLM_TIMEOUT
 
     headers = {
         "Content-Type": "application/json",
@@ -23,19 +32,20 @@ def call_llm(prompt, system_prompt="You are a helpful assistant."):
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": prompt}
         ],
-        "temperature": 0.7
+        "temperature": temperature,
     }
 
     try:
-        response = requests.post(GABBE_API_URL, headers=headers, json=payload, timeout=30)
+        response = requests.post(GABBE_API_URL, headers=headers, json=payload, timeout=timeout)
         response.raise_for_status()
         data = response.json()
-        
-        # Handle different response formats if needed, default to OpenAI
-        if "choices" in data:
+
+        if "choices" in data and data["choices"]:
             return data["choices"][0]["message"]["content"].strip()
         else:
-            return f"Error: Unexpected API response format: {data}"
+            # Avoid leaking raw API response which may contain sensitive tokens
+            print(f"{Colors.FAIL}❌ Unexpected API response format (missing 'choices').{Colors.ENDC}")
+            return None
 
     except requests.exceptions.RequestException as e:
         print(f"{Colors.FAIL}❌ API Request Failed: {e}{Colors.ENDC}")

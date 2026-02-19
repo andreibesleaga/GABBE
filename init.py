@@ -65,41 +65,8 @@ def build_tech_map_from_skills(agents_dir):
             # print(f"Warning: Failed to parse {skill_file.name}: {e}")
             pass
 
-    # Hardcoded Guides/Templates mapping (since these don't have metadata files yet)
-    # Ideally, guides/templates would also have frontmatter, but for now we map them by known tags.
+    # Hardcoded Guides/Templates mapping (logic removed as unused)
     
-    # Common mappings
-    shim_guides = {
-        "typescript": ["js-ts-nodejs"],
-        "javascript": ["js-ts-nodejs"],
-        "react": ["js-ts-nodejs"],
-        "next.js": ["js-ts-nodejs"],
-        "python": ["python-fastapi-ai"],
-        "fastapi": ["python-fastapi-ai"],
-        "php": ["php-laravel"],
-        "laravel": ["php-laravel"],
-        "go": ["go-lang"],
-        "legacy": ["legacy-tech"],
-    }
-    
-    shim_templates = {
-        "docker": ["DEVCONTAINER_TEMPLATE.json"],
-        "kubernetes": ["DEV_SPACE.yaml"],
-        "aws": ["INFRA_PLAN_TEMPLATE.md"],
-        "enterprise": ["CAPABILITY_MAP_TEMPLATE.md"],
-        "legacy": ["LEGACY_AUDIT_TEMPLATE.md"],
-        "regulated": ["SECURITY_CHECKLIST.md"]
-    }
-
-    # Merge shims
-    for tag, guides in shim_guides.items():
-        if tag not in tech_map: tech_map[tag] = {"skills": [], "guides": [], "templates": []}
-        tech_map[tag]["guides"].extend(guides)
-
-    for tag, temps in shim_templates.items():
-        if tag not in tech_map: tech_map[tag] = {"skills": [], "guides": [], "templates": []}
-        tech_map[tag]["templates"].extend(temps)
-
     return tech_map
 
 # Initial placeholders - will be populated in main()

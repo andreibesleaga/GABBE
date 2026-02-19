@@ -335,8 +335,8 @@ graph TB
 
     subgraph Memory ["Memory System"]
         M1[Working Memory]
-        M2[Episodic (Logs)]
-        M3[Semantic (Facts)]
+        M2["Episodic (Logs)"]
+        M3["Semantic (Facts)"]
     end
 
     H1 --> B1

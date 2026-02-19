@@ -476,6 +476,15 @@ def main():
     else:
         print(f"  {YELLOW}! Could not find {setup_src}, skipping setup-context.sh install{NC}")
 
+    # Copy setup-context.ps1 (Windows Support)
+    setup_ps1_src = AGENTS_DIR / "scripts/setup-context.ps1"
+    setup_ps1_dest = PROJECT_ROOT / "setup-context.ps1"
+    if setup_ps1_src.exists():
+        shutil.copy2(setup_ps1_src, setup_ps1_dest)
+        print(f"  {GREEN}✓ Installed setup-context.ps1 (Windows Support){NC}")
+    else:
+        print(f"  {YELLOW}! Could not find {setup_ps1_src}, skipping setup-context.ps1 install{NC}")
+
     # Symlinks
     skills_src = AGENTS_DIR / "skills"
     agents_md_src = AGENTS_DIR / "AGENTS.md"

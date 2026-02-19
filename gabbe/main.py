@@ -17,6 +17,7 @@ def main():
         formatter_class=argparse.RawTextHelpFormatter
     )
     parser.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
+    parser.add_argument("--debug", action="store_true", help="Enable debug logging and full stack traces")
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
 
     # --- COMMAND: init ---
@@ -50,6 +51,10 @@ def main():
 
     # Parse arguments
     args = parser.parse_args()
+
+    # Configure Logging based on debug flag
+    log_level = logging.DEBUG if hasattr(args, 'debug') and args.debug else logging.INFO
+    logging.getLogger().setLevel(log_level)
 
     # --- DISPATCH ---
     try:
@@ -94,12 +99,16 @@ def main():
             parser.print_help()
 
     except EnvironmentError as e:
+        if args.debug:
+            raise
         print(f"{Colors.FAIL}Configuration Error: {e}{Colors.ENDC}", file=sys.stderr)
         sys.exit(1)
     except KeyboardInterrupt:
         print(f"\n{Colors.WARNING}Interrupted.{Colors.ENDC}", file=sys.stderr)
         sys.exit(130)
     except Exception as e:
+        if args.debug:
+            raise
         print(f"{Colors.FAIL}Error: {e}{Colors.ENDC}", file=sys.stderr)
         sys.exit(1)
 

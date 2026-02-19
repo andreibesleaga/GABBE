@@ -27,6 +27,7 @@ classifiers = [
 ]
 dependencies = [
     "requests>=2.28,<3.0",
+    "PyYAML>=6.0",
 ]
 
 [project.optional-dependencies]

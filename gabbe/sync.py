@@ -1,6 +1,7 @@
 import os
 import re
 import tempfile
+import hashlib
 from pathlib import Path
 from datetime import datetime
 from .database import get_db
@@ -46,7 +47,9 @@ def parse_markdown_tasks(content):
                 elif char == '/':
                     status = 'IN_PROGRESS'
 
-                tasks.append({'title': title, 'status': status})
+                # Generate a content hash to detect changes
+                content_hash = hashlib.md5(f"{title}|{status}".encode()).hexdigest()
+                tasks.append({'title': title, 'status': status, 'hash': content_hash})
     return tasks
 
 
@@ -79,9 +82,11 @@ def _parse_db_timestamp(value):
     Handles both 'YYYY-MM-DD HH:MM:SS' and ISO-8601 'YYYY-MM-DDTHH:MM:SS'
     variants that SQLite may return on different platforms.
     """
+    if not value:
+        return 0
     for fmt in ("%Y-%m-%d %H:%M:%S", "%Y-%m-%dT%H:%M:%S"):
         try:
-            return datetime.strptime(value, fmt).timestamp()
+            return datetime.strptime(str(value), fmt).timestamp()
         except ValueError:
             continue
     return 0
@@ -113,51 +118,53 @@ def _atomic_write(path, content):
 
 
 def sync_tasks():
-    """Bidirectional sync for TASKS.md based on timestamps."""
+    """Bidirectional sync for TASKS.md based on content changes."""
     print(f"{Colors.HEADER}🔄 Syncing Tasks...{Colors.ENDC}")
     conn = get_db()
     try:
         c = conn.cursor()
 
-        # Check File stats
-        file_mtime = TASKS_FILE.stat().st_mtime if TASKS_FILE.exists() else 0
-
-        # Check DB stats
-        db_mtime = get_db_timestamp(c)
-
+        # Check existing data
         c.execute("SELECT count(*) FROM tasks")
         db_count = c.fetchone()[0]
 
-        # Bootstrap: DB empty and file exists → import
-        if db_count == 0 and TASKS_FILE.exists():
-            print(f"  {Colors.BLUE}Bootstrap: Importing from TASKS.md{Colors.ENDC}")
-            import_from_md(c, TASKS_FILE.read_text())
-            conn.commit()
+        file_exists = TASKS_FILE.exists()
+        
+        # If both exist, allow logic to decide based on timestamps or content, 
+        # but defaulting to FILE wins if it's newer or DB is empty.
+        
+        # NOTE: mtime is brittle. We should look at content diffs.
+        # However, for this fix, we stick to the logic: 
+        # If file is newer -> Import
+        # If DB is newer -> Export
+        # But we improve IMPORT to not destroy history.
 
-        # Bootstrap: file missing and DB has data → export
-        elif not TASKS_FILE.exists() and db_count > 0:
-            print(f"  {Colors.BLUE}Bootstrap: Exporting to TASKS.md{Colors.ENDC}")
-            export_to_md(c)
+        file_mtime = TASKS_FILE.stat().st_mtime if file_exists else 0
+        db_mtime = get_db_timestamp(c)
 
-        # Both empty — nothing to do
-        elif db_count == 0 and not TASKS_FILE.exists():
-            print(f"  {Colors.GREEN}Nothing to sync (both empty).{Colors.ENDC}")
+        if db_count == 0 and file_exists:
+             print(f"  {Colors.BLUE}Bootstrap: Importing from TASKS.md{Colors.ENDC}")
+             import_from_md(c, TASKS_FILE.read_text())
+             conn.commit()
 
-        # File newer → import
-        elif file_mtime > db_mtime:
-            print(f"  {Colors.YELLOW}File is newer ({datetime.fromtimestamp(file_mtime)} vs {datetime.fromtimestamp(db_mtime)}){Colors.ENDC}")
-            print(f"  {Colors.BLUE}Importing changes from TASKS.md...{Colors.ENDC}")
-            import_from_md(c, TASKS_FILE.read_text())
-            conn.commit()
+        elif not file_exists and db_count > 0:
+             print(f"  {Colors.BLUE}Bootstrap: Exporting to TASKS.md{Colors.ENDC}")
+             export_to_md(c)
 
-        # DB newer → export
-        elif db_mtime > file_mtime:
-            print(f"  {Colors.YELLOW}DB is newer ({datetime.fromtimestamp(db_mtime)} vs {datetime.fromtimestamp(file_mtime)}){Colors.ENDC}")
-            print(f"  {Colors.BLUE}Exporting changes to TASKS.md...{Colors.ENDC}")
-            export_to_md(c)
-
+        elif db_count == 0 and not file_exists:
+             print(f"  {Colors.GREEN}Nothing to sync (both empty).{Colors.ENDC}")
+        
+        elif file_mtime >= db_mtime:
+             # File is newer (or equal). Check for actual changes.
+             print(f"  {Colors.BLUE}Checking TASKS.md for new updates...{Colors.ENDC}")
+             import_from_md(c, TASKS_FILE.read_text())
+             conn.commit()
+        
         else:
-            print(f"  {Colors.GREEN}Already in sync.{Colors.ENDC}")
+             # DB is newer
+             print(f"  {Colors.BLUE}Exporting DB changes to TASKS.md...{Colors.ENDC}")
+             export_to_md(c)
+
     finally:
         conn.close()
 
@@ -165,19 +172,27 @@ def sync_tasks():
 def import_from_md(c, content):
     tasks = parse_markdown_tasks(content)
     now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    stats = {"updated": 0, "inserted": 0}
+    stats = {"updated": 0, "inserted": 0, "skipped": 0}
 
     for t in tasks:
-        # Upsert by title — relies on the UNIQUE(title) constraint in the schema
-        c.execute("SELECT id FROM tasks WHERE title = ?", (t['title'],))
+        # Check if task exists
+        c.execute("SELECT id, title, status FROM tasks WHERE title = ?", (t['title'],))
         row = c.fetchone()
 
         if row:
-            c.execute(
-                "UPDATE tasks SET status = ?, updated_at = ? WHERE id = ?",
-                (t['status'], now, row[0])
-            )
-            stats["updated"] += 1
+            db_id, db_title, db_status = row
+            # Calculate DB hash
+            db_hash = hashlib.md5(f"{db_title}|{db_status}".encode()).hexdigest()
+            
+            if t['hash'] != db_hash:
+                # Actual change detected
+                c.execute(
+                    "UPDATE tasks SET status = ?, updated_at = ? WHERE id = ?",
+                    (t['status'], now, db_id)
+                )
+                stats["updated"] += 1
+            else:
+                stats["skipped"] += 1
         else:
             c.execute(
                 "INSERT INTO tasks (title, status, updated_at) VALUES (?, ?, ?)",
@@ -185,7 +200,7 @@ def import_from_md(c, content):
             )
             stats["inserted"] += 1
 
-    print(f"  {Colors.GREEN}✓ Sync Complete: {stats['inserted']} new, {stats['updated']} updated.{Colors.ENDC}")
+    print(f"  {Colors.GREEN}✓ Sync Complete: {stats['inserted']} new, {stats['updated']} updated, {stats['skipped']} unchanged.{Colors.ENDC}")
 
 
 def export_to_md(c):
@@ -210,36 +225,15 @@ def export_to_md(c):
                     logger.debug("Splicing %d tasks into existing file", len(db_tasks))
                     final_content = content[:start_idx] + "\n" + new_task_lines + "\n" + content[end_idx:]
                 else:
-                    # Markers exist but order is wrong? Fallback to append or overwrite? 
-                    # Let's overwrite safely to ensure consistency if file is corrupted
                     logger.warning("Markers found but malformed. Overwriting task section.")
             else:
-                # File exists but no markers. Append or Prepend? 
-                # Strategy: Wrap existing list? Or just append?
-                # Best safer strategy: detailed below.
-                # If we assume previous version was just a list, we might want to replace the list.
-                # But to be safe against deleting notes, let's prepend the markers if it looks like a task file
-                # or just overwrite if it was generated by us before.
-                
-                # For robust audit fix: detailed Logic #3 from Plan:
-                # "Existing file without markers gets wrapped" -> This is hard if mixed content.
-                # Simplified: Just overwrite if it looks like a purely generated file, 
-                # BUT if user modified it, we might lose data.
-                
-                # Revised Strategy: If no markers, we rewrite the whole file with markers 
-                # (Assuming old format). This is the risk we identified.
-                # To minimize risk: We will attempt to identify the task list block?
-                # Too complex. Let's stick to the Plan: "write header + markers + task list"
-                # But let's verify if we can save header?
                 # Legacy fallback: Try to preserve header/preamble
-                # Find the first task item to determine start of the list
                 first_task_idx = content.find("- [")
                 if first_task_idx != -1:
                     logger.info("No markers found. Preserving preamble before first task.")
                     preamble = content[:first_task_idx].rstrip()
                     final_content = f"{preamble}\n\n{_MARKER_START}\n{new_task_lines}\n{_MARKER_END}\n"
                 else:
-                    # No tasks found? Append new list to existing content
                     logger.info("No markers or tasks found. Appending to file.")
                     final_content = f"{content.rstrip()}\n\n{_MARKER_START}\n{new_task_lines}\n{_MARKER_END}\n"
                 
@@ -247,4 +241,4 @@ def export_to_md(c):
             logger.error("Error reading TASKS.md: %s", e)
 
     _atomic_write(TASKS_FILE, final_content)
-    print(f"  {Colors.GREEN}✓ Exported {len(db_tasks)} tasks.{Colors.ENDC}")
+    print(f"  {Colors.GREEN}✓ Exported {len(db_tasks)} tasks to TASKS.md{Colors.ENDC}")

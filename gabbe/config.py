@@ -26,12 +26,27 @@ AGENTS_DIR = PROJECT_ROOT / ".agents"
 SKILLS_DIR = AGENTS_DIR / "skills"
 LOKI_DIR = AGENTS_DIR / "loki"
 
-# Required project files — centralised so verify.py and brain.py stay in sync.
+# Dynamic Configuration Loading
+# We define base required files here, but this could be extended to load from a JSON manifest.
 REQUIRED_FILES = [
     PROJECT_ROOT / ".agents/AGENTS.md",
     PROJECT_ROOT / ".agents/CONSTITUTION.md",
     PROJECT_ROOT / "TASKS.md",
 ]
+
+# Attempt to load extra config from .gabbe/config.json if it exists (Future proofing)
+GABBE_CONFIG_FILE = GABBE_DIR / "config.json"
+if GABBE_CONFIG_FILE.exists():
+    import json
+    try:
+        with open(GABBE_CONFIG_FILE, 'r') as f:
+            extra_config = json.load(f)
+            # Example: extend required files
+            if "required_files" in extra_config:
+                for rf in extra_config["required_files"]:
+                    REQUIRED_FILES.append(PROJECT_ROOT / rf)
+    except Exception as e:
+        warnings.warn(f"Failed to load extra config from {GABBE_CONFIG_FILE}: {e}")
 
 # LLM Config
 GABBE_API_URL = os.environ.get("GABBE_API_URL", "https://api.openai.com/v1/chat/completions")

@@ -15,12 +15,8 @@ def check_files():
 def parse_agents_config():
     """Extract commands from the '## Commands' section of AGENTS.md.
 
-    Only lines inside the '## Commands' section are parsed, guarding against
-    accidental execution of arbitrary YAML/Markdown content elsewhere in the
-    file.  Expected format inside that section::
-
-        test: "pytest tests/"
-        lint: "ruff check ."
+    This version uses a state machine approach to reliably find the key-value pairs
+    within the target section, handling quotes and whitespace more gracefully.
     """
     config = {}
     agents_path = PROJECT_ROOT / ".agents/AGENTS.md"
@@ -32,25 +28,31 @@ def parse_agents_config():
     in_commands_section = False
 
     for line in content.splitlines():
+        line = line.strip()
+        
         # Enter the Commands section
-        # Loose match for "## ... Commands" to handle numbering like "## 2. Operational Commands"
-        if line.strip().startswith("##") and "commands" in line.lower():
+        # We look for "##" followed by something containing "Commands"
+        if line.startswith("##") and "commands" in line.lower():
             in_commands_section = True
             continue
 
-        # Exit on the next ## heading
-        if in_commands_section and line.startswith("## "):
+        # Exit on the next section heading (any line starting with "## " or "### ")
+        if in_commands_section and line.startswith("#"):
             break
 
         if not in_commands_section:
             continue
 
+        # Parse key: "value" or key: value
         if ":" in line:
+            # Split only on the first colon
             key, val = line.split(":", 1)
             key = key.strip().lower()
             val = val.strip()
+            
+            # Remove optional surrounding quotes
             if (val.startswith('"') and val.endswith('"')) or (val.startswith("'") and val.endswith("'")):
-                val = val[1:-1]
+                val = val[1:-1].strip()
 
             if key in ["test", "lint", "security_scan", "build"]:
                 if val:

@@ -201,23 +201,34 @@ def create_symlink(source, target):
         print(f"  {RED}x Failed to link {target}: {e}{NC}")
 
 def ensure_yaml_frontmatter(content, filename):
-    """Ensures content has valid YAML frontmatter. Returns (frontmatter_dict, content)."""
-    if content.startswith("---"):
-        try:
+    """Ensures content has valid YAML frontmatter using PyYAML. Returns (frontmatter_dict, content)."""
+    try:
+        import yaml
+        if content.startswith("---"):
             end_yaml = content.find("---", 3)
             if end_yaml != -1:
                 yaml_text = content[3:end_yaml]
-                # Simple parser to avoid pyyaml dependency
+                data = yaml.safe_load(yaml_text)
+                if isinstance(data, dict):
+                    return data, content
+    except ImportError:
+        print(f"{YELLOW}Warning: PyYAML not installed. Falling back to simple parsing.{NC}")
+        # Fallback to simple parser if PyYAML is missing (bootstrapping edge case)
+        if content.startswith("---"):
+            end_yaml = content.find("---", 3)
+            if end_yaml != -1:
+                yaml_text = content[3:end_yaml]
                 data = {}
                 for line in yaml_text.strip().split('\n'):
-                    if ':' in line:
-                        k, v = line.split(':', 1)
-                        data[k.strip()] = v.strip().strip('"\'')
+                     if ':' in line:
+                         k, v = line.split(':', 1)
+                         data[k.strip()] = v.strip().strip('"\'')
                 return data, content
-        except Exception:
-            pass
+    except Exception as e:
+        # print(f"Warning: Failed to parse YAML for {filename}: {e}")
+        pass
             
-    # Default frontmatter if missing
+    # Default frontmatter if missing or failed
     name = filename.replace(".skill.md", "").replace(".md", "").replace(".mdc", "")
     frontmatter = f"""---
 name: {name}

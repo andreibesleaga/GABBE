@@ -15,7 +15,9 @@ def test_parse_empty_content():
 def test_parse_todo_task():
     tasks = parse_markdown_tasks("- [ ] Do something\n")
     assert len(tasks) == 1
-    assert tasks[0] == {"title": "Do something", "status": "TODO"}
+    assert tasks[0]["title"] == "Do something"
+    assert tasks[0]["status"] == "TODO"
+    assert "hash" in tasks[0]
 
 
 def test_parse_done_task_lowercase_x():

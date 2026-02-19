@@ -49,8 +49,11 @@ def parse_agents_config():
             key = key.strip().lower()
             val = val.strip().strip('"').strip("'")
 
-            if key in ["test", "lint", "security_scan", "build"] and val:
-                config[key] = val
+            if key in ["test", "lint", "security_scan", "build"]:
+                if val:
+                    config[key] = val
+                else:
+                    print(f"{Colors.WARNING}Warning: Empty command value for '{key}' in AGENTS.md{Colors.ENDC}")
 
     return config
 

@@ -54,23 +54,40 @@ def call_llm(prompt, system_prompt="You are a helpful assistant.", temperature=N
                 logger.debug("LLM Response received (%d chars)", len(content))
                 return content
             else:
-                # Avoid leaking raw API response which may contain sensitive tokens
-                msg = "Unexpected API response format (missing 'choices')"
+                msg = "Unexpected API response format"
                 print(f"{Colors.FAIL}❌ {msg}.{Colors.ENDC}")
-                logger.error(msg)
+                logger.error("%s: %s", msg, str(data)[:200]) # Log truncated data for debug
+                return None
+
+        except requests.exceptions.HTTPError as e:
+            status = e.response.status_code
+            if status in (429, 500, 502, 503, 504) and attempt < _LLM_MAX_RETRIES:
+                logger.warning("Retriable HTTP %d error: %s", status, e)
+                # Exponential backoff
+            elif status == 401 or status == 403:
+                print(f"{Colors.FAIL}❌ Authentication Failed (Check GABBE_API_KEY).{Colors.ENDC}")
+                return None
+            else:
+                print(f"{Colors.FAIL}❌ API Error (Status {status}).{Colors.ENDC}")
+                logger.error("Non-retriable HTTP error: %s", e)
                 return None
 
         except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as e:
-            logger.warning("LLM transient error (attempt %d): %s", attempt, e)
-            if attempt < _LLM_MAX_RETRIES:
-                time.sleep(_LLM_RETRY_DELAY)
-            else:
-                print(f"{Colors.FAIL}❌ API Request Failed after {attempt} attempts: {e}{Colors.ENDC}")
-                logger.error("LLM failed after max retries: %s", e)
-                return None
-        
+            logger.warning("LLM transient error: %s", e)
+            # Proceed to sleep logic
+
         except requests.exceptions.RequestException as e:
-            # 4xx/5xx errors or other non-retriable issues
-            print(f"{Colors.FAIL}❌ API Request Failed: {e}{Colors.ENDC}")
-            logger.error("LLM non-retriable error: %s", e)
+            # Catch-all for other requests errors
+            print(f"{Colors.FAIL}❌ Request Failed.{Colors.ENDC}")
+            logger.error("LLM RequestException: %s", e)
             return None
+        
+        # Backoff logic
+        if attempt < _LLM_MAX_RETRIES:
+            sleep_time = _LLM_RETRY_DELAY * (2 ** (attempt - 1))
+            logger.debug("Retrying in %.1fs...", sleep_time)
+            time.sleep(sleep_time)
+        else:
+            print(f"{Colors.FAIL}❌ Operation failed after {attempt} attempts.{Colors.ENDC}")
+    
+    return None

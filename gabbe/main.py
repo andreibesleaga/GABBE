@@ -5,8 +5,14 @@ from .database import init_db
 from . import __version__
 
 def main():
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        datefmt="%H:%M:%S"
+    )
+
     parser = argparse.ArgumentParser(
-        description=f"{Colors.BOLD}GABBE CLI - Agentic Engineering Platform{Colors.ENDC}",
+        description=f"{Colors.BOLD}GABBE CLI (experimental) - Agentic Engineering Platform{Colors.ENDC}",
         formatter_class=argparse.RawTextHelpFormatter
     )
     parser.add_argument("--version", action="version", version=f"%(prog)s {__version__}")

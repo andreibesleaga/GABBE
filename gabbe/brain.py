@@ -12,13 +12,16 @@ def activate_brain():
     print(f"{Colors.HEADER}🧠 Brain Mode: Active Inference Loop{Colors.ENDC}")
 
     # 1. Observation (Get State from DB)
-    conn = get_db()
     try:
+        conn = get_db()
         c = conn.cursor()
         c.execute("SELECT status, count(*) FROM tasks GROUP BY status")
         stats = dict(c.fetchall())
-    finally:
         conn.close()
+    except Exception as e:
+        logger.error("Brain Observation Failed: %s", e)
+        print(f"  {Colors.FAIL}Error reading project state: {e}{Colors.ENDC}")
+        return
 
     todo = stats.get('TODO', 0)
     in_progress = stats.get('IN_PROGRESS', 0)
@@ -60,6 +63,7 @@ def evolve_prompts(skill_name):
     conn = get_db()
     try:
         c = conn.cursor()
+
 
         # 1. Fetch current gene (prompt)
         c.execute(
@@ -107,6 +111,9 @@ def evolve_prompts(skill_name):
             print(f"  - Mutation applied. Ready for testing.")
         else:
             print(f"  {Colors.FAIL}Mutation Failed (API Error){Colors.ENDC}")
+    except Exception as e:
+        logger.error("Evolution Failed: %s", e)
+        print(f"  {Colors.FAIL}Error evolving prompt: {e}{Colors.ENDC}")
     finally:
         conn.close()
 

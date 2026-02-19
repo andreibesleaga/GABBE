@@ -6,6 +6,17 @@ from pathlib import Path
 # which is the intended project root when invoking the `gabbe` CLI.
 # Tests should patch `gabbe.config.PROJECT_ROOT` (and derivative paths) directly.
 PROJECT_ROOT = Path(os.getcwd())
+
+# Regex Patterns
+import re
+PII_PATTERNS = [
+    re.compile(r'[\w\.-]+@[\w\.-]+\.[a-zA-Z]{2,}'),          # email
+    re.compile(r'\b\d{3}[-.\s]\d{3}[-.\s]\d{4}\b'),           # US phone
+    # re.compile(r'\b\d{9}\b'),                               # REMOVED: matches any 9-digit number
+    re.compile(r'\b\d{3}-\d{2}-\d{4}\b'),                     # SSN (dashes)
+    re.compile(r'\b(?:\d{4}[-\s]?){3}\d{4}\b'),               # credit card
+    re.compile(r'(?i)\b(?:password|passwd|api[_\-]?key|secret|token)\s*[:=]\s*\S+'),  # credentials
+]
 GABBE_DIR = PROJECT_ROOT / ".gabbe"
 DB_PATH = GABBE_DIR / "state.db"
 TASKS_FILE = PROJECT_ROOT / "TASKS.md"

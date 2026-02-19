@@ -63,7 +63,7 @@ python3 GABBE/init.py
 
 ---
 
-## 🚀 GABBE CLI 2.0
+## 🚀 GABBE CLI 2.0 (experimental)
 
 Manage your project with the new zero-dependency CLI.
 

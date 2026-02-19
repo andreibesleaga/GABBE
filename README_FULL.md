@@ -108,7 +108,7 @@ python3 init.py
 
 ---
 
-## 3.1. GABBE CLI 2.0
+## 3.1. GABBE CLI 2.0 (experimental)
 
 The new CLI provides a robust interface for the Agentic Kit.
 

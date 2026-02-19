@@ -7,6 +7,14 @@ SCHEMA_VERSION = 2
 def _migrate(conn):
     """Apply pending schema migrations in order."""
     c = conn.cursor()
+    # Prevent migration race conditions by locking the database immediately
+    try:
+        conn.execute("BEGIN IMMEDIATE")
+    except sqlite3.OperationalError:
+        # If already in a transaction or locked, we proceed but log a warning if possible,
+        # or we rely on the fact that this is usually the first call.
+        pass
+        
     c.execute("CREATE TABLE IF NOT EXISTS schema_version (version INTEGER)")
     c.execute("SELECT version FROM schema_version")
     row = c.fetchone()

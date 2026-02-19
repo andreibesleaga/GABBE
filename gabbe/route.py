@@ -1,17 +1,9 @@
-import re
 import json
-from .config import Colors, ROUTE_COMPLEXITY_THRESHOLD
+from .config import Colors, ROUTE_COMPLEXITY_THRESHOLD, PII_PATTERNS
 from .llm import call_llm
 
-# PII patterns — keep these local to avoid sending PII to an external LLM
-_PII_PATTERNS = [
-    re.compile(r'[\w\.-]+@[\w\.-]+\.[a-zA-Z]{2,}'),          # email
-    re.compile(r'\b\d{3}[-.\s]\d{3}[-.\s]\d{4}\b'),           # US phone
-    re.compile(r'\b\d{9}\b'),                                  # SSN (no dashes)
-    re.compile(r'\b\d{3}-\d{2}-\d{4}\b'),                     # SSN (dashes)
-    re.compile(r'\b(?:\d{4}[-\s]?){3}\d{4}\b'),               # credit card
-    re.compile(r'(?i)\b(?:password|passwd|api[_\-]?key|secret|token)\s*[:=]\s*\S+'),  # credentials
-]
+# PII patterns — imported from config to ensure consistency
+_PII_PATTERNS = PII_PATTERNS
 
 
 def calculate_complexity(prompt):
@@ -39,7 +31,7 @@ def calculate_complexity(prompt):
         print(f"  {Colors.WARNING}LLM Analysis Failed: {e}{Colors.ENDC}")
         score = 0
         if len(prompt) > 500:
-            score += 40
+            score += 60  # Updated to ensure long prompts route REMOTE (Threshold 50)
         if "architect" in prompt.lower():
             score += 30
         return score, "Fallback Heuristic (LLM Error)"

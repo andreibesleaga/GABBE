@@ -231,7 +231,17 @@ def export_to_md(c):
                 # To minimize risk: We will attempt to identify the task list block?
                 # Too complex. Let's stick to the Plan: "write header + markers + task list"
                 # But let's verify if we can save header?
-                pass
+                # Legacy fallback: Try to preserve header/preamble
+                # Find the first task item to determine start of the list
+                first_task_idx = content.find("- [")
+                if first_task_idx != -1:
+                    logger.info("No markers found. Preserving preamble before first task.")
+                    preamble = content[:first_task_idx].rstrip()
+                    final_content = f"{preamble}\n\n{_MARKER_START}\n{new_task_lines}\n{_MARKER_END}\n"
+                else:
+                    # No tasks found? Append new list to existing content
+                    logger.info("No markers or tasks found. Appending to file.")
+                    final_content = f"{content.rstrip()}\n\n{_MARKER_START}\n{new_task_lines}\n{_MARKER_END}\n"
                 
         except Exception as e:
             logger.error("Error reading TASKS.md: %s", e)

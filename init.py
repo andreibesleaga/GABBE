@@ -395,11 +395,11 @@ def main():
 
     # Domain gap
     if project_type == "Legacy Modernization":
-         missing_skills.extend(TECH_MAP["legacy"]["skills"])
+         missing_skills.extend(TECH_MAP.get("legacy", {}).get("skills", []))
     if project_type == "Enterprise / Regulated":
-         missing_skills.extend(TECH_MAP["enterprise"]["skills"])
+         missing_skills.extend(TECH_MAP.get("enterprise", {}).get("skills", []))
     if compliance:
-         missing_skills.extend(TECH_MAP["regulated"]["skills"])
+         missing_skills.extend(TECH_MAP.get("regulated", {}).get("skills", []))
 
 
     # --- Step 4: Generate AGENTS.md ---

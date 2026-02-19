@@ -33,7 +33,8 @@ def parse_agents_config():
 
     for line in content.splitlines():
         # Enter the Commands section
-        if line.strip().lower() == "## commands":
+        # Loose match for "## ... Commands" to handle numbering like "## 2. Operational Commands"
+        if line.strip().startswith("##") and "commands" in line.lower():
             in_commands_section = True
             continue
 
@@ -47,7 +48,9 @@ def parse_agents_config():
         if ":" in line:
             key, val = line.split(":", 1)
             key = key.strip().lower()
-            val = val.strip().strip('"').strip("'")
+            val = val.strip()
+            if (val.startswith('"') and val.endswith('"')) or (val.startswith("'") and val.endswith("'")):
+                val = val[1:-1]
 
             if key in ["test", "lint", "security_scan", "build"]:
                 if val:

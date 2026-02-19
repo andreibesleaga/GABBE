@@ -192,7 +192,7 @@ ln -sf /path/to/.agents/skills/*/*.skill.md ~/.agent/skills/
 | Connectors | `core/knowledge-connect.skill.md` | rag, doc | RAG ingestion |
 
 ### 9. Neuro-Architecture (`brain/`)
-*See separate index in `brain/README_FULL.md`*
+*See separate index in `brain/README.md`*
 | Skill | File | Context | Purpose |
 |---|---|---|---|
 | Active Inference | `brain/active-inference.skill.md` | high | Predictive error minimization loop |

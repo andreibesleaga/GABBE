@@ -3,7 +3,6 @@ import os
 import sys
 import shutil
 import json
-import datetime
 from pathlib import Path
 
 # --- Configuration ---
@@ -23,6 +22,7 @@ NC = "\033[0m"
 
 # --- Knowledge Base (Dynamic Discovery) ---
 
+
 def build_tech_map_from_skills(agents_dir):
     """
     Scans all .skill.md files in agents_dir/skills and builds a TECH_MAP
@@ -30,7 +30,7 @@ def build_tech_map_from_skills(agents_dir):
     """
     tech_map = {}
     skills_dir = agents_dir / "skills"
-    
+
     if not skills_dir.exists():
         return tech_map
 
@@ -38,44 +38,49 @@ def build_tech_map_from_skills(agents_dir):
         try:
             content = skill_file.read_text()
             meta, _ = ensure_yaml_frontmatter(content, skill_file.name)
-            
+
             # Get tags (list of strings)
             tags = meta.get("tags", [])
             # Also support 'tech' or 'stack' as aliases
-            if not tags: tags = meta.get("tech", [])
-            if not tags: tags = meta.get("stack", [])
-            
+            if not tags:
+                tags = meta.get("tech", [])
+            if not tags:
+                tags = meta.get("stack", [])
+
             # Normalize to list
             if isinstance(tags, str):
                 # Remove brackets first if present
                 tags = tags.strip("[]")
                 tags = [t.strip() for t in tags.split(",")]
-            
+
             skill_name = meta.get("name", skill_file.stem.replace(".skill", ""))
-            
+
             for tag in tags:
                 tag = tag.lower().strip()
                 if tag not in tech_map:
                     tech_map[tag] = {"skills": [], "guides": [], "templates": []}
-                
+
                 if skill_name not in tech_map[tag]["skills"]:
                     tech_map[tag]["skills"].append(skill_name)
-                    
+
         except Exception as e:
             # print(f"Warning: Failed to parse {skill_file.name}: {e}")
             pass
 
     # Hardcoded Guides/Templates mapping (logic removed as unused)
-    
+
     return tech_map
+
 
 # Initial placeholders - will be populated in main()
 TECH_MAP = {}
 
 # --- Helper Functions ---
 
+
 def clear_screen():
-    os.system('cls' if os.name == 'nt' else 'clear')
+    os.system("cls" if os.name == "nt" else "clear")
+
 
 def print_header():
     print(f"{BLUE}" + "=" * 60 + f"{NC}")
@@ -88,6 +93,7 @@ def print_header():
     print("  4. Generate a 'Research Mission' for your AI")
     print()
 
+
 def ask(question, default=None):
     prompt = f"{question}"
     if default:
@@ -95,6 +101,7 @@ def ask(question, default=None):
     prompt += ": "
     response = input(prompt).strip()
     return response if response else default
+
 
 def select_index(question, options):
     print(f"\n{question}")
@@ -107,9 +114,11 @@ def select_index(question, options):
             if 0 <= idx < len(options):
                 return idx
 
+
 def select(question, options):
     idx = select_index(question, options)
     return options[idx]
+
 
 def ask_multiselect(question, options):
     print(f"\n{question} (comma separated, e.g. 1,3)")
@@ -117,7 +126,8 @@ def ask_multiselect(question, options):
         print(f"  {i+1}) {opt}")
     choice = input("Select: ").strip()
     selected = []
-    if not choice: return selected
+    if not choice:
+        return selected
     try:
         indices = [int(x.strip()) - 1 for x in choice.split(",") if x.strip().isdigit()]
         for idx in indices:
@@ -127,27 +137,32 @@ def ask_multiselect(question, options):
         pass
     return selected
 
+
 def create_symlink(source, target):
     """Creates a symlink from target to source, backing up if exists."""
     if target.is_symlink():
         target.unlink()
     elif target.exists():
         if target.is_dir():
-             print(f"  {YELLOW}! Backing up existing directory {target.name} to {target.name}.bak{NC}")
-             shutil.move(str(target), str(target.with_suffix(".bak")))
+            print(
+                f"  {YELLOW}! Backing up existing directory {target.name} to {target.name}.bak{NC}"
+            )
+            shutil.move(str(target), str(target.with_suffix(".bak")))
         else:
-             print(f"  {YELLOW}! Backing up existing file {target.name} to {target.name}.bak{NC}")
-             target.rename(target.with_suffix(".bak"))
-    
+            print(
+                f"  {YELLOW}! Backing up existing file {target.name} to {target.name}.bak{NC}"
+            )
+            target.rename(target.with_suffix(".bak"))
+
     # Ensure parent dir exists
     target.parent.mkdir(parents=True, exist_ok=True)
-    
+
     # Calculate relative path if possible, else absolute
     try:
         if str(PROJECT_ROOT) in str(source.absolute()):
-             link_path = os.path.relpath(source, target.parent)
+            link_path = os.path.relpath(source, target.parent)
         else:
-             link_path = source.absolute()
+            link_path = source.absolute()
 
         os.symlink(link_path, target)
         print(f"  {GREEN}✓ Linked {target.name} -> {link_path}{NC}")
@@ -156,21 +171,25 @@ def create_symlink(source, target):
         print(f"  {YELLOW}! Symlink failed ({e}), falling back to copy...{NC}")
         try:
             if source.is_dir():
-                if target.exists(): shutil.rmtree(target)
+                if target.exists():
+                    shutil.rmtree(target)
                 shutil.copytree(source, target)
             else:
-                if target.exists(): target.unlink()
+                if target.exists():
+                    target.unlink()
                 shutil.copy2(source, target)
             print(f"  {GREEN}✓ Copied {target.name} (Symlink fallback){NC}")
         except Exception as e2:
-             print(f"  {RED}x Failed to copy {target}: {e2}{NC}")
+            print(f"  {RED}x Failed to copy {target}: {e2}{NC}")
     except Exception as e:
         print(f"  {RED}x Failed to link {target}: {e}{NC}")
+
 
 def ensure_yaml_frontmatter(content, filename):
     """Ensures content has valid YAML frontmatter using PyYAML. Returns (frontmatter_dict, content)."""
     try:
         import yaml
+
         if content.startswith("---"):
             end_yaml = content.find("---", 3)
             if end_yaml != -1:
@@ -179,22 +198,24 @@ def ensure_yaml_frontmatter(content, filename):
                 if isinstance(data, dict):
                     return data, content
     except ImportError:
-        print(f"{YELLOW}Warning: PyYAML not installed. Falling back to simple parsing.{NC}")
+        print(
+            f"{YELLOW}Warning: PyYAML not installed. Falling back to simple parsing.{NC}"
+        )
         # Fallback to simple parser if PyYAML is missing (bootstrapping edge case)
         if content.startswith("---"):
             end_yaml = content.find("---", 3)
             if end_yaml != -1:
                 yaml_text = content[3:end_yaml]
                 data = {}
-                for line in yaml_text.strip().split('\n'):
-                     if ':' in line:
-                         k, v = line.split(':', 1)
-                         data[k.strip()] = v.strip().strip('"\'')
+                for line in yaml_text.strip().split("\n"):
+                    if ":" in line:
+                        k, v = line.split(":", 1)
+                        data[k.strip()] = v.strip().strip("\"'")
                 return data, content
     except Exception as e:
         # print(f"Warning: Failed to parse YAML for {filename}: {e}")
         pass
-            
+
     # Default frontmatter if missing or failed
     name = filename.replace(".skill.md", "").replace(".md", "").replace(".mdc", "")
     frontmatter = f"""---
@@ -206,33 +227,38 @@ author: GABBE-Kit
 """
     return {"name": name}, frontmatter + content
 
-def setup_skills_for_platform(platform, skills_src_dir, target_dir):
+
+def setup_skills_for_platform(platform, agents_dir, target_dir):
     """
     Setup Skills for selected platform using the external compiler script.
     """
     print(f"\n{BLUE}→ Setting up skills used by {platform}...{NC}")
-    
+
     # Use external script for skill compilation to ensure consistency with setup-context.sh
-    compile_script = AGENTS_DIR / "scripts" / "compile_skills.py"
+    compile_script = agents_dir / "scripts" / "compile_skills.py"
     if compile_script.exists():
         try:
             import subprocess
+
             cmd = [
-                sys.executable, 
+                sys.executable,
                 str(compile_script),
-                "--platform", platform,
-                "--skills-dir", str(AGENTS_DIR / "skills"),
+                "--platform",
+                platform,
+                "--skills-dir",
+                str(agents_dir / "skills"),
                 # For Cursor, target is .cursor/rules. For others, .github/skills usually.
-                # However, the init logic passes specific target_dir. 
+                # However, the init logic passes specific target_dir.
                 # We need to respect that or map it.
                 # compile_skills.py expects a specific structure for 'All' or specific for others.
                 # The arguments passed to this function in main() are:
                 # Cursor: cursor_rules_dir (.cursor/rules)
                 # VS Code: gh_dir / "skills" (.github/skills)
                 # Claude: .claude/skills (symlinked, so maybe skipped here or handled by script)
-                
-                "--target-dir", str(target_dir),
-                "--project-root", str(PROJECT_ROOT)
+                "--target-dir",
+                str(target_dir),
+                "--project-root",
+                str(PROJECT_ROOT),
             ]
             subprocess.run(cmd, check=True)
             print(f"  {GREEN}✓ Processed skills for {platform}{NC}")
@@ -245,12 +271,15 @@ def setup_skills_for_platform(platform, skills_src_dir, target_dir):
 
 # --- Main Logic ---
 
+
 def main():
     if not SOURCE_AGENTS_DIR.exists():
         if (KIT_SOURCE / "AGENTS.md").exists():
-             pass
+            pass
         else:
-            print(f"{RED}Error: Could not find source .agents directory at {SOURCE_AGENTS_DIR}{NC}")
+            print(
+                f"{RED}Error: Could not find source .agents directory at {SOURCE_AGENTS_DIR}{NC}"
+            )
             sys.exit(1)
 
     # Initialize Dynamic Tech Map
@@ -263,17 +292,17 @@ def main():
     # --- Step 1: Install Location ---
     print(f"{YELLOW}Part 1: Installation{NC}")
     print(f"Where should the Agent Kit be installed?")
-    
+
     install_opts = [
-        f"Local (Recommended) - Installs to {PROJECT_ROOT}/.agents", 
-        f"Global - Installs to {Path.home()}/.agents (All projects share this)", 
-        "Custom Path"
+        f"Local (Recommended) - Installs to {PROJECT_ROOT}/.agents",
+        f"Global - Installs to {Path.home()}/.agents (All projects share this)",
+        "Custom Path",
     ]
-    
+
     choice_idx = select_index("Select Install Location", install_opts)
-    
+
     target_agents_dir = None
-    
+
     if choice_idx == 0:
         target_agents_dir = PROJECT_ROOT / ".agents"
     elif choice_idx == 1:
@@ -298,104 +327,159 @@ def main():
 
     AGENTS_DIR = target_agents_dir
 
-
     # --- Step 2: Interview ---
     print(f"\n{YELLOW}Part 2: Project Context{NC}")
-    
+
     project_name = ask("Project Name", PROJECT_ROOT.name)
     description = ask("One-line Description", "A new software project")
-    
+
     # Team & Type
-    team_size_idx = select_index("Team Size", ["Solo (1 dev)", "Small (2-5 devs)", "Large (6+ devs, Enterprise)"])
+    team_size_idx = select_index(
+        "Team Size", ["Solo (1 dev)", "Small (2-5 devs)", "Large (6+ devs, Enterprise)"]
+    )
     team_size = ["Solo", "Small", "Large"][team_size_idx]
-    
-    project_type = select("Project Type", ["Greenfield (New)", "Legacy Modernization", "Enterprise / Regulated", "R&D / Prototype"])
-    
+
+    project_type = select(
+        "Project Type",
+        [
+            "Greenfield (New)",
+            "Legacy Modernization",
+            "Enterprise / Regulated",
+            "R&D / Prototype",
+        ],
+    )
+
     compliance = []
     if project_type == "Enterprise / Regulated":
-         compliance = ask_multiselect("Compliance Requirements", ["GDPR", "HIPAA", "PCI-DSS", "SOC2", "ISO 27001"])
-    
+        compliance = ask_multiselect(
+            "Compliance Requirements", ["GDPR", "HIPAA", "PCI-DSS", "SOC2", "ISO 27001"]
+        )
+
     # Tech Stack
     print(f"\n{YELLOW}Part 3: Technology Stack{NC}")
-    language = select("Primary Language", ["TypeScript", "JavaScript", "Python", "PHP", "Go", "Rust", "Java", "C#", "Other"])
-    if language == "Other": language = ask("Enter Language")
-    
+    language = select(
+        "Primary Language",
+        [
+            "TypeScript",
+            "JavaScript",
+            "Python",
+            "PHP",
+            "Go",
+            "Rust",
+            "Java",
+            "C#",
+            "Other",
+        ],
+    )
+    if language == "Other":
+        language = ask("Enter Language")
+
     framework = ask("Primary Framework (e.g. Next.js, FastAPI, Laravel)", "None")
-    
+
     db_options = ["PostgreSQL", "MySQL/MariaDB", "MongoDB", "SQLite", "Redis", "None"]
     databases = ask_multiselect("Databases used", db_options)
-    
-    cloud_options = ["AWS", "Google Cloud", "Azure", "Vercel", "Railway", "DigitalOcean", "On-Prem"]
+
+    cloud_options = [
+        "AWS",
+        "Google Cloud",
+        "Azure",
+        "Vercel",
+        "Railway",
+        "DigitalOcean",
+        "On-Prem",
+    ]
     clouds = ask_multiselect("Infrastructure / Cloud", cloud_options)
-    
+
     # --- Dynamic Setup Check ---
     dynamic_setup = False
     problem_statement = ""
     print(f"\n{YELLOW}Part 3.1: Dynamic Agent Capabilities{NC}")
-    if ask("Enable Dynamic Agent Setup (Live Research & Auto-Configuration)? (y/n)", "y").lower() == "y":
+    if (
+        ask(
+            "Enable Dynamic Agent Setup (Live Research & Auto-Configuration)? (y/n)",
+            "y",
+        ).lower()
+        == "y"
+    ):
         dynamic_setup = True
-        problem_statement = ask("What specific problem is this system solving? (e.g. 'High-frequency trading bot', 'Medical image analysis')")
+        problem_statement = ask(
+            "What specific problem is this system solving? (e.g. 'High-frequency trading bot', 'Medical image analysis')"
+        )
 
     # --- Analytics Check ---
     enable_analytics = False
-    if ask("Enable Agent Analytics (Track tokens, loops, and success rates)? (y/n)", "y").lower() == "y":
+    if (
+        ask(
+            "Enable Agent Analytics (Track tokens, loops, and success rates)? (y/n)",
+            "y",
+        ).lower()
+        == "y"
+    ):
         enable_analytics = True
-        
+
     # --- Meta-Evolution Check ---
     enable_meta = False
-    if ask("Enable Self-Evolving Capabilities (Meta-Optimization)? (y/n)", "y").lower() == "y":
+    if (
+        ask("Enable Self-Evolving Capabilities (Meta-Optimization)? (y/n)", "y").lower()
+        == "y"
+    ):
         enable_meta = True
-    
+
     # --- Step 3: Gap Analysis ---
-    
+
     missing_skills = []
     # Framework gap
     fw_key = framework.lower()
     if fw_key not in TECH_MAP and fw_key != "none":
         missing_skills.append(f"{fw_key}-best-practices")
-    
+
     # Language gap
     lang_key = language.lower()
     if lang_key not in TECH_MAP and lang_key != "other":
-         missing_skills.append(f"{lang_key}-idioms")
+        missing_skills.append(f"{lang_key}-idioms")
 
     # Domain gap
     if project_type == "Legacy Modernization":
-         missing_skills.extend(TECH_MAP.get("legacy", {}).get("skills", []))
+        missing_skills.extend(TECH_MAP.get("legacy", {}).get("skills", []))
     if project_type == "Enterprise / Regulated":
-         missing_skills.extend(TECH_MAP.get("enterprise", {}).get("skills", []))
+        missing_skills.extend(TECH_MAP.get("enterprise", {}).get("skills", []))
     if compliance:
-         missing_skills.extend(TECH_MAP.get("regulated", {}).get("skills", []))
-
+        missing_skills.extend(TECH_MAP.get("regulated", {}).get("skills", []))
 
     # --- Step 4: Generate AGENTS.md ---
     print(f"\n{YELLOW}Part 4: Configuring Installed Kit{NC}")
-    
+
     template_path = AGENTS_DIR / "templates/coordination/AGENTS_TEMPLATE.md"
     if template_path.exists():
         content = template_path.read_text()
-        
+
         # Replacements
         content = content.replace("{{ project_name }}", project_name)
         content = content.replace("{{ description }}", description)
         content = content.replace("{{ language }}", language)
         content = content.replace("{{ framework }}", framework)
-        content = content.replace("{{ runtime }}", "Latest") 
-        content = content.replace("{{ database }}", ", ".join(databases) if databases else "None")
-        
+        content = content.replace("{{ runtime }}", "Latest")
+        content = content.replace(
+            "{{ database }}", ", ".join(databases) if databases else "None"
+        )
+
         # Package Manager
-        pm = "npm" 
-        if language.lower() in ["python"]: pm = "pip"
-        if language.lower() in ["php"]: pm = "composer"
-        if language.lower() in ["go"]: pm = "go mod"
-        if language.lower() in ["rust"]: pm = "cargo"
-        
+        pm = "npm"
+        if language.lower() in ["python"]:
+            pm = "pip"
+        if language.lower() in ["php"]:
+            pm = "composer"
+        if language.lower() in ["go"]:
+            pm = "go mod"
+        if language.lower() in ["rust"]:
+            pm = "cargo"
+
         if language.lower() in ["javascript", "typescript"]:
-             pm_choice = select("Package Manager", ["npm", "pnpm", "yarn"])
-             pm = pm_choice
-        
+            pm_choice = select("Package Manager", ["npm", "pnpm", "yarn"])
+            pm = pm_choice
+
         content = content.replace("{{ package_manager }}", pm)
-        
+
         # Commands
         install_cmd = f"{pm} install"
         test_cmd = f"{pm} test"
@@ -408,36 +492,46 @@ def main():
         if pm == "cargo":
             install_cmd = "cargo build"
             test_cmd = "cargo test"
-        
+
         lines = content.splitlines()
         new_lines = []
         for line in lines:
             if "install:" in line and "{{" in line:
                 new_lines.append(f'install: "{install_cmd}"')
-            elif ("test:" in line or "test_cmd" in line) and "{{" in line and "test_single" not in line:
+            elif (
+                ("test:" in line or "test_cmd" in line)
+                and "{{" in line
+                and "test_single" not in line
+            ):
                 new_lines.append(f'test: "{test_cmd}"')
             elif "security_scan:" in line and "{{" in line:
                 audit_cmd = f"{pm} audit"
-                if pm == "pip": audit_cmd = "pip-audit"
-                if pm == "go mod": audit_cmd = "govulncheck ./..."
-                if pm == "cargo": audit_cmd = "cargo audit"
+                if pm == "pip":
+                    audit_cmd = "pip-audit"
+                if pm == "go mod":
+                    audit_cmd = "govulncheck ./..."
+                if pm == "cargo":
+                    audit_cmd = "cargo audit"
                 new_lines.append(f'security_scan: "{audit_cmd}"')
             elif "build:" in line and "{{" in line:
                 build_cmd = f"{pm} run build"
-                if pm == "go mod": build_cmd = "go build -o app"
-                if pm == "cargo": build_cmd = "cargo build --release"
-                if pm == "pip": build_cmd = "# No build step for Python"
+                if pm == "go mod":
+                    build_cmd = "go build -o app"
+                if pm == "cargo":
+                    build_cmd = "cargo build --release"
+                if pm == "pip":
+                    build_cmd = "# No build step for Python"
                 new_lines.append(f'build: "{build_cmd}"')
             else:
                 new_lines.append(line)
-        
+
         content = "\n".join(new_lines)
         target_agents_md = AGENTS_DIR / "AGENTS.md"
         target_agents_md.write_text(content)
         print(f"  {GREEN}✓ Configured {target_agents_md}{NC}")
     else:
         print(f"  {RED}x Template not found: {template_path}{NC}")
-        
+
     # --- Step 4.1: Append to CONSTITUTION.md ---
     if compliance or project_type == "Legacy Modernization":
         const_path = AGENTS_DIR / "CONSTITUTION.md"
@@ -446,24 +540,32 @@ def main():
                 f.write("\n\n## Project-Specific Articles (Auto-Generated)\n")
                 if "Legacy Modernization" in project_type:
                     f.write("\n### Article VIII. The Modernization Mandate\n")
-                    f.write("All new code must adhere to modern patterns. Legacy code touched must be refactored to >96% coverage (Boy Scout Rule).\n")
+                    f.write(
+                        "All new code must adhere to modern patterns. Legacy code touched must be refactored to >96% coverage (Boy Scout Rule).\n"
+                    )
                 if compliance:
-                     f.write(f"\n### Article IX. Regulatory Compliance ({', '.join(compliance)})\n")
-                     f.write("No PII shall be logged. All data at rest must be encrypted. Security audit is mandatory before Release.\n")
+                    f.write(
+                        f"\n### Article IX. Regulatory Compliance ({', '.join(compliance)})\n"
+                    )
+                    f.write(
+                        "No PII shall be logged. All data at rest must be encrypted. Security audit is mandatory before Release.\n"
+                    )
             print(f"  {GREEN}✓ Updated CONSTITUTION.md with specific Articles{NC}")
 
     # --- Step 5: Directory Wiring ---
     print(f"\n{YELLOW}Part 5: Wiring Agent Context{NC}")
-    
+
     loki_mem = AGENTS_DIR / "loki/memory"
     (loki_mem / "episodic/SESSION_SNAPSHOT").mkdir(parents=True, exist_ok=True)
     (loki_mem / "semantic").mkdir(parents=True, exist_ok=True)
-    
+
     if enable_analytics:
         (loki_mem / "metrics").mkdir(parents=True, exist_ok=True)
         print(f"  {GREEN}✓ Initialized Analytics Directory{NC}")
-    
-        (loki_mem / "PROJECT_STATE.md").write_text("# PROJECT_STATE.md\n\nPhase: S00_INITIALIZED\n")
+
+        (loki_mem / "PROJECT_STATE.md").write_text(
+            "# PROJECT_STATE.md\n\nPhase: S00_INITIALIZED\n"
+        )
         print(f"  {GREEN}✓ Initialized Loki Memory{NC}")
 
     # Copy setup-context.sh
@@ -474,7 +576,9 @@ def main():
         setup_dest.chmod(0o755)
         print(f"  {GREEN}✓ Installed setup-context.sh{NC}")
     else:
-        print(f"  {YELLOW}! Could not find {setup_src}, skipping setup-context.sh install{NC}")
+        print(
+            f"  {YELLOW}! Could not find {setup_src}, skipping setup-context.sh install{NC}"
+        )
 
     # Copy setup-context.ps1 (Windows Support)
     setup_ps1_src = AGENTS_DIR / "scripts/setup-context.ps1"
@@ -483,27 +587,39 @@ def main():
         shutil.copy2(setup_ps1_src, setup_ps1_dest)
         print(f"  {GREEN}✓ Installed setup-context.ps1 (Windows Support){NC}")
     else:
-        print(f"  {YELLOW}! Could not find {setup_ps1_src}, skipping setup-context.ps1 install{NC}")
+        print(
+            f"  {YELLOW}! Could not find {setup_ps1_src}, skipping setup-context.ps1 install{NC}"
+        )
 
     # Symlinks
     skills_src = AGENTS_DIR / "skills"
     agents_md_src = AGENTS_DIR / "AGENTS.md"
 
-    agents = ask_multiselect("Which AI Agents are you using?", ["Claude Code", "Cursor", "Gemini / Antigravity", "OpenAI / Codex", "GitHub Copilot", "VS Code"])
-    
+    agents = ask_multiselect(
+        "Which AI Agents are you using?",
+        [
+            "Claude Code",
+            "Cursor",
+            "Gemini / Antigravity",
+            "OpenAI / Codex",
+            "GitHub Copilot",
+            "VS Code",
+        ],
+    )
+
     if "Claude Code" in agents:
         claude_dir = PROJECT_ROOT / ".claude"
         claude_dir.mkdir(exist_ok=True)
         create_symlink(agents_md_src, claude_dir / "CLAUDE.md")
         create_symlink(skills_src, claude_dir / "skills")
-        setup_skills_for_platform("Claude Code", skills_src, claude_dir / "skills")
-    
+        setup_skills_for_platform("Claude Code", AGENTS_DIR, claude_dir / "skills")
+
     if "Cursor" in agents:
         cursor_dir = PROJECT_ROOT / ".cursor"
         cursor_rules_dir = cursor_dir / "rules"
         create_symlink(agents_md_src, PROJECT_ROOT / ".cursorrules")
-        setup_skills_for_platform("Cursor", skills_src, cursor_rules_dir)
-        
+        setup_skills_for_platform("Cursor", AGENTS_DIR, cursor_rules_dir)
+
     if "Gemini / Antigravity" in agents:
         gemini_dir = PROJECT_ROOT / ".gemini"
         gemini_dir.mkdir(exist_ok=True)
@@ -518,11 +634,13 @@ def main():
         settings_content = {
             "agent_instructions_file": rel_agents,
             "skills_directory": rel_skills,
-            "notes": "Managed by init.py"
+            "notes": "Managed by init.py",
         }
-        (gemini_dir / "settings.json").write_text(json.dumps(settings_content, indent=2))
+        (gemini_dir / "settings.json").write_text(
+            json.dumps(settings_content, indent=2)
+        )
         print(f"  {GREEN}✓ Wired .gemini/settings.json{NC}")
-        
+
     if "OpenAI / Codex" in agents:
         codex_dir = PROJECT_ROOT / ".codex"
         codex_dir.mkdir(exist_ok=True)
@@ -532,11 +650,11 @@ def main():
         gh_dir = PROJECT_ROOT / ".github"
         gh_dir.mkdir(exist_ok=True)
         create_symlink(agents_md_src, gh_dir / "copilot-instructions.md")
-        setup_skills_for_platform("GitHub Copilot", skills_src, gh_dir / "skills")
-        
-    if "VS Code" in agents: # Added VS Code explicitly if requested, reusing logic
-        gh_dir = PROJECT_ROOT / ".github" 
-        setup_skills_for_platform("VS Code", skills_src, gh_dir / "skills")
+        setup_skills_for_platform("GitHub Copilot", AGENTS_DIR, gh_dir / "skills")
+
+    if "VS Code" in agents:  # Added VS Code explicitly if requested, reusing logic
+        gh_dir = PROJECT_ROOT / ".github"
+        setup_skills_for_platform("VS Code", AGENTS_DIR, gh_dir / "skills")
 
     # --- Step 6: Gitignore ---
     gitignore = PROJECT_ROOT / ".gitignore"
@@ -549,7 +667,7 @@ def main():
 
     # --- Step 7: Mission Generation ---
     print(f"\n{YELLOW}Part 6: Agent Mission Generation{NC}")
-    
+
     if dynamic_setup:
         mission = f"""
 # BOOTSTRAP MISSION: Dynamic Agent Setup
@@ -592,7 +710,9 @@ Start by running: `./setup-context.sh` to confirm your environment.
         mission_file = PROJECT_ROOT / "BOOTSTRAP_MISSION.md"
         mission_file.write_text(mission)
         print(f"\n{GREEN}✓ Generated Dynamic BOOTSTRAP_MISSION.md{NC}")
-        print(f"{BLUE}>> INSTRUCTION: Agent, please read BOOTSTRAP_MISSION.md and begin Phase 1 immediately.{NC}")
+        print(
+            f"{BLUE}>> INSTRUCTION: Agent, please read BOOTSTRAP_MISSION.md and begin Phase 1 immediately.{NC}"
+        )
 
     else:
         # Standard Static Mission
@@ -626,16 +746,17 @@ Here is your mission to finalize the setup:
 """
 
         mission += "\n6.  **Verify**:\n    -   Run `integrity-check` skill to ensure all symlinks and configs are valid.\n"
-        
+
         print("-" * 60)
         print(mission)
         print("-" * 60)
-        
+
         mission_file = PROJECT_ROOT / "SETUP_MISSION.md"
         mission_file.write_text(mission)
         print(f"\n{GREEN}✓ Mission saved to SETUP_MISSION.md{NC}")
 
     print(f"{BLUE}Setup Complete! The kit is installed at: {AGENTS_DIR}{NC}")
+
 
 if __name__ == "__main__":
     main()

@@ -122,6 +122,7 @@ Multi-agent swarm with 30+ specialized personas for projects >5 features or >20 
 ## 🚀 GABBE CLI 2.0 (experimental)
 
 The core of GABBE 2.0 is the **Zero-Dependency CLI** (`gabbe`) which powers the "Hybrid Mode". It bridges the gap between flexible Markdown files and a robust SQLite database.
+It's an experimental work-in-progress and you can do without the whole package only with the rest of the kit.
 
 ### Prerequisites
 - Python 3.8+

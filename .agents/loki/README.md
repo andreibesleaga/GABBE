@@ -50,3 +50,8 @@ graph TD
     Loki -->|Phase S01-S10| Artifacts[📂 Project Files]
     Brain -.->|Monitor| Loki
 ```
+
+
+---
+
+[© 2026 Andrei Nicolae Besleaga. This work is licensed CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)

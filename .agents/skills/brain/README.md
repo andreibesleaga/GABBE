@@ -66,3 +66,8 @@ graph TD
 | **Theory** | [`cognitive-architectures.skill.md`](cognitive-architectures.skill.md) | Cognitive Turing Machine patterns. |
 | **Theory** | [`epistemology-knowledge.skill.md`](epistemology-knowledge.skill.md) | Epistemological foundations for AI knowledge. |
 | **Plasticity** | [`learning-adaptation.skill.md`](learning-adaptation.skill.md) | Neuroplasticity and path strengthening. |
+
+
+---
+
+[© 2026 Andrei Nicolae Besleaga. This work is licensed CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)

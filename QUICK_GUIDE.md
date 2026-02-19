@@ -63,6 +63,44 @@ python3 GABBE/init.py
 
 ---
 
+## 🚀 GABBE CLI 2.0
+
+Manage your project with the new zero-dependency CLI.
+
+| Command | Usage |
+|---|---|
+| `gabbe status` | **Dashboard**: View project phase, tasks, and system health. |
+| `gabbe sync` | **Hybrid Sync**: Force sync between `TASKS.md` and SQLite DB. |
+| `gabbe verify` | **Integrity**: Enforce rules, check files, run security audit. |
+| `gabbe brain` | **Evolution**: Optimize skills (`evolve`) or run Active Inference (`activate`). |
+| `gabbe route` | **Router**: Check if a prompt should go to Local or Remote LLM. |
+
+### How to Use
+
+#### Setup
+```bash
+python3 -m gabbe.main init
+```
+
+#### Daily Workflow
+```bash
+# Check status
+python3 -m gabbe.main status
+
+# Sync tasks (manual edits)
+python3 -m gabbe.main sync
+
+# Optimize a skill
+python3 -m gabbe.main brain evolve --skill tdd-cycle
+```
+
+#### Verification
+```bash
+python3 -m gabbe.main verify
+```
+
+---
+
 ## Kit Structure Overview
 
 ```
@@ -620,3 +658,8 @@ python3 GABBE/init.py
 *See skills/00-index.md for complete skills registry with installation instructions.*
 *See loki/README.md for Loki Mode multi-agent orchestration.*
 *See .agents/skills/brain/README.md for complete brain documentation.*
+
+
+---
+
+[© 2026 Andrei Nicolae Besleaga. This work is licensed CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)

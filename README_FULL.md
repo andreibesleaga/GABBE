@@ -107,6 +107,81 @@ python3 init.py
 
 ---
 
+## 3.1. GABBE CLI 2.0
+
+The new CLI provides a robust interface for the Agentic Kit.
+
+### Installation
+The CLI is zero-dependency and runs with standard Python 3.
+
+```bash
+# It is automatically installed/configured by init.py
+# You can run it via:
+python3 -m gabbe.main [command]
+# Or if installed globally:
+gabbe [command]
+```
+
+### How to Use
+
+#### Setup
+```bash
+python3 -m gabbe.main init
+```
+
+#### Daily Workflow
+```bash
+# Check status
+python3 -m gabbe.main status
+
+# Sync tasks (manual edits)
+python3 -m gabbe.main sync
+
+# Optimize a skill
+python3 -m gabbe.main brain evolve --skill tdd-cycle
+```
+
+#### Verification
+```bash
+python3 -m gabbe.main verify
+```
+
+### Core Commands
+
+#### `gabbe sync`
+**Hybrid Synchronization Engine**.
+- **Read**: Scans `TASKS.md` and updates SQLite DB.
+- **Write**: If the Agent updates the DB (via tool), it rewrites `TASKS.md`.
+- **Conflict Resolution**: "Last Write Wins" (File modification time vs DB timestamp).
+
+#### `gabbe verify`
+**Programmable Enforcer**.
+- Checks existence of `AGENTS.md`, `CONSTITUTION.md`.
+- Verifies `TASKS.md` format.
+- Can be extended to run `npm test`, `npm audit`, etc.
+- Used as a pre-commit hook or CI gate.
+
+#### `gabbe brain`
+**Meta-Cognitive Interface**.
+- `gabbe brain activate`: Runs the Active Inference Loop (OODA).
+- `gabbe brain evolve --skill tdd-cycle`: Optimizes the skill prompt using evolutionary algorithms (mutates prompts, tests them, keeps the best).
+- `gabbe brain heal`: Checks system health and fixes missing files or broken configs.
+
+#### `gabbe route`
+**Cost-Effective Router**.
+- Analyzes prompt complexity (length, keywords, code density).
+- Detects PII (Privacy).
+- Routes to **Local LLM** (if simple/sensitive) or **Remote LLM** (if complex/safe).
+
+#### `gabbe status`
+All-in-one dashboard showing:
+- Current Phase (S01-S10)
+- Task Completion %
+- Recent Agents
+- System Health
+
+---
+
 **After Setup - Common Triggers:**
 
 **New Project:**
@@ -984,3 +1059,8 @@ See `loki/README.md` for full Loki Mode documentation.
 *See skills/00-index.md for complete skills registry with installation instructions.*
 *See loki/README.md for Loki Mode multi-agent orchestration.*
 *See .agents/skills/brain/README.md for complete brain documentation.*
+
+
+---
+
+[© 2026 Andrei Nicolae Besleaga. This work is licensed CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)

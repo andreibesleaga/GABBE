@@ -115,6 +115,75 @@ Multi-agent swarm with 30+ specialized personas for projects >5 features or >20 
 
 ---
 
+## 🚀 GABBE CLI 2.0
+
+The core of GABBE 2.0 is the **Zero-Dependency CLI** (`gabbe`) which powers the "Hybrid Mode". It bridges the gap between flexible Markdown files and a robust SQLite database.
+
+### Core Commands
+| Command | Description |
+|---|---|
+| `gabbe init` | Initialize the kit in your project (interactive wizard). |
+| `gabbe sync` | **Hybrid Sync**: Bidirectional sync between `TASKS.md` and SQLite DB. |
+| `gabbe verify`| **Enforcer**: programmable integrity check (files, tests, lint). |
+| `gabbe status`| **Dashboard**: Visualizes project phase and task progress. |
+| `gabbe brain` | **Meta-Cognition**: Activates Active Inference loop or Evolutionary Prompt Optimization. |
+| `gabbe route` | **Cost Router**: Arbitrates between Local and Remote LLMs based on task complexity. |
+
+### Architecture
+GABBE 2.0 uses a **Hybrid Architecture** where agents and humans interact via Markdown, but the system of record is SQLite.
+
+```mermaid
+graph TD
+    subgraph User["User (Legacy Flow)"]
+        Edit[Edit TASKS.md]
+    end
+
+    subgraph CLI["GABBE CLI 2.0"]
+        Sync[gabbe sync]
+        Verify[gabbe verify]
+        Brain[gabbe brain]
+        Router[gabbe route]
+    end
+
+    subgraph Storage["Hybrid Memory"]
+        MD[Markdown Files]
+        DB[(SQLite state.db)]
+    end
+
+    User -->|Manual Edits| MD
+    MD <-->|Bi-Directional| Sync
+    Sync <--> DB
+    Brain -->|Read/Write| DB
+    Verify -->|Check| MD
+    Verify -->|Check| DB
+```
+
+### How to Use
+
+#### Setup
+```bash
+python3 -m gabbe.main init
+```
+
+#### Daily Workflow
+```bash
+# Check status
+python3 -m gabbe.main status
+
+# Sync tasks (manual edits)
+python3 -m gabbe.main sync
+
+# Optimize a skill
+python3 -m gabbe.main brain evolve --skill tdd-cycle
+```
+
+#### Verification
+```bash
+python3 -m gabbe.main verify
+```
+
+---
+
 ## 4. End-to-End Workflow & Architecture
 
 ### Visual Overview (Mermaid)
@@ -556,3 +625,8 @@ Task → Knowledge gap? → research.skill → Execute → Verify
 ---
 
 *Full documentation: [README_FULL.md](README_FULL.md) · Full quick guide: [QUICK_GUIDE.md](QUICK_GUIDE.md)*
+
+
+---
+
+[© 2026 Andrei Nicolae Besleaga. This work is licensed CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)

@@ -64,10 +64,6 @@ chmod +x .agents/setup-context.sh && .agents/setup-context.sh
 - **Windows (Native):**
   - Use `python init.py` (Symlinks automatically fallback to file copies if needed).
   - Use `.agents/scripts/setup-context.ps1` instead of `.sh`.
-- **Android (Termux) / iOS (iSH):**
-  - Install Python: `pkg install python` (Termux) or `apk add python3` (iSH).
-  - Run `python3 init.py`.
-  - *Note:* Symlinks are emulated or copied depending on shell permissions.
 
 ---
 

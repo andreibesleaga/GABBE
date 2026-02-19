@@ -21,40 +21,87 @@ BLUE = "\033[0;34m"
 RED = "\033[0;31m"
 NC = "\033[0m"
 
-# --- Knowledge Base (Mapping Tech -> Skills/Resources) ---
-TECH_MAP = {
-    # Languages
-    "typescript": {"skills": ["tdd-cycle", "code-review", "agentic-linter"], "guides": ["js-ts-nodejs"]},
-    "javascript": {"skills": ["tdd-cycle", "code-review"], "guides": ["js-ts-nodejs"]},
-    "python": {"skills": ["tdd-cycle", "code-review"], "guides": ["python-fastapi-ai"]},
-    "php": {"skills": ["tdd-cycle", "code-review"], "guides": ["php-laravel"]},
-    "go": {"skills": ["tdd-cycle", "code-review", "api-design"], "guides": ["go-lang"]},
-    "rust": {"skills": ["tdd-cycle", "code-review"], "guides": []},
-    "java": {"skills": ["tdd-cycle", "code-review"], "guides": []},
+# --- Knowledge Base (Dynamic Discovery) ---
+
+def build_tech_map_from_skills(agents_dir):
+    """
+    Scans all .skill.md files in agents_dir/skills and builds a TECH_MAP
+    based on the 'tags' frontmatter field.
+    """
+    tech_map = {}
+    skills_dir = agents_dir / "skills"
     
-    # Frameworks
-    "react": {"skills": ["browser-tdd"], "guides": ["js-ts-nodejs"]},
-    "next.js": {"skills": ["browser-tdd"], "guides": ["js-ts-nodejs"]},
-    "laravel": {"skills": ["artisan-commands"], "guides": ["php-laravel"]},
-    "fastapi": {"skills": ["api-design"], "guides": ["python-fastapi-ai"]},
-    "echo": {"skills": ["api-design"], "guides": ["go-lang"]},
-    "gin": {"skills": ["api-design"], "guides": ["go-lang"]},
-    "fiber": {"skills": ["api-design"], "guides": ["go-lang"]},
-    "django": {"skills": ["db-migration"], "guides": []},
-    "spring": {"skills": ["enterprise-integration"], "guides": []},
+    if not skills_dir.exists():
+        return tech_map
+
+    for skill_file in skills_dir.rglob("*.skill.md"):
+        try:
+            content = skill_file.read_text()
+            meta, _ = ensure_yaml_frontmatter(content, skill_file.name)
+            
+            # Get tags (list of strings)
+            tags = meta.get("tags", [])
+            # Also support 'tech' or 'stack' as aliases
+            if not tags: tags = meta.get("tech", [])
+            if not tags: tags = meta.get("stack", [])
+            
+            # Normalize to list
+            if isinstance(tags, str):
+                tags = [t.strip() for t in tags.split(",")]
+            
+            skill_name = meta.get("name", skill_file.stem.replace(".skill", ""))
+            
+            for tag in tags:
+                tag = tag.lower().strip()
+                if tag not in tech_map:
+                    tech_map[tag] = {"skills": [], "guides": [], "templates": []}
+                
+                if skill_name not in tech_map[tag]["skills"]:
+                    tech_map[tag]["skills"].append(skill_name)
+                    
+        except Exception as e:
+            # print(f"Warning: Failed to parse {skill_file.name}: {e}")
+            pass
+
+    # Hardcoded Guides/Templates mapping (since these don't have metadata files yet)
+    # Ideally, guides/templates would also have frontmatter, but for now we map them by known tags.
     
-    # Infra & DB
-    "docker": {"skills": ["docker-dev", "infra-devops"], "templates": ["DEVCONTAINER_TEMPLATE.json"]},
-    "kubernetes": {"skills": ["k8s-dev", "infra-devops"], "templates": ["DEV_SPACE.yaml"]},
-    "aws": {"skills": ["cloud-deploy", "infra-devops"], "templates": ["INFRA_PLAN_TEMPLATE.md"]},
-    "postgresql": {"skills": ["db-migration"], "mcp": ["PostgreSQL MCP"]},
+    # Common mappings
+    shim_guides = {
+        "typescript": ["js-ts-nodejs"],
+        "javascript": ["js-ts-nodejs"],
+        "react": ["js-ts-nodejs"],
+        "next.js": ["js-ts-nodejs"],
+        "python": ["python-fastapi-ai"],
+        "fastapi": ["python-fastapi-ai"],
+        "php": ["php-laravel"],
+        "laravel": ["php-laravel"],
+        "go": ["go-lang"],
+        "legacy": ["legacy-tech"],
+    }
     
-    # Domains/Types (Mapped from Questions)
-    "enterprise": {"skills": ["enterprise-integration", "compliance-review", "arch-review"], "templates": ["CAPABILITY_MAP_TEMPLATE.md"]},
-    "legacy": {"skills": ["legacy-modernization", "tech-debt"], "guides": ["legacy-tech"], "templates": ["LEGACY_AUDIT_TEMPLATE.md"]},
-    "iot": {"skills": ["emerging-tech", "adaptive-architecture"]},
-    "regulated": {"skills": ["privacy-audit", "compliance-review", "security-audit"], "templates": ["SECURITY_CHECKLIST.md"]}
-}
+    shim_templates = {
+        "docker": ["DEVCONTAINER_TEMPLATE.json"],
+        "kubernetes": ["DEV_SPACE.yaml"],
+        "aws": ["INFRA_PLAN_TEMPLATE.md"],
+        "enterprise": ["CAPABILITY_MAP_TEMPLATE.md"],
+        "legacy": ["LEGACY_AUDIT_TEMPLATE.md"],
+        "regulated": ["SECURITY_CHECKLIST.md"]
+    }
+
+    # Merge shims
+    for tag, guides in shim_guides.items():
+        if tag not in tech_map: tech_map[tag] = {"skills": [], "guides": [], "templates": []}
+        tech_map[tag]["guides"].extend(guides)
+
+    for tag, temps in shim_templates.items():
+        if tag not in tech_map: tech_map[tag] = {"skills": [], "guides": [], "templates": []}
+        tech_map[tag]["templates"].extend(temps)
+
+    return tech_map
+
+# Initial placeholders - will be populated in main()
+TECH_MAP = {}
 
 # --- Helper Functions ---
 
@@ -246,6 +293,10 @@ def main():
         else:
             print(f"{RED}Error: Could not find source .agents directory at {SOURCE_AGENTS_DIR}{NC}")
             sys.exit(1)
+
+    # Initialize Dynamic Tech Map
+    global TECH_MAP
+    TECH_MAP = build_tech_map_from_skills(SOURCE_AGENTS_DIR)
 
     clear_screen()
     print_header()

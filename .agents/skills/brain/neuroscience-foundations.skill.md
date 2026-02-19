@@ -1,3 +1,10 @@
+---
+name: neuroscience-foundations
+description: Apply biological brain patterns to agent design
+triggers: [neuroscience, brain, cognitive, thalamus, basal ganglia]
+tags: [brain, architecture, theory]
+---
+
 # Neuroscience Foundations for Agents
 
 ## Description

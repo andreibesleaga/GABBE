@@ -3,6 +3,7 @@ name: tdd-cycle
 description: Red-Green-Refactor TDD loop with mandatory false-positive check
 triggers: [test, TDD, red-green, failing test, write test first, test-driven]
 context_cost: low
+tags: [typescript, javascript, python, php, go, rust, java, core]
 ---
 
 # TDD Cycle Skill

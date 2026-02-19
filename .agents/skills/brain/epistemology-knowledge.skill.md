@@ -1,3 +1,10 @@
+---
+name: epistemology-knowledge
+description: Implement rigorous knowledge representation and update beliefs via Active Inference
+triggers: [knowledge, epistemology, active inference, belief, truth]
+tags: [brain, theory, reasoning]
+---
+
 # Epistemology & Knowledge Representation
 
 ## Description

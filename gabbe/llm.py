@@ -60,7 +60,7 @@ def call_llm(prompt, system_prompt="You are a helpful assistant.", temperature=N
                 return None
 
         except requests.exceptions.HTTPError as e:
-            status = e.response.status_code
+            status = e.response.status_code if e.response else 500
             if status in (429, 500, 502, 503, 504) and attempt < _LLM_MAX_RETRIES:
                 logger.warning("Retriable HTTP %d error: %s", status, e)
                 # Exponential backoff

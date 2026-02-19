@@ -1,4 +1,5 @@
 import argparse
+import logging
 import sys
 from .config import Colors
 from .database import init_db

@@ -55,7 +55,9 @@ def test_call_llm_exhausts_retries(mock_sleep, mock_post):
 @patch("gabbe.llm.GABBE_API_KEY", "test-key")
 def test_call_llm_no_retry_on_400(mock_sleep, mock_post):
     mock_response = MagicMock()
-    mock_response.raise_for_status.side_effect = requests.exceptions.HTTPError("400 Bad Request")
+    error = requests.exceptions.HTTPError("400 Bad Request")
+    error.response = MagicMock(status_code=400)
+    mock_response.raise_for_status.side_effect = error
     mock_post.return_value = mock_response
 
     result = call_llm("prompt")

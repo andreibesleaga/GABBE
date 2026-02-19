@@ -28,6 +28,10 @@ It provides:
 
 ---
 
+*Full documentation: [README_FULL.md](README_FULL.md) · Full quick guide: [QUICK_GUIDE.md](QUICK_GUIDE.md)*
+
+---
+
 ### ⚡ Automated Setup (Recommended)
 The `init.py` script is a **Universal Skill Compiler**. It detects your AI tools and generates the correct formats:
 - **Cursor**: Generates `.cursor/rules/*.mdc` (Optimized with Globs)
@@ -652,9 +656,6 @@ Task → Knowledge gap? → research.skill → Execute → Verify
 | Legacy/COBOL | `guides/legacy-tech.md` |
 | Future Tech 2030 | `guides/future-tech.md` |
 
----
-
-*Full documentation: [README_FULL.md](README_FULL.md) · Full quick guide: [QUICK_GUIDE.md](QUICK_GUIDE.md)*
 
 
 ---

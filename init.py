@@ -35,7 +35,7 @@ TECH_MAP = {
     # Frameworks
     "react": {"skills": ["browser-tdd"], "guides": ["js-ts-nodejs"]},
     "next.js": {"skills": ["browser-tdd"], "guides": ["js-ts-nodejs"]},
-    "laravel": {"skills": ["artisan-commands (missing)"], "guides": ["php-laravel"]},
+    "laravel": {"skills": ["artisan-commands"], "guides": ["php-laravel"]},
     "fastapi": {"skills": ["api-design"], "guides": ["python-fastapi-ai"]},
     "echo": {"skills": ["api-design"], "guides": ["go-lang"]},
     "gin": {"skills": ["api-design"], "guides": ["go-lang"]},

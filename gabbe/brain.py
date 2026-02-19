@@ -108,7 +108,7 @@ def evolve_prompts(skill_name):
 def run_healer():
     """Self-Healing Watchdog: checks DB connectivity and required files."""
     print(f"{Colors.HEADER}🚑 Self-Healing Watchdog{Colors.ENDC}")
-    from .config import GABBE_DIR, PROJECT_ROOT
+    from .config import PROJECT_ROOT, REQUIRED_FILES
     issues = []
 
     # 1. Check DB connectivity
@@ -121,13 +121,8 @@ def run_healer():
         issues.append(f"Database unreachable: {e}")
         print(f"  {Colors.FAIL}✗ Database: {e}{Colors.ENDC}")
 
-    # 2. Check required project files
-    required = [
-        PROJECT_ROOT / ".agents" / "AGENTS.md",
-        PROJECT_ROOT / ".agents" / "CONSTITUTION.md",
-        PROJECT_ROOT / "TASKS.md",
-    ]
-    for path in required:
+    # 2. Check required project files (defined centrally in config.py)
+    for path in REQUIRED_FILES:
         if path.exists():
             print(f"  {Colors.GREEN}✓ {path.relative_to(PROJECT_ROOT)}: Present{Colors.ENDC}")
         else:

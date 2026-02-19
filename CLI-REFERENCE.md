@@ -24,6 +24,15 @@ Entry point: `gabbe` (defined in `pyproject.toml → [project.scripts]`)
 
 ---
 
+## Global Flags
+
+| Flag | Description |
+|---|---|
+| `--help` / `-h` | Show help for the command or sub-command and exit |
+| `--version` | Print the installed version (`gabbe x.y.z`) and exit |
+
+---
+
 ## Commands
 
 ### `gabbe init`
@@ -98,6 +107,12 @@ security_scan: bandit -r gabbe/
 ```
 
 Only lines inside `## Commands` (until the next `##` heading) are parsed.
+
+**Parsing rules:**
+- Section header matching is **case-insensitive** (`## Commands` and `## commands` both work)
+- Supported command keys: `test`, `lint`, `security_scan`, `build`
+- Values are stripped of surrounding single/double quotes
+- Commands are executed with `shell=False` (no shell expansion)
 
 **Exit codes:** `0` = all passed, `1` = at least one check failed
 

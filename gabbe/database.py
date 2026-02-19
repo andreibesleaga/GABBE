@@ -47,8 +47,9 @@ def _migrate(conn):
         # v2: ensure UNIQUE index on tasks.title (no-op if table was just created above)
         try:
             c.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_tasks_title ON tasks(title)")
-        except sqlite3.OperationalError:
-            pass  # Index may already exist in older DBs
+        except sqlite3.OperationalError as e:
+            if "already exists" not in str(e).lower():
+                raise
 
     # Upsert schema version
     if row:

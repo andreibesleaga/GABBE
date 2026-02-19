@@ -2,12 +2,14 @@ import argparse
 import sys
 from .config import Colors
 from .database import init_db
+from . import __version__
 
 def main():
     parser = argparse.ArgumentParser(
         description=f"{Colors.BOLD}GABBE CLI - Agentic Engineering Platform{Colors.ENDC}",
         formatter_class=argparse.RawTextHelpFormatter
     )
+    parser.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
 
     # --- COMMAND: init ---

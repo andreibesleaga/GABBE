@@ -156,7 +156,7 @@ def ask_multiselect(question, options):
         for idx in indices:
             if 0 <= idx < len(options):
                 selected.append(options[idx])
-    except:
+    except Exception:
         pass
     return selected
 
@@ -214,7 +214,7 @@ def ensure_yaml_frontmatter(content, filename):
                         k, v = line.split(':', 1)
                         data[k.strip()] = v.strip().strip('"\'')
                 return data, content
-        except:
+        except Exception:
             pass
             
     # Default frontmatter if missing
@@ -558,7 +558,7 @@ def main():
             # Use paths relative to PROJECT_ROOT for cleaner config
             rel_agents = os.path.relpath(agents_md_src, PROJECT_ROOT)
             rel_skills = os.path.relpath(skills_src, PROJECT_ROOT)
-        except:
+        except Exception:
             rel_agents = str(agents_md_src.absolute())
             rel_skills = str(skills_src.absolute())
 

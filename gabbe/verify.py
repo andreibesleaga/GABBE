@@ -2,13 +2,7 @@ import os
 import subprocess
 import shlex
 from pathlib import Path
-from .config import PROJECT_ROOT, Colors, AGENTS_DIR, GABBE_DIR
-
-REQUIRED_FILES = [
-    PROJECT_ROOT / ".agents/AGENTS.md",
-    PROJECT_ROOT / ".agents/CONSTITUTION.md",
-    PROJECT_ROOT / "TASKS.md"
-]
+from .config import PROJECT_ROOT, Colors, GABBE_DIR, REQUIRED_FILES
 
 def check_files():
     """Verify presence of critical files."""

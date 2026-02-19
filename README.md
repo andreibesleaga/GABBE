@@ -19,12 +19,12 @@
 It provides:
 - **120+ Skills** (specialized capabilities)
 - **60+ Templates** (standardized documents)
-- **38+ Guides** (language & domain expertise)
+- **30+ Guides** (language & domain expertise)
 - **30+ Personas** (specialized roles)
 - **Brain Mode** (meta-cognitive orchestration)
 - **Loki Mode** (multi-agent swarm engineering team for large projects)
 
-> **120+ Skills · 60+ Templates · 38+ Guides · 30+ Personas · Loki / Brain Mode**
+> **120+ Skills · 60+ Templates · 30+ Guides · 30+ Personas · Loki / Brain Mode**
 
 ---
 
@@ -123,6 +123,17 @@ The core of GABBE 2.0 is the **Zero-Dependency CLI** (`gabbe`) which powers the 
 ### Prerequisites
 - Python 3.8+
 - **LLM API Key**: For Brain/Route features, set `GABBE_API_KEY` (OpenAI-compatible).
+
+**Environment Variables** (full reference in [CLI-REFERENCE.md](CLI-REFERENCE.md#environment-variables)):
+
+| Variable | Default | Description |
+|---|---|---|
+| `GABBE_API_URL` | `https://api.openai.com/v1/chat/completions` | OpenAI-compatible endpoint |
+| `GABBE_API_KEY` | *(required for LLM features)* | Bearer token for the LLM API |
+| `GABBE_API_MODEL` | `gpt-4o` | Model name sent in API requests |
+| `GABBE_LLM_TEMPERATURE` | `0.7` | Sampling temperature (0.0–1.0) |
+| `GABBE_LLM_TIMEOUT` | `30` | HTTP timeout in seconds |
+| `GABBE_ROUTE_THRESHOLD` | `50` | Complexity score above which prompts route REMOTE |
 
 ### Installation
 The CLI is a Python package.
@@ -320,7 +331,7 @@ graph TB
     subgraph Tools ["Capability Layer"]
         S[120+ Skills]
         T[60+ Templates]
-        G[38+ Guides]
+        G[30+ Guides]
     end
 
     subgraph Memory ["Memory System"]

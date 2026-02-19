@@ -23,24 +23,23 @@ class TestGabbeE2E(unittest.TestCase):
         self.tasks_file = self.project_root / "TASKS.md"
 
         # Patch all module-level path constants
+        _required_files = [
+            self.project_root / ".agents/AGENTS.md",
+            self.project_root / ".agents/CONSTITUTION.md",
+            self.project_root / "TASKS.md",
+        ]
         self._patches = [
             patch("gabbe.config.PROJECT_ROOT", self.project_root),
             patch("gabbe.config.GABBE_DIR", self.gabbe_dir),
             patch("gabbe.config.DB_PATH", self.db_path),
             patch("gabbe.config.TASKS_FILE", self.tasks_file),
+            patch("gabbe.config.REQUIRED_FILES", _required_files),
             patch("gabbe.database.GABBE_DIR", self.gabbe_dir),
             patch("gabbe.database.DB_PATH", self.db_path),
             patch("gabbe.sync.TASKS_FILE", self.tasks_file),
             patch("gabbe.verify.PROJECT_ROOT", self.project_root),
             patch("gabbe.verify.GABBE_DIR", self.gabbe_dir),
-            patch(
-                "gabbe.verify.REQUIRED_FILES",
-                [
-                    self.project_root / ".agents/AGENTS.md",
-                    self.project_root / ".agents/CONSTITUTION.md",
-                    self.project_root / "TASKS.md",
-                ],
-            ),
+            patch("gabbe.verify.REQUIRED_FILES", _required_files),
         ]
         for p in self._patches:
             p.start()

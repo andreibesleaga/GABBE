@@ -1,4 +1,5 @@
 import os
+import warnings
 from pathlib import Path
 
 # Paths — PROJECT_ROOT is set to the current working directory at import time,
@@ -14,15 +15,42 @@ AGENTS_DIR = PROJECT_ROOT / ".agents"
 SKILLS_DIR = AGENTS_DIR / "skills"
 LOKI_DIR = AGENTS_DIR / "loki"
 
+# Required project files — centralised so verify.py and brain.py stay in sync.
+REQUIRED_FILES = [
+    PROJECT_ROOT / ".agents/AGENTS.md",
+    PROJECT_ROOT / ".agents/CONSTITUTION.md",
+    PROJECT_ROOT / "TASKS.md",
+]
+
 # LLM Config
 GABBE_API_URL = os.environ.get("GABBE_API_URL", "https://api.openai.com/v1/chat/completions")
 GABBE_API_KEY = os.environ.get("GABBE_API_KEY")
 GABBE_API_MODEL = os.environ.get("GABBE_API_MODEL", "gpt-4o")
-LLM_TEMPERATURE = float(os.environ.get("GABBE_LLM_TEMPERATURE", "0.7"))
-LLM_TIMEOUT = int(os.environ.get("GABBE_LLM_TIMEOUT", "30"))
+
+
+def _safe_float(env_var, default):
+    raw = os.environ.get(env_var, str(default))
+    try:
+        return float(raw)
+    except ValueError:
+        warnings.warn(f"Invalid value for {env_var}={raw!r}; using default {default}")
+        return default
+
+
+def _safe_int(env_var, default):
+    raw = os.environ.get(env_var, str(default))
+    try:
+        return int(raw)
+    except ValueError:
+        warnings.warn(f"Invalid value for {env_var}={raw!r}; using default {default}")
+        return default
+
+
+LLM_TEMPERATURE = _safe_float("GABBE_LLM_TEMPERATURE", 0.7)
+LLM_TIMEOUT = _safe_int("GABBE_LLM_TIMEOUT", 30)
 
 # Router Config
-ROUTE_COMPLEXITY_THRESHOLD = int(os.environ.get("GABBE_ROUTE_THRESHOLD", "50"))
+ROUTE_COMPLEXITY_THRESHOLD = _safe_int("GABBE_ROUTE_THRESHOLD", 50)
 
 # UI Config
 PROGRESS_BAR_LEN = 20

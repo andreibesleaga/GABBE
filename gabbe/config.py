@@ -97,6 +97,14 @@ ROUTE_COMPLEXITY_THRESHOLD = _safe_int("GABBE_ROUTE_THRESHOLD", 50)
 # UI Config
 PROGRESS_BAR_LEN = 20
 
+# Subprocess timeout for verify commands (test, lint, security_scan) in seconds
+SUBPROCESS_TIMEOUT = _safe_int("GABBE_SUBPROCESS_TIMEOUT", 300)
+
+# Task status constants — single source of truth used across brain, sync, status
+TASK_STATUS_TODO = "TODO"
+TASK_STATUS_IN_PROGRESS = "IN_PROGRESS"
+TASK_STATUS_DONE = "DONE"
+
 
 # Colors for CLI
 class Colors:

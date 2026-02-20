@@ -1,6 +1,6 @@
 import subprocess
 import shlex
-from .config import PROJECT_ROOT, Colors, GABBE_DIR, REQUIRED_FILES
+from .config import PROJECT_ROOT, Colors, GABBE_DIR, REQUIRED_FILES, SUBPROCESS_TIMEOUT
 
 
 def check_files():
@@ -72,7 +72,9 @@ def run_command(cmd, name):
     print(f"  Running {name}: {Colors.BLUE}{cmd}{Colors.ENDC}")
     try:
         args = shlex.split(cmd)
-        result = subprocess.run(args, shell=False, check=False, cwd=PROJECT_ROOT)
+        result = subprocess.run(
+            args, shell=False, check=False, cwd=PROJECT_ROOT, timeout=SUBPROCESS_TIMEOUT
+        )
         if result.returncode == 0:
             print(f"  {Colors.GREEN}✓ {name} Passed{Colors.ENDC}")
             return True
@@ -81,6 +83,11 @@ def run_command(cmd, name):
                 f"  {Colors.FAIL}x {name} Failed (Exit Code {result.returncode}){Colors.ENDC}"
             )
             return False
+    except subprocess.TimeoutExpired:
+        print(
+            f"  {Colors.FAIL}x {name} Timed Out (>{SUBPROCESS_TIMEOUT}s){Colors.ENDC}"
+        )
+        return False
     except Exception as e:
         print(f"  {Colors.FAIL}x Execution Error: {e}{Colors.ENDC}")
         return False

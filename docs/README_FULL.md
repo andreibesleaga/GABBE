@@ -1037,7 +1037,7 @@ Loki Mode activates a multi-agent swarm for large projects (new product builds, 
 "Activate Loki Mode. Goal: [build X / migrate Y / refactor Z]"
 ```
 
-## What's Inside?
+## 23. What's Inside?
 
 > **Stats**: 120+ Skills · 60+ Templates · 30+ Personas · 30+ Guides
 
@@ -1056,7 +1056,7 @@ Loki Mode activates a multi-agent swarm for large projects (new product builds, 
 
 ---
 
-## 22. 🚀 Common Actions (Copy-Paste Prompts)
+## 24. 🚀 Common Actions (Copy-Paste Prompts)
 
 Copy and paste these exact prompts into your AI chat window to kick off standard workflows.
 
@@ -1098,14 +1098,7 @@ Copy and paste these exact prompts into your AI chat window to kick off standard
 
 ---
 
-## 23. Loki Mode (Large Projects)
--security` is explicitly **adversarial** — it actively tries to find exploits in Engineering Swarm output before it reaches production.
-
-See `agents/skills/brain/README_ORCHESTRATORS.md` for full Loki Mode documentation.
-
----
-
-## 24. Guides by Technology Stack
+## 25. Guides by Technology Stack
 
 | Guide | Stack | Key Topics |
 |---|---|---|
@@ -1160,7 +1153,7 @@ See `agents/skills/brain/README_ORCHESTRATORS.md` for full Loki Mode documentati
 
 ---
 
-## 24. Troubleshooting
+## 26. Troubleshooting
 
 **Agent ignores AGENTS.md:**
 - Run `setup-context.sh` to create tool-specific symlinks

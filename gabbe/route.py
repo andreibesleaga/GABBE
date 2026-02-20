@@ -27,8 +27,11 @@ def calculate_complexity(prompt):
         data = json.loads(response)
         return data.get("score", 50), data.get("reason", "No reason provided")
     except Exception as e:
-        # Fallback heuristic if LLM fails
-        print(f"  {Colors.WARNING}LLM Analysis Failed: {e}{Colors.ENDC}")
+        # Fallback heuristic if LLM fails or returns invalid JSON
+        if isinstance(e, json.JSONDecodeError):
+            print(f"  {Colors.WARNING}LLM returned invalid JSON — using fallback heuristic: {e}{Colors.ENDC}")
+        else:
+            print(f"  {Colors.WARNING}LLM Analysis Failed: {e}{Colors.ENDC}")
         score = 0
         if len(prompt) > 500:
             score += 60  # Updated to ensure long prompts route REMOTE (Threshold 50)

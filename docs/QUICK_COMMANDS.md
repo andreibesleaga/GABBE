@@ -9,7 +9,7 @@ This guide provides a quick reference for the most common commands, setup instru
 | **Initialize Kit** | `python3 scripts/init.py` | Runs the setup wizard to configure the kit, wire your AI agents (Claude, Cursor, Gemini), and generate `BOOTSTRAP_MISSION.md` |
 | **Manual Wiring (UNIX)** | `./agents/setup-context.sh` | Manually symlinks the skills into your IDE's agent folder. |
 | **Manual Wiring (Windows)** | `.\agents\setup-context.ps1` | PowerShell equivalent of the manual wiring script. |
-| **Install GABBE CLI (Optional)**| `pip install -e .` | Installs the experimental GABBE 2.0 CLI locally. |
+| **Install GABBE CLI (Optional)**| `pip install -e .` | Installs the GABBE CLI 0.3.0 (Stable) locally. |
 
 ---
 
@@ -21,8 +21,10 @@ This guide provides a quick reference for the most common commands, setup instru
 | `gabbe sync` | Bidirectional sync between `project/TASKS.md` and SQLite DB. |
 | `gabbe verify` | Programmable integrity check (files, tests, lint). |
 | `gabbe status` | Visual dashboard of project phase and task progress. |
-| `gabbe brain` | Activates Active Inference loop (requires API key). |
-| `gabbe route` | Arbitrates between Local and Remote LLMs (requires API key). |
+| `gabbe brain activate` | Activates Active Inference loop (requires API key). |
+| `gabbe brain evolve --skill NAME` | Evolutionary Prompt Optimization for a named skill. |
+| `gabbe brain heal` | Self-healing watchdog: checks DB and required files. |
+| `gabbe route <prompt>` | Arbitrates prompt between Local and Remote LLMs (requires API key). |
 
 ---
 

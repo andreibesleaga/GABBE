@@ -1,7 +1,7 @@
 import logging
 import sqlite3
 import requests
-from .config import Colors
+from .config import Colors, TASK_STATUS_TODO, TASK_STATUS_IN_PROGRESS, TASK_STATUS_DONE
 from .database import get_db
 from .llm import call_llm
 
@@ -28,9 +28,9 @@ def activate_brain():
         print(f"  {Colors.FAIL}Unexpected error: {e}{Colors.ENDC}")
         return
 
-    todo = stats.get("TODO", 0)
-    in_progress = stats.get("IN_PROGRESS", 0)
-    done = stats.get("DONE", 0)
+    todo = stats.get(TASK_STATUS_TODO, 0)
+    in_progress = stats.get(TASK_STATUS_IN_PROGRESS, 0)
+    done = stats.get(TASK_STATUS_DONE, 0)
     total = todo + in_progress + done
 
     state_desc = f"Project State: {todo} TODO, {in_progress} IN_PROGRESS, {done} DONE (Total: {total})."
@@ -110,6 +110,13 @@ def evolve_prompts(skill_name):
 
         if new_prompt:
             # 3. Selection (Store new candidate)
+            # NOTE: success_rate starts at 0.0 and is not updated automatically.
+            # For EPO selection to be meaningful, an external process (e.g., human review
+            # or CI pass/fail integration) must update success_rate in the genes table
+            # after evaluating each generated prompt. Until then, gene selection is
+            # effectively FIFO (ORDER BY success_rate DESC returns the first created gene).
+            # This is intentional open-loop design; a future `gabbe brain eval` command
+            # can close the loop by updating success_rate based on observed outcomes.
             next_gen = generation + 1
             c.execute(
                 "INSERT INTO genes (skill_name, prompt_content, generation) VALUES (?, ?, ?)",

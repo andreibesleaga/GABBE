@@ -14,7 +14,7 @@ _MARKER_END = "<!-- GABBE:TASKS:END -->"
 
 
 def parse_markdown_tasks(content):
-    """Parse TASKS.md content into a list of dicts.
+    """Parse project/TASKS.md content into a list of dicts.
 
     Supports both legacy full-file parsing and new marker-based parsing.
     """
@@ -70,7 +70,7 @@ def _generate_task_lines(tasks):
 
 
 def generate_markdown_tasks(tasks):
-    """Generate TASKS.md content from DB tasks (Legacy / Full overwrite)."""
+    """Generate project/TASKS.md content from DB tasks (Legacy / Full overwrite)."""
     # This is kept for backward compatibility or if we decide to force overwrite
     lines = ["# Project Tasks", "", _MARKER_START]
     lines.append(_generate_task_lines(tasks))
@@ -131,7 +131,7 @@ def _calculate_state_hash(tasks):
 
 
 def sync_tasks():
-    """Bidirectional sync for TASKS.md based on content changes."""
+    """Bidirectional sync for project/TASKS.md based on content changes."""
     print(f"{Colors.HEADER}🔄 Syncing Tasks...{Colors.ENDC}")
     conn = get_db()
     try:
@@ -186,23 +186,23 @@ def sync_tasks():
         file_mtime = TASKS_FILE.stat().st_mtime if file_exists else 0
         
         if db_count == 0 and file_count > 0:
-             print(f"  {Colors.BLUE}Bootstrap: Importing from TASKS.md{Colors.ENDC}")
+             print(f"  {Colors.BLUE}Bootstrap: Importing from project/TASKS.md{Colors.ENDC}")
              import_from_md(c, file_tasks)
              conn.commit()
 
         elif file_count == 0 and db_count > 0:
-             print(f"  {Colors.BLUE}Bootstrap: Exporting to TASKS.md{Colors.ENDC}")
+             print(f"  {Colors.BLUE}Bootstrap: Exporting to project/TASKS.md{Colors.ENDC}")
              export_to_md(c)
 
         elif file_mtime >= db_mtime:
              # File is newer (or equal). Check for actual changes.
-             print(f"  {Colors.BLUE}Checking TASKS.md for new updates...{Colors.ENDC}")
+             print(f"  {Colors.BLUE}Checking project/TASKS.md for new updates...{Colors.ENDC}")
              import_from_md(c, file_tasks)
              conn.commit()
         
         else:
              # DB is newer
-             print(f"  {Colors.BLUE}Exporting DB changes to TASKS.md...{Colors.ENDC}")
+             print(f"  {Colors.BLUE}Exporting DB changes to project/TASKS.md...{Colors.ENDC}")
              export_to_md(c)
 
     finally:
@@ -295,7 +295,7 @@ def export_to_md(c):
                     final_content = f"{content.rstrip()}\n\n{_MARKER_START}\n{new_task_lines}\n{_MARKER_END}\n"
 
         except Exception as e:
-            logger.error("Error reading TASKS.md: %s", e)
+            logger.error("Error reading project/TASKS.md: %s", e)
 
     _atomic_write(TASKS_FILE, final_content)
-    print(f"  {Colors.GREEN}✓ Exported {len(db_tasks)} tasks to TASKS.md{Colors.ENDC}")
+    print(f"  {Colors.GREEN}✓ Exported {len(db_tasks)} tasks to project/TASKS.md{Colors.ENDC}")

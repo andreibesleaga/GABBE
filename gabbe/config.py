@@ -2,12 +2,12 @@ import os
 import warnings
 from pathlib import Path
 
-# Paths — PROJECT_ROOT is determined by looking for marker files (.gabbe, .git, pyproject.toml)
+# Paths — PROJECT_ROOT is determined by looking for marker files (project, .git, pyproject.toml)
 # upwards from the current working directory.
 def _find_project_root(start_path):
     current = start_path.resolve()
     for _ in range(10):  # Limit recursion depth
-        if (current / ".gabbe").exists() or (current / ".git").exists() or (current / "pyproject.toml").exists():
+        if (current / "project").exists() or (current / ".git").exists() or (current / "pyproject.toml").exists():
             return current
         parent = current.parent
         if parent == current:
@@ -30,24 +30,24 @@ PII_PATTERNS = [
         r"(?i)\b(?:password|passwd|api[_\-]?key|secret|token)\s*[:=]\s*\S+"
     ),  # credentials
 ]
-GABBE_DIR = PROJECT_ROOT / ".gabbe"
+GABBE_DIR = PROJECT_ROOT / "project"
 DB_PATH = GABBE_DIR / "state.db"
-TASKS_FILE = PROJECT_ROOT / "TASKS.md"
+TASKS_FILE = PROJECT_ROOT / "project/TASKS.md"
 
 # Agent Config
-AGENTS_DIR = PROJECT_ROOT / ".agents"
+AGENTS_DIR = PROJECT_ROOT / "agents"
 SKILLS_DIR = AGENTS_DIR / "skills"
-LOKI_DIR = AGENTS_DIR / "loki"
+
 
 # Dynamic Configuration Loading
 # We define base required files here, but this could be extended to load from a JSON manifest.
 REQUIRED_FILES = [
-    PROJECT_ROOT / ".agents/AGENTS.md",
-    PROJECT_ROOT / ".agents/CONSTITUTION.md",
-    PROJECT_ROOT / "TASKS.md",
+    PROJECT_ROOT / "agents/AGENTS.md",
+    PROJECT_ROOT / "agents/CONSTITUTION.md",
+    PROJECT_ROOT / "project/TASKS.md",
 ]
 
-# Attempt to load extra config from .gabbe/config.json if it exists (Future proofing)
+# Attempt to load extra config from project/config.json if it exists (Future proofing)
 GABBE_CONFIG_FILE = GABBE_DIR / "config.json"
 if GABBE_CONFIG_FILE.exists():
     import json

@@ -12,7 +12,7 @@ def test_project_root_is_path():
 
 def test_gabbe_dir_is_child_of_project_root():
     from gabbe.config import PROJECT_ROOT, GABBE_DIR
-    assert GABBE_DIR == PROJECT_ROOT / ".gabbe"
+    assert GABBE_DIR == PROJECT_ROOT / "project"
 
 
 def test_db_path_inside_gabbe_dir():
@@ -22,7 +22,7 @@ def test_db_path_inside_gabbe_dir():
 
 def test_tasks_file_inside_project_root():
     from gabbe.config import PROJECT_ROOT, TASKS_FILE
-    assert TASKS_FILE == PROJECT_ROOT / "TASKS.md"
+    assert TASKS_FILE == PROJECT_ROOT / "project/TASKS.md"
 
 
 def test_llm_temperature_default():

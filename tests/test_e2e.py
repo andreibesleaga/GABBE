@@ -18,27 +18,27 @@ class TestGabbeE2E(unittest.TestCase):
         # Temporary project directory
         self.test_dir = tempfile.mkdtemp()
         self.project_root = Path(self.test_dir)
-        self.gabbe_dir = self.project_root / ".gabbe"
-        self.db_path = self.gabbe_dir / "state.db"
-        self.tasks_file = self.project_root / "TASKS.md"
+        selfproject_dir = self.project_root / "project"
+        self.db_path = selfproject_dir / "state.db"
+        self.tasks_file = self.project_root / "project/TASKS.md"
 
         # Patch all module-level path constants
         _required_files = [
-            self.project_root / ".agents/AGENTS.md",
-            self.project_root / ".agents/CONSTITUTION.md",
-            self.project_root / "TASKS.md",
+            self.project_root / "agents/AGENTS.md",
+            self.project_root / "agents/CONSTITUTION.md",
+            self.project_root / "project/TASKS.md",
         ]
         self._patches = [
             patch("gabbe.config.PROJECT_ROOT", self.project_root),
-            patch("gabbe.config.GABBE_DIR", self.gabbe_dir),
+            patch("gabbe.config.GABBE_DIR", selfproject_dir),
             patch("gabbe.config.DB_PATH", self.db_path),
             patch("gabbe.config.TASKS_FILE", self.tasks_file),
             patch("gabbe.config.REQUIRED_FILES", _required_files),
-            patch("gabbe.database.GABBE_DIR", self.gabbe_dir),
+            patch("gabbe.database.GABBE_DIR", selfproject_dir),
             patch("gabbe.database.DB_PATH", self.db_path),
             patch("gabbe.sync.TASKS_FILE", self.tasks_file),
             patch("gabbe.verify.PROJECT_ROOT", self.project_root),
-            patch("gabbe.verify.GABBE_DIR", self.gabbe_dir),
+            patch("gabbe.verify.GABBE_DIR", selfproject_dir),
             patch("gabbe.verify.REQUIRED_FILES", _required_files),
         ]
         for p in self._patches:
@@ -145,7 +145,7 @@ class TestGabbeE2E(unittest.TestCase):
         from gabbe.verify import run_verification
 
         # Create required files
-        agents = self.project_root / ".agents"
+        agents = self.project_root / "agents"
         agents.mkdir(exist_ok=True)
         (agents / "AGENTS.md").write_text("## Commands\n")
         (agents / "CONSTITUTION.md").touch()
@@ -183,7 +183,7 @@ class TestGabbeE2E(unittest.TestCase):
         import io, sys
 
         # Create required files so healer finds them
-        agents = self.project_root / ".agents"
+        agents = self.project_root / "agents"
         agents.mkdir(exist_ok=True)
         (agents / "AGENTS.md").touch()
         (agents / "CONSTITUTION.md").touch()

@@ -24,7 +24,7 @@ pytest tests/ -v
 
 ## Adding a Custom Skill
 
-1. Create a new `.skill.md` file in `.agents/skills/<category>/`:
+1. Create a new `.skill.md` file in `agents/skills/<category>/`:
 
 ```markdown
 ---
@@ -50,7 +50,7 @@ Concise statement of what the agent should accomplish.
 2. Re-run `init.py` to distribute the skill to all configured AI tools:
 
 ```bash
-python3 init.py
+python3 scripts/init.py
 ```
 
 3. Add a row to the skills table in `README_FULL.md` and an entry in `README.md`.
@@ -59,15 +59,15 @@ python3 init.py
 
 ## Adding a Custom Template
 
-1. Create a `.md` file in `.agents/templates/<category>/`.
-2. Use existing templates as reference (e.g., `.agents/templates/core/TASKS.md`).
+1. Create a `.md` file in `agents/templates/<category>/`.
+2. Use existing templates as reference (e.g., `agents/templates/core/project/TASKS.md`).
 3. Update the templates table in `README.md` and `README_FULL.md`.
 
 ---
 
 ## Adding a Custom Guide
 
-1. Create a `.md` file in `.agents/guides/`.
+1. Create a `.md` file in `agents/guides/`.
 2. Update the guides table in `README.md` (Guides by Stack section) and `README_FULL.md`.
 
 ---

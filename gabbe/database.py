@@ -75,7 +75,7 @@ def init_db():
     """Initialize (or migrate) the SQLite database schema."""
     if not GABBE_DIR.exists():
         GABBE_DIR.mkdir(parents=True, exist_ok=True)
-        print(f"{Colors.GREEN}Created .gabbe directory{Colors.ENDC}")
+        print(f"{Colors.GREEN}Created project directory{Colors.ENDC}")
 
     conn = sqlite3.connect(DB_PATH)
     try:

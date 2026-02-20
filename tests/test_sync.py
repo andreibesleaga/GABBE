@@ -119,7 +119,7 @@ def test_parse_invalid_returns_zero():
 
 def test_sync_import_from_md(tmp_project):
     import gabbe.sync as sync_mod
-    tasks_file = tmp_project / "TASKS.md"
+    tasks_file = tmp_project / "project/TASKS.md"
     tasks_file.write_text("- [ ] Task Alpha\n- [x] Task Beta\n")
 
     sync_mod.sync_tasks()
@@ -154,7 +154,7 @@ def test_sync_export_to_md(tmp_project):
 
     sync_mod.sync_tasks()
 
-    tasks_file = tmp_project / "TASKS.md"
+    tasks_file = tmp_project / "project/TASKS.md"
     content = tasks_file.read_text()
     assert "- [/] Task Gamma" in content
 
@@ -180,6 +180,6 @@ def test_sync_atomic_write_creates_file(tmp_project):
 
     sync_mod.sync_tasks()
 
-    tasks_file = tmp_project / "TASKS.md"
+    tasks_file = tmp_project / "project/TASKS.md"
     assert tasks_file.exists()
     assert "Atomic Task" in tasks_file.read_text()

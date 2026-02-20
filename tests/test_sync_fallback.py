@@ -5,10 +5,10 @@ from gabbe.sync import sync_tasks, TASKS_FILE, _MARKER_START, _MARKER_END
 
 def test_sync_preserves_preamble_no_markers(tmp_path):
     """
-    Test that when TASKS.md has no markers, the sync process preserves 
+    Test that when project/TASKS.md has no markers, the sync process preserves 
     any content before the first task list item.
     """
-    # 1. Setup a fake TASKS.md with a custom preamble
+    # 1. Setup a fake project/TASKS.md with a custom preamble
     d = tmp_path / "project"
     d.mkdir()
     tasks_file = d / "TASKS.md"

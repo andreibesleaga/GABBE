@@ -1,5 +1,6 @@
-docs
-TASKS.md
+#agents/memory/
+#project
+
 __pycache__
 *.pyc
 .venv
@@ -9,12 +10,6 @@ dist/
 build/
 .coverage
 .pytest_cache
-
-# Environment secrets
 .env
-
-# Local environment overrides
 .env.local
-
-# Environment-specific local overrides
 .env.*.local

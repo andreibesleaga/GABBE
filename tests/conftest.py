@@ -27,13 +27,13 @@ def tmp_project(tmp_path):
 
     Yields the temporary project root Path.
     """
-    gabbe_dir = tmp_path / ".gabbe"
+    gabbe_dir = tmp_path / "project"
     db_path = gabbe_dir / "state.db"
-    tasks_file = tmp_path / "TASKS.md"
+    tasks_file = tmp_path / "project/TASKS.md"
     required_files = [
-        tmp_path / ".agents/AGENTS.md",
-        tmp_path / ".agents/CONSTITUTION.md",
-        tmp_path / "TASKS.md",
+        tmp_path / "agents/AGENTS.md",
+        tmp_path / "agents/CONSTITUTION.md",
+        tmp_path / "project/TASKS.md",
     ]
 
     with (

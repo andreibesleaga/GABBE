@@ -147,16 +147,16 @@ def test_run_healer_all_clear(tmp_project, capsys):
     """Healer reports nominal when DB reachable and all files exist."""
     from gabbe.brain import run_healer
 
-    agents = tmp_project / ".agents"
+    agents = tmp_project / "agents"
     agents.mkdir(exist_ok=True)
     (agents / "AGENTS.md").touch()
     (agents / "CONSTITUTION.md").touch()
-    (tmp_project / "TASKS.md").touch()
+    (tmp_project / "project/TASKS.md").touch()
 
     required = [
-        tmp_project / ".agents/AGENTS.md",
-        tmp_project / ".agents/CONSTITUTION.md",
-        tmp_project / "TASKS.md",
+        tmp_project / "agents/AGENTS.md",
+        tmp_project / "agents/CONSTITUTION.md",
+        tmp_project / "project/TASKS.md",
     ]
     with patch("gabbe.config.REQUIRED_FILES", required):
         run_healer()
@@ -171,8 +171,8 @@ def test_run_healer_missing_files(tmp_project, capsys):
     from gabbe.brain import run_healer
 
     required = [
-        tmp_project / ".agents/AGENTS.md",  # does not exist
-        tmp_project / "TASKS.md",            # does not exist
+        tmp_project / "agents/AGENTS.md",  # does not exist
+        tmp_project / "project/TASKS.md",            # does not exist
     ]
     with patch("gabbe.config.REQUIRED_FILES", required):
         run_healer()

@@ -3,7 +3,7 @@
 
 ## Quick Reference
 
-![GABBE Agentic Software R&D Engineering Kit](GABBE.png)
+![GABBE Agentic Software R&D Engineering Kit](docs/assets/GABBE.png)
 
 ## What is this?
 
@@ -28,7 +28,7 @@ It provides:
 
 ---
 
-*Full documentation: [README_FULL.md](README_FULL.md) · Full quick guide: [QUICK_GUIDE.md](QUICK_GUIDE.md)*
+*Full documentation: [README_FULL.md](docs/README_FULL.md) · Full quick guide: [QUICK_GUIDE.md](docs/QUICK_GUIDE.md)*
 
 ---
 
@@ -41,7 +41,7 @@ The `init.py` script is a **Universal Skill Compiler**. It detects your AI tools
 
 ```bash
 # 1. Run the Wizard
-python3 init.py
+python3 scripts/init.py
 ```
 
 2. **Feed the Mission**
@@ -50,20 +50,20 @@ python3 init.py
    - This aligns the agent with your project context immediately.
 
 3. **Verify Context**
-   - Open `.agents/AGENTS.md` and check the `Tech Stack` section.
-   - Open `.agents/CONSTITUTION.md` and review project laws.
+   - Open `agents/AGENTS.md` and check the `Tech Stack` section.
+   - Open `agents/CONSTITUTION.md` and review project laws.
 
 **Manual Setup:**
 ```bash
-cp -r GABBE/.agents .
-chmod +x .agents/setup-context.sh && .agents/setup-context.sh
+cp -r GABBE/agents .
+chmod +x agents/setup-context.sh && agents/setup-context.sh
 ```
 
 ### 🌍 Cross-Platform Support
 - **Linux / macOS / WSL:** Native support.
 - **Windows (Native):**
-  - Use `python init.py` (Symlinks automatically fallback to file copies if needed).
-  - Use `.agents/scripts/setup-context.ps1` instead of `.sh`.
+  - Use `python scripts/init.py` (Symlinks automatically fallback to file copies if needed).
+  - Use `agents/scripts/setup-context.ps1` instead of `.sh`.
 
 ---
 
@@ -77,7 +77,7 @@ chmod +x .agents/setup-context.sh && .agents/setup-context.sh
 
 ### Resume Existing Project
 ```
-"Read AGENTS.md and .agents/loki/memory/PROJECT_STATE.md. Resume the project."
+"Read AGENTS.md and agents/memory/PROJECT_STATE.md. Resume the project."
 ```
 
 ### Fix a Bug
@@ -137,7 +137,7 @@ It's an experimental work-in-progress and you can do without the whole package o
 - Python 3.8+
 - **LLM API Key**: For Brain/Route features, set `GABBE_API_KEY` (OpenAI-compatible).
 
-**Environment Variables** (full reference in [CLI-REFERENCE.md](CLI-REFERENCE.md#environment-variables)):
+**Environment Variables** (full reference in [CLI-REFERENCE.md](docs/CLI-REFERENCE.md#environment-variables)):
 
 | Variable | Default | Description |
 |---|---|---|
@@ -162,8 +162,8 @@ gabbe --help
 ### Core Commands
 | Command | Description |
 |---|---|
-| `gabbe init` | Initialize the SQLite Database (Run this after `python init.py`). |
-| `gabbe sync` | **Hybrid Sync**: Bidirectional sync between `TASKS.md` and SQLite DB. |
+| `gabbe init` | Initialize the SQLite Database (Run this after `python scripts/init.py`). |
+| `gabbe sync` | **Hybrid Sync**: Bidirectional sync between `project/TASKS.md` and SQLite DB. |
 | `gabbe verify`| **Enforcer**: programmable integrity check (files, tests, lint). |
 | `gabbe status`| **Dashboard**: Visualizes project phase and task progress. |
 | `gabbe brain` | **Meta-Cognition**: Activates Active Inference loop or Evolutionary Prompt Optimization (Requires API Key). |
@@ -175,7 +175,7 @@ GABBE 2.0 uses a **Hybrid Architecture** where agents and humans interact via Ma
 ```mermaid
 graph TD
     subgraph User["User (Legacy Flow)"]
-        Edit[Edit TASKS.md]
+        Edit[Edit project/TASKS.md]
     end
 
     subgraph CLI["GABBE CLI 2.0 (pip installed)"]
@@ -203,7 +203,7 @@ graph TD
 #### Setup
 ```bash
 # 1. Generate Context Configs
-python3 init.py
+python3 scripts/init.py
 
 # 2. Initialize Database
 gabbe init
@@ -259,7 +259,7 @@ graph TD
 
     %% Phase 4: Execution
     subgraph Execution [4. Execution Loop]
-        Review2 -- Yes --> Tasks[Trigger: Decompose TASKS.md]
+        Review2 -- Yes --> Tasks[Trigger: Decompose project/TASKS.md]
         Tasks --> LoopCheck{Tasks Remaining?}
         LoopCheck -- Yes --> Pick[Pick Task]
         Pick --> TDD[Trigger: tdd-cycle.skill]
@@ -287,7 +287,7 @@ graph TD
 ```text
 [START]
    |
-[INSTALL] python3 init.py -> Generates SETUP_MISSION.md
+[INSTALL] python3 scripts/init.py -> Generates SETUP_MISSION.md
    |
 [SETUP]   Feed Mission to Agent -> Edit AGENTS.md (Stack/Rules)
    |
@@ -297,15 +297,15 @@ graph TD
 [DESIGN]  Plan Architecture -> arch-design.skill -> PLAN.md + ADRs
    |      (Human Reviews & Approves Plan)
    v
-[TASKS]   Decompose to TASKS.md (Atomic 15-min units)
+[TASKS]   Decompose to project/TASKS.md (Atomic 15-min units)
    |
    +---> [IMPLEMENTATION LOOP] ----------------------------------+
-   |     1. Pick Task from TASKS.md                               |
+   |     1. Pick Task from project/TASKS.md                               |
    |     2. Write Failing Test (Red)                              |
    |     3. Write Code to Pass (Green)                            |
    |     4. Refactor & Clean Up                                   |
    |     5. Verify (Tests + Lint) & Log to AUDIT_LOG.md           |
-   |     (Repeat until TASKS.md is empty)                         |
+   |     (Repeat until project/TASKS.md is empty)                         |
    +-------------------------------------------------------------+
    |
 [VERIFY]  integrity-check.skill -> security-audit.skill
@@ -417,7 +417,7 @@ flowchart TD
     end
 
     subgraph Execution
-        S3 -->|TASKS.md| Decomp{Task < 15m?}
+        S3 -->|project/TASKS.md| Decomp{Task < 15m?}
         Decomp -- No --> S3
         Decomp -- Yes --> S4[S4: Implement]
         
@@ -444,7 +444,7 @@ flowchart TD
    -> adr-writer.skill -> Architectural Decisions
    v
 3. DECOMPOSE (S03/S04)
-   -> TASKS.md -> Atomic steps (<15 mins each)
+   -> project/TASKS.md -> Atomic steps (<15 mins each)
    v
 4. IMPLEMENT (S05)
    -> One task at a time
@@ -460,7 +460,7 @@ flowchart TD
 ## 7. Kit Structure Map
 
 ```
-.agents/
+agents/
 ├── AGENTS.md                 # Universal config (edit per project)
 ├── CONSTITUTION.md           # Immutable project law
 ├── skills/                   # 120+ .skill.md files
@@ -625,11 +625,11 @@ Task → Knowledge gap? → research.skill → Execute → Verify
 
 | Layer | Location | Purpose |
 |---|---|---|
-| **Project State** | `loki/memory/PROJECT_STATE.md` | Current SDLC phase |
-| **Audit Log** | `loki/memory/AUDIT_LOG.md` | Append-only decision history |
-| **Continuity** | `loki/memory/CONTINUITY.md` | Past failures (read every session) |
-| **Episodic** | `loki/memory/episodic/` | Per-session decision logs |
-| **Semantic** | `loki/memory/semantic/` | Crystallized project knowledge |
+| **Project State** | `agents/memory/PROJECT_STATE.md` | Current SDLC phase |
+| **Audit Log** | `agents/memory/AUDIT_LOG.md` | Append-only decision history |
+| **Continuity** | `agents/memory/CONTINUITY.md` | Past failures (read every session) |
+| **Episodic** | `agents/memory/episodic/` | Per-session decision logs |
+| **Semantic** | `agents/memory/semantic/` | Crystallized project knowledge |
 
 ---
 

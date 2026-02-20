@@ -19,7 +19,7 @@ def parse_agents_config():
     within the target section, handling quotes and whitespace more gracefully.
     """
     config = {}
-    agents_path = PROJECT_ROOT / ".agents/AGENTS.md"
+    agents_path = PROJECT_ROOT / "agents/AGENTS.md"
 
     if not agents_path.exists():
         return config
@@ -36,8 +36,8 @@ def parse_agents_config():
             in_commands_section = True
             continue
 
-        # Exit on the next section heading (any line starting with "## " or "### ")
-        if in_commands_section and line.startswith("#"):
+        # Exit on the next major section heading
+        if in_commands_section and line.startswith("## "):
             break
 
         if not in_commands_section:

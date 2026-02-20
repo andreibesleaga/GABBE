@@ -22,16 +22,16 @@ jobs:
       run: pip install -e ".[dev]"
 
     - name: Validate Skills Metadata
-      run: python3 .agents/scripts/validate_skills.py
+      run: python3 agents/scripts/validate_skills.py
 
     - name: Validate Project Integrity
-      run: python3 .agents/scripts/validate_integrity.py
+      run: python3 agents/scripts/validate_integrity.py
 
     - name: Validate Markdown Links
-      run: python3 .agents/scripts/validate_links.py
+      run: python3 agents/scripts/validate_links.py
 
     - name: Verify Setup Simulation
-      run: python3 .agents/scripts/verify_setup_simulation.py
+      run: python3 agents/scripts/verify_setup_simulation.py
 
     - name: Run tests
       run: pytest tests/ -v

@@ -13,7 +13,7 @@ This guide provides a quick reference for the most common commands, setup instru
 
 ---
 
-## 2. GABBE CLI 2.0 (Hybrid Mode)
+## 2. GABBE CLI 0.3.0 Reference
 
 | Command | Description |
 |---|---|

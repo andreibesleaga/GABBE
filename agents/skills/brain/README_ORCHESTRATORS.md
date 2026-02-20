@@ -52,3 +52,14 @@ graph TD
 ```
 
 ---
+
+## CLI Reference
+
+In addition to Agent slash commands, you can orchestrate these modes via the GABBE CLI 0.3.0:
+
+| Mode | CLI Command | Purpose |
+|---|---|---|
+| **Brain** | `gabbe brain` | Activates Active Inference and Cost Routing. |
+| **Loki** | `gabbe status` | Visualizes swarm progress and SDLC phase. |
+| **Sync** | `gabbe sync` | Ensures Markdown memory and SQLite stays in sync. |
+| **Verify** | `gabbe verify` | Runs the automated gate checks for the current phase. |

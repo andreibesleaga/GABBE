@@ -63,7 +63,7 @@ python3 GABBE/scripts/init.py
 
 ---
 
-## 🚀 GABBE CLI 2.0 (experimental)
+## 🚀 GABBE CLI 0.3.0 (Stable)
 
 The core of GABBE 2.0 is the **Zero-Dependency CLI** (`gabbe`) which powers the "Hybrid Mode". It bridges the gap between flexible Markdown files and a robust SQLite database.
 It's an experimental work-in-progress and you can do without the whole package only with the rest of the kit.
@@ -113,7 +113,7 @@ graph TD
         Edit[Edit project/TASKS.md]
     end
 
-    subgraph CLI["GABBE CLI 2.0 (pip installed)"]
+    subgraph CLI["GABBE CLI 0.3.0 (pip installed)"]
         Sync[gabbe sync]
         Verify[gabbe verify]
         Brain[gabbe brain]
@@ -730,11 +730,11 @@ No human needed for:
  
  | Category | Guides |
  |---|---|
- | **Stack** | `js-ts-nodejs`, `go-lang`, `php-laravel`, `python-fastapi-ai`, `sql-nosql` |
+ | **Stack** | `js-ts-nodejs`, `go-lang`, `php-laravel`, `python-fastapi-ai`, `sql-nosql`, `c-sharp` |
  | **Arch** | `systems-architecture`, `critical-systems-arch`, `event-driven-architecture`, `monolith`, `microservices` |
  | **Agentic** | `agentic-patterns`, `multi-agent-systems`, `autonomous-swarm-patterns`, `agent-communication` |
- | **Lifecycle** | `full-system-lifecycle`, `testing-strategy`, `production-health`, `compliance-audit`, `strategic-analysis` |
- | **Integration** | `enterprise-patterns`, `knowledge-integration`, `no-code-integration`, `api-standards` |
+ | **Lifecycle** | `full-system-lifecycle`, `testing-strategy`, `production-health`, `compliance-audit`, `strategic-analysis`, `troubleshooting-guide`, `self-healing-summary` |
+ | **Integration** | `enterprise-patterns`, `knowledge-integration`, `no-code-integration`, `api-standards`, `enterprise-migration-scenario` |
  | **UI/UX** | `visual-design-system`, `a2ui-protocols`, `agent-ui` |
 
 ---

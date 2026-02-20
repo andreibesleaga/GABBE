@@ -116,7 +116,7 @@ python3 scripts/init.py
 
 ---
 
-## 3.1. GABBE CLI 2.0 (experimental)
+## 3.1. GABBE CLI 0.3.0 (experimental)
 
 The core of GABBE 2.0 is the **Zero-Dependency CLI** (`gabbe`) which powers the "Hybrid Mode". It bridges the gap between flexible Markdown files and a robust SQLite database.
 It's an experimental work-in-progress and you can do without the whole package only with the rest of the kit.
@@ -166,7 +166,7 @@ graph TD
         Edit[Edit project/TASKS.md]
     end
 
-    subgraph CLI["GABBE CLI 2.0 (pip installed)"]
+    subgraph CLI["GABBE CLI 0.3.0 (pip installed)"]
         Sync[gabbe sync]
         Verify[gabbe verify]
         Brain[gabbe brain]
@@ -1054,13 +1054,58 @@ Loki Mode activates a multi-agent swarm for large projects (new product builds, 
 | **Brain** | 10+ | `active-inference`, `consciousness-loop`, `cost-benefit-router` |
 | **Loki Modes** | 2+ | `brain-mode`, `loki-mode` |
 
-**Note:** `ops-security` is explicitly **adversarial** — it actively tries to find exploits in Engineering Swarm output before it reaches production.
+---
+
+## 22. 🚀 Common Actions (Copy-Paste Prompts)
+
+Copy and paste these exact prompts into your AI chat window to kick off standard workflows.
+
+### New Project from Scratch
+> "Read AGENTS.md. I want to build [description]. Start with spec-writer skill."
+
+**Flow:** Spec → Design → Tasks → TDD Implementation → Security → Deploy
+
+### Resume Existing Project
+> "Read AGENTS.md and agents/memory/PROJECT_STATE.md. Resume the project."
+
+### Fix a Bug
+> "Read AGENTS.md. Bug: [description]. Use debug skill with TDD."
+
+**Flow:** Reproduce → Root Cause → Failing Test → Fix → Green → Regression Check
+
+### Refactor / Pay Tech Debt
+> "Use tech-debt skill on [directory]. Then refactor the top-priority item."
+
+### Security Audit
+> "Run security-audit skill on the entire codebase."
+
+### Architecture Review
+> "Run arch-review skill. Check for SOLID violations and coupling."
+
+### Software Engineering & System Architecture
+> "Act as a Principal Staff Engineer. Review the codebase in [directory] and generate a C4 system architecture diagram (Context and Container levels). Identify any bottlenecks and propose scaling strategies."
+
+> "Use the design-patterns and domain-model skills. We are building a [feature segment]. Propose the optimum architecture pattern (e.g. Event-driven, CQRS, Hexagonal) and define the core domain entities."
+
+### Vibe-Coding (Creative Frontend)
+> "Use the vibe-coding skill. Build a [component/page] using [framework]. I want it to feel [aesthetic, e.g. glassmorphism, cyberpunk, sleek corporate]. Include micro-animations and smooth transitions. Prioritize visual WOW over generic utility."
+
+### Activate Brain Mode (Complex Goals)
+> "Activate Brain Mode. Goal: [build X / migrate Y / solve Z]."
+
+### Activate Loki Mode (Large Projects)
+> "Activate Loki Mode. Goal: [build X / migrate Y / refactor Z]."
+
+---
+
+## 23. Loki Mode (Large Projects)
+-security` is explicitly **adversarial** — it actively tries to find exploits in Engineering Swarm output before it reaches production.
 
 See `agents/skills/brain/README_ORCHESTRATORS.md` for full Loki Mode documentation.
 
 ---
 
-## 23. Guides by Technology Stack
+## 24. Guides by Technology Stack
 
 | Guide | Stack | Key Topics |
 |---|---|---|
@@ -1077,6 +1122,7 @@ See `agents/skills/brain/README_ORCHESTRATORS.md` for full Loki Mode documentati
 | `guides/design-patterns.md` | Design Patterns | Strategy, Factory, Observer, Adapter |
 | `guides/clean-code-standards.md` | Clean Code | SOLID, DRY, KISS, Refactoring |
 | `guides/agentic-patterns.md` | AI/Agentic | Reflection, Memory, Planning, Tools |
+| `guides/ai-native-scenarios.md` | AI/Agentic | Vibe-to-Code, Auto-Patching, DB Refactor |
 | `guides/multi-agent-systems.md` | Python/Node/React | Swarms, Orchestration, A2A Protocol |
 | `guides/autonomous-swarm-patterns.md` | AI/Agentic | Self-organizing Swarm Patterns |
 | `guides/agent-communication.md` | All Stacks | MCP, A2A, ACP, Handshake Protocols |

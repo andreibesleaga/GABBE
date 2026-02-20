@@ -152,7 +152,7 @@ Write-Host ""
 # -----------------------------------------------------------------------------
 Write-Yellow "Step 3: Initializing loki\memory structure"
 
-$MemoryDir = "$AgentsDir\loki\memory"
+$MemoryDir = "$AgentsDir\memory"
 New-Item -ItemType Directory -Path "$MemoryDir\episodic\SESSION_SNAPSHOT" -Force | Out-Null
 New-Item -ItemType Directory -Path "$MemoryDir\semantic" -Force | Out-Null
 Write-Green "✓ loki\memory structure created"

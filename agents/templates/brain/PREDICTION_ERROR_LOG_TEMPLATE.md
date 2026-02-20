@@ -1,7 +1,7 @@
 # PREDICTION_ERROR_LOG_TEMPLATE.md — Surprise Minimization
 
 > **Purpose**: Logging "Surprise" (Prediction Error) to drive Active Inference.
-> **Updated by**: `predictive-processing.skill.md`
+> **Updated by**: `active-inference.skill.md`
 > **Read by**: `self-improvement.skill.md`, `brain/learning-adaptation.skill.md`
 
 ## 1. The Prediction (Prior Belief)

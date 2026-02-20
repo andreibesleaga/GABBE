@@ -128,7 +128,7 @@ Multi-agent swarm with 30+ specialized personas for projects >5 features or >20 
 
 ---
 
-## 🚀 GABBE CLI 2.0 (experimental)
+## 🚀 GABBE CLI 0.3.0 (Stable)
 
 The core of GABBE 2.0 is the **Zero-Dependency CLI** (`gabbe`) which powers the "Hybrid Mode". It bridges the gap between flexible Markdown files and a robust SQLite database.
 It's an experimental work-in-progress and you can do without the whole package only with the rest of the kit.
@@ -178,7 +178,7 @@ graph TD
         Edit[Edit project/TASKS.md]
     end
 
-    subgraph CLI["GABBE CLI 2.0 (pip installed)"]
+    subgraph CLI["GABBE CLI 0.3.0 (pip installed)"]
         Sync[gabbe sync]
         Verify[gabbe verify]
         Brain[gabbe brain]
@@ -662,6 +662,10 @@ Task → Knowledge gap? → research.skill → Execute → Verify
 | DevOps/Environments | `guides/dev-environments.md` |
 | Legacy/COBOL | `guides/legacy-tech.md` |
 | Future Tech 2030 | `guides/future-tech.md` |
+| C-Sharp / .NET | `guides/languages/c-sharp.md` |
+| Self-Healing | `guides/ai/self-healing-summary.md` |
+| Troubleshooting | `guides/ops/troubleshooting-guide.md` |
+| Enterprise Migration | `guides/patterns/enterprise-migration-scenario.md` |
 
 
 

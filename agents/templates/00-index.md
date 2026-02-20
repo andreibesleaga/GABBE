@@ -113,4 +113,11 @@
 | Working Memory | `brain/WORKING_MEMORY_TEMPLATE.md` | Short-term context |
 | Episodic Memory | `brain/EPISODIC_MEMORY_LOG_TEMPLATE.md` | Long-term experience log |
 | Prediction Error | `brain/PREDICTION_ERROR_LOG_TEMPLATE.md` | Surprise minimization log |
+
+### 10. Memory & Continuity (`agents/memory/`)
+| Template | File | Purpose |
+|---|---|---|
+| Decision Log | `../memory/episodic/DECISION_LOG_TEMPLATE.md` | Sequential decision history |
+| Project Knowledge | `../memory/semantic/PROJECT_KNOWLEDGE_TEMPLATE.md` | RAG/Long-term knowledge storage |
+| Vector DB Config | `../memory/semantic/VECTOR_DB_CONFIG_TEMPLATE.json` | RAG connection settings |
 | Project Context | `brain/PROJECT_CONTEXT_TEMPLATE.md` | Working memory snapshot |

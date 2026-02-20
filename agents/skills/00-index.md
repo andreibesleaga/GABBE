@@ -45,7 +45,7 @@ ln -sf /path/to/agents/skills/*/*.skill.md ~/.agent/skills/
 
 ---
 
-> **Total Skills**: 123
+> **Total Skills**: 126
 > *Registry auto-updated by init.py logic*
 
 ## Skills Registry
@@ -158,6 +158,7 @@ ln -sf /path/to/agents/skills/*/*.skill.md ~/.agent/skills/
 | Req Review | `product/req-review.skill.md` | review reqs | Quality gate |
 | Spec Writer | `product/spec-writer.skill.md` | write spec | RFC/PRD writing |
 | Spec Analyze | `product/spec-analyze.skill.md` | drift, check | Spec verification |
+| Decompose | `product/decompose.skill.md` | decompose, break down tasks | Task decomposition (15-min) |
 | ADR Writer | `product/adr-writer.skill.md` | adr, decision | Architect decisions |
 | Market Analysis| `product/market-analysis.skill.md` | competitors | API/Market research |
 | Stakeholder | `product/stakeholder-management.skill.md` | raci, comms | Stakeholder maps |
@@ -210,7 +211,7 @@ ln -sf /path/to/agents/skills/*/*.skill.md ~/.agent/skills/
 | Sequential Thinking | `brain/sequential-thinking.skill.md` | think, reason | medium | Step-by-step reasoning |
 | Working Memory | `brain/working-memory.skill.md` | high | Session state management |
 
-### 10. Activation Modes (`loki/`)
+### 10. Activation Modes (`brain/`)
 | Skill | File | Triggers | Context | Purpose |
 |---|---|---|---|---|
 | **Brain Mode** | `brain/brain-mode.skill.md` | brain activate, supermode | high | **Meta-Cognitive Orchestrator** (Active Inference + Routing) |

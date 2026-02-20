@@ -39,7 +39,7 @@ This guide provides solutions to common issues encountered when initializing, co
 **Solution:**
 - **Cursor:** Ensure `.mdc` files exist in `.cursor/rules/`.
 - **Claude:** Ensure `.claude/skills` is symlinked to `agents/skills`.
-- **Gemini:** Check `.gemini/settings.json` for the `skills` path.
+- **Gemini / Antigravity:** Check `.gemini/settings.json` for the `skills` path.
 
 ## 3. Loki orchestration issues
 
@@ -52,10 +52,10 @@ This guide provides solutions to common issues encountered when initializing, co
 **Symptoms:** `project/TASKS.md` is out of sync or tasks disappear.
 **Cause:** Concurrent edits by human and agent, or an interrupted session.
 **Solution:**
-1. Run `gabbe sync` (if using GABBE CLI 2.0).
+1. Run `gabbe sync` (GABBE CLI 0.3.0).
 2. Manually review `agents/memory/PROJECT_STATE.md` and edit `project/TASKS.md` to match reality.
 
-## 4. GABBE CLI 2.0 Issues
+## 4. GABBE CLI 0.3.0 Issues
 
 ### `gabbe route` or `gabbe brain` fails with "API Key Missing"
 **Symptoms:** Commands that require remote LLM models throw an authentication error.

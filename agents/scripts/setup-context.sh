@@ -174,7 +174,7 @@ echo ""
 # ─────────────────────────────────────────────────────────────────────────────
 echo -e "${YELLOW}Step 3: Initializing agents/memory/ directory structure${NC}"
 
-MEMORY_DIR="${AGENTS_DIR}/agents/memory"
+MEMORY_DIR="${AGENTS_DIR}/memory"
 mkdir -p "${MEMORY_DIR}/episodic/SESSION_SNAPSHOT"
 mkdir -p "${MEMORY_DIR}/semantic"
 echo -e "  ${GREEN}✓${NC} agents/memory/episodic/SESSION_SNAPSHOT/ created"

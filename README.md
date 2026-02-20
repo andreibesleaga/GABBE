@@ -485,11 +485,8 @@ agents/
 │   ├── coordination/         # agent profiles, swarm config
 │   └── brain/                # inference loop, episodic memory, OODA
 ├── guides/                   # 30+ language & domain guides
-├── loki/                     # Loki Mode (swarm orchestration)
-│   ├── loki-mode.skill.md    # 10-phase SDLC orchestrator
-│   ├── brain-mode.skill.md   # Meta-cognitive orchestrator
-│   ├── personas/             # 30+ specialized agent roles
-│   └── memory/               # Episodic + semantic + project state
+├── personas/                 # 30+ specialized agent roles
+├── memory/                   # Episodic + semantic + project state
 └── docs/                     # Whitepapers & research
 ```
 

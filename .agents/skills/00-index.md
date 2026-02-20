@@ -70,6 +70,7 @@ ln -sf /path/to/.agents/skills/*/*.skill.md ~/.agent/skills/
 | UI Gen | `coding/ui-gen.skill.md` | ui, dashboard, cli | medium | Generate React/HTMX UIs |
 | File Processing | `coding/file-processing.skill.md` | stream, large file | medium | Efficient file IO |
 | Testing Strategy | `coding/testing-strategy.skill.md` | test strategy, pyramid | medium | Testing Pyramid Strategy |
+| Artisan Commands | `coding/artisan-commands.skill.md` | artisan, laravel | low | Execute Laravel commands |
 
 ### 2. Architecture & Design (`architecture/`)
 | Skill | File | Triggers | Purpose |
@@ -206,6 +207,7 @@ ln -sf /path/to/.agents/skills/*/*.skill.md ~/.agent/skills/
 | Neuroscience Foundations | `brain/neuroscience-foundations.skill.md` | ref | Cortico-Thalamic theory |
 | Self Improvement | `brain/self-improvement.skill.md` | high | Recursive self-editing |
 | Sensory Motor | `brain/sensory-motor.skill.md` | med | Embodied tool use |
+| Sequential Thinking | `brain/sequential-thinking.skill.md` | think, reason | medium | Step-by-step reasoning |
 | Working Memory | `brain/working-memory.skill.md` | high | Session state management |
 
 ### 10. Activation Modes (`loki/`)

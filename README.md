@@ -101,6 +101,19 @@ chmod +x .agents/setup-context.sh && .agents/setup-context.sh
 "Run arch-review skill. Check for SOLID violations and coupling."
 ```
 
+### Software Engineering & System Architecture
+```
+"Act as a Principal Staff Engineer. Review the codebase in [directory] and generate a C4 system architecture diagram (Context and Container levels). Identify any bottlenecks and propose scaling strategies."
+```
+```
+"Use the design-patterns and domain-model skills. We are building a [feature segment]. Propose the optimum architecture pattern (e.g. Event-driven, CQRS, Hexagonal) and define the core domain entities."
+```
+
+### Vibe-Coding (Creative Frontend)
+```
+"Use the vibe-coding skill. Build a [component/page] using [framework]. I want it to feel [aesthetic, e.g. glassmorphism, cyberpunk, sleek corporate]. Include micro-animations and smooth transitions. Prioritize visual WOW over generic utility."
+```
+
 ### Activate Brain Mode (Complex Goals)
 ```
 "Activate Brain Mode. Goal: [build X / migrate Y / solve Z]."

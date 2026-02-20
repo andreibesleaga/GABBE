@@ -8,9 +8,17 @@
 - Drop-in context kit that turns any AI coding agent into a governed engineering team for developing software.
 - Based on Software Engineering & Architecture Practices and Procedures.
 - Works for any project type, new or existing, any language, any team size.
-- **Write Once, Run Everywhere**: Skills work on Cursor (`.mdc`), VS Code (`folder/skill`), Claude (`.skill.md`), and Gemini.
+- **Write Once, Run Everywhere**: Skills work on Cursor (`.mdc`), VS Code (`folder/skill`), Claude (`.skill.md`), Gemini.
 - The system features an experimental **Meta-Cognitive Orchestrator "Brain"** (Neurocognitive based architecture derived from Neuroscience, Cognitive Psychology, Epistemology, treating the Software System not as a machine, but as a **Cognitive Entity**), using Active Inference to plan, route, and optimize work.
 - The system features a **Multi-Agent Swarm "Loki"** (30+ specialized agent roles for large projects), providing episodic and semantic memory, project history auditing and checkpoints.
+
+It provides:
+- **120+ Skills** (specialized capabilities)
+- **60+ Templates** (standardized documents)
+- **30+ Guides** (language & domain expertise)
+- **30+ Personas** (specialized roles)
+- **Brain Mode** (meta-cognitive orchestration)
+- **Loki Mode** (multi-agent swarm engineering team for large projects)
 
 > **120+ Skills · 60+ Templates · 30+ Guides · 30+ Personas · Loki / Brain Mode**
 
@@ -110,14 +118,26 @@ python3 init.py
 
 ## 3.1. GABBE CLI 2.0 (experimental)
 
-The new CLI provides a robust interface for the Agentic Kit.
+The core of GABBE 2.0 is the **Zero-Dependency CLI** (`gabbe`) which powers the "Hybrid Mode". It bridges the gap between flexible Markdown files and a robust SQLite database.
+It's an experimental work-in-progress and you can do without the whole package only with the rest of the kit.
 
 ### Prerequisites
 - Python 3.8+
 - **LLM API Key**: For Brain/Route features, set `GABBE_API_KEY` (OpenAI-compatible).
 
+**Environment Variables** (full reference in [CLI-REFERENCE.md](CLI-REFERENCE.md#environment-variables)):
+
+| Variable | Default | Description |
+|---|---|---|
+| `GABBE_API_URL` | `https://api.openai.com/v1/chat/completions` | OpenAI-compatible endpoint |
+| `GABBE_API_KEY` | *(required for LLM features)* | Bearer token for the LLM API |
+| `GABBE_API_MODEL` | `gpt-4o` | Model name sent in API requests |
+| `GABBE_LLM_TEMPERATURE` | `0.7` | Sampling temperature (0.0–1.0) |
+| `GABBE_LLM_TIMEOUT` | `30` | HTTP timeout in seconds |
+| `GABBE_ROUTE_THRESHOLD` | `50` | Complexity score above which prompts route REMOTE |
+
 ### Installation
-The CLI is now a Python package.
+The CLI is a Python package.
 
 ```bash
 # 1. Install locally (Recommended)
@@ -125,6 +145,45 @@ pip install -e .
 
 # 2. Verify installation
 gabbe --help
+```
+
+### Core Commands
+| Command | Description |
+|---|---|
+| `gabbe init` | Initialize the SQLite Database (Run this after `python init.py`). |
+| `gabbe sync` | **Hybrid Sync**: Bidirectional sync between `TASKS.md` and SQLite DB. |
+| `gabbe verify`| **Enforcer**: programmable integrity check (files, tests, lint). |
+| `gabbe status`| **Dashboard**: Visualizes project phase and task progress. |
+| `gabbe brain` | **Meta-Cognition**: Activates Active Inference loop or Evolutionary Prompt Optimization (Requires API Key). |
+| `gabbe route` | **Cost Router**: Arbitrates between Local and Remote LLMs based on task complexity (Requires API Key). |
+
+### Architecture
+GABBE 2.0 uses a **Hybrid Architecture** where agents and humans interact via Markdown, but the system of record is SQLite.
+
+```mermaid
+graph TD
+    subgraph User["User (Legacy Flow)"]
+        Edit[Edit TASKS.md]
+    end
+
+    subgraph CLI["GABBE CLI 2.0 (pip installed)"]
+        Sync[gabbe sync]
+        Verify[gabbe verify]
+        Brain[gabbe brain]
+        Router[gabbe route]
+    end
+
+    subgraph Storage["Hybrid Memory"]
+        MD[Markdown Files]
+        DB[(SQLite state.db)]
+    end
+
+    User -->|Manual Edits| MD
+    MD <-->|Bi-Directional| Sync
+    Sync <--> DB
+    Brain -->|Read/Write| DB
+    Verify -->|Check| MD
+    Verify -->|Check| DB
 ```
 
 ### How to Use
@@ -155,39 +214,66 @@ gabbe brain evolve --skill tdd-cycle
 gabbe verify
 ```
 
-### Core Commands
+---
 
-#### `gabbe sync`
-**Hybrid Synchronization Engine**.
-- **Read**: Scans `TASKS.md` and updates SQLite DB.
-- **Write**: If the Agent updates the DB (via tool), it rewrites `TASKS.md`.
-- **Conflict Resolution**: "Last Write Wins" (File modification time vs DB timestamp).
+## 🚀 Common Actions (Copy-Paste Prompts)
 
-#### `gabbe verify`
-**Programmable Enforcer**.
-- Checks existence of `AGENTS.md`, `CONSTITUTION.md`.
-- Verifies `TASKS.md` format.
-- Can be extended to run `npm test`, `npm audit`, etc.
-- Used as a pre-commit hook or CI gate.
+### New Project from Scratch
+```
+"Read AGENTS.md. I want to build [description]. Start with spec-writer skill."
+```
+**Flow:** Spec → Design → Tasks → TDD Implementation → Security → Deploy
 
-#### `gabbe brain`
-**Meta-Cognitive Interface**.
-- `gabbe brain activate`: Runs the Active Inference Loop (OODA).
-- `gabbe brain evolve --skill tdd-cycle`: Optimizes the skill prompt using evolutionary algorithms (mutates prompts, tests them, keeps the best).
-- `gabbe brain heal`: Checks system health and fixes missing files or broken configs.
+### Resume Existing Project
+```
+"Read AGENTS.md and .agents/loki/memory/PROJECT_STATE.md. Resume the project."
+```
 
-#### `gabbe route`
-**Cost-Effective Router**.
-- Analyzes prompt complexity (length, keywords, code density).
-- Detects PII (Privacy).
-- Routes to **Local LLM** (if simple/sensitive) or **Remote LLM** (if complex/safe).
+### Fix a Bug
+```
+"Read AGENTS.md. Bug: [description]. Use debug skill with TDD."
+```
+**Flow:** Reproduce → Root Cause → Failing Test → Fix → Green → Regression Check
 
-#### `gabbe status`
-All-in-one dashboard showing:
-- Current Phase (S01-S10)
-- Task Completion %
-- Recent Agents
-- System Health
+### Refactor / Pay Tech Debt
+```
+"Use tech-debt skill on [directory]. Then refactor the top-priority item."
+```
+
+### Security Audit
+```
+"Run security-audit skill on the entire codebase."
+```
+
+### Architecture Review
+```
+"Run arch-review skill. Check for SOLID violations and coupling."
+```
+
+### Software Engineering & System Architecture
+```
+"Act as a Principal Staff Engineer. Review the codebase in [directory] and generate a C4 system architecture diagram (Context and Container levels). Identify any bottlenecks and propose scaling strategies."
+```
+```
+"Use the design-patterns and domain-model skills. We are building a [feature segment]. Propose the optimum architecture pattern (e.g. Event-driven, CQRS, Hexagonal) and define the core domain entities."
+```
+
+### Vibe-Coding (Creative Frontend)
+```
+"Use the vibe-coding skill. Build a [component/page] using [framework]. I want it to feel [aesthetic, e.g. glassmorphism, cyberpunk, sleek corporate]. Include micro-animations and smooth transitions. Prioritize visual WOW over generic utility."
+```
+
+### Activate Brain Mode (Complex Goals)
+```
+"Activate Brain Mode. Goal: [build X / migrate Y / solve Z]."
+```
+Uses Active Inference to plan, route between local/remote models, and learn from past outcomes.
+
+### Activate Loki Mode (Large Projects)
+```
+"Activate Loki Mode. Goal: [build X / migrate Y / refactor Z]."
+```
+Multi-agent swarm with 30+ specialized personas for projects >5 features or >20 files.
 
 ---
 

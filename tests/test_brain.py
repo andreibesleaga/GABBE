@@ -51,7 +51,7 @@ def test_activate_brain_with_tasks_in_db(tmp_project, capsys):
 
     # The prompt passed to the LLM must mention the DB counts
     prompt_arg = mock_llm.call_args[0][0]
-    assert "DONE" in prompt_arg or "1" in prompt_arg
+    assert "DONE" in prompt_arg and "TODO" in prompt_arg
 
 
 # ---------------------------------------------------------------------------
@@ -158,7 +158,7 @@ def test_run_healer_all_clear(tmp_project, capsys):
         tmp_project / "agents/CONSTITUTION.md",
         tmp_project / "project/TASKS.md",
     ]
-    with patch("gabbe.config.REQUIRED_FILES", required):
+    with patch("gabbe.brain.REQUIRED_FILES", required):
         run_healer()
 
     out = capsys.readouterr().out
@@ -187,7 +187,7 @@ def test_run_healer_db_unreachable(tmp_project, capsys):
     from gabbe.brain import run_healer
 
     with patch("gabbe.brain.get_db", side_effect=Exception("locked")), \
-         patch("gabbe.config.REQUIRED_FILES", []):
+         patch("gabbe.brain.REQUIRED_FILES", []):
         run_healer()
 
     out = capsys.readouterr().out

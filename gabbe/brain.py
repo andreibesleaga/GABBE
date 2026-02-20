@@ -1,7 +1,14 @@
 import logging
 import sqlite3
 import requests
-from .config import Colors, TASK_STATUS_TODO, TASK_STATUS_IN_PROGRESS, TASK_STATUS_DONE
+from .config import (
+    Colors,
+    PROJECT_ROOT,
+    REQUIRED_FILES,
+    TASK_STATUS_TODO,
+    TASK_STATUS_IN_PROGRESS,
+    TASK_STATUS_DONE,
+)
 from .database import get_db
 from .llm import call_llm
 
@@ -140,8 +147,6 @@ def evolve_prompts(skill_name):
 def run_healer():
     """Self-Healing Watchdog: checks DB connectivity and required files."""
     print(f"{Colors.HEADER}🚑 Self-Healing Watchdog{Colors.ENDC}")
-    from .config import PROJECT_ROOT, REQUIRED_FILES
-
     issues = []
 
     # 1. Check DB connectivity

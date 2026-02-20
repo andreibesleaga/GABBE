@@ -55,10 +55,18 @@ if GABBE_CONFIG_FILE.exists():
     try:
         with open(GABBE_CONFIG_FILE, "r") as f:
             extra_config = json.load(f)
-            # Example: extend required files
+            # Example: extend required files (paths must stay within PROJECT_ROOT)
             if "required_files" in extra_config:
+                project_root_resolved = PROJECT_ROOT.resolve()
                 for rf in extra_config["required_files"]:
-                    REQUIRED_FILES.append(PROJECT_ROOT / rf)
+                    candidate = (PROJECT_ROOT / rf).resolve()
+                    try:
+                        candidate.relative_to(project_root_resolved)
+                        REQUIRED_FILES.append(candidate)
+                    except ValueError:
+                        warnings.warn(
+                            f"Skipping config.json path outside project root: {rf}"
+                        )
     except Exception as e:
         warnings.warn(f"Failed to load extra config from {GABBE_CONFIG_FILE}: {e}")
 
@@ -89,7 +97,7 @@ def _safe_int(env_var, default):
 
 
 LLM_TEMPERATURE = _safe_float("GABBE_LLM_TEMPERATURE", 0.7)
-LLM_TIMEOUT = _safe_int("GABBE_LLM_TIMEOUT", 30)
+LLM_TIMEOUT = max(1, _safe_int("GABBE_LLM_TIMEOUT", 30))
 
 # Router Config
 ROUTE_COMPLEXITY_THRESHOLD = _safe_int("GABBE_ROUTE_THRESHOLD", 50)
@@ -98,7 +106,7 @@ ROUTE_COMPLEXITY_THRESHOLD = _safe_int("GABBE_ROUTE_THRESHOLD", 50)
 PROGRESS_BAR_LEN = 20
 
 # Subprocess timeout for verify commands (test, lint, security_scan) in seconds
-SUBPROCESS_TIMEOUT = _safe_int("GABBE_SUBPROCESS_TIMEOUT", 300)
+SUBPROCESS_TIMEOUT = max(1, _safe_int("GABBE_SUBPROCESS_TIMEOUT", 300))
 
 # Task status constants — single source of truth used across brain, sync, status
 TASK_STATUS_TODO = "TODO"

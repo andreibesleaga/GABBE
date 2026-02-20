@@ -1,7 +1,7 @@
 """Unit tests for gabbe.sync."""
 import pytest
 from unittest.mock import patch
-from gabbe.sync import parse_markdown_tasks, generate_markdown_tasks, _parse_db_timestamp
+from gabbe.sync import parse_markdown_tasks, generate_markdown_tasks, _parse_db_timestamp, _atomic_write
 
 
 # ---------------------------------------------------------------------------
@@ -183,3 +183,17 @@ def test_sync_atomic_write_creates_file(tmp_project):
     tasks_file = tmp_project / "project/TASKS.md"
     assert tasks_file.exists()
     assert "Atomic Task" in tasks_file.read_text()
+
+
+# ---------------------------------------------------------------------------
+# _atomic_write
+# ---------------------------------------------------------------------------
+
+def test_atomic_write_cleans_up_on_os_error(tmp_path):
+    """On os.replace failure the temp file must be deleted (no leftovers)."""
+    target = tmp_path / "output.md"
+    with patch("os.replace", side_effect=OSError("disk full")):
+        with pytest.raises(OSError):
+            _atomic_write(target, "content")
+    # No temp files should remain in the directory
+    assert list(tmp_path.glob(".tmp_tasks_*")) == []

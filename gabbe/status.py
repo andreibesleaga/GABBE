@@ -23,8 +23,8 @@ def show_dashboard():
 
         percent = int((done / total) * 100) if total > 0 else 0
 
-        # Progress bar
-        filled = min(int(percent / 100 * PROGRESS_BAR_LEN), PROGRESS_BAR_LEN)
+        # Progress bar — percent ∈ [0,100] so filled ∈ [0, PROGRESS_BAR_LEN]
+        filled = int(percent / 100 * PROGRESS_BAR_LEN)
         bar = "█" * filled + "-" * (PROGRESS_BAR_LEN - filled)
 
         # Render

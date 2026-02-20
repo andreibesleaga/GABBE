@@ -2,9 +2,6 @@ import json
 from .config import Colors, ROUTE_COMPLEXITY_THRESHOLD, PII_PATTERNS
 from .llm import call_llm
 
-# PII patterns — imported from config to ensure consistency
-_PII_PATTERNS = PII_PATTERNS
-
 
 def calculate_complexity(prompt):
     """Estimate complexity score (0-100). Uses heuristics first, then LLM."""
@@ -42,7 +39,7 @@ def calculate_complexity(prompt):
 
 def detect_pii(prompt):
     """Detect common PII patterns using local regex (no external calls)."""
-    for pattern in _PII_PATTERNS:
+    for pattern in PII_PATTERNS:
         if pattern.search(prompt):
             return True
     return False

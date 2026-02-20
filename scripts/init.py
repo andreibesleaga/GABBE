@@ -147,23 +147,23 @@ def create_symlink(source, target):
             print(
                 f"  {YELLOW}! Backing up existing directory {target.name} to {target.name}.bak{NC}"
             )
-            shutil.move(str(target), str(target.with_suffix(".bak")))
+            shutil.move(str(target), str(target) + ".bak")
         else:
             print(
                 f"  {YELLOW}! Backing up existing file {target.name} to {target.name}.bak{NC}"
             )
-            target.rename(target.with_suffix(".bak"))
+            target.rename(Path(str(target) + ".bak"))
 
     # Ensure parent dir exists
     target.parent.mkdir(parents=True, exist_ok=True)
 
-    # Calculate relative path if possible, else absolute
+    # Calculate relative path if source is inside PROJECT_ROOT, else absolute
     try:
-        if str(PROJECT_ROOT) in str(source.absolute()):
-            link_path = os.path.relpath(source, target.parent)
-        else:
-            link_path = source.absolute()
-
+        source.absolute().relative_to(PROJECT_ROOT.resolve())  # raises ValueError if not inside
+        link_path = os.path.relpath(source, target.parent)
+    except ValueError:
+        link_path = source.absolute()
+    try:
         os.symlink(link_path, target)
         print(f"  {GREEN}✓ Linked {target.name} -> {link_path}{NC}")
     except OSError as e:
@@ -280,6 +280,12 @@ def main():
             print(
                 f"{RED}Error: Could not find source agents directory at {SOURCE_AGENTS_DIR}{NC}"
             )
+            sys.exit(1)
+
+    # Validate required subdirectories exist before proceeding
+    for subdir in ["skills", "templates", "personas", "memory"]:
+        if not (SOURCE_AGENTS_DIR / subdir).exists():
+            print(f"{RED}Error: Missing required subdirectory: agents/{subdir}/{NC}")
             sys.exit(1)
 
     # Initialize Dynamic Tech Map
@@ -402,9 +408,13 @@ def main():
         == "y"
     ):
         dynamic_setup = True
-        problem_statement = ask(
-            "What specific problem is this system solving? (e.g. 'High-frequency trading bot', 'Medical image analysis')"
-        )
+        while True:
+            problem_statement = ask(
+                "What specific problem is this system solving? (e.g. 'High-frequency trading bot', 'Medical image analysis')"
+            )
+            if problem_statement.strip():
+                break
+            print(f"{RED}⚠ Problem statement cannot be empty. Please describe the problem this system solves.{NC}")
 
     # --- Analytics Check ---
     enable_analytics = False
@@ -473,6 +483,8 @@ def main():
             pm = "go mod"
         if language.lower() in ["rust"]:
             pm = "cargo"
+        elif language.lower() == "other":
+            pm = ask("Which package manager? (e.g. cargo, mix, gradle, make, none)", "none")
 
         if language.lower() in ["javascript", "typescript"]:
             pm_choice = select("Package Manager", ["npm", "pnpm", "yarn"])

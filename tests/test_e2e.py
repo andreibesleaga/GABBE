@@ -18,8 +18,8 @@ class TestGabbeE2E(unittest.TestCase):
         # Temporary project directory
         self.test_dir = tempfile.mkdtemp()
         self.project_root = Path(self.test_dir)
-        selfproject_dir = self.project_root / "project"
-        self.db_path = selfproject_dir / "state.db"
+        self.project_dir = self.project_root / "project"
+        self.db_path = self.project_dir / "state.db"
         self.tasks_file = self.project_root / "project/TASKS.md"
 
         # Patch all module-level path constants
@@ -30,16 +30,18 @@ class TestGabbeE2E(unittest.TestCase):
         ]
         self._patches = [
             patch("gabbe.config.PROJECT_ROOT", self.project_root),
-            patch("gabbe.config.GABBE_DIR", selfproject_dir),
+            patch("gabbe.config.GABBE_DIR", self.project_dir),
             patch("gabbe.config.DB_PATH", self.db_path),
             patch("gabbe.config.TASKS_FILE", self.tasks_file),
             patch("gabbe.config.REQUIRED_FILES", _required_files),
-            patch("gabbe.database.GABBE_DIR", selfproject_dir),
+            patch("gabbe.database.GABBE_DIR", self.project_dir),
             patch("gabbe.database.DB_PATH", self.db_path),
             patch("gabbe.sync.TASKS_FILE", self.tasks_file),
             patch("gabbe.verify.PROJECT_ROOT", self.project_root),
-            patch("gabbe.verify.GABBE_DIR", selfproject_dir),
+            patch("gabbe.verify.GABBE_DIR", self.project_dir),
             patch("gabbe.verify.REQUIRED_FILES", _required_files),
+            patch("gabbe.brain.PROJECT_ROOT", self.project_root),
+            patch("gabbe.brain.REQUIRED_FILES", _required_files),
         ]
         for p in self._patches:
             p.start()

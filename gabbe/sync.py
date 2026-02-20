@@ -82,17 +82,15 @@ def generate_markdown_tasks(tasks):
 def _parse_db_timestamp(value):
     """Parse a SQLite datetime string to a Unix timestamp.
 
-    Handles both 'YYYY-MM-DD HH:MM:SS' and ISO-8601 'YYYY-MM-DDTHH:MM:SS'
-    variants that SQLite may return on different platforms.
+    Handles both 'YYYY-MM-DD HH:MM:SS' (SQLite default) and ISO-8601
+    'YYYY-MM-DDTHH:MM:SS' by normalising the separator before fromisoformat().
     """
     if not value:
         return 0
-    for fmt in ("%Y-%m-%d %H:%M:%S", "%Y-%m-%dT%H:%M:%S"):
-        try:
-            return datetime.strptime(str(value), fmt).timestamp()
-        except ValueError:
-            continue
-    return 0
+    try:
+        return datetime.fromisoformat(str(value).replace(" ", "T")).timestamp()
+    except (ValueError, AttributeError):
+        return 0
 
 
 def get_db_timestamp(c):
@@ -141,32 +139,12 @@ def sync_tasks():
         c.execute("SELECT title, status FROM tasks")
         db_rows = c.fetchall()
         db_tasks = []
+        # sqlite3.Row supports dict-like ['col'] access; row_factory is set in get_db()
         for row in db_rows:
-             # Use named access (sqlite3.Row or dict from tests)
-             title = row["title"] if isinstance(row, dict) else row[0]
-             status = row["status"] if isinstance(row, dict) else row[1]
-             # Actually, sqlite3.Row supports both. But pure tuples don't support ["title"].
-             # The previous code used [0] so it assumed tuple-like.
-             # The test passes dicts.
-             # To be safe for both production (sqlite3.Row) and tests (dict),
-             # we should check if it's a dict.
-             # BUT sqlite3.Row is not a dict.
-             
-             # Let's just try named access if we trust row_factory is set, 
-             # OR fallback to index if it's a tuple.
-             # However, since I want to fix the test failure without changing the test,
-             # I should support dict access.
-             
-             # Wait, in production it IS sqlite3.Row.
-             # sqlite3.Row['title'] works.
-             # Test mock is distinct {'title': ...}.
-             # So direct ['title'] access works for BOTH!
-             
-             title = row['title']
-             status = row['status']
-             
-             content_hash = hashlib.md5(f"{title}|{status}".encode()).hexdigest()
-             db_tasks.append({'title': title, 'status': status, 'hash': content_hash})
+            title = row['title']
+            status = row['status']
+            content_hash = hashlib.md5(f"{title}|{status}".encode()).hexdigest()
+            db_tasks.append({'title': title, 'status': status, 'hash': content_hash})
 
         file_exists = TASKS_FILE.exists()
         file_tasks = []

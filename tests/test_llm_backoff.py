@@ -60,22 +60,11 @@ def test_llm_sanitizes_errors(mock_post, mock_sleep, capsys):
     result = call_llm("test prompt")
     
     assert result is None
-    
-    # Capture stdout
+
+    # Errors are handled via logger only — stdout must be completely clean
     captured = capsys.readouterr()
-    
-    # Expect sanitized message
-    # Currently implementation prints: 
-    # print(f"{Colors.FAIL}❌ API Error (Status {status}).{Colors.ENDC}")
-    # for 500 errors inside the loop
-    
-    assert "API Error (Status 500)" in captured.out
-    # Ideally should NOT see "Sensitive" in stdout if we successfully sanitized it.
-    # But wait, the current implementation prints: 
-    # logger.warning("Retriable HTTP %d error: %s", status, e) <-- logger goes to file/stderr if configured?
-    # Our fix replaced printing "API Request Failed: {e}" with generic messages for specific codes
-    
-    # Let's verify we don't see the raw exception in STDOUT
+    assert captured.out == ""
+    # Sensitive exception text must never reach stdout
     assert "Sensitive: API Key Invalid" not in captured.out
 
 @patch("gabbe.llm.time.sleep")

@@ -10,6 +10,7 @@ import gabbe.config
 import gabbe.database
 import gabbe.sync
 import gabbe.verify
+import gabbe.brain
 
 
 @pytest.fixture()
@@ -24,6 +25,8 @@ def tmp_project(tmp_path):
     - gabbe.database.DB_PATH
     - gabbe.sync.TASKS_FILE
     - gabbe.verify.REQUIRED_FILES  (same list, kept for verify module-level ref)
+    - gabbe.brain.PROJECT_ROOT     (brain imports PROJECT_ROOT at module top)
+    - gabbe.brain.REQUIRED_FILES   (brain imports REQUIRED_FILES at module top)
 
     Yields the temporary project root Path.
     """
@@ -48,6 +51,8 @@ def tmp_project(tmp_path):
         patch("gabbe.verify.PROJECT_ROOT", tmp_path),
         patch("gabbe.verify.GABBE_DIR", gabbe_dir),
         patch("gabbe.verify.REQUIRED_FILES", required_files),
+        patch("gabbe.brain.PROJECT_ROOT", tmp_path),
+        patch("gabbe.brain.REQUIRED_FILES", required_files),
     ):
         # Initialise the DB so every test starts clean
         from gabbe.database import init_db

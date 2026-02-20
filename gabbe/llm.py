@@ -7,7 +7,6 @@ from .config import (
     GABBE_API_MODEL,
     LLM_TEMPERATURE,
     LLM_TIMEOUT,
-    Colors,
 )
 
 logger = logging.getLogger("gabbe.llm")
@@ -36,7 +35,6 @@ def _handle_response(response):
         return content
     
     msg = "Unexpected API response format"
-    print(f"{Colors.FAIL}❌ {msg}.{Colors.ENDC}")
     logger.error("%s: %s", msg, str(data)[:200])
     return None
 
@@ -84,21 +82,17 @@ def call_llm(
             if status in (429, 500, 502, 503, 504) and attempt < _LLM_MAX_RETRIES:
                 logger.warning("Retriable HTTP %d error: %s", status, e)
             elif status == 401 or status == 403:
-                print(
-                    f"{Colors.FAIL}❌ Authentication Failed (Check GABBE_API_KEY).{Colors.ENDC}"
-                )
+                logger.error("Authentication failed (HTTP %d). Check GABBE_API_KEY.", status)
                 return None
             else:
-                print(f"{Colors.FAIL}❌ API Error (Status {status}).{Colors.ENDC}")
-                logger.error("Non-retriable HTTP error: %s", e)
+                logger.error("Non-retriable HTTP error (status %d): %s", status, e)
                 return None
 
         except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as e:
             logger.warning("LLM transient error: %s", e)
 
         except requests.exceptions.RequestException as e:
-            print(f"{Colors.FAIL}❌ Request Failed.{Colors.ENDC}")
-            logger.error("LLM RequestException: %s", e)
+            logger.error("LLM request failed: %s", e)
             return None
 
         # Backoff logic
@@ -107,8 +101,6 @@ def call_llm(
             logger.debug("Retrying in %.1fs...", sleep_time)
             time.sleep(sleep_time)
         else:
-            print(
-                f"{Colors.FAIL}❌ Operation failed after {attempt} attempts.{Colors.ENDC}"
-            )
+            logger.error("LLM call failed after %d attempts.", attempt)
 
     return None

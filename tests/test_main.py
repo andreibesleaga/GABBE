@@ -4,13 +4,6 @@ import pytest
 from unittest.mock import patch, MagicMock
 
 
-def _run_main(argv):
-    """Call main() with the given argv list and return (stdout, stderr, exit_code)."""
-    from gabbe.main import main
-    with patch("sys.argv", ["gabbe"] + argv):
-        return main
-
-
 # ---------------------------------------------------------------------------
 # --version
 # ---------------------------------------------------------------------------

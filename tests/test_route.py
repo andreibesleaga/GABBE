@@ -1,5 +1,6 @@
 """Unit tests for gabbe.route."""
 import pytest
+from unittest.mock import patch
 from gabbe.route import detect_pii, calculate_complexity, route_request
 
 
@@ -40,24 +41,16 @@ class TestCalculateComplexity:
         assert score <= 10
         assert "Simple" in reason or "Heuristic" in reason
 
-    def test_long_prompt_fallback(self, monkeypatch):
+    @patch("gabbe.route.call_llm", side_effect=EnvironmentError("no key"))
+    def test_long_prompt_fallback(self, mock_llm):
         """Fallback heuristic when LLM is unavailable (raises EnvironmentError)."""
-        import gabbe.route as route_mod
-        monkeypatch.setattr(
-            route_mod, "call_llm",
-            lambda *a, **kw: (_ for _ in ()).throw(EnvironmentError("no key"))
-        )
         long_prompt = "architect distributed system " * 20
         score, reason = calculate_complexity(long_prompt)
         assert "Fallback" in reason
 
-    def test_complex_keywords_increase_score(self, monkeypatch):
-        import gabbe.route as route_mod
+    @patch("gabbe.route.call_llm", side_effect=EnvironmentError("no key"))
+    def test_complex_keywords_increase_score(self, mock_llm):
         # Force LLM failure so heuristic fallback runs
-        monkeypatch.setattr(
-            route_mod, "call_llm",
-            lambda *a, **kw: (_ for _ in ()).throw(EnvironmentError("no key"))
-        )
         prompt = "I need to architect a distributed security audit system. " * 10
         score, _ = calculate_complexity(prompt)
         assert score > 0
@@ -76,9 +69,8 @@ class TestRouteRequest:
         result = route_request("Email user@domain.com about this bug")
         assert result == "LOCAL"
 
-    def test_complex_prompt_routes_remote(self, monkeypatch):
-        import gabbe.route as route_mod
+    @patch("gabbe.route.calculate_complexity", return_value=(80, "mocked"))
+    def test_complex_prompt_routes_remote(self, mock_complexity):
         # Force complexity score above threshold without calling LLM
-        monkeypatch.setattr(route_mod, "calculate_complexity", lambda p: (80, "mocked"))
         result = route_request("architect a distributed system " * 5)
         assert result == "REMOTE"

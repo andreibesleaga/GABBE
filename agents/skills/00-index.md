@@ -9,7 +9,7 @@
 ## Installation
 
 ### Method 1: This Kit (built-in — no install needed)
-All 115+ skills in this directory are ready to use immediately.
+All 126 skills in this directory are ready to use immediately.
 Run `setup-context.sh` to wire them to your AI tool's skill directory.
 
 ### Method 2: Skill Marketplaces & Registries

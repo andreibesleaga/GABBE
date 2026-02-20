@@ -68,7 +68,7 @@ def test_sync_appends_if_no_tasks_found(tmp_path):
     """
     d = tmp_path / "project"
     d.mkdir()
-    tasks_file = d / "project/TASKS.md"
+    tasks_file = d / "TASKS.md"
     
     content = "# Just a header\nNo tasks here yet."
     tasks_file.write_text(content, encoding="utf-8")

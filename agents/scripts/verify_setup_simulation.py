@@ -7,9 +7,10 @@ from pathlib import Path
 import tempfile
 from unittest.mock import patch
 
-# Add project root to path so we can import init
+# Add project root and scripts dir to path so we can import init
 PROJECT_ROOT = Path(__file__).parent.parent.parent
 sys.path.append(str(PROJECT_ROOT))
+sys.path.append(str(PROJECT_ROOT / "scripts"))
 
 import init
 

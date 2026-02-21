@@ -1,0 +1,6 @@
+GABBE_API_URL=https://openrouter.ai/api/v1/chat/completions
+GABBE_API_KEY=
+GABBE_API_MODEL=openrouter/free
+GABBE_LLM_TEMPERATURE=0.7
+GABBE_LLM_TIMEOUT=30
+GABBE_ROUTE_THRESHOLD=50

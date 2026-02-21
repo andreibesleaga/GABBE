@@ -71,6 +71,16 @@ if GABBE_CONFIG_FILE.exists():
         warnings.warn(f"Failed to load extra config from {GABBE_CONFIG_FILE}: {e}")
 
 # LLM Config
+env_file = PROJECT_ROOT / ".env"
+if env_file.exists():
+    with open(env_file, "r") as f:
+        for line in f:
+            line = line.strip()
+            if line and not line.startswith("#"):
+                key, sep, val = line.partition("=")
+                if sep:
+                    os.environ.setdefault(key.strip(), val.strip().strip("'\""))
+
 GABBE_API_URL = os.environ.get(
     "GABBE_API_URL", "https://api.openai.com/v1/chat/completions"
 )
@@ -124,6 +134,6 @@ class Colors:
     CYAN = "\033[96m"
     WARNING = "\033[93m"
     FAIL = "\033[91m"
-    ENDC = "\0.2.0m"
+    ENDC = "\033[0m"
     BOLD = "\033[1m"
     UNDERLINE = "\033[4m"

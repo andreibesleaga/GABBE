@@ -71,6 +71,8 @@
 | User Story Map | `product/USER_STORY_MAP_TEMPLATE.md` | User Journey Mapping |
 | Business Case | `product/BUSINESS_CASE_TEMPLATE.md` | ROI and project justification |
 | Empathy Map | `product/EMPATHY_MAP_TEMPLATE.md` | User persona analysis |
+| Problem Statement | `product/PROBLEM_STATEMENT_TEMPLATE.md` | User need framing |
+| Ideation Log | `product/IDEATION_LOG_TEMPLATE.md` | Solution brainstorming log |
 | Requirements Review | `product/REQUIREMENTS_REVIEW_TEMPLATE.md` | PRD/Spec audit |
 | Stakeholder Register | `product/STAKEHOLDER_REGISTER_TEMPLATE.md` | RACI and stakeholder map |
 | NFR Definition | `product/NFR_TEMPLATE.md` | Non-functional requirements |

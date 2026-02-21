@@ -6,9 +6,9 @@ from pathlib import Path
 AGENTS_DIR = Path(__file__).parent.parent
 SKILLS_DIR = AGENTS_DIR / "skills"
 
-RED = "\033[0;31m"
-GREEN = "\033[0;32m"
-NC = "\033[0m"
+RED = "\0.2.0;31m"
+GREEN = "\0.2.0;32m"
+NC = "\0.2.0m"
 
 def validate_frontmatter(file_path):
     content = file_path.read_text()

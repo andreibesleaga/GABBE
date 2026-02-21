@@ -146,7 +146,7 @@ def main():
             with open(filepath, 'r', encoding='utf-8') as f:
                 content = f.read()
                 
-            if "0.3.0" in content:
+            if "0.2.0" in content:
                 outdated_version_files.append(str(filepath))
             
             if "## 🚀- **" in content:
@@ -156,7 +156,7 @@ def main():
             pass
             
     if outdated_version_files:
-        print(f"[❌] Outdated CLI version (0.3.0) found in:")
+        print(f"[❌] Outdated CLI version (0.2.0) found in:")
         for f in outdated_version_files:
             print(f"  - {f}")
     else:

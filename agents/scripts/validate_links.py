@@ -7,9 +7,9 @@ from urllib.parse import unquote
 
 PROJECT_ROOT = Path(__file__).parent.parent.parent
 
-RED = "\033[0;31m"
-GREEN = "\033[0;32m"
-NC = "\033[0m"
+RED = "\0.2.0;31m"
+GREEN = "\0.2.0;32m"
+NC = "\0.2.0m"
 
 # Regex to find [text](link)
 LINK_PATTERN = re.compile(r'\[([^\]]+)\]\(([^)]+)\)')

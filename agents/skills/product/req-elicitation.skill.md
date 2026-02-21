@@ -23,6 +23,15 @@ EARS_REQUIREMENTS.md.
 
 ---
 
+## Step 0 — Strategic Context (Optional)
+
+```
+Check for existing strategic documents in docs/strategic/ (e.g., BUSINESS_CASE.md, EMPATHY_MAP.md, PROBLEM_STATEMENT.md) created during Step 0.
+If they exist, read them to understand the "Why" and "Who" before proceeding to stakeholder identification.
+```
+
+---
+
 ## Step 1 — Stakeholder Identification
 
 ```

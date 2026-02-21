@@ -45,6 +45,11 @@ To articulate the *Why* behind a project. This skill generates a structured busi
 ## Output Format
 A markdown document at `docs/strategic/BUSINESS_CASE.md` following the template.
 
+## Integration with SDLC
+*   The output of this skill (`BUSINESS_CASE.md`) acts as **Step 0 — Strategy**.
+*   It feeds directly into `spec-writer.skill` or `req-elicitation.skill` (S01 Requirements).
+*   Validate the "Why" and "Who" here, before moving to Step 1 to define the "What".
+
 ## Constraints
 *   Always quantify "pain" where possible ($, hours, %).
 *   Always consider "Do Nothing" as a valid option.

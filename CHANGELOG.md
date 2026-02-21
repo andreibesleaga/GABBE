@@ -27,7 +27,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [0.2.0] — 2026-02-19
 
 ### Added
-- GABBE CLI 0.3.0 (Stable) with Zero-Dependency architecture.
+- GABBE CLI 0.2.0 (Stable) with Zero-Dependency architecture.
 - Full Antigravity / Gemini support.
 - Comprehensive Troubleshooting Guide.
 - AI-Native Engineering Scenarios guide.
@@ -35,7 +35,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Multi-agent swarm (Loki Mode) with 30+ personas.
 - 4-layer memory architecture (Working, Episodic, Semantic, Procedural).
 - Comprehensive checker scripts for kit integrity.
-- GABBE CLI 0.3.0: `gabbe init`, `gabbe sync`, `gabbe status`, `gabbe verify`, `gabbe route`, `gabbe brain`
+- GABBE CLI 0.2.0: `gabbe init`, `gabbe sync`, `gabbe status`, `gabbe verify`, `gabbe route`, `gabbe brain`
 - Bidirectional `TASKS.md ↔ SQLite` sync with timestamp arbitration (`gabbe sync`)
 - Brain Mode with Active Inference loop and Evolutionary Prompt Optimization (`gabbe brain`)
 - Cost-Effective LLM Router (`gabbe route`) — LOCAL vs REMOTE decision based on complexity + PII detection

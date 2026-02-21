@@ -50,7 +50,8 @@ python3 GABBE/scripts/init.py
 
 ```
 ## 4. Initialize Your Agent with the Mission
-    - Open the generated file: `SETUP_MISSION.md`
+    - The script generates `BOOTSTRAP_MISSION.md` (or `SETUP_MISSION.md` if dynamic setup is disabled) in your root.
+    - Open the generated file: `BOOTSTRAP_MISSION.md` or `SETUP_MISSION.md`
     - Copy the entire content.
     - Paste it into your AI Agent's chat window (first message).
     - This aligns the agent with your project context immediately.
@@ -63,7 +64,7 @@ python3 GABBE/scripts/init.py
 
 ---
 
-## 🚀 GABBE CLI 0.3.0 (Stable)
+## 🚀 GABBE CLI 0.2.0 (Stable)
 
 The core of GABBE 2.0 is the **Zero-Dependency CLI** (`gabbe`) which powers the "Hybrid Mode". It bridges the gap between flexible Markdown files and a robust SQLite database.
 It's an experimental work-in-progress and you can do without the whole package only with the rest of the kit.
@@ -113,7 +114,7 @@ graph TD
         Edit[Edit project/TASKS.md]
     end
 
-    subgraph CLI["GABBE CLI 0.3.0 (pip installed)"]
+    subgraph CLI["GABBE CLI 0.2.0 (pip installed)"]
         Sync[gabbe sync]
         Verify[gabbe verify]
         Brain[gabbe brain]
@@ -280,7 +281,7 @@ GABBE/
 | Task | Human (You) | Agent (The Machine) |
 |---|---|---|
 | **Strategy** | **Decides "What to build"** and "Why". | Suggests options, researches feasibility. |
-| **Setup** | Runs `scripts/init.py`, feeds `SETUP_MISSION.md`. | Reads mission, analyzes stack, updates `AGENTS.md`. |
+| **Setup** | Runs `scripts/init.py`, feeds `BOOTSTRAP_MISSION.md` or `SETUP_MISSION.md`. | Reads mission, analyzes stack, updates `AGENTS.md`. |
 | **Config** | Edits `AGENTS.md` (Stack, Commands) & `CONSTITUTION.md`. | **Read-Only**. Can propose changes, cannot edit laws. |
 | **Spec** | Reviews and **Approves** `PRD.md`. | **Writes** `PRD.md` using `spec-writer.skill`. |
 | **Arch** | Reviews and **Approves** `PLAN.md`. | **Designs** `PLAN.md` using `arch-design.skill`. |

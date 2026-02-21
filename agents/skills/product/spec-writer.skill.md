@@ -13,8 +13,9 @@ Transform a user goal or feature request into a structured PRD using EARS syntax
 ## Steps
 
 1. **Receive and understand the goal**
+   - First, check for `Step 0` strategic context in `docs/strategic/` (e.g., `BUSINESS_CASE.md`, `EMPATHY_MAP.md`, `PROBLEM_STATEMENT.md`). If present, read them.
    - Ask the user: "Describe what you want to build in plain language"
-   - Identify: Who is the user? What problem does it solve? What does success look like?
+   - Identify: Who is the user? What problem does it solve? What does success look like? (using the strategic docs if available)
 
 2. **Ambiguity Layer — ask clarifying questions**
    Identify and ask about ALL ambiguous aspects before writing requirements:

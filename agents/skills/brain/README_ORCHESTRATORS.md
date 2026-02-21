@@ -55,7 +55,7 @@ graph TD
 
 ## CLI Reference
 
-In addition to Agent slash commands, you can orchestrate these modes via the GABBE CLI 0.3.0:
+In addition to Agent slash commands, you can orchestrate these modes via the GABBE CLI 0.2.0:
 
 | Mode | CLI Command | Purpose |
 |---|---|---|

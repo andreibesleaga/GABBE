@@ -17,7 +17,7 @@ pip install -e ".[dev]"
 Run the test suite:
 
 ```bash
-pytest tests/ -v
+pytest scripts/tests/ -v
 ```
 
 ---
@@ -74,8 +74,8 @@ python3 scripts/init.py
 
 ## Code Changes to `gabbe/`
 
-- All changes must pass `pytest tests/ -v`.
-- If you add a feature, add or extend unit tests in `tests/`.
+- All changes must pass `pytest scripts/tests/ -v`.
+- If you add a feature, add or extend unit tests in `scripts/tests/`.
 - Follow the existing code style (PEP 8, no type annotations required but welcomed).
 - Add new configurable constants to `config.py` rather than hardcoding them.
 
@@ -89,7 +89,7 @@ python3 scripts/init.py
 
 ## Pull Request Checklist
 
-- [ ] Tests pass: `pytest tests/ -v`
+- [ ] Tests pass: `pytest scripts/tests/ -v`
 - [ ] New behaviour is covered by tests
 - [ ] `CHANGELOG.md` updated under `## [Unreleased]`
 - [ ] `README.md` counts/tables updated if skills/templates/guides were added

@@ -7,7 +7,7 @@ from pathlib import Path
 
 # --- Configuration ---
 # KIT_SOURCE: Where the script and correct agents folder currently live
-KIT_SOURCE = Path(__file__).parent.absolute()
+KIT_SOURCE = Path(__file__).parent.parent.absolute()
 SOURCE_AGENTS_DIR = KIT_SOURCE / "agents"
 
 # PROJECT_ROOT: Where the user is running the script from (the project they want to configure)
@@ -363,7 +363,7 @@ def main():
 
     # Tech Stack
     print(f"\n{YELLOW}Part 3: Technology Stack{NC}")
-    language = select(
+    language_choice = select(
         "Primary Language",
         [
             "TypeScript",
@@ -377,7 +377,8 @@ def main():
             "Other",
         ],
     )
-    if language == "Other":
+    language = language_choice
+    if language_choice == "Other":
         language = ask("Enter Language")
 
     framework = ask("Primary Framework (e.g. Next.js, FastAPI, Laravel)", "None")
@@ -483,7 +484,7 @@ def main():
             pm = "go mod"
         if language.lower() in ["rust"]:
             pm = "cargo"
-        elif language.lower() == "other":
+        elif language_choice == "Other":
             pm = ask("Which package manager? (e.g. cargo, mix, gradle, make, none)", "none")
 
         if language.lower() in ["javascript", "typescript"]:

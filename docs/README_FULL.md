@@ -106,7 +106,7 @@ python3 scripts/init.py
 ```
 
 **2. Feed the Mission**
-   - The script generates `SETUP_MISSION.md` in your root.
+   - The script generates `BOOTSTRAP_MISSION.md` (or `SETUP_MISSION.md` if dynamic setup is disabled) in your root.
    - **Copy its content** and paste it into your AI Agent's chat window.
    - This aligns the agent with your project context immediately.
 
@@ -116,7 +116,7 @@ python3 scripts/init.py
 
 ---
 
-## 3.1. GABBE CLI 0.3.0 (experimental)
+## 3.1. GABBE CLI 0.2.0 (experimental)
 
 The core of GABBE 2.0 is the **Zero-Dependency CLI** (`gabbe`) which powers the "Hybrid Mode". It bridges the gap between flexible Markdown files and a robust SQLite database.
 It's an experimental work-in-progress and you can do without the whole package only with the rest of the kit.
@@ -166,7 +166,7 @@ graph TD
         Edit[Edit project/TASKS.md]
     end
 
-    subgraph CLI["GABBE CLI 0.3.0 (pip installed)"]
+    subgraph CLI["GABBE CLI 0.2.0 (pip installed)"]
         Sync[gabbe sync]
         Verify[gabbe verify]
         Brain[gabbe brain]
@@ -395,6 +395,14 @@ flowchart TD
 ```
 
 ### Step-by-Step Instructions
+
+**Step 0 — Strategy (Optional)**
+```
+Tell agent: "Use business-case/strategy skills to validate the goals."
+Agent produces: BUSINESS_CASE.md or EMPATHY_MAP.md or similar strategy docs
+You review: The 'Why' and the 'Who' before moving to 'What'
+Approve: "Approved. Move to Step 1 Requirements."
+```
 
 **Step 1 — Requirements (S01)**
 ```

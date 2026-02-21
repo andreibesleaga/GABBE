@@ -11,7 +11,7 @@
 - Drop-in context kit that turns any AI coding agent into a governed engineering team for developing software.
 - Based on Software Engineering & Architecture Practices and Procedures.
 - Works for any project type, new or existing, any language, any team size.
-- **Write Once, Run Everywhere**: Skills work on Cursor (`.mdc`), VS Code (`folder/skill`), Claude (`.skill.md`), Gemini.
+- **Write Once, Run Everywhere**: SKILLS for Cursor (`.mdc`), VS Code (`folder/skill`), Claude (`.skill.md`), Gemini.
 - The system features an experimental **Meta-Cognitive Orchestrator "Brain"** (Neurocognitive based architecture derived from Neuroscience, Cognitive Psychology, Epistemology, treating the Software System not as a machine, but as a **Cognitive Entity**), using Active Inference to plan, route, and optimize work.
 - The system features a **Multi-Agent Swarm "Loki"** (30+ specialized agent roles for large projects), providing episodic and semantic memory, project history auditing and checkpoints.
 
@@ -33,7 +33,7 @@ It provides:
 ---
 
 ### ⚡ Automated Setup (Recommended)
-The `init.py` script is a **Universal Skill Compiler**. It detects your AI tools and generates the correct formats:
+The `init.py` script is a **Universal Skill Compiler**. It generates the correct formats for your AI tools:
 - **Cursor**: Generates `.cursor/rules/*.mdc` (Optimized with Globs)
 - **VS Code / Copilot**: Generates `.github/skills/` with `config.json`
 - **Claude Code**: Symlinks `.claude/skills` for instant updates
@@ -45,7 +45,7 @@ python3 scripts/init.py
 ```
 
 2. **Feed the Mission**
-   - The script generates `SETUP_MISSION.md` in your root.
+   - The script generates `BOOTSTRAP_MISSION.md` (or `SETUP_MISSION.md` if dynamic setup is disabled) in your root.
    - **Copy its content** and paste it into your AI Agent's chat window.
    - This aligns the agent with your project context immediately.
 
@@ -128,10 +128,10 @@ Multi-agent swarm with 30+ specialized personas for projects >5 features or >20 
 
 ---
 
-## 🚀 GABBE CLI 0.3.0 (Stable)
+## 🚀 GABBE CLI 0.2.0 (Stable)
 
-The core of GABBE 2.0 is the **Zero-Dependency CLI** (`gabbe`) which powers the "Hybrid Mode". It bridges the gap between flexible Markdown files and a robust SQLite database.
-It's an experimental work-in-progress and you can do without the whole package only with the rest of the kit.
+GABBE has also an experimental helper, **Zero-Dependency CLI** (`gabbe`) which powers the "Hybrid Mode", to bridge the gap between Markdown files and a SQLite database.
+It is a work-in-progress and you can do without it, only with the rest of the kit.
 
 ### Prerequisites
 - Python 3.8+
@@ -170,7 +170,7 @@ gabbe --help
 | `gabbe route` | **Cost Router**: Arbitrates between Local and Remote LLMs based on task complexity (Requires API Key). |
 
 ### Architecture
-GABBE 2.0 uses a **Hybrid Architecture** where agents and humans interact via Markdown, but the system of record is SQLite.
+GABBE uses a **Hybrid Architecture** where agents and humans interact via Markdown, but the system of record is SQLite.
 
 ```mermaid
 graph TD
@@ -178,7 +178,7 @@ graph TD
         Edit[Edit project/TASKS.md]
     end
 
-    subgraph CLI["GABBE CLI 0.3.0 (pip installed)"]
+    subgraph CLI["GABBE CLI 0.2.0 (pip installed)"]
         Sync[gabbe sync]
         Verify[gabbe verify]
         Brain[gabbe brain]
@@ -237,7 +237,7 @@ graph TD
     %% Phase 1: Setup
     subgraph Setup [1. Setup Phase]
         Start([Start]) --> Init[Run init.py]
-        Init --> Mission[Feed SETUP_MISSION.md]
+        Init --> Mission[Feed BOOTSTRAP_MISSION.md or SETUP_MISSION.md]
         Mission --> Config[Edit AGENTS.md]
     end
 
@@ -287,7 +287,7 @@ graph TD
 ```text
 [START]
    |
-[INSTALL] python3 scripts/init.py -> Generates SETUP_MISSION.md
+[INSTALL] python3 scripts/init.py -> Generates BOOTSTRAP_MISSION.md (or SETUP_MISSION.md)
    |
 [SETUP]   Feed Mission to Agent -> Edit AGENTS.md (Stack/Rules)
    |

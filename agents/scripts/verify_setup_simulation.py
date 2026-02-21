@@ -14,9 +14,9 @@ sys.path.append(str(PROJECT_ROOT / "scripts"))
 
 import init
 
-RED = "\033[0;31m"
-GREEN = "\033[0;32m"
-NC = "\033[0m"
+RED = "\0.2.0;31m"
+GREEN = "\0.2.0;32m"
+NC = "\0.2.0m"
 
 def test_tech_map_generation():
     print(f"\nTesting build_tech_map_from_skills...")

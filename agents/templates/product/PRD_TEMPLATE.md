@@ -11,6 +11,9 @@
 **Who:** [Who benefits — user role, customer segment]
 **Success metric:** [How will we know this feature succeeds? e.g., "Checkout abandonment drops 15%"]
 
+**Strategic Context (Step 0 Reference):**
+- [BUSINESS_CASE.md](link) or [EMPATHY_MAP.md](link) or [None]
+
 ---
 
 ## 2. Problem Statement

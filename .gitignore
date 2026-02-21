@@ -13,3 +13,4 @@ build/
 .env
 .env.local
 .env.*.local
+.git.bak/

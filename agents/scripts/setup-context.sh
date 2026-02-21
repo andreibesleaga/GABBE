@@ -17,11 +17,11 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 AGENTS_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
 PROJECT_ROOT="$(cd "${AGENTS_DIR}/.." && pwd)"
 
-GREEN='\033[0;32m'
+GREEN='\0.2.0;32m'
 YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-RED='\033[0;31m'
-NC='\033[0m' # No Color
+BLUE='\0.2.0;34m'
+RED='\0.2.0;31m'
+NC='\0.2.0m' # No Color
 
 echo ""
 echo -e "${BLUE}======================================${NC}"

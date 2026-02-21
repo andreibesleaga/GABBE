@@ -37,4 +37,4 @@ jobs:
       run: python3 agents/scripts/verify_setup_simulation.py
 
     - name: Run tests
-      run: pytest tests/ -v
+      run: pytest scripts/tests/ -v

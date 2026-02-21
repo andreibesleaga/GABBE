@@ -3,7 +3,7 @@ import re
 from pathlib import Path
 
 def main():
-    root_dir = Path("/home/andrei/work/GABBE")
+    root_dir = Path(__file__).parent.parent.parent
     skills_dir = root_dir / "agents" / "skills"
     
     # Exclude these directories from search

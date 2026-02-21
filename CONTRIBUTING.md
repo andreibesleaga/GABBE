@@ -60,7 +60,7 @@ python3 scripts/init.py
 ## Adding a Custom Template
 
 1. Create a `.md` file in `agents/templates/<category>/`.
-2. Use existing templates as reference (e.g., `agents/templates/core/project/TASKS.md`).
+2. Use existing templates as reference (e.g., `agents/templates/core/TASKS_TEMPLATE.md`).
 3. Update the templates table in `README.md` and `README_FULL.md`.
 
 ---

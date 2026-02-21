@@ -244,7 +244,7 @@ GABBE/
   agents/             <- The actual kit payload
       AGENTS.md        <- Universal config template
       CONSTITUTION.md  <- Immutable project law
-      setup-context.sh <- Internal wiring script (wrapped by scripts/init.py)
+      scripts/setup-context.sh <- Internal wiring script (wrapped by scripts/init.py)
       skills/          <- 120+ agent capability packages (💯)
           core/        <- (tdd, refactor, debug, git...)
           security/    <- (audit, threat-model...)
@@ -263,7 +263,7 @@ GABBE/
 - **What:** Textbooks for the Agent.
 - **Who:** The AGENT reads them.
 - **When:** At the start of a session or when learning a new stack.
-- **How:** "Read `guides/js-ts-nodejs.md` to understand our stack standards."
+- **How:** "Read `guides/languages/js-ts-nodejs.md` to understand our stack standards."
 
 ### 2. Templates (`agents/templates/**/*.md`)
 - **What:** Forms to be filled out.
@@ -273,7 +273,7 @@ GABBE/
     1.  **Agent Instantiation:** "Create a PRD for [feature] using `templates/product/PRD_TEMPLATE.md`."
     2.  **Manual Instantiation:** You copy the file to `docs/PRD.md` and fill it out yourself. (Rare, but allowed).
 
-### 3. Scripts (`agents/setup-context.sh`, `scripts/init.py`)
+### 3. Scripts (`agents/scripts/setup-context.sh`, `scripts/init.py`)
 - **What:** Automation tools.
 - **Who:** The HUMAN runs them.
 - **When:** Once at project start (scripts/init.py) or if symlinks break (setup-context.sh).

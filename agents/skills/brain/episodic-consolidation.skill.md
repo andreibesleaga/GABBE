@@ -14,7 +14,7 @@ This skill mimics the brain's "Sleep" process (Hippocampus to Neocortex transfer
 2.  **Extract:** Identify "Generalized Rules" from specific events.
     *   *Event:* "I fixed a bug in `auth.go` caused by nil pointer."
     *   *Rule:* "Always check for nil in `auth.go` User structs."
-3.  **Store:** Write this Rule to `agents/memory/semantic/rules.md`.
+3.  **Store:** Write this Rule to `memory/semantic/rules.md`.
 
 ## 2. Identifying Episodic Drifts
 Check if the "Story" of the project has changed.

@@ -658,21 +658,21 @@ Task → Knowledge gap? → research.skill → Execute → Verify
 
 | Stack | Guide |
 |---|---|
-| JS/TS/Node.js | `guides/js-ts-nodejs.md` |
-| Go | `guides/go-lang.md` |
-| PHP/Laravel | `guides/php-laravel.md` |
-| Python/FastAPI | `guides/python-fastapi-ai.md` |
-| SQL/NoSQL | `guides/sql-nosql.md` |
-| Microservices | `guides/microservices.md` |
-| Architecture | `guides/systems-architecture.md` |
-| Testing | `guides/testing-strategy.md` |
-| Design Patterns | `guides/design-patterns.md` |
-| Agentic AI | `guides/ai-agentic.md` |
-| Multi-Agent Systems | `guides/multi-agent-systems.md` |
-| Security/Compliance | `guides/compliance-audit.md` |
-| DevOps/Environments | `guides/dev-environments.md` |
-| Legacy/COBOL | `guides/legacy-tech.md` |
-| Future Tech 2030 | `guides/future-tech.md` |
+| JS/TS/Node.js | `guides/languages/js-ts-nodejs.md` |
+| Go | `guides/languages/go-lang.md` |
+| PHP/Laravel | `guides/languages/php-laravel.md` |
+| Python/FastAPI | `guides/languages/python-fastapi-ai.md` |
+| SQL/NoSQL | `guides/data/sql-nosql.md` |
+| Microservices | `guides/architecture/microservices.md` |
+| Architecture | `guides/architecture/systems-architecture.md` |
+| Testing | `guides/principles/testing-strategy.md` |
+| Design Patterns | `guides/patterns/design-patterns.md` |
+| Agentic AI | `guides/ai/ai-agentic.md` |
+| Multi-Agent Systems | `guides/ai/multi-agent-systems.md` |
+| Security/Compliance | `guides/ops/compliance-audit.md` |
+| DevOps/Environments | `guides/ops/dev-environments.md` |
+| Legacy/COBOL | `guides/principles/legacy-tech.md` |
+| Future Tech 2030 | `guides/principles/future-tech.md` |
 | C-Sharp / .NET | `guides/languages/c-sharp.md` |
 | Self-Healing | `guides/ai/self-healing-summary.md` |
 | Troubleshooting | `guides/ops/troubleshooting-guide.md` |

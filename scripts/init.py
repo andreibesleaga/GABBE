@@ -568,7 +568,7 @@ def main():
     # --- Step 5: Directory Wiring ---
     print(f"\n{YELLOW}Part 5: Wiring Agent Context{NC}")
 
-    loki_mem = AGENTS_DIR / "agents/memory"
+    loki_mem = AGENTS_DIR / "memory"
     (loki_mem / "episodic/SESSION_SNAPSHOT").mkdir(parents=True, exist_ok=True)
     (loki_mem / "semantic").mkdir(parents=True, exist_ok=True)
 
@@ -718,7 +718,7 @@ You MUST NOT write implementation code until these artifacts are approved:
 -   [ ] CI/CD Pipeline configured
 -   [ ] Compliance Audit passed (if regulated)
 
-Start by running: `./setup-context.sh` to confirm your environment.
+Start by running: `setup-context.sh` to confirm your environment.
 """
         mission_file = PROJECT_ROOT / "BOOTSTRAP_MISSION.md"
         mission_file.write_text(mission)
@@ -739,7 +739,7 @@ Here is your mission to finalize the setup:
     -   Compliance: {', '.join(compliance) if compliance else 'None'}.
 
 2.  **MCP Configuration**:
-    -   Review `agents/templates/MCP_CONFIG_TEMPLATE.json`.
+    -   Review `agents/templates/core/MCP_CONFIG_TEMPLATE.json`.
     -   Install "Context-7 MCP" (Essential for docs).
     -   If we are using Postgres, install "PostgreSQL MCP".
 

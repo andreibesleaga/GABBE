@@ -1121,44 +1121,44 @@ Copy and paste these exact prompts into your AI chat window to kick off standard
 
 | Guide | Stack | Key Topics |
 |---|---|---|
-| `guides/full-system-lifecycle.md` | Process/SDLC | Traceability, Golden Thread, DoD |
-| `guides/system-qualities.md` | Architecture/Ops | Reliability, SRE, Scalability |
-| `guides/production-health.md` | Ops/SRE | Health Checks & Monitoring |
-| `guides/future-tech.md` | Future/2030 | 6G, IoT Matter, Vector DBs, WASM |
-| `guides/legacy-tech.md` | Legacy/Mainframe | COBOL, Fortran, Modernization |
-| `guides/dev-environments.md` | Dev Environment | Local vs Remote vs Cloud, Docker Watch |
-| `guides/enterprise-patterns.md` | Enterprise | Strangler Fig, ACL, CDC, Legacy Migration |
-| `guides/api-standards.md` | API Design | REST, GraphQL, Versioning, Governance |
-| `guides/testing-strategy.md` | Testing | Pyramid, Trophy, Contract Testing |
-| `guides/event-driven-architecture.md` | Architecture | EDA, Async, Event Sourcing |
-| `guides/design-patterns.md` | Design Patterns | Strategy, Factory, Observer, Adapter |
-| `guides/clean-code-standards.md` | Clean Code | SOLID, DRY, KISS, Refactoring |
-| `guides/agentic-patterns.md` | AI/Agentic | Reflection, Memory, Planning, Tools |
-| `guides/ai-native-scenarios.md` | AI/Agentic | Vibe-to-Code, Auto-Patching, DB Refactor |
-| `guides/multi-agent-systems.md` | Python/Node/React | Swarms, Orchestration, A2A Protocol |
-| `guides/autonomous-swarm-patterns.md` | AI/Agentic | Self-organizing Swarm Patterns |
-| `guides/agent-communication.md` | All Stacks | MCP, A2A, ACP, Handshake Protocols |
-| `guides/js-ts-nodejs.md` | JS/TS/Node.js | Clean Architecture, Vitest, Zod, Prisma, Playwright |
-| `guides/go-lang.md` | Go (Golang) | Echo/Gin, Ent, Testify, Clean Arch |
-| `guides/php-laravel.md` | PHP/Laravel | DDD, Actions, Pest PHP, PHPStan L9, Enlightn |
-| `guides/python-fastapi-ai.md` | Python/FastAPI/AI | Clean Architecture, Pydantic, Agents |
-| `guides/sql-nosql.md` | SQL/NoSQL | Migration-first, PostgreSQL patterns, Redis, MongoDB |
-| `guides/compliance-audit.md` | Compliance & Audit | GDPR, SOC2 logging, Privacy Engineering |
-| `guides/ai-agentic.md` | AI/Agentic | RARV, SDD lifecycle, Memory Architecture, MCP config |
-| `guides/microservices.md` | Microservices | Bounded contexts, event-driven, contract testing |
-| `guides/systems-architecture.md` | Architecture | C4 models, quality attributes, decision records |
-| `guides/product-requirements.md` | Product | EARS syntax, user stories, prioritization |
-| `guides/strategic-analysis.md` | Strategy | Business case, design thinking, systems loops |
-| `guides/diagramming-standards.md` | Diagrams | Mermaid.js class, sequence, state diagrams |
-| `guides/visual-design-system.md` | Design | Design Tokens & UI Architecture |
-| `guides/agent-ui.md` | UI/UX | Generative UI, HTMX, TUI, ShadCN |
-| `guides/no-code-integration.md` | No-Code | n8n, Make, Zapier, Hybrid Workflows |
-| `guides/actor-agent-frameworks.md` | Architecture | Akka, Erlang, LangGraph comparison |
-| `guides/a2ui-protocols.md` | UI/UX | A2UI, GenUI, AG-UI standards |
-| `guides/critical-systems-arch.md` | Safety | DO-178C, IEC 62304, DDD, Hexagonal |
-| `guides/beyond-llms.md` | AI Theory | Neuro-symbolic, Genetic Algos, Active Inference |
+| `guides/principles/full-system-lifecycle.md` | Process/SDLC | Traceability, Golden Thread, DoD |
+| `guides/architecture/system-qualities.md` | Architecture/Ops | Reliability, SRE, Scalability |
+| `guides/ops/production-health.md` | Ops/SRE | Health Checks & Monitoring |
+| `guides/principles/future-tech.md` | Future/2030 | 6G, IoT Matter, Vector DBs, WASM |
+| `guides/principles/legacy-tech.md` | Legacy/Mainframe | COBOL, Fortran, Modernization |
+| `guides/ops/dev-environments.md` | Dev Environment | Local vs Remote vs Cloud, Docker Watch |
+| `guides/patterns/enterprise-patterns.md` | Enterprise | Strangler Fig, ACL, CDC, Legacy Migration |
+| `guides/architecture/api-standards.md` | API Design | REST, GraphQL, Versioning, Governance |
+| `guides/principles/testing-strategy.md` | Testing | Pyramid, Trophy, Contract Testing |
+| `guides/architecture/event-driven-architecture.md` | Architecture | EDA, Async, Event Sourcing |
+| `guides/patterns/design-patterns.md` | Design Patterns | Strategy, Factory, Observer, Adapter |
+| `guides/principles/clean-code-standards.md` | Clean Code | SOLID, DRY, KISS, Refactoring |
+| `guides/patterns/agentic-patterns.md` | AI/Agentic | Reflection, Memory, Planning, Tools |
+| `guides/patterns/ai-native-scenarios.md` | AI/Agentic | Vibe-to-Code, Auto-Patching, DB Refactor |
+| `guides/languages/js-ts-nodejs.md` | Python/Node/React | Swarms, Orchestration, A2A Protocol |
+| `guides/patterns/autonomous-swarm-patterns.md` | AI/Agentic | Self-organizing Swarm Patterns |
+| `guides/ai/agent-communication.md` | All Stacks | MCP, A2A, ACP, Handshake Protocols |
+| `guides/languages/js-ts-nodejs.md` | JS/TS/Node.js | Clean Architecture, Vitest, Zod, Prisma, Playwright |
+| `guides/languages/go-lang.md` | Go (Golang) | Echo/Gin, Ent, Testify, Clean Arch |
+| `guides/languages/php-laravel.md` | PHP/Laravel | DDD, Actions, Pest PHP, PHPStan L9, Enlightn |
+| `guides/languages/python-fastapi-ai.md` | Python/FastAPI/AI | Clean Architecture, Pydantic, Agents |
+| `guides/data/sql-nosql.md` | SQL/NoSQL | Migration-first, PostgreSQL patterns, Redis, MongoDB |
+| `guides/ops/compliance-audit.md` | Compliance & Audit | GDPR, SOC2 logging, Privacy Engineering |
+| `guides/ai/ai-agentic.md` | AI/Agentic | RARV, SDD lifecycle, Memory Architecture, MCP config |
+| `guides/architecture/microservices.md` | Microservices | Bounded contexts, event-driven, contract testing |
+| `guides/architecture/systems-architecture.md` | Architecture | C4 models, quality attributes, decision records |
+| `guides/planning/product-requirements.md` | Product | EARS syntax, user stories, prioritization |
+| `guides/planning/strategic-analysis.md` | Strategy | Business case, design thinking, systems loops |
+| `guides/principles/diagramming-standards.md` | Diagrams | Mermaid.js class, sequence, state diagrams |
+| `guides/principles/visual-design-system.md` | Design | Design Tokens & UI Architecture |
+| `guides/ai/agent-ui.md` | UI/UX | Generative UI, HTMX, TUI, ShadCN |
+| `guides/principles/no-code-integration.md` | No-Code | n8n, Make, Zapier, Hybrid Workflows |
+| `guides/ai/actor-agent-frameworks.md` | Architecture | Akka, Erlang, LangGraph comparison |
+| `guides/ai/a2ui-protocols.md` | UI/UX | A2UI, GenUI, AG-UI standards |
+| `guides/architecture/critical-systems-arch.md` | Safety | DO-178C, IEC 62304, DDD, Hexagonal |
+| `guides/ai/beyond-llms.md` | AI Theory | Neuro-symbolic, Genetic Algos, Active Inference |
 | `agents/skills/brain/` | **Neuro-Arch** | **The Brain Metaphor: Cognitive Software Patterns** |
-| `guides/monolith.md` | Monolith | Vertical slices, modular monolith, Strangler Fig |
+| `guides/architecture/monolith.md` | Monolith | Vertical slices, modular monolith, Strangler Fig |
 
 ### Subject-Specific Guides
 | Topic | Guide |

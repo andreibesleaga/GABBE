@@ -10,7 +10,7 @@
 - Works for any project type, new or existing, any language, any team size.
 - **Write Once, Run Everywhere**: Skills work on Cursor (`.mdc`), VS Code (`folder/skill`), Claude (`.skill.md`), Gemini.
 - The system features an experimental **Meta-Cognitive Orchestrator "Brain"** (Neurocognitive based architecture derived from Neuroscience, Cognitive Psychology, Epistemology, treating the Software System not as a machine, but as a **Cognitive Entity**), using Active Inference to plan, route, and optimize work.
-- The system features a **Multi-Agent Swarm "Loki"** (30+ specialized agent roles for large projects), providing episodic and semantic memory, project history auditing and checkpoints.
+- The system features a **Multi-Agent Swarm "Loki" Engineering Team** (30+ specialized agent roles for large projects), providing episodic and semantic memory, project history auditing and checkpoints.
 
 It provides:
 - **120+ Skills** (specialized capabilities)
@@ -113,6 +113,12 @@ python3 scripts/init.py
 **3. Verify Context**
    - Open `agents/AGENTS.md` and check the `Tech Stack` section.
    - Open `agents/CONSTITUTION.md` and review project rules.
+
+**4. Git Tracking (Important)**
+   - To keep the initial structure of `agents/memory/` and `project/` in your repository but prevent Git from tracking the continuous autonomous modifications your agents will make to them locally, run:
+     ```bash
+     git ls-files agents/memory/ project/ | xargs git update-index --skip-worktree
+     ```
 
 ---
 

@@ -62,6 +62,12 @@ python3 GABBE/scripts/init.py
     - Open `agents/CONSTITUTION.md`: Review project laws.
     - Adjust Article I (Directives) if needed.
 
+## 6. Git Tracking (Important)
+    - To keep the initial structure of `agents/memory/` and `project/` in your repository but prevent Git from tracking the continuous autonomous modifications your agents will make to them locally, run:
+      ```bash
+      git ls-files agents/memory/ project/ | xargs git update-index --skip-worktree
+      ```
+
 ---
 
 ## 🚀 GABBE CLI 0.2.0 (Stable)

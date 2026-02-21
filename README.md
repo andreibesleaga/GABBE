@@ -139,7 +139,7 @@ Multi-agent swarm with 30+ specialized personas for projects >5 features or >20 
 
 ---
 
-## 🚀 GABBE CLI 0.2.0 (Stable)
+## 🚀 GABBE CLI 0.2.0
 
 GABBE has also an experimental helper, **Zero-Dependency CLI** (`gabbe`) which powers the "Hybrid Mode", to bridge the gap between Markdown files and a SQLite database.
 It is a work-in-progress and you can do without it, only with the rest of the kit.

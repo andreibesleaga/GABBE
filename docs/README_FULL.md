@@ -55,7 +55,7 @@ It provides:
 
 ## 1. What Is This Kit?
 
-This kit gives AI coding agents the **context, skills, memory, and workflows** to act as a reliable software engineering team. It solves the **Lethal Trifecta** of agentic AI:
+This kit gives AI coding agents the **context, skills, memory, and workflows** to act as a reliable software engineering team. It solves **Another Lethal Trifecta** of agentic AI:
 
 - **Velocity mismatch** — agents code faster than humans can review, skipping critical steps
 - **Non-determinism** — same prompt, different output every time without guardrails

@@ -3,7 +3,7 @@ import re
 from pathlib import Path
 
 def main():
-    root_dir = Path("/home/andrei/work/GABBE")
+    root_dir = Path("../../GABBE")
     agents_dir = root_dir / "agents"
     
     # Exclude these directories

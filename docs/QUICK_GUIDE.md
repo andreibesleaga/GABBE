@@ -7,7 +7,7 @@
 
 ---
 
-## Why This Kit Exists — The Lethal Trifecta
+## Why This Kit Exists — Another Lethal Trifecta
 
 AI coding agents suffer from three compounding problems:
 

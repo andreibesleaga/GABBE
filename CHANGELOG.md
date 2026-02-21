@@ -22,6 +22,16 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Removed Android/iOS installation instructions
 - Removed loki leftovers from tests
 
+### Audited & Verified
+- Conducted a full GABBE deep-audit to guarantee stability across workflows, codebase, and documentation.
+- **Workflows & Logic Verification**: `init.py` handles step 0 / step 1 initialization perfectly. The `gabbe` CLI tool `sync`, `router`, and `status` modes execute accurately.
+- **Test Suite Execution**: Checked the baseline test health using `pytest`. **`126 / 126` tests passed** natively with zero regressions.
+- **Documentation Parity**: `agents/skills/00-index.md` matches exactly 126 backend `.skill.md` files. `agents/templates/00-index.md` categorizes all 60+ template definitions. Markdown structure tree diagrams (`README.md`, `README_FULL.md`) correctly reflect the recent refactoring (no obsolete `tests/` directories).
+- **Codebase Cleanliness**: Swept the repository for `TODO`, `FIXME`, and `HACK`. No loose tech-debt markers exist in the source code; they correctly only exist inside rules or testing string assertions.
+- **Architectural Purity**: Clean workspace with zero stranded, orphaned, or unused script files left behind.
+- **Scripts Validation**: Validated that all 126 skills and 60+ templates exist exactly as advertised with zero broken internal links using `agents/scripts/comprehensive_checker.py` and `validate_skills.py`.
+- **CLI Reference Fixed**: Replaced outdated `0.3.0` CLI references across the docs with the actual `0.2.0` version to perfectly reflect the release state.
+
 ---
 
 ## [0.2.0] — 2026-02-19

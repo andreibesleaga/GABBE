@@ -75,11 +75,16 @@ chmod +x agents/setup-context.sh && agents/setup-context.sh
 
 ## 🚀 Common Actions (Copy-Paste Prompts)
 
+### Strategy & Ideation (Step 0)
+```
+"Use business-case/strategy skills to validate exactly why we are building [description] and who it is for."
+```
+
 ### New Project from Scratch
 ```
 "Read AGENTS.md. I want to build [description]. Start with spec-writer skill."
 ```
-**Flow:** Spec → Design → Tasks → TDD Implementation → Security → Deploy
+**Flow:** Strategy → Spec → Design → Tasks → TDD Implementation → Security → Deploy
 
 ### Resume Existing Project
 ```
@@ -143,7 +148,7 @@ It is a work-in-progress and you can do without it, only with the rest of the ki
 - Python 3.8+
 - **LLM API Key**: For Brain/Route features, set `GABBE_API_KEY` (OpenAI-compatible).
 
-**Environment Variables** (full reference in [CLI-REFERENCE.md](docs/CLI-REFERENCE.md#environment-variables)):
+**Environment Variables** (full reference in [CLI_REFERENCE.md](docs/CLI_REFERENCE.md#environment-variables)):
 
 | Variable | Default | Description |
 |---|---|---|

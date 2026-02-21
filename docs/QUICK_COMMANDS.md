@@ -58,10 +58,13 @@ You can invoke these skills directly in your IDE chat (e.g., Cursor, GitHub Copi
 
 Copy and paste these exact prompts into your AI chat window to kick off standard workflows.
 
+### Strategy & Ideation (Step 0)
+> "Use business-case/strategy skills to validate exactly why we are building [description] and who it is for."
+
 ### New Project from Scratch
 > "Read AGENTS.md. I want to build [description]. Start with spec-writer skill."
 
-**Flow:** Spec → Design → Tasks → TDD Implementation → Security → Deploy
+**Flow:** Strategy → Spec → Design → Tasks → TDD Implementation → Security → Deploy
 
 ### Resume Existing Project
 > "Read AGENTS.md and agents/memory/PROJECT_STATE.md. Resume the project."

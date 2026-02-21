@@ -1,7 +1,5 @@
-# agents/memory/ is tracked intentionally to preserve PROJECT_STATE, AUDIT_LOG,
-# and CONTINUITY files across sessions. Uncomment to gitignore instead.
-#agents/memory/
-#project
+agents/memory/
+project/
 
 __pycache__
 *.pyc

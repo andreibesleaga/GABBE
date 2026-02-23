@@ -388,6 +388,49 @@
       "env": {
         "STRIPE_API_KEY": "${STRIPE_SECRET_KEY}"
       }
+    },
+
+    "_section_api_knowledge": "=== API INTROSPECTION & KNOWLEDGE ===",
+
+    "graphql": {
+      "_enabled": false,
+      "_description": "GraphQL schema introspection, query validation, and documentation.",
+      "command": "npx",
+      "args": ["-y", "graphql-mcp-server"],
+      "env": {
+        "GRAPHQL_ENDPOINT": "${GRAPHQL_ENDPOINT}",
+        "GRAPHQL_HEADERS": "{\"Authorization\": \"Bearer ${GRAPHQL_TOKEN}\"}"
+      }
+    },
+
+    "elasticsearch": {
+      "_enabled": false,
+      "_description": "Full-text search, log analysis, and knowledge base indexing.",
+      "command": "npx",
+      "args": ["-y", "elasticsearch-mcp-server"],
+      "env": {
+        "ELASTICSEARCH_URL": "${ELASTICSEARCH_URL}",
+        "ELASTICSEARCH_API_KEY": "${ELASTICSEARCH_API_KEY}"
+      }
+    },
+
+    "shell": {
+      "_enabled": false,
+      "_security": "DEVELOPMENT ONLY — restrict to project directory. Never enable in production.",
+      "_description": "Execute shell commands for local build, test, and system introspection (internal RAG).",
+      "command": "npx",
+      "args": ["-y", "@anthropic/mcp-server-shell"],
+      "env": {}
+    },
+
+    "openapi": {
+      "_enabled": false,
+      "_description": "Load and query any OpenAPI/Swagger specification for API exploration.",
+      "command": "npx",
+      "args": ["-y", "openapi-mcp-server"],
+      "env": {
+        "OPENAPI_SPEC_URL": "${OPENAPI_SPEC_URL}"
+      }
     }
   },
 

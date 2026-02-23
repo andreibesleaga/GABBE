@@ -1026,6 +1026,21 @@ MCP (Model Context Protocol) servers extend agent capabilities. Configure them i
 | **Memory** | Qdrant MCP | Semantic long-term memory retrieval |
 | **Browser** | Playwright MCP | Browser automation for visual TDD |
 | **Monitoring** | Sentry MCP | Error tracking and incident context |
+| **Filesystem** | Filesystem MCP | Local file access for internal RAG |
+
+**Full coverage matrix** (40 MCP servers in `MCP_CONFIG_TEMPLATE.json`):
+
+| Integration Domain | Servers Available |
+|---|---|
+| **External APIs** | GraphQL, OpenAPI, Stripe, Zapier |
+| **Databases** | PostgreSQL, MongoDB, Redis, SQLite, DBHub (universal) |
+| **Knowledge Bases** | Qdrant, Pinecone, Chroma, Weaviate, Elasticsearch |
+| **Web Scraping** | Firecrawl, Brave Search, Tavily, DuckDuckGo |
+| **Internal RAG** | Filesystem, Shell, Jupyter, Context-7 |
+| **Observability** | Sentry, Datadog, Grafana |
+| **Code Quality** | Semgrep, Snyk, SonarQube, Gitleaks |
+| **Project Mgmt** | GitHub, GitLab, Jira, Linear, Notion, Confluence, Slack |
+| **Cloud/Infra** | AWS Core, Kubernetes, Figma |
 
 **Security rules:**
 - Production databases: read-only access only

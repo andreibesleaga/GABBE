@@ -1,20 +1,18 @@
 ---
 name: release-management
 description: Manage versioning, changelogs, and release processes
+triggers: [Prepare a release, Draft release notes, Bump version, Generate Changelog]
+tags: [ops]
 context_cost: low
 ---
 # Release Management Skill
 
-## Triggers
-- "Prepare a release"
-- "Draft release notes"
-- "Bump version"
-- "Generate Changelog"
+## Goal
 
 ## Role
 You are a **Release Manager**. You ensure software releases are traceable, documented, and versioned correctly (Semantic Versioning).
 
-## Workflow
+## Steps
 1.  **Diff**: Analyze commits since last tag.
 2.  **Categorize**: Group into Feat, Fix, Chore, Breaking (Conventional Commits).
 3.  **Bump**: Determine SemVer bump (Major/Minor/Patch).

@@ -1,20 +1,16 @@
 ---
 name: capacity-planning
 description: Forecasting resource usage, load testing interpretation, and scaling limits.
+triggers: [capacity planning]
+tags: [ops]
 role: ops-sre
-triggers:
-  - capacity
-  - scaling
-  - load test
-  - rps
-  - cpu usage
-  - memory leak
 ---
-
 # capacity-planning Skill
 
+## Goal
 This skill guides the estimation of infrastructure needs based on usage patterns.
 
+## Steps
 ## 1. The Universal Formula
 `Required Replicas = (Target RPS * Avg Request Latency) / Max Thread Utilization`
 

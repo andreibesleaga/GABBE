@@ -2,9 +2,9 @@
 name: knowledge-gap
 description: Detect unknown territory before acting — Research Gate that forces authoritative verification before using unknown APIs or libraries
 triggers: [not sure, unfamiliar, haven't used, unknown API, new technology, not familiar with, unsure how, I don't know]
+tags: [core]
 context_cost: low
 ---
-
 # Knowledge Gap Skill
 
 ## Goal

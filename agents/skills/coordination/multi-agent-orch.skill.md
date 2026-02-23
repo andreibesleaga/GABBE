@@ -1,21 +1,16 @@
 ---
 name: multi-agent-orch
 description: Plans and orchestrates multi-agent swarms, defining roles, topologies, and handoffs.
+triggers: [orchestrate, swarm, delegation, multi-agent, agent-team]
+tags: [coordination]
 context_cost: medium
 ---
 # Multi-Agent Orchestration Skill
 
-## Triggers
-- orchestrate
-- swarm
-- delegation
-- multi-agent
-- agent-team
-
-## Purpose
+## Goal
 To design and manage the execution of tasks across multiple specialized agents. This skill helps identify necessary roles, select the appropriate communication topology (hierarchical, sequential, mesh), and define clear handoff protocols.
 
-## Instructions
+## Steps
 When the user asks to "orchestrate a swarm" or "design a multi-agent system":
 
 1.  **Analyze the Goal**: Break down the high-level objective into distinct sub-problems.

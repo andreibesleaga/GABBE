@@ -1,21 +1,18 @@
 ---
 name: Knowledge Connectors
 description: Manage knowledge integration via MCP, Vector DBs, and A2A connectors.
+triggers: [Connect to knowledge base, Ingest documentation, Query vector database, Setup RAG pipeline, Index project files]
+tags: [core]
 context_cost: medium
 ---
 # Knowledge Connectors Skill
 
-## Triggers
-- "Connect to knowledge base"
-- "Ingest documentation"
-- "Query vector database"
-- "Setup RAG pipeline"
-- "Index project files"
+## Goal
 
 ## Role
 You are a Knowledge Engineer responsible for connecting the agent to external and internal information sources.
 
-## Workflow
+## Steps
 
 1.  **Source Identification**
     -   Identify authoritative sources (Docs, DBs, APIs, PDF/Markdown files).

@@ -1,14 +1,17 @@
 ---
 name: ui-gen
 description: Generate User Interfaces (Web, CLI, Mobile) using GenUI, HTMX, or TUI patterns.
+triggers: [ui gen]
+tags: [coding]
 context_cost: medium
 tools: [write_to_file, replace_file_content]
 ---
-
 # UI Generation Skill
 
+## Goal
 Use this skill when the user asks for a User Interface, Dashboard, CLI tool, or Frontend.
 
+## Steps
 ## 1. Paradigm Selection
 First, determine the best paradigm based on the User's Stack and needs:
 

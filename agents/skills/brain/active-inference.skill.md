@@ -1,14 +1,17 @@
 ---
 name: active-inference
 description: Apply Active Inference to minimize prediction error (Surprise).
+triggers: [active inference]
+tags: [brain]
 context_cost: medium
 tools: [run_command, read_file]
 ---
-
 # Active Inference Skill
 
+## Goal
 > "Action is the process of changing the world to match your prediction."
 
+## Steps
 ## 1. The Concept (Free Energy Principle)
 Standard agents are "Goal-Directed" (Maximize Reward). **Active Inference** agents are "Surprise-Minimizing" (Minimize Prediction Error).
 - **Goal:** Not just to "win", but to understand and control.

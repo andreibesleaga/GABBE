@@ -1,20 +1,16 @@
 ---
 name: ai-safety-guardrails
 description: Security-by-design for AI (Prompt Injection defense, Hallucination checks, PII filters).
+triggers: [ai safety guardrails]
+tags: [security]
 role: prod-ethicist
-triggers:
-  - ai safety
-  - guardrails
-  - prompt injection
-  - hallucination
-  - pii filter
-  - jailbreak
 ---
-
 # ai-safety-guardrails Skill
 
+## Goal
 This skill protects the system from its own AI.
 
+## Steps
 ## 1. Input Guardrails (Defense)
 - **Prompt Injection**: "Ignore previous instructions".
   - *Defense*: Delimiters (XML tags), "Sandwich Defense" (System Prompt + User Input + System Reminder).

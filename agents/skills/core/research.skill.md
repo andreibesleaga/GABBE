@@ -2,9 +2,9 @@
 name: research
 description: Find authoritative answers from official docs, RFCs, standards, and academic sources — never from blogs or opinions
 triggers: [research, find, how to, unknown, best practice, which library, official docs, RFC, spec, standard, look this up]
+tags: [core]
 context_cost: medium
 ---
-
 # Research Skill
 
 ## Goal

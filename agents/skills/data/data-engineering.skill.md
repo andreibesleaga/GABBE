@@ -1,23 +1,13 @@
 ---
 name: data-engineering
 description: Design and implement data pipelines (ETL/ELT), warehousing, and analytics engineering.
+triggers: [data pipeline, etl, elt, spark, airflow, dbt, warehouse, big data, sql optimization, kafka]
+tags: [data]
 context_cost: medium
 ---
 # Data Engineering Skill
 
-## Triggers
-- data pipeline
-- etl
-- elt
-- spark
-- airflow
-- dbt
-- warehouse
-- big data
-- sql optimization
-- kafka
-
-## Purpose
+## Goal
 To assist with moving, transforming, and storing data at scale for analytics and AI.
 
 ## Capabilities
@@ -37,7 +27,7 @@ To assist with moving, transforming, and storing data at scale for analytics and
 -   **Optimization**: Partitioning, Clustering, Materialized Views.
 -   **Cost Control**: Slot management, auto-suspend.
 
-## Instructions
+## Steps
 1.  **Pattern Selection**: Prefer ELT (Load -> Transform in Warehouse) for modern stacks.
 2.  **Idempotency**: All pipelines must be re-runnable without duplicating data.
 3.  **Data Quality**: Always include data validation steps (Great Expectations / dbt tests).

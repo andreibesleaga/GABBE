@@ -1,20 +1,13 @@
 ---
 name: docker-dev
 description: Assistance with Local Development using Docker (Compose, DevContainers).
+triggers: [docker, compose, local dev, devcontainer, dev environment, containerize, dockerization]
+tags: [ops]
 context_cost: medium
 ---
 # Docker Dev Skill
 
-## Triggers
-- docker
-- compose
-- local dev
-- devcontainer
-- dev environment
-- containerize
-- dockerization
-
-## Purpose
+## Goal
 To set up robust, reproducible local development environments using Docker technologies.
 
 ## Capabilities
@@ -34,7 +27,7 @@ To set up robust, reproducible local development environments using Docker techn
 -   **Caching**: Optimize layer ordering for faster builds.
 -   **Distroless**: Use distroless images for production (keep shells in dev).
 
-## Instructions
+## Steps
 1.  **Prefer Compose Watch**: Always recommend `docker compose watch` over legacy volume mounts for code sync.
 2.  **User Mapping**: Ensure file permissions work by mapping non-root user (UID/GID) inside container.
 3.  **Persistence**: Use Docker Volumes for DB data so it survives restarts.

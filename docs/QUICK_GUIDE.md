@@ -349,7 +349,7 @@ Skills are invoked by mentioning trigger keywords in conversation.
 ```
 
 
-All 120+ skills are listed in `skills/00-index.md`.
+All 120+ skills are listed in `agents/skills/00-index.md`.
 
 ---
 
@@ -387,6 +387,7 @@ The mandatory artifact chain for all new features:
 5. IMPLEMENT  (Engineering swarm / single agent, with RARV cycle)
               -> TDD: test first, implement, verify, refactor
               -> RARV: Reason -> Act -> Reflect -> Verify
+              -> Security & Compliance gate: scan passes
               -> Self-heal on failure (max 5 attempts)
               -> Audit log entry for each completed task
 ```
@@ -708,6 +709,9 @@ No human needed for:
 | `arch-design`, `arch-review`, `arch-patterns`, `design-patterns` | design arch, audit arch, architecture, pattern |
 | `diagramming`, `domain-model`, `adaptive-architecture`, `compatibility-design` | diagram, domain, local-first, compatibility |
 | `architecture-governance`, `error-handling-strategy`, `event-governance` | archunit, error handling, schema registry |
+| `microservices`, `monolith`, `api-standards`, `systems-architecture` | decouple, monolith, c4 models, api |
+| `event-driven-architecture`, `system-qualities`, `critical-systems-arch` | async, eda, nfr, do-178c |
+| `enterprise-patterns`, `enterprise-migration-scenario` | saga, bff, strangler fig, migrate |
 
 ### Security, Compliance & Quality
 | Skill | Triggers |
@@ -716,6 +720,8 @@ No human needed for:
 | `access-control`, `data-governance`, `backup-recovery`, `queue-management` | rbac, lineage, backup, dlq |
 | `reliability-sre`, `performance`, `performance-audit`, `incident-response`, `system-benchmark`, `cost-optimization` | SRE, perf, profile, incident, load, cost |
 | `accessibility`, `tech-debt`, `arch-debt`, `hazard-analysis`, `production-health`, `dependency-security` | a11y, debt, skew, fmea, tmr, deps |
+| `dev-environments`, `troubleshooting-guide`, `api-security`, `secure-architecture` | devcontainer, diagnose, bola, zero-trust |
+| `privacy-data-protection`, `cryptography-standards` | gdpr, pii, encryption, hashing |
 
 ### Strategy & Agentic
 | Skill | Triggers |
@@ -726,6 +732,8 @@ No human needed for:
 | `knowledge-gap`, `self-heal`, `session-resume`, `sdlc-checkpoint`, `knowledge-connect` | unsure, fix, resume, checkpoint, RAG |
 | `integrity-check`, `audit-trail`, `system-lifecycle`, `episodic-consolidation` | verify, log, trace, consolidation |
 | `emerging-tech`, `legacy-modernization` | future, legacy |
+| `multi-agent-systems`, `agent-communication`, `beyond-llms` | mas, orchestration, a2a, mcp |
+| `autonomous-swarm-patterns`, `agent-ui`, `actor-agent-frameworks`, `a2ui-protocols` | swarm, langgraph, ui, streams |
 
 ## Templates Reference
 

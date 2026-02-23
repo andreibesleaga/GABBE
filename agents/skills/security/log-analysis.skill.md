@@ -1,20 +1,16 @@
 ---
 name: log-analysis
 description: Parsing structured logs, finding patterns in noise, and ELK/Splunk querying.
+triggers: [log analysis]
+tags: [security]
 role: ops-monitor
-triggers:
-  - analyze logs
-  - parse logs
-  - kibana
-  - splunk
-  - grep logs
-  - error rate
 ---
-
 # log-analysis Skill
 
+## Goal
 This skill helps agents and engineers interpret logging data to find root causes of issues.
 
+## Steps
 ## 1. Structured Logging (The Prerequisite)
 - **Format**: JSON. Always.
 - **Why**: Allows querying `level="ERROR" AND service="user-api"`. Text logs require fragile regex.

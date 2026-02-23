@@ -1,21 +1,16 @@
 ---
 name: network-security
 description: Firewall rules, VPC design, TLS config, and subnet isolation.
+triggers: [network security]
+tags: [security]
 role: ops-security
-triggers:
-  - firewall
-  - vpc
-  - subnet
-  - tls
-  - ssl
-  - port
-  - cidr
 ---
-
 # network-security Skill
 
+## Goal
 This skill defines the perimeter and internal segmentation of the infrastructure.
 
+## Steps
 ## 1. VPC Architecture
 
 ### Public Subnet

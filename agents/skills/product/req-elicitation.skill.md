@@ -2,9 +2,9 @@
 name: req-elicitation
 description: Structured requirements elicitation for new products or features. Derives complete, verifiable requirements from stakeholder goals using IEEE 29148, IREB, and EARS standards. Handles both greenfield products and additions to existing systems.
 triggers: [elicit requirements, gather requirements, what are the requirements, new product requirements, user needs, stakeholder goals, write PRD, requirements from scratch]
+tags: [product]
 context_cost: medium
 ---
-
 # Requirements Elicitation Skill
 
 ## Goal
@@ -277,7 +277,8 @@ Priority levels (MoSCoW):
 
 ## Security & Guardrails
 
-### 1. Skill Security (Requirements Elicitation)
+### Steps
+## 1. Skill Security (Requirements Elicitation)
 - **Misuse Case Elicitation**: The agent must natively integrate "Misuse Cases" or "Abuse Cases" into Step 4 (Use Case Enumeration). For every critical actor-goal pair, the agent must generate a corresponding malicious actor-goal pair to ensure defensive requirements are captured from Day 1.
 - **Regulatory Pre-Processing**: Before eliciting constraints (Step 7), the agent must query the user about the data classification level (e.g., PII, PHI, PCI). If high-sensitivity data is involved, the agent must mandate the inclusion of specific regulatory compliance requirements (GDPR, HIPAA) as un-deletable Constraints.
 

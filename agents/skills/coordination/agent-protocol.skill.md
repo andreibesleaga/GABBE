@@ -1,21 +1,16 @@
 ---
 name: agent-protocol
 description: Defines and validates standard communication protocols between agents (A2A).
+triggers: [protocol, handshake, ipc, agent-messaging, a2a]
+tags: [coordination]
 context_cost: low
 ---
 # Agent Protocol Skill
 
-## Triggers
-- protocol
-- handshake
-- ipc
-- agent-messaging
-- a2a
-
-## Purpose
+## Goal
 To establish standard interfaces for agents to communicate, ensuring reliable data exchange and preventing format hallucinations.
 
-## Instructions
+## Steps
 When defining how agents talk to each other:
 
 1.  **Define the Schema**: Use JSON Schema to define the structure of messages.

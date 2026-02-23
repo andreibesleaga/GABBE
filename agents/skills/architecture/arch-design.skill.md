@@ -2,9 +2,9 @@
 name: arch-design
 description: Design system architecture from approved requirements. Technology-agnostic process covering quality attribute analysis, architectural style selection, multi-view documentation (arc42/4+1), and ADR creation. For new systems or major architectural changes.
 triggers: [design architecture, new architecture, architect the system, system design, choose architecture, architectural design, create architecture, system structure]
+tags: [architecture]
 context_cost: high
 ---
-
 # Architecture Design Skill
 
 ## Goal
@@ -289,7 +289,8 @@ Minimum required sections:
 
 ## Security & Guardrails
 
-### 1. Skill Security (Architecture Design)
+### Steps
+## 1. Skill Security (Architecture Design)
 - **Threat Model Prerequisite**: The agent is prohibited from finalizing the "Solution Strategy" (Step 4 of Documentation) without simultaneously invoking the `threat-model.skill.md`. A structural architecture designed without an adversarial mindset is fundamentally incomplete.
 - **Authorization as a Core View**: The agent must not relegate User Identity and Access Management to a secondary "implementation detail." The Logical View and Process View must explicitly diagram how authentication flows through the system boundaries (e.g., Token exchange at the API Gateway, JWT passing to microservices).
 

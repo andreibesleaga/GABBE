@@ -1,19 +1,16 @@
 ---
 name: middleware-design
 description: Designing robust middleware chains (Auth, Rate Limiting, Logging).
+triggers: [middleware design]
+tags: [architecture]
 role: eng-backend
-triggers:
-  - middleware
-  - interceptor
-  - pipeline
-  - request lifecycle
-  - rate limit
 ---
-
 # middleware-design Skill
 
+## Goal
 This skill guides the creation of the request processing pipeline ("The Onion Architecture").
 
+## Steps
 ## 1. The Standard Pipeline (Order Matters)
 
 1.  **Request ID**: Generate `trace_id` immediately. (Before logs).

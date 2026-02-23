@@ -1,21 +1,16 @@
 ---
 name: access-control
 description: Design RBAC/ABAC models, Principle of Least Privilege, Identity Management.
+triggers: [access control]
+tags: [security]
 role: ops-security, eng-backend
-triggers:
-  - rbac
-  - abac
-  - authz
-  - iam
-  - permission
-  - role
-  - least privilege
 ---
-
 # access-control Skill
 
+## Goal
 Identity is the new perimeter. Authorization must be strict, consistent, and auditable.
 
+## Steps
 ## 1. Models
 - **RBAC (Role-Based)**: `Admin`, `Editor`, `Viewer`. Simple, coarse-grained.
 - **ABAC (Attribute-Based)**: `CanEdit if user.dept == doc.dept AND time < 5pm`. Flexible, complex.

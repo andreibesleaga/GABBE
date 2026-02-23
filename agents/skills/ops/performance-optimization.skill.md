@@ -1,21 +1,13 @@
 ---
 name: performance-optimization
 description: Optimize systems for speed and scale (Caching, Sharding, Async).
+triggers: [performance, optimization, scaling, caching, sharding, profiling, latency, slow]
+tags: [ops]
 context_cost: medium
 ---
 # Performance Optimization Skill
 
-## Triggers
-- performance
-- optimization
-- scaling
-- caching
-- sharding
-- profiling
-- latency
-- slow
-
-## Purpose
+## Goal
 To ensure systems behave predictably under load and utilize resources efficiently.
 
 ## Capabilities
@@ -34,7 +26,7 @@ To ensure systems behave predictably under load and utilize resources efficientl
 -   **Message Queues**: Decouple heavy work (Sending Emails) from request loop.
 -   **Event-Driven**: Services react to changes instead of polling.
 
-## Instructions
+## Steps
 1.  **Stop Guessing**: Use a profiler (pprof, Flamegraphs) before optimizing.
 2.  **N+1 Problem**: Watch for loops triggering DB queries.
 3.  **Database First**: 96% of bottlenecks are in the data layer.

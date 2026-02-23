@@ -2,9 +2,9 @@
 name: spec-writer
 description: Generate Product Requirements Document with EARS syntax and structured ambiguity clarification
 triggers: [spec, PRD, feature, requirements, product requirements, write spec, new feature]
+tags: [product]
 context_cost: medium
 ---
-
 # Spec Writer Skill
 
 ## Goal

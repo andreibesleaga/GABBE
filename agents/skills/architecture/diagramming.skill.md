@@ -2,9 +2,9 @@
 name: diagramming
 description: Choose the right diagram type for a documentation need, then create it using standard notation. Covers all major diagram families: UML structural/behavioral, C4 architecture, ER data, BPMN process, and domain diagrams. Produces Mermaid-compatible syntax where possible.
 triggers: [create diagram, draw diagram, which diagram, diagram this, visualize, sequence diagram, class diagram, flowchart, architecture diagram, ER diagram, state diagram, activity diagram, context diagram, swimlane]
+tags: [architecture]
 context_cost: low
 ---
-
 # Diagramming Skill
 
 ## Goal
@@ -366,7 +366,8 @@ Before finalizing any diagram:
 
 ## Security & Guardrails
 
-### 1. Skill Security (Diagramming)
+### Steps
+## 1. Skill Security (Diagramming)
 - **Visual IP Leakage**: The agent must not include highly specific, sensitive configuration details (e.g., hardcoded IP subnets, plaintext API keys, precise firewall port numbers) within the generated Mermaid diagrams. Diagrams act as a high-level topographical map; embedding literal secrets turns the documentation into a target for credential scraping.
 - **Malicious Syntax Injection**: The agent must sanitize any user-provided names or labels before injecting them into Mermaid or PlantUML syntax. An attacker providing a component name like `"); DROP TABLE users;` must not be able to break the markdown renderer or cause HTML injection/XSS when the diagram is visualized in a browser.
 

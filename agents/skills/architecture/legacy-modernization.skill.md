@@ -1,24 +1,13 @@
 ---
 name: legacy-modernization
 description: Analyze, document, and modernize legacy systems (COBOL, Mainframe, Fortran).
+triggers: [legacy code, cobol, mainframe, fortran, ibm z, jcl, db2, cics, modernization, rewrite, migration]
+tags: [architecture]
 context_cost: medium
 ---
 # Legacy Modernization Skill
 
-## Triggers
-- legacy code
-- cobol
-- mainframe
-- fortran
-- ibm z
-- jcl
-- db2
-- cics
-- modernization
-- rewrite
-- migration
-
-## Purpose
+## Goal
 To respect the critical nature of legacy systems while safely guiding them toward modernization. **Rule #1: Do no harm.**
 
 ## Capabilities
@@ -37,7 +26,7 @@ To respect the critical nature of legacy systems while safely guiding them towar
 -   **Characterization Tests**: "Lock down" current behavior before changing ANYTHING.
 -   **Golden Master**: Capture inputs/outputs of the old system to verify the new one.
 
-## Instructions
+## Steps
 1.  **Assume Importance**: If it's running, it's making money. Treat legacy code with reverence.
 2.  **No Big Bang**: Never suggest a full rewrite from scratch unless the system is < 10k LOC.
 3.  **Document First**: most legacy failures happen because nobody knows *what* the code does.

@@ -1,19 +1,13 @@
 ---
 name: agentic-patterns
 description: Implements advanced AI patterns like Reflection, ReAct, Planning, and Tool Use.
+triggers: [agentic, reflection, react pattern, planning, memory, tool use]
+tags: [coordination]
 context_cost: high
 ---
 # Agentic Patterns Skill
 
-## Triggers
-- agentic
-- reflection
-- react pattern
-- planning
-- memory
-- tool use
-
-## Purpose
+## Goal
 To build sophisticated AI agents that can think, plan, and correct themselves using 2025-era cognitive architectures.
 
 ## Supported Patterns
@@ -49,7 +43,7 @@ To build sophisticated AI agents that can think, plan, and correct themselves us
 **The Solution**: Structured output mapped to executable functions.
 -   **Best Practice**: Define strict JSON schemas for tools constraints.
 
-## Instructions
+## Steps
 1.  **Identify Need**: "The user wants a research report."
 2.  **Select Pattern**: "This requires **Planning** (to outline the report) and **ReAct** (to search the web)."
 3.  **Implement**:

@@ -1,20 +1,16 @@
 ---
 name: caching-strategy
 description: Implement Redis/Memcached patterns and invalidation strategies.
+triggers: [caching strategy]
+tags: [ops]
 role: eng-backend
-triggers:
-  - cache
-  - redis
-  - memcached
-  - speed up
-  - ttl
-  - invalidation
 ---
-
 # caching-strategy Skill
 
+## Goal
 This skill defines how to implement caching to improve performance without serving stale data.
 
+## Steps
 ## 1. Caching Patterns
 
 ### Read Patterns

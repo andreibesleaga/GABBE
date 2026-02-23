@@ -1,20 +1,16 @@
 ---
 name: dependency-security
 description: Managing Supply Chain Security, SBOM generation, and vulnerability patching (SCA).
+triggers: [dependency security]
+tags: [security]
 role: ops-security, ops-devops
-triggers:
-  - supply chain
-  - sbom
-  - dependency scan
-  - npm audit
-  - deps
-  - vulnerability
 ---
-
 # dependency-security Skill
 
+## Goal
 This skill secures the software supply chain.
 
+## Steps
 ## 1. Software Composition Analysis (SCA)
 > "You are what you import."
 

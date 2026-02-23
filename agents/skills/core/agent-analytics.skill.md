@@ -2,9 +2,9 @@
 name: agent-analytics
 description: Tracks key performance indicators (KPIs) for AI Agents: Token Usage, Task Duration, Loop Cycles, and Success Rate.
 triggers: [analytics, metrics, tokens used, cost tracking, performance report, agent stats]
+tags: [core]
 context_cost: low
 ---
-
 # Agent Analytics Skill
 
 ## Goal
@@ -12,7 +12,8 @@ Provide visibility into the "Black Box" of agent execution by tracking cost (tok
 
 ## Flow
 
-### 1. Metric Capture
+### Steps
+## 1. Metric Capture
 **Input**: Completion of a Task / Tool Call / Phase.
 **Action**: Log the following structured data:
 *   `timestamp`: ISO 8601

@@ -1,19 +1,16 @@
 ---
 name: green-software
 description: Carbon efficiency, sustainable architecture choices, and GreenTech goals.
+triggers: [green software]
+tags: [product]
 role: prod-ethicist
-triggers:
-  - green software
-  - sustainability
-  - carbon footprint
-  - energy efficiency
-  - eco-mode
 ---
-
 # green-software Skill
 
+## Goal
 This skill guides the reduction of the system's environmental impact.
 
+## Steps
 ## 1. Principles (Green Software Foundation)
 1.  **Carbon Efficiency**: Emit the least amount of carbon per unit of work.
 2.  **Energy Efficiency**: Consume the least amount of electricity.

@@ -1,19 +1,16 @@
 ---
 name: swarm-consensus
 description: Implement voting mechanisms (majority, weighted) to resolve inter-agent conflicts.
+triggers: [swarm consensus]
+tags: [coordination]
 role: orch-coordinator
-triggers:
-  - vote
-  - consensus
-  - conflict resolution
-  - majority rule
-  - tie breaker
 ---
-
 # swarm-consensus Skill
 
+## Goal
 This skill allows a group of agents to agree on a decision when opinions differ (e.g., "Should we refactor or patch?").
 
+## Steps
 ## 1. Voting Protocols
 
 | Protocol | Description | Use Case |

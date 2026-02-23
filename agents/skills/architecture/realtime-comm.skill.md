@@ -1,20 +1,16 @@
 ---
 name: realtime-comm
 description: WebSocket handling, Pub/Sub patterns, and persistent connections.
+triggers: [realtime comm]
+tags: [architecture]
 role: eng-backend
-triggers:
-  - websocket
-  - socket.io
-  - realtime
-  - pubsub
-  - streaming
-  - sse
 ---
-
 # realtime-comm Skill
 
+## Goal
 This skill guides the implementation of bi-directional, stateful communication.
 
+## Steps
 ## 1. Protocol Selection
 
 | Protocol | Use Case | Pros | Cons |

@@ -1,22 +1,13 @@
 ---
 name: emerging-tech
 description: Architecture assistance for 2026-2030 technologies (6G, Matter IoT, Vector DBs).
+triggers: [6g, iot, matter, vector, bedding, semantic search, rag, edge native, post-quantum]
+tags: [core]
 context_cost: medium
 ---
 # Emerging Tech Skill
 
-## Triggers
-- 6g
-- iot
-- matter
-- vector
-- bedding
-- semantic search
-- rag
-- edge native
-- post-quantum
-
-## Purpose
+## Goal
 To future-proof applications for the next wave of connectivity and intelligence.
 
 ## Capabilities
@@ -36,7 +27,7 @@ To future-proof applications for the next wave of connectivity and intelligence.
 -   **RAG Pipelines**: Retrieval-Augmented Generation for grounding LLMs.
 -   **Databases**: Pinecone, Weaviate, pgvector strategy.
 
-## Instructions
+## Steps
 1.  **Latency Matters**: In 6G apps, the speed of light is the bottleneck. Move data closer to the user.
 2.  **Privacy by Design**: Matter devices talk locally. Don't send sensitive sensor data to the cloud unless necessary.
 3.  **Embed Everything**: Text, Images, Audio. If it's data, it can be a vector.

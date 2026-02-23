@@ -1,24 +1,13 @@
 ---
 name: enterprise-integration
 description: Design integrations with ERP/CRM systems and modernize legacy applications.
+triggers: [integration, erp, crm, sap, salesforce, legacy, middleware, esb, kafka, message bus, event bus]
+tags: [ops]
 context_cost: medium
 ---
 # Enterprise Integration Skill
 
-## Triggers
-- integration
-- erp
-- crm
-- sap
-- salesforce
-- legacy
-- middleware
-- esb
-- kafka
-- message bus
-- event bus
-
-## Purpose
+## Goal
 To solve complex integration challenges between modern apps and enterprise systems of record.
 
 ## Capabilities
@@ -38,7 +27,7 @@ To solve complex integration challenges between modern apps and enterprise syste
 -   **SAP**: OData services, IDoc, BAPI.
 -   **Workday/NetSuite**: SOAP/REST integrations.
 
-## Instructions
+## Steps
 1.  **Decouple**: Use async messaging (Kafka/RabbitMQ) where possible.
 2.  **Protect**: Always use an Anti-Corruption Layer when talking to legacy.
 3.  **Trace**: Ensure correlation IDs are passed across all systems.

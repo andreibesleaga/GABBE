@@ -1,20 +1,16 @@
 ---
 name: state-management
 description: Manage client-side state, side effects, and data flow.
+triggers: [state management]
+tags: [architecture]
 role: eng-frontend
-triggers:
-  - state
-  - redux
-  - context
-  - zustand
-  - store
-  - flux
 ---
-
 # state-management Skill
 
+## Goal
 This skill guides the architecture of frontend state, avoiding "prop drilling" and "spaghetti state."
 
+## Steps
 ## 1. Types of State
 
 | Type | Definition | Solution |

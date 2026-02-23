@@ -1,14 +1,17 @@
 ---
 name: sensory-motor
 description: Embodied cognition patterns for treating tools as muscles and inputs as senses.
+triggers: [sensory motor]
+tags: [brain]
 context_cost: medium
 tools: [run_command, read_file]
 ---
-
 # Sensory-Motor Skill (Embodied Cognition)
 
+## Goal
 > "Intelligence is not a brain in a jar; it is a body in a world."
 
+## Steps
 ## 1. The Body Schema (Proprioception)
 An agent must know the state of its "Body" (its available tools and context).
 - **Senses:** `read_file`, `list_dir`, `search_web`.

@@ -1,19 +1,16 @@
 ---
 name: release-validation
 description: The final "Green Light". Checks all test suites (Unit, Int, E2E) and third-party reports.
+triggers: [release validation]
+tags: [ops]
 role: ops-release
-triggers:
-  - release check
-  - go no go
-  - release readiness
-  - acceptance
-  - smoke test
 ---
-
 # release-validation Skill
 
+## Goal
 This skill is the "Gatekeeper" of Production.
 
+## Steps
 ## 1. The 7-Gate Quality System (Review)
 1.  **Spec**: PRD Approved?
 2.  **Arch**: ADRs + Threat Model?

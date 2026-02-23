@@ -2,9 +2,9 @@
 name: spec-analyze
 description: Check consistency and alignment between spec.md, plan.md, and project/tasks.md — detect drift and mismatches
 triggers: [analyze spec, consistency check, alignment, drift, spec vs plan, are specs aligned, spec mismatch]
+tags: [product]
 context_cost: low
 ---
-
 # Spec Analyze Skill
 
 ## Goal

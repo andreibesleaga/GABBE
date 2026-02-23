@@ -1,20 +1,16 @@
 ---
 name: ai-ethics-compliance
 description: Assessing Bias, Fairness, Transparency, and Legal (EU AI Act, GDPR).
+triggers: [ai ethics compliance]
+tags: [security]
 role: prod-ethicist
-triggers:
-  - ethics check
-  - bias review
-  - eu ai act
-  - gdpr
-  - fairness
-  - transparency
 ---
-
 # ai-ethics-compliance Skill
 
+## Goal
 This skill ensures the system respects human rights and legal frameworks.
 
+## Steps
 ## 1. Regulatory Checklist (EU AI Act / GDPR)
 - **Transparency**: Does the user know they are interacting with AI? (Art 52).
 - **Explanation**: Can we explain *why* the AI made a decision? (Right to Explanation).

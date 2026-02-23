@@ -1,20 +1,16 @@
 ---
 name: event-governance
 description: Schema Registry enforcement (Avro/JSON), CloudEvents standard, and Event Evolution rules.
+triggers: [event governance]
+tags: [architecture]
 role: prod-architect, eng-data
-triggers:
-  - event schema
-  - avro
-  - protobuf
-  - cloudevents
-  - schema registry
-  - asyncapi
 ---
-
 # event-governance Skill
 
+## Goal
 Events are Data Contracts. They must be governed as strictly as APIs.
 
+## Steps
 ## 1. CloudEvents Standard
 Use the standard envelope structure:
 ```json

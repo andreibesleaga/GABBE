@@ -1,22 +1,13 @@
 ---
 name: adaptive-architecture
 description: Design systems that evolve and work offline (Local-First, WASM, CRDTs).
+triggers: [local-first, offline-first, crdt, automerge, yjs, wasm, webassembly, edge ai, resiliency]
+tags: [architecture]
 context_cost: medium
 ---
 # Adaptive Architecture Skill
 
-## Triggers
-- local-first
-- offline-first
-- crdt
-- automerge
-- yjs
-- wasm
-- webassembly
-- edge ai
-- resiliency
-
-## Purpose
+## Goal
 To build systems that are robust, responsive, and respectful of user data ownership.
 
 ## Capabilities
@@ -35,7 +26,7 @@ To build systems that are robust, responsive, and respectful of user data owners
 -   **Hybrid Inference**: Run small models (SLMs) on-device (latency/privacy) and large models (LLMs) in cloud.
 -   **TensorFlow Lite / ONNX**: Optimizing models for mobile/edge.
 
-## Instructions
+## Steps
 1.  **Data Ownership**: Give users their data (SQLite on device).
 2.  **Optimistic UI**: UI updates immediately. Sync happens in background.
 3.  **Conflict Resolution**: Use CRDTs to mathematically guarantee convergence.

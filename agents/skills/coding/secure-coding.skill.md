@@ -1,20 +1,16 @@
 ---
 name: secure-coding
 description: Implementing OWASP Proactive Controls (Input Validation, Output Encoding, AuthZ/AuthN).
+triggers: [secure coding]
+tags: [coding]
 role: ops-security, eng-backend
-triggers:
-  - secure code
-  - input validation
-  - output encoding
-  - owasp
-  - prevent xss
-  - prevent sql injection
 ---
-
 # secure-coding Skill
 
+## Goal
 This skill guides the implementation of security controls *during* development (Shift Left).
 
+## Steps
 ## 1. Input Validation (Defense)
 > "Never trust input."
 

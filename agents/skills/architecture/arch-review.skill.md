@@ -2,9 +2,9 @@
 name: arch-review
 description: Systematic review of existing architecture using ATAM-lite methodology. Evaluates architectural fitness against quality attribute scenarios, identifies risks, sensitivity points, tradeoffs, and anti-patterns. Produces structured review report with findings and recommendations.
 triggers: [review architecture, audit architecture, architecture analysis, architecture assessment, arch review, evaluate architecture, is the architecture good, architecture problems, existing architecture]
+tags: [architecture]
 context_cost: high
 ---
-
 # Architecture Review Skill
 
 ## Goal
@@ -277,7 +277,8 @@ Architecture fitness: SOUND / AT RISK / INADEQUATE
 
 ## Security & Guardrails
 
-### 1. Skill Security (Architecture Review)
+### Steps
+## 1. Skill Security (Architecture Review)
 - **Review Artifact Containment**: Information gathered during the review (especially undocumented API endpoints, plaintext credentials found in config, or critical unpatched vulnerabilities) constitutes a highly sensitive target. The agent must ensure the `ARCHITECTURE_REVIEW_TEMPLATE.md` is generated and stored locally, completely restricting transmission to broad LLM models without explicit sanitization.
 - **Fitness Function Vandalism**: If the agent detects that automated Architecture Fitness Functions (e.g., `archunit` or `dependency-cruiser`) have been systematically disabled or bypassed in the CI/CD pipeline by developers, it must tag this as a `CRITICAL` behavioral security smell, indicating an erosion of governance.
 

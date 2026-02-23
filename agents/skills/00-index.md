@@ -93,6 +93,17 @@ ln -sf /path/to/agents/skills/*/*.skill.md ~/.agent/skills/
 | Arch Debt | `architecture/arch-debt.skill.md` | coupling, cycles | Arch debt analysis |
 | API Design | `architecture/api-design.skill.md` | api, rest, openapi | API contract design |
 | Legacy Mod | `architecture/legacy-modernization.skill.md` | cobol, modernize | Legacy modernization |
+| API Standards | `architecture/api-standards.skill.md` | api standards | API governance |
+| Critical Sys | `architecture/critical-systems-arch.skill.md` | safety critical | DO-178C / robust arch |
+| Event Driven | `architecture/event-driven-architecture.skill.md` | eda, event | EDA design |
+| Microservices | `architecture/microservices.skill.md` | microservices | Decouple services |
+| Monolith | `architecture/monolith.skill.md` | monolith | Modular monoliths |
+| System Qualities | `architecture/system-qualities.skill.md` | nfr, qualities | NFR enforcement |
+| Systems Arch | `architecture/systems-architecture.skill.md` | c4, systems | Holistic C4 models |
+| Enterprise Migration | `architecture/enterprise-migration-scenario.skill.md` | migrate, legacy | Strangler fig rollouts |
+| Enterprise Patterns | `architecture/enterprise-patterns.skill.md` | saga, bff | Enterprise design |
+| Scalability | `architecture/system-scalability.skill.md` | horizontal, scale | Auditing system bottlenecks |
+| Blockchain DLT | `architecture/blockchain-dlt.skill.md` | dlt, web3 | Smart contracts & Ledgers |
 
 ### 3. Operations & SRE (`ops/`)
 | Skill | File | Triggers | Purpose |
@@ -117,7 +128,10 @@ ln -sf /path/to/agents/skills/*/*.skill.md ~/.agent/skills/
 | Benchmark | `ops/system-benchmark.skill.md` | load test | Benchmarking |
 | Capacity | `ops/capacity-planning.skill.md` | scale, forecast | Capacity planning |
 | Caching | `ops/caching-strategy.skill.md` | redis, ttl | Caching patterns |
-| Enterprise Int | `ops/enterprise-integration.skill.md` | erp, sap, integration | high | Enterprise Patterns |
+| Enterprise Int | `ops/enterprise-integration.skill.md` | erp, sap | Enterprise Integration |
+| Dev Environments | `ops/dev-environments.skill.md` | devcontainer | Dev setups |
+| Troubleshooting | `ops/troubleshooting-guide.skill.md` | troubleshoot | Incident diagnosis |
+| Cost Optimization | `ops/cost-optimization.skill.md` | finops, costs | Analyze cloud spend |
 
 ### 4. Security & Compliance (`security/`)
 | Skill | File | Triggers | Purpose |
@@ -139,6 +153,10 @@ ln -sf /path/to/agents/skills/*/*.skill.md ~/.agent/skills/
 | AI Guardrails | `security/ai-safety-guardrails.skill.md` | injection, jailbreak | AI defense |
 | Secrets | `security/secrets-management.skill.md` | vault, key | Secrets handling |
 | Safety Scan | `security/safety-scan.skill.md` | safety scan | Pre-commit safety |
+| API Security | `security/api-security.skill.md` | secure api | API vulnerabilities |
+| Crypto Standards | `security/cryptography-standards.skill.md` | encrypt | Crypto algorithms |
+| Privacy Protection | `security/privacy-data-protection.skill.md` | gdpr, pii | Data privacy |
+| Secure Arch | `security/secure-architecture.skill.md` | zero trust | Defense-in-depth |
 
 ### 5. Data & Analytics (`data/`)
 | Skill | File | Triggers | Purpose |
@@ -147,6 +165,7 @@ ln -sf /path/to/agents/skills/*/*.skill.md ~/.agent/skills/
 | Data Gov | `data/data-governance.skill.md` | lineage, catalog | Data governance |
 | DB Migration | `data/db-migration.skill.md` | migration, sql | Schema changes |
 | SQL Opt | `data/sql-optimization.skill.md` | slow query | Query tuning |
+| Semantic Web | `data/semantic-web.skill.md` | ontology, rdf | Meta-knowledge graphs |
 
 ### 6. Product & Strategy (`product/`)
 | Skill | File | Triggers | Purpose |
@@ -165,6 +184,7 @@ ln -sf /path/to/agents/skills/*/*.skill.md ~/.agent/skills/
 | User Mapping | `product/user-story-mapping.skill.md` | user journey | User story maps |
 | Accessibility | `product/accessibility.skill.md` | a11y, wcag | Accessibility audit |
 | Green Software | `product/green-software.skill.md` | green, carbon | medium | Sustainable Software |
+| Sustainability | `product/sustainability-checks.skill.md` | esg, sustain | ESG & Sustainability checks |
 
 ### 7. Coordination & Agents (`coordination/`)
 | Skill | File | Triggers | Purpose |
@@ -198,6 +218,17 @@ ln -sf /path/to/agents/skills/*/*.skill.md ~/.agent/skills/
 | Skill | File | Context | Purpose |
 |---|---|---|---|
 | Active Inference | `brain/active-inference.skill.md` | high | Predictive error minimization loop |
+
+### 10. AI & Swarms (`ai/`)
+| Skill | File | Triggers | Purpose |
+|---|---|---|---|
+| A2UI Protocols | `ai/a2ui-protocols.skill.md` | a2ui, genui | Agent-to-UI |
+| Actor Frameworks | `ai/actor-agent-frameworks.skill.md` | langgraph | Actor frameworks |
+| Agent Comm | `ai/agent-communication.skill.md` | a2a | Agent-to-Agent |
+| Agent UI | `ai/agent-ui.skill.md` | agent ui | Specialized UI |
+| Beyond LLMs | `ai/beyond-llms.skill.md` | neuro-symbolic | Non-LLM techniques |
+| Multi-Agent Sys | `ai/multi-agent-systems.skill.md` | mas, swarm | Orchestrate MAS |
+| Auto Swarm Pat. | `ai/autonomous-swarm-patterns.skill.md` | swarm patterns | Self-organizing swarms |
 | Cognitive Architectures | `brain/cognitive-architectures.skill.md` | ref | Cognitive Turing Machine theory |
 | Consciousness Loop | `brain/consciousness-loop.skill.md` | high | OODA + Strange Loops |
 | Cost-Benefit Router | `brain/cost-benefit-router.skill.md` | high | Local vs Remote model routing |
@@ -216,3 +247,12 @@ ln -sf /path/to/agents/skills/*/*.skill.md ~/.agent/skills/
 |---|---|---|---|---|
 | **Brain Mode** | `brain/brain-mode.skill.md` | brain activate, supermode | high | **Meta-Cognitive Orchestrator** (Active Inference + Routing) |
 | Loki Mode | `brain/loki-mode.skill.md` | loki, swarm | high | Standard 10-phase SDLC Orchestrator |
+
+### 11. Industry Specifications (`industry/`)
+| Skill | File | Triggers | Purpose |
+|---|---|---|---|
+| Healthcare FHIR | `industry/healthcare-fhir.skill.md` | fhir, hl7 | Clinical integration |
+| Industrial IoT | `industry/industrial-iot.skill.md` | iot, opc | Edge telemetry |
+| Telecom Networks | `industry/telecom-networks.skill.md` | tmf, camara | Telecom networking |
+| Global Standards | `industry/global-standards.skill.md` | un, itu | UN/ITU/OSI standards |
+| Engineering Standards | `industry/engineering-standards.skill.md` | ieee, acm | IEEE/ACM/ISO compliance |

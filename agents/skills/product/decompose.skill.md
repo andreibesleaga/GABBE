@@ -2,9 +2,9 @@
 name: decompose
 description: Decompose technical specifications or plans into atomic, testable tasks. Enforces the "15-Minute Rule" and populates project/TASKS.md.
 triggers: [decompose, break down tasks, create task list, task decomposition, 15 minute rule]
+tags: [product]
 context_cost: medium
 ---
-
 # Task Decomposition Skill
 
 > "A complex task is just a series of simple tasks that haven't been broken down yet."

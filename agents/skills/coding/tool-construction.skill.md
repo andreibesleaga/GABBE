@@ -1,18 +1,16 @@
 ---
 name: tool-construction
 description: Dynamically building simple MCP servers or Python scripts to solve unique problems.
+triggers: [tool construction]
+tags: [coding]
 role: eng-tooling
-triggers:
-  - build tool
-  - create mcp
-  - make script
-  - automate task
 ---
-
 # tool-construction Skill
 
+## Goal
 This skill guides the creation of NEW capabilities for the swarm.
 
+## Steps
 ## 1. Script vs MCP
 - **Script**: One-off task (e.g., "Migrate CSV to JSON").
 - **MCP Server**: Persistent tool needed by LLM (e.g., "Query internal Knowledge Base").

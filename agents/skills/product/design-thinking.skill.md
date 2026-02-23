@@ -2,9 +2,9 @@
 name: design-thinking
 description: Apply the Design Thinking process (Empathize, Define, Ideate, Prototype, Test) to solve complex user problems.
 triggers: [design thinking, empathize, user journey, persona, ideation, brainstorming, prototype, user research]
+tags: [product]
 context_cost: medium
 ---
-
 # Design Thinking Skill
 
 ## Goal

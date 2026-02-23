@@ -1,14 +1,17 @@
 ---
 name: self-improvement
 description: Evolutionary mechanisms for the agent to rewrite its own prompts (Neuroplasticity).
+triggers: [self improvement]
+tags: [brain]
 context_cost: very_high
 tools: [replace_file_content, task_boundary]
 ---
-
 # Self-Improvement Skill
 
+## Goal
 > "The software that writes itself."
 
+## Steps
 ## 1. Evolutionary Prompts (The Genome)
 Treat the `system_prompt` and `skill.md` files as **DNA**.
 - **Genes:** Individual instructions (e.g., "Always use TDD").

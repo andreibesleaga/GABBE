@@ -1,20 +1,13 @@
 ---
 name: compatibility-design
 description: Manage breaking changes, migrations, and API evolution.
+triggers: [compatibility, migration, versioning, breaking change, deprecation, legacy support, expand contract]
+tags: [architecture]
 context_cost: medium
 ---
 # Compatibility Design Skill
 
-## Triggers
-- compatibility
-- migration
-- versioning
-- breaking change
-- deprecation
-- legacy support
-- expand contract
-
-## Purpose
+## Goal
 To evolve systems without breaking existing users or downtime.
 
 ## Capabilities
@@ -33,7 +26,7 @@ To evolve systems without breaking existing users or downtime.
 -   **Decoupling**: Launch != Deploy.
 -   **Kill Switch**: Turn off broken features instantly without rollback.
 
-## Instructions
+## Steps
 1.  **Never Break Consumers**: If you must break, create a new version (`v2`).
 2.  **Dual Write**: During migrations, write to old AND new data structures.
 3.  **Deprecation Policy**: Announce sunset dates clearly (e.g., 6 months notice).

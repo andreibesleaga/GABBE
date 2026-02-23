@@ -2,9 +2,9 @@
 name: db-migration
 description: Database schema changes and migration workflow — safe, reversible, tested
 triggers: [migration, schema, database, alter table, add column, rename column, DB change]
+tags: [data]
 context_cost: medium
 ---
-
 # DB Migration Skill
 
 ## Goal

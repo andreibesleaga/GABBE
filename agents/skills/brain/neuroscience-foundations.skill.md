@@ -4,12 +4,13 @@ description: Apply biological brain patterns to agent design
 triggers: [neuroscience, brain, cognitive, thalamus, basal ganglia]
 tags: [brain, architecture, theory]
 ---
-
 # Neuroscience Foundations for Agents
 
+## Goal
 ## Description
 This skill provides a foundational understanding of how to apply biological brain patterns to agentic software design. It covers Cortico-Thalamic loops, Basal Ganglia gating, and Neural Darwinism.
 
+## Steps
 ## 1. Cortico-Thalamic Loops (The Feedback/Feedforward Engine)
 
 In the human brain, the **Thalamus** acts as a central relay station, and the **Cortex** processes information. The loop between them is essential for consciousness and attention.

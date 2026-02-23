@@ -2,9 +2,9 @@
 name: vibe-coding
 description: Translates high-level aesthetic or behavioral "vibe" requests (e.g., "Make it feel like 90s cyberpunk", "Apple-style minimalism") into concrete code changes (CSS, Animation, Copy).
 triggers: [vibe, aesthetic, style, feel, atmosphere, theme, mood, redesign, make it pop]
+tags: [coding]
 context_cost: medium
 ---
-
 # Vibe Coding Skill
 
 ## Goal
@@ -12,7 +12,8 @@ Translate abstract user intents ("Vibes") into concrete implementation details (
 
 ## Flow
 
-### 1. Vibe Analysis
+### Steps
+## 1. Vibe Analysis
 **Input**: User Request (e.g., "Make the dashboard feel like a spaceship HUD")
 **Action**: Decompose "The Vibe" into technical primitives.
 *   **Color Palette**: High contrast? Neons? Pastels? Dark mode?

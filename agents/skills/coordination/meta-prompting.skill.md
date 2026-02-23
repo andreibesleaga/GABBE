@@ -1,19 +1,16 @@
 ---
 name: meta-prompting
 description: Agents optimizing prompts for other agents (Chain of Thought, Tree of Thoughts).
+triggers: [meta prompting]
+tags: [coordination]
 role: orch-planner
-triggers:
-  - optimize prompt
-  - better prompt
-  - chain of thought
-  - system prompt
-  - prompt engineering
 ---
-
 # meta-prompting Skill
 
+## Goal
 This skill enables "Meta-Cognition": thinking about how to think.
 
+## Steps
 ## 1. Optimization Strategies
 - **CoT (Chain of Thought)**: "Let's think step by step." (Force reasoning before answer).
 - **ToT (Tree of Thoughts)**: "Generate 3 possible solutions. Evaluate each. Pick the best."

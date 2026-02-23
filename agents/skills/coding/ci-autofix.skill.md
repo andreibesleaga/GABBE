@@ -2,9 +2,9 @@
 name: ci-autofix
 description: Autonomous CI/CD Remediation. Parses failure logs from GitHub Actions/GitLab CI, identifies the root cause (Lint, Type Error, Test Failure), and attempts to generate and commit a fix.
 triggers: [ci failed, build broken, test failed, lint error, fix ci, auto-fix]
+tags: [coding]
 context_cost: high
 ---
-
 # CI Auto-Fix Skill
 
 ## Goal
@@ -12,7 +12,8 @@ Restore the "Green Build" state by autonomously fixing common CI failures.
 
 ## Flow
 
-### 1. Log Analysis
+### Steps
+## 1. Log Analysis
 **Input**: CI Failure Log / Terminal Output
 **Action**: Identify the *first* failure type.
 *   **Linting**: Prettier/ESLint errors? (e.g., "Missing semicolon", "Unused var").

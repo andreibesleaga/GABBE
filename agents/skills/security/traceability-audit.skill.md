@@ -1,19 +1,16 @@
 ---
 name: traceability-audit
 description: Verifies that every PRD requirement has a linked Test Case and Code Implementation.
+triggers: [traceability audit]
+tags: [security]
 role: prod-pm
-triggers:
-  - trace requirements
-  - audit scope
-  - req coverage
-  - missing tests
-  - traceability matrix
 ---
-
 # traceability-audit Skill
 
+## Goal
 This skill ensures "What was ordered" == "What was delivered".
 
+## Steps
 ## 1. The Trace Chain
 `PRD (Req ID)` -> `Design (Mock ID)` -> `Task (T-ID)` -> `Commit (Hash)` -> `Test Case (Test ID)`
 

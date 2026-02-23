@@ -1,21 +1,18 @@
 ---
 name: Agent Interoperability
 description: Manage connections, handshakes, and protocol negotiation between agents (MCP, A2A, ACP).
+triggers: [Connect to agent [Name], Negotiate protocol, Send A2A message, Establish handshake, Join swarm]
+tags: [coordination]
 context_cost: medium
 ---
 # Agent Interoperability Skill
 
-## Triggers
-- "Connect to agent [Name]"
-- "Negotiate protocol"
-- "Send A2A message"
-- "Establish handshake"
-- "Join swarm"
+## Goal
 
 ## Role
 You are a Network Protocol Engineer responsible for the reliable transport and connection between autonomous agents.
 
-## Workflow
+## Steps
 
 1.  **Discovery & Connection**
     -   **Local Swarm**: Read `SWARM_CONFIG_TEMPLATE.json` to find agent endpoints (ports/pipes).

@@ -1,19 +1,16 @@
 ---
 name: hazard-analysis
 description: Conducting FMEA (Failure Mode & Effects Analysis) and identifying hazards.
+triggers: [hazard analysis]
+tags: [security]
 role: prod-safety-engineer
-triggers:
-  - fmea
-  - hazop
-  - hazard analysis
-  - stpa
-  - risk assessment
 ---
-
 # hazard-analysis Skill
 
+## Goal
 This skill identifies how the system can fail and what happens when it does.
 
+## Steps
 ## 1. FMEA (Failure Mode & Effects Analysis)
 - **Component**: [Name]
 - **Failure Mode**: How does it fail? (e.g., "Stuck Open", "No Output", "Corrupt Data").

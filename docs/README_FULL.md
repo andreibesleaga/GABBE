@@ -346,7 +346,7 @@ graph TB
 | **S04 Tasks** | TASKS_TEMPLATE.md, 15-min decomposition | Epic planning, story points |
 | **S05 Implementation** | TDD (test first), RARV cycle, audit log | Browser-TDD (frontend only), pair-agent review |
 | **S06 Testing** | Unit tests >96% coverage, integration tests | E2E tests, load tests, visual regression |
-| **S07 Security** | SECURITY_CHECKLIST.md, `npm audit` clean | DAST, penetration test, formal compliance review |
+| **S07 Security** | SECURITY_CHECKLIST.md, `npm audit` clean, `compliance-review` | DAST, penetration test, formal compliance review |
 | **S08 Review** | Human code review | orch-judge EARS compliance check |
 | **S09 Staging** | Smoke tests | Performance benchmarks, accessibility audit |
 | **S10 Production** | Rollback plan, monitoring | Canary deployment, feature flags |
@@ -388,7 +388,7 @@ flowchart TD
 
     P --> Q[integrity-check.skill — 8 dimensions]
     Q --> R[sdlc-checkpoint S06]
-    R --> S[security-audit.skill + SECURITY_CHECKLIST]
+    R --> S[security-audit.skill + compliance-review.skill + SECURITY_CHECKLIST]
     S --> T[sdlc-checkpoint S07]
     T --> U{Human review}
     U -->|Changes needed| O
@@ -455,7 +455,7 @@ For each task, agent:
 **Steps 5-10 — Quality, Security, Deploy**
 ```
 Tell agent: "Run integrity-check skill" → 8-dimension verification
-Tell agent: "Run security-audit skill" → OWASP checks + dependency audit
+Tell agent: "Run security-audit and compliance-review skills" → OWASP checks + compliance checks
 You review code → Human approval → Staging deploy → Production
 ```
 
@@ -499,10 +499,10 @@ flowchart TD
     I2 --> I3[Strangler Fig or modularization]
     I3 --> I4[agentic-linter gates each PR]
 
-    F -->|Security| J[security-audit.skill + threat-model]
+    F -->|Security| J[security-audit.skill + compliance-review.skill + threat-model]
     J --> J1[SECURITY_CHECKLIST.md]
     J1 --> J2[privacy-audit.skill if PII involved]
-    J2 --> J3[compliance-review if regulated]
+    J2 --> J3[legal-review.skill if regulated]
 
     F -->|Performance| K[performance-audit.skill]
     K --> K1[Profile → bottlenecks → N+1 check]
@@ -768,6 +768,8 @@ All 120+ skills live in `skills/` subdirectories. Invoke by mentioning the trigg
 | `coding/ui-gen.skill.md` | ui, dashboard | Generative UI |
 | `coding/secure-coding.skill.md` | secure code, owasp | Security-first coding |
 | `coding/file-processing.skill.md` | file, parse | File manipulation |
+| `coding/artisan-commands.skill.md` | artisan, scripts | Custom task automation |
+
 
 ### 2. Architecture (`architecture/`)
 | Skill | Triggers | Purpose |
@@ -784,7 +786,11 @@ All 120+ skills live in `skills/` subdirectories. Invoke by mentioning the trigg
 | `architecture/state-management.skill.md` | state, redux, store | State strategy |
 | `architecture/realtime-comm.skill.md` | socket, realtime | Websockets/Events |
 | `architecture/graphql-schema.skill.md` | graphql, schema | Schema design |
+| `architecture/architecture-governance.skill.md` | governance, drift | Policy enforcement |
+| `architecture/error-handling-strategy.skill.md` | error, retry | Resiliency design |
+| `architecture/enterprise-migration-scenario.skill.md` | migration, legacy | Enterprise migrations |
 | `architecture/event-governance.skill.md` | event, kafka | Event schema registry |
+
 
 ### 3. Operations & SRE (`ops/`)
 | Skill | Triggers | Purpose |
@@ -802,6 +808,11 @@ All 120+ skills live in `skills/` subdirectories. Invoke by mentioning the trigg
 | `ops/memory-optimization.skill.md` | memory, leak | Memory profiling |
 | `ops/queue-management.skill.md` | queue, dead letter | Job queue handling |
 | `ops/production-verifier.skill.md` | verify prod, smoke | Post-deploy check |
+| `ops/system-benchmark.skill.md` | benchmark, load | Performance testing |
+| `ops/capacity-planning.skill.md` | capacity, scale | Resource planning |
+| `ops/release-validation.skill.md` | validation, gate | Compliance gates |
+| `ops/troubleshooting-guide.skill.md` | debug, fix | System recovery |
+
 
 ### 4. Security (`security/`)
 | Skill | Triggers | Purpose |
@@ -820,7 +831,9 @@ All 120+ skills live in `skills/` subdirectories. Invoke by mentioning the trigg
 | `security/reliability-engineering.skill.md` | reliability, mtbf | System reliability |
 | `security/dependency-security.skill.md` | dep check, snyk | Supply chain security |
 | `security/backup-recovery.skill.md` | backup, restore | Disaster recovery |
+| `security/cryptography-standards.skill.md` | crypto, encrypt | Encryption audits |
 | `security/log-analysis.skill.md` | log audit, splunk | Security log review |
+
 | `security/network-security.skill.md` | firewall, netsec | Network hardening |
 | `security/hazard-analysis.skill.md` | hazard, fmea | Safety hazard analysis |
 
@@ -836,6 +849,10 @@ All 120+ skills live in `skills/` subdirectories. Invoke by mentioning the trigg
 | `product/design-thinking.skill.md` | empathize, ideate | Design thinking loop |
 | `product/spec-analyze.skill.md` | analyze spec, gap | Spec gap analysis |
 | `product/market-analysis.skill.md` | market, competitor | Market research |
+| `product/decompose.skill.md` | decompose, break | Task decomposition |
+| `product/systems-thinking.skill.md` | systems, loops | Systems dynamics |
+| `product/req-review.skill.md` | review reqs, audit | Requirements audit |
+
 | `data/data-engineering.skill.md` | etl, spark | Data pipelines |
 | `data/db-migration.skill.md` | migration, sql | DB Schema changes |
 | `data/data-governance.skill.md` | lineage, catalog | Data governance |
@@ -851,6 +868,9 @@ All 120+ skills live in `skills/` subdirectories. Invoke by mentioning the trigg
 | `core/research.skill.md` | research, find | Deep research |
 | `core/self-heal.skill.md` | fix error, heal | Auto-recovery |
 | `core/system-lifecycle.skill.md` | traceability | Trace Req->Code |
+| `core/agent-analytics.skill.md` | analytics, stats | Agent performance |
+| `core/knowledge-connect.skill.md` | connection, link | Cross-repo knowledge |
+
 
 ### 6. Neuro-Architecture (`brain/`)
 | Skill | Triggers | Purpose |
@@ -865,8 +885,11 @@ All 120+ skills live in `skills/` subdirectories. Invoke by mentioning the trigg
 | `brain/neuroscience-foundations.skill.md` | neuro, theory | Cognitive theory base |
 | `brain/epistemology-knowledge.skill.md` | truth, justify | Knowledge validation |
 | `brain/cognitive-architectures.skill.md` | cognitive arch | Cognitive patterns |
+| `brain/sequential-thinking.skill.md` | reasoning, step | Chain-of-thought |
+| `brain/working-memory.skill.md` | context, memory | RAM management |
 
-See `skills/00-index.md` for full details including context costs.
+
+See `agents/skills/00-index.md` for full details including context costs.
 
 ---
 
@@ -965,6 +988,24 @@ All templates now live in categorized subdirectories under `agents/templates/`.
 |---|---|
 | `data/DATA_PIPELINE_TEMPLATE.md` | Data Pipeline | ETL/ELT Design |
 | `data/DATABASE_SCHEMA_TEMPLATE.md` | Database Schema | Schema Design |
+| `data/ONTOLOGY_TEMPLATE.md` | Meta-Data | RDF/OWL Ontology map |
+
+### Industry & Specialized (`templates/industry/`, `templates/product/`)
+| Template | Purpose |
+|---|---|
+| `industry/FHIR_INTEGRATION_TEMPLATE.md` | Healthcare | Clinical data mapping |
+| `industry/IOT_TELEMETRY_TEMPLATE.md` | IIoT | Sensor data / Purdue model mapping |
+| `industry/TELECOM_API_TEMPLATE.md` | Telecom | TMF/GSMA API exposure |
+| `industry/GLOBAL_STANDARDS_AUDIT_TEMPLATE.md` | compliance | UN SDG / ITU-T Audit |
+| `industry/ENGINEERING_STANDARDS_REVIEW_TEMPLATE.md` | Engineering | IEEE/ISO Code audit |
+| `product/GREEN_SOFTWARE_REPORT_TEMPLATE.md` | Sustainability | SCI carbon impact report |
+| `architecture/SCALABILITY_ANALYSIS_TEMPLATE.md` | Architecture | Scalability bottleneck analysis |
+| `architecture/SMART_CONTRACT_TEMPLATE.md` | Blockchain | Smart contract logic & security |
+| `architecture/ARCHITECTURE_DECISION_MATRIX.md` | Architecture | Scoring matrix for trade-offs |
+| `core/PROJECT_CONTEXT_TEMPLATE.md` | Core | Holistic project context for agents |
+| `product/PROBLEM_STATEMENT_TEMPLATE.md` | Product | Problem definition (EARS subset) |
+| `product/IDEATION_LOG_TEMPLATE.md` | Product | Brainstorming & outcome log |
+
 
 ---
 
@@ -1066,14 +1107,16 @@ Loki Mode activates a multi-agent swarm for large projects (new product builds, 
 | Category | Count | Skills Included |
 |---|---|---|
 | **Coding** | 10+ | `tdd-cycle`, `debug`, `refactor`, `code-review`, `git-workflow` |
-| **Architecture** | 5+ | `arch-design`, `arch-patterns`, `design-patterns`, `api-design` |
-| **Operations** | 10+ | `reliability-sre`, `docker-dev`, `k8s-dev`, `cloud-deploy` |
-| **Security** | 5+ | `security-audit`, `threat-model`, `privacy-audit`, `access-control` |
-| **Product** | 5+ | `spec-writer`, `req-elicitation`, `green-software` |
+| **Architecture** | 15+ | `arch-design`, `microservices`, `systems-architecture`, `system-scalability`, `blockchain-dlt` |
+| **Operations** | 15+ | `reliability-sre`, `production-health`, `dev-environments`, `cost-optimization` |
+| **Security** | 15+ | `security-audit`, `secure-architecture`, `privacy-data-protection`, `api-security` |
+| **Product** | 10+ | `spec-writer`, `req-elicitation`, `green-software`, `sustainability-checks` |
 | **Core** | 10+ | `research`, `self-heal`, `knowledge-gap`, `meta-optimize` |
-| **Data** | 2+ | `data-engineering`, `db-migration` |
+| **Data** | 5+ | `data-engineering`, `db-migration`, `semantic-web` |
 | **Coordination** | 5+ | `multi-agent-orch`, `agent-protocol` |
 | **Brain** | 10+ | `active-inference`, `consciousness-loop`, `cost-benefit-router` |
+| **AI/Swarm** | 5+ | `multi-agent-systems`, `agent-communication`, `beyond-llms` |
+| **Industry** | 5+ | `healthcare-fhir`, `telecom-networks`, `industrial-iot`, `global-standards`, `engineering-standards` |
 | **Loki Modes** | 2+ | `brain-mode`, `loki-mode` |
 
 ---
@@ -1138,6 +1181,10 @@ Copy and paste these exact prompts into your AI chat window to kick off standard
 | `guides/principles/clean-code-standards.md` | Clean Code | SOLID, DRY, KISS, Refactoring |
 | `guides/patterns/agentic-patterns.md` | AI/Agentic | Reflection, Memory, Planning, Tools |
 | `guides/patterns/ai-native-scenarios.md` | AI/Agentic | Vibe-to-Code, Auto-Patching, DB Refactor |
+| `guides/patterns/enterprise-migration-scenario.md` | Enterprise | Strangler Fig, Migration paths |
+
+| `guides/principles/RARV_CYCLE.md` | AI/Agentic | Reason-Act-Reflect-Verify loop |
+| `guides/ai/self-healing-summary.md` | AI/Agentic | Self-healing architecture & loops |
 | `guides/languages/js-ts-nodejs.md` | Python/Node/React | Swarms, Orchestration, A2A Protocol |
 | `guides/patterns/autonomous-swarm-patterns.md` | AI/Agentic | Self-organizing Swarm Patterns |
 | `guides/ai/agent-communication.md` | All Stacks | MCP, A2A, ACP, Handshake Protocols |
@@ -1145,8 +1192,19 @@ Copy and paste these exact prompts into your AI chat window to kick off standard
 | `guides/languages/go-lang.md` | Go (Golang) | Echo/Gin, Ent, Testify, Clean Arch |
 | `guides/languages/php-laravel.md` | PHP/Laravel | DDD, Actions, Pest PHP, PHPStan L9, Enlightn |
 | `guides/languages/python-fastapi-ai.md` | Python/FastAPI/AI | Clean Architecture, Pydantic, Agents |
+| `guides/security/cryptography-standards.md` | Security | Encryption, Hashing, PQC Readiness |
+| `guides/security/threat-modeling.md` | Security | STRIDE, Attack Trees, Risk Assessment |
+
+
 | `guides/data/sql-nosql.md` | SQL/NoSQL | Migration-first, PostgreSQL patterns, Redis, MongoDB |
+| `guides/languages/rust.md` | Rust | Cargo, Ownership, Actix, SQLx, Agents |
+| `guides/languages/java.md` | Java | Spring Boot, Quarkus, Maven/Gradle, ArchUnit |
+| `guides/languages/c-sharp.md` | C# / .NET | ASP.NET Core, Entity Framework, Dapr |
+
 | `guides/ops/compliance-audit.md` | Compliance & Audit | GDPR, SOC2 logging, Privacy Engineering |
+| `guides/ops/troubleshooting-guide.md` | Ops | Debugging, Root Cause, Recovery |
+| `guides/ops/self-healing-summary.md` | Ops | Automated recovery patterns |
+
 | `guides/ai/ai-agentic.md` | AI/Agentic | RARV, SDD lifecycle, Memory Architecture, MCP config |
 | `guides/architecture/microservices.md` | Microservices | Bounded contexts, event-driven, contract testing |
 | `guides/architecture/systems-architecture.md` | Architecture | C4 models, quality attributes, decision records |
@@ -1156,12 +1214,12 @@ Copy and paste these exact prompts into your AI chat window to kick off standard
 | `guides/principles/visual-design-system.md` | Design | Design Tokens & UI Architecture |
 | `guides/ai/agent-ui.md` | UI/UX | Generative UI, HTMX, TUI, ShadCN |
 | `guides/principles/no-code-integration.md` | No-Code | n8n, Make, Zapier, Hybrid Workflows |
-| `guides/ai/actor-agent-frameworks.md` | Architecture | Akka, Erlang, LangGraph comparison |
-| `guides/ai/a2ui-protocols.md` | UI/UX | A2UI, GenUI, AG-UI standards |
-| `guides/architecture/critical-systems-arch.md` | Safety | DO-178C, IEC 62304, DDD, Hexagonal |
-| `guides/ai/beyond-llms.md` | AI Theory | Neuro-symbolic, Genetic Algos, Active Inference |
+| `guides/ai/actor-agent-frameworks.md` | Architecture | Akka, Erlang, LangGraph comparison (`actor-agent-frameworks.skill`) |
+| `guides/ai/a2ui-protocols.md` | UI/UX | A2UI, GenUI, AG-UI standards (`a2ui-protocols.skill`) |
+| `guides/architecture/critical-systems-arch.md` | Safety | DO-178C, IEC 62304, DDD, Hexagonal (`critical-systems-arch.skill`) |
+| `guides/ai/beyond-llms.md` | AI Theory | Neuro-symbolic, Genetic Algos, Active Inference (`beyond-llms.skill`) |
 | `agents/skills/brain/` | **Neuro-Arch** | **The Brain Metaphor: Cognitive Software Patterns** |
-| `guides/architecture/monolith.md` | Monolith | Vertical slices, modular monolith, Strangler Fig |
+| `guides/architecture/monolith.md` | Monolith | Vertical slices, modular monolith, Strangler Fig (`monolith.skill`) |
 
 ### Subject-Specific Guides
 | Topic | Guide |
@@ -1172,6 +1230,7 @@ Copy and paste these exact prompts into your AI chat window to kick off standard
 | **Agents** | `guides/actor-agent-frameworks.md`, `guides/autonomous-swarm-patterns.md`, `guides/agent-communication.md` |
 | **UI/UX** | `guides/visual-design-system.md`, `guides/a2ui-protocols.md`, `guides/agent-ui.md` |
 | **Lifecycle** | `guides/production-health.md`, `guides/beyond-llms.md` |
+| **Industry** | `guides/industry/engineering-standards.md`, `guides/industry/global-standards.md`, `guides/industry/telecom-networks.md` |
 
 ---
 

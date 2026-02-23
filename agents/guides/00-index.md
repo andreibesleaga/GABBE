@@ -40,11 +40,17 @@
 | Monolith | `architecture/monolith.md` | Modular monolithic design |
 | System Qualities| `architecture/system-qualities.md` | NFRs, SLAs, SLOs |
 | Systems Arch. | `architecture/systems-architecture.md` | General system architecture primer |
+| Orchestration | `architecture/orchestration.md` | Service & Agent orchestration |
+| Scalability | `architecture/system-scalability.md` | Vertical and Horizontal scaling |
+| Blockchain | `architecture/blockchain-dlt.md` | DLT and Decentralized Systems |
+
 
 ### 3. Data Engineering (`data/`)
 | Guide | File | Purpose |
 |---|---|---|
 | SQL vs NoSQL | `data/sql-nosql.md` | Database selection criteria |
+| Semantic Web | `data/semantic-web.md` | RDF, SPARQL, and Ontology usage |
+
 
 ### 4. Language Stacks (`languages/`)
 | Guide | File | Purpose |
@@ -64,6 +70,8 @@
 | Dev Environments| `ops/dev-environments.md` | Local setup definitions |
 | Prod Health | `ops/production-health.md` | Observability and alerting |
 | Troubleshooting | `ops/troubleshooting-guide.md` | Standard operating procedures for incidents |
+| Cost Opt. | `ops/cost-optimization.md` | FinOps & Resource reduction |
+
 
 ### 6. Implementation Patterns (`patterns/`)
 | Guide | File | Purpose |
@@ -80,6 +88,9 @@
 |---|---|---|
 | Product Reqs. | `planning/product-requirements.md` | EARS syntax and req. engineering |
 | Strategic Anal. | `planning/strategic-analysis.md` | Pre-development strategic analysis |
+| Green Software | `planning/green-software.md` | Sustainable engineering (SCI) |
+| Sustainability | `planning/sustainability-checks.md` | Checklist for green software |
+
 
 ### 8. Principles & Standards (`principles/`)
 | Guide | File | Purpose |
@@ -100,3 +111,12 @@
 | Privacy Data | `security/privacy-data-protection.md` | GDPR, HIPAA handling |
 | Secure Arch. | `security/secure-architecture.md` | Defense in depth |
 | Threat Modeling | `security/threat-modeling.md` | STRIDE analysis methodology |
+
+### 10. Industry Domains (`industry/`)
+| Guide | File | Purpose |
+|---|---|---|
+| Engineering Std. | `industry/engineering-standards.md` | IEEE/ISO code quality levels |
+| Global Standards | `industry/global-standards.md` | Regulatory & SDLC compliance |
+| Healthcare FHIR | `industry/healthcare-fhir.md` | Medical data interoperability |
+| Industrial IoT | `industry/industrial-iot.md` | OT/IT connectivity standards |
+| Telecom Networks | `industry/telecom-networks.md` | 5G/OSS/BSS architectural patterns |

@@ -1,19 +1,16 @@
 ---
 name: market-analysis
 description: Competitive research, SWOT analysis, and feature differentiation.
+triggers: [market analysis]
+tags: [product]
 role: prod-pm
-triggers:
-  - market research
-  - competition
-  - swot
-  - differentiation
-  - TAM
 ---
-
 # market-analysis Skill
 
+## Goal
 This skill guides the research validation of a product idea against the market reality.
 
+## Steps
 ## 1. Competitive Analysis (Comparison Matrix)
 Create a matrix of Direct and Indirect competitors.
 

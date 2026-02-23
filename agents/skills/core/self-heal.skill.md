@@ -2,9 +2,9 @@
 name: self-heal
 description: Autonomous diagnose-research-fix-verify loop — up to 5 attempts before human escalation
 triggers: [test failing, error, self-heal, stuck, broken, can't fix, autonomous fix, retry, fix this]
+tags: [core]
 context_cost: medium
 ---
-
 # Self-Heal Skill
 
 ## Goal

@@ -1,20 +1,16 @@
 ---
 name: data-governance
 description: Data lineage, classification (PII/Confidential), and integrity checks (checksums).
+triggers: [data governance]
+tags: [data]
 role: biz-compliance, eng-data
-triggers:
-  - data lineage
-  - pii masking
-  - classification
-  - checksum
-  - data integrity
-  - gdpr
 ---
-
 # data-governance Skill
 
+## Goal
 Data must be classified, tracked, and verifiable.
 
+## Steps
 ## 1. Classification
 Before storing any field, tag it:
 - **Public**: Safe to release (e.g., Product Descriptions).

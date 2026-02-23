@@ -2,9 +2,9 @@
 name: artisan-commands
 description: Execute Laravel Artisan commands safely
 triggers: [artisan, laravel, php artisan, make controller, migrate]
+tags: [coding]
 context_cost: low
 ---
-
 # Artisan Commands Skill
 
 ## Goal

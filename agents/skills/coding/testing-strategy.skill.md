@@ -1,19 +1,13 @@
 ---
 name: testing-strategy
 description: Formulates a comprehensive testing strategy (Pyramid vs Trophy) and selects appropriate tools.
+triggers: [test plan, testing strategy, qa strategy, e2e testing, integration testing, contract testing]
+tags: [coding]
 context_cost: medium
 ---
 # Testing Strategy Skill
 
-## Triggers
-- test plan
-- testing strategy
-- qa strategy
-- e2e testing
-- integration testing
-- contract testing
-
-## Purpose
+## Goal
 To help the user or agent define *what* to test, *how* to test it, and *where* to focus effort based on the project architecture.
 
 ## Strategies
@@ -35,7 +29,7 @@ To help the user or agent define *what* to test, *how* to test it, and *where* t
 -   **Focus**: Verifying API contracts between Consumer and Provider.
 -   **Tools**: Pact.
 
-## Instructions
+## Steps
 1.  **Analyze Project**:
     -   Is it a monolith or microservices?
     -   Is it UI-heavy or API-heavy?

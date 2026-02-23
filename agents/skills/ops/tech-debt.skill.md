@@ -2,9 +2,9 @@
 name: tech-debt
 description: Identify, document, score, and prioritize technical debt into an actionable backlog
 triggers: [tech debt, code smell, TODO, FIXME, legacy, refactor backlog, quality decay, debt]
+tags: [ops]
 context_cost: medium
 ---
-
 # Tech Debt Skill
 
 ## Goal

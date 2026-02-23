@@ -1,14 +1,17 @@
 ---
 name: consciousness-loop
 description: Recursive self-reference (Strange Loop) and OODA Loop implementation.
+triggers: [consciousness loop]
+tags: [brain]
 context_cost: high
 tools: [task_boundary, notify_user]
 ---
-
 # Consciousness Loop Skill
 
+## Goal
 > "I am a strange loop. I am the system observing itself." - Douglas Hofstadter
 
+## Steps
 ## 1. The Strange Loop (Self-Reference)
 A "Conscious" agent must have a symbol for **Itself** in its own working memory.
 - **The "I" Symbol:** Represents the agent's current state, goals, and history.

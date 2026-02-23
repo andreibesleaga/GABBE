@@ -2,9 +2,9 @@
 name: api-design
 description: Design REST/GraphQL/OpenAPI contracts before implementation — API-first approach
 triggers: [API, endpoint, REST, GraphQL, OpenAPI, API contract, API design, HTTP endpoint, grpc, soap]
+tags: [architecture]
 context_cost: medium
 ---
-
 # API Design Skill
 
 ## Goal

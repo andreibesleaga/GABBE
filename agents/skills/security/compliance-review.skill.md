@@ -2,9 +2,9 @@
 name: compliance-review
 description: Regulatory compliance check for SOC2, PCI-DSS, GDPR, HIPAA — checklists, audit trails, access controls
 triggers: [compliance, SOC2, PCI-DSS, GDPR, audit trail, regulatory, certification, compliance review]
+tags: [security]
 context_cost: high
 ---
-
 # Compliance Review Skill
 
 ## Goal

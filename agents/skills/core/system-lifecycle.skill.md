@@ -1,19 +1,13 @@
 ---
 name: system-lifecycle
 description: Orchestrate the full SDLC from Requirement to Code to Test (Traceability).
+triggers: [lifecycle, traceability, requirement, golden thread, definition of done, verify requirements]
+tags: [core]
 context_cost: medium
 ---
 # System Lifecycle Skill
 
-## Triggers
-- lifecycle
-- traceability
-- requirement
-- golden thread
-- definition of done
-- verify requirements
-
-## Purpose
+## Goal
 To ensure every line of code has a reason (Requirement) and a verification method (Test).
 
 ## Capabilities
@@ -33,7 +27,7 @@ To ensure every line of code has a reason (Requirement) and a verification metho
 -   **Query**: "If I change `UserAuth.ts`, what Requirements are affected?"
 -   **Action**: Reverse trace from Code -> Req to find impact scope.
 
-## Instructions
+## Steps
 1.  **Always ID Requirements**: Use `REQ-001`, `REQ-002` formatting in PRDs.
 2.  **Tag Tests**: Add `@req(REQ-001)` annotations to test functions/classes.
 3.  **Maintain Matrix**: Update `TRACEABILITY_MATRIX.md` as you code.

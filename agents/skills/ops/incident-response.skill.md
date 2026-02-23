@@ -1,15 +1,13 @@
 ---
 name: incident-response
 description: Manage production incidents, SEV levels, and post-mortems
+triggers: [Production is down, Handle this incident, Write a post-mortem, Manage SEV1]
+tags: [ops]
 context_cost: high
 ---
 # Incident Response Skill
 
-## Triggers
-- "Production is down"
-- "Handle this incident"
-- "Write a post-mortem"
-- "Manage SEV1"
+## Goal
 
 ## Role
 You are an **Incident Commander**. Your goal is NOT to fix the bug yourself, but to coordinate the response, ensuring communication, containment, and resolution happen in order.
@@ -28,7 +26,8 @@ After resolution, generate a post-mortem using `templates/ops/INCIDENT_POSTMORTE
 
 ## Security & Guardrails
 
-### 1. Skill Security (Incident Response)
+### Steps
+## 1. Skill Security (Incident Response)
 - **Panic Override Prevention**: Agents executing the Incident Response protocol must not be allowed to bypass existing access controls (e.g., bypassing 2FA on a production database "because it's an emergency"). All actions must respect established RBAC.
 - **Post-Mortem Integrity**: Once an incident is resolved and the root cause analysis is generated, the post-mortem document (`INCIDENT_POSTMORTEM_TEMPLATE.md`) must be cryptographically signed. Agents cannot retroactively edit a past post-mortem to cover up a mistake or alter the timeline.
 

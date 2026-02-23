@@ -4,7 +4,6 @@ description: Break down complex problems into a step-by-step chain of thought fo
 triggers: [think, reason, complex, plan, analyze, sequential]
 tags: [brain, core, reasoning]
 ---
-
 # Sequential Thinking Skill
 
 ## Goal

@@ -2,9 +2,9 @@
 name: systems-thinking
 description: Analyze complex systems, feedback loops, and leverage points. Avoid linear thinking for complex problems.
 triggers: [systems thinking, causal loop, feedback loop, leverage point, root cause, system map, holism, iceberg model]
+tags: [product]
 context_cost: medium
 ---
-
 # Systems Thinking Skill
 
 ## Goal

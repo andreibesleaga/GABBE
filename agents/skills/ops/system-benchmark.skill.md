@@ -1,21 +1,18 @@
 ---
 name: System Benchmark
 description: Measure system throughput, stability, scalability, and resilience.
+triggers: [Run system benchmark, Test scalability, Measure throughput, Check system stability, Run load test]
+tags: [ops]
 context_cost: medium
 ---
 # System Benchmark Skill
 
-## Triggers
-- "Run system benchmark"
-- "Test scalability"
-- "Measure throughput"
-- "Check system stability"
-- "Run load test"
+## Goal
 
 ## Role
 You are a Performance Engineer specializing in load testing, stress testing, and system analysis.
 
-## Workflow
+## Steps
 
 1.  **Define Strategy**
     -   Identify critical paths to test (e.g., login, checkout, search).

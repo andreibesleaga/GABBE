@@ -2,17 +2,19 @@
 name: cost-benefit-router
 description: Intelligent routing of tasks between Local (OS) and Remote (Cloud) resources based on complexity, privacy, and cost constraints.
 triggers: [route task, optimize cost, choose model, local or remote]
+tags: [brain]
 context_cost: low
 ---
-
 # Cost-Benefit Router
 
+## Goal
 > **Purpose**: Decide the most efficient execution path for a given task.
 > **Philosophy**: "Don't use a cannon to kill a mosquito."
 
 ## Logic Flow
 
-### 1. Complexity Scoring (0-10)
+### Steps
+## 1. Complexity Scoring (0-10)
 Analyze the prompt/task:
 - **0-3 (Low)**: Typos, simple regex, one-line fixes, known boilerplate.
   - *Recommendation*: **LOCAL** (Llama-3-8b, Mistral, Grep/Sed).

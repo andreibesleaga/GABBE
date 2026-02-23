@@ -2,9 +2,9 @@
 name: meta-optimize
 description: The "Self-Refining" Engine. Analyzes failure patterns in other skills (e.g., `ci-autofix` failing repeatedly) and rewrites their prompts/logic to improve future performance.
 triggers: [optimize skill, refine prompt, improve agent, meta-learning, self-evolution, fix recurring error]
+tags: [coordination]
 context_cost: high
 ---
-
 # Meta-Optimize Skill
 
 ## Goal
@@ -12,7 +12,8 @@ Enable the Agentic System to "Learn" from its mistakes by rewriting its own inst
 
 ## Flow
 
-### 1. Failure Pattern Analysis
+### Steps
+## 1. Failure Pattern Analysis
 **Input**: `metrics/analytics.jsonl` or Task Failure Logs.
 **Trigger**: A specific skill has failed > 3 times with the *same error type*.
 **Action**: Retrieve the `.skill.md` file for the failing skill.

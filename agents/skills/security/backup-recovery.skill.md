@@ -1,21 +1,16 @@
 ---
 name: backup-recovery
 description: Define RPO/RTO, implement PITR/Snapshots, and test restores.
+triggers: [backup recovery]
+tags: [security]
 role: ops-sre, eng-database
-triggers:
-  - backup
-  - restore
-  - disaster recovery
-  - rpo
-  - rto
-  - pitr
-  - snapshot
 ---
-
 # backup-recovery Skill
 
+## Goal
 "A backup is not a backup until you have successfully restored from it."
 
+## Steps
 ## 1. Define Objectives
 - **RPO (Recovery Point Objective)**: Max data loss. (e.g., "1 hour", "5 minutes", "0 seconds").
 - **RTO (Recovery Time Objective)**: Max downtime. (e.g., "4 hours", "30 minutes").

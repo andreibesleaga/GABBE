@@ -40,6 +40,9 @@
 | Legacy Audit | `architecture/LEGACY_AUDIT_TEMPLATE.md` | Mainframe/Legacy system analysis |
 | Quality Attributes | `architecture/QUALITY_ATTRIBUTES_TEMPLATE.md` | NFR Definitions (SLAs/SLOs) |
 | Pattern Usage | `architecture/DESIGN_PATTERN_USAGE.md` | Pattern Justification |
+| Scalability Analysis | `architecture/SCALABILITY_ANALYSIS_TEMPLATE.md` | Bottleneck analysis |
+| Smart Contract | `architecture/SMART_CONTRACT_TEMPLATE.md` | Web3 logic & Security |
+
 
 ### 3. Operations & SRE (`ops/`)
 | Template | File | Purpose |
@@ -76,12 +79,16 @@
 | Requirements Review | `product/REQUIREMENTS_REVIEW_TEMPLATE.md` | PRD/Spec audit |
 | Stakeholder Register | `product/STAKEHOLDER_REGISTER_TEMPLATE.md` | RACI and stakeholder map |
 | NFR Definition | `product/NFR_TEMPLATE.md` | Non-functional requirements |
+| Green Software Report | `product/GREEN_SOFTWARE_REPORT_TEMPLATE.md` | Sustainability Audit |
+
 
 ### 6. Data & Analytics (`data/`)
 | Template | File | Purpose |
 |---|---|---|
 | Data Pipeline | `data/DATA_PIPELINE_TEMPLATE.md` | ETL/ELT Design |
 | Database Schema | `data/DATABASE_SCHEMA_TEMPLATE.md` | Physical database schema documentation |
+| Ontology Map | `data/ONTOLOGY_TEMPLATE.md` | RDF/OWL Semantic data |
+
 
 ### 7. Coordination & Agents (`coordination/`)
 | Template | File | Purpose |
@@ -116,6 +123,16 @@
 | Working Memory | `brain/WORKING_MEMORY_TEMPLATE.md` | Short-term context |
 | Episodic Memory | `brain/EPISODIC_MEMORY_LOG_TEMPLATE.md` | Long-term experience log |
 | Prediction Error | `brain/PREDICTION_ERROR_LOG_TEMPLATE.md` | Surprise minimization log |
+
+### 10. Industry Specialized (`industry/`)
+| Template | File | Purpose |
+|---|---|---|
+| FHIR Interop | `industry/FHIR_INTEGRATION_TEMPLATE.md` | Healthcare health mapping |
+| IoT Telemetry | `industry/IOT_TELEMETRY_TEMPLATE.md` | Industrial IoT data mapping |
+| Telecom API | `industry/TELECOM_API_TEMPLATE.md` | TMF Open API standards |
+| Global Standards Audit | `industry/GLOBAL_STANDARDS_AUDIT_TEMPLATE.md` | UN SDG/SDLC Compliance |
+| Engineering Review | `industry/ENGINEERING_STANDARDS_REVIEW_TEMPLATE.md` | ISO/IEEE standard audit |
+
 
 ### 10. Memory & Continuity (`agents/memory/`)
 | Template | File | Purpose |

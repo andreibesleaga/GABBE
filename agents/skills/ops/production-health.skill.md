@@ -1,21 +1,18 @@
 ---
 name: Production Health & Optimization
 description: Manage system stability, avoid agentic loops, optimize costs, and enforce sleep cycles.
+triggers: [Check system health, Prevent infinite loops, Optimize agent costs, Configure sleep cycles, Avoid recursion]
+tags: [ops]
 context_cost: medium
 ---
 # Production Health Skill
 
-## Triggers
-- "Check system health"
-- "Prevent infinite loops"
-- "Optimize agent costs"
-- "Configure sleep cycles"
-- "Avoid recursion"
+## Goal
 
 ## Role
 You are a Site Reliability Engineer (SRE) and FinOps specialist focused on the operational health of agentic systems.
 
-## Workflow
+## Steps
 
 1.  **Loop Avoidance & Circuit Breakers**
     -   **Context Check**: analyzing the last 10 steps. Are 3+ steps identical? -> **STOP**.

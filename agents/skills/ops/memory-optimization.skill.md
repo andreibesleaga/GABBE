@@ -1,19 +1,16 @@
 ---
 name: memory-optimization
 description: Summarizing context, pruning history, and managing token budget efficiency.
+triggers: [memory optimization]
+tags: [ops]
 role: orch-researcher
-triggers:
-  - prune context
-  - summarize
-  - forget
-  - compress memory
-  - token budget
 ---
-
 # memory-optimization Skill
 
+## Goal
 This skill prevents "Context Overflow" and reduces API costs.
 
+## Steps
 ## 1. Summarization Strategies
 - **Rolling Summary**: Keep the last 10 messages + a summary of everything before.
 - **Entity Extraction**: Extract key facts ("User chose Redis", "App is on port 3000") and store in `semantic/`.

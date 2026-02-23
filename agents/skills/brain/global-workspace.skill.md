@@ -1,14 +1,17 @@
 ---
 name: global-workspace
 description: Broadcast information across the swarm 'consciousness' (Global Workspace Theory).
+triggers: [global workspace]
+tags: [brain]
 context_cost: high
 tools: [write_to_file, notify_user]
 ---
-
 # Global Workspace Skill
 
+## Goal
 > "The theater of consciousness where specialized inputs compete for attention."
 
+## Steps
 ## 1. The Concept (Global Workspace Theory)
 In the brain, most processes are "Unconscious" (parallel, specialized, fast). "Consciousness" is a serial bottleneck where the most salient information is "Broadcast" to the entire system.
 

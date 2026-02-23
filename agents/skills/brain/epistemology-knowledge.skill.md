@@ -4,12 +4,13 @@ description: Implement rigorous knowledge representation and update beliefs via 
 triggers: [knowledge, epistemology, active inference, belief, truth]
 tags: [brain, theory, reasoning]
 ---
-
 # Epistemology & Knowledge Representation
 
+## Goal
 ## Description
 This skill explores how agents "know" things, how they represent beliefs, and how they should update those beliefs using Active Inference and rigorous Epistemology.
 
+## Steps
 ## 1. Knowledge Representation (Ontologies & Graphs)
 
 **Core Idea:** Knowledge is not just text embeddings; it is structured relationships between entities.

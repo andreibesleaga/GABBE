@@ -1,19 +1,16 @@
 ---
 name: architecture-governance
 description: Automated fitness functions (ArchUnit) to prevent architectural drift.
+triggers: [architecture governance]
+tags: [architecture]
 role: prod-architect
-triggers:
-  - architecture test
-  - fitness function
-  - archunit
-  - dependency rule
-  - layer check
 ---
-
 # architecture-governance Skill
 
+## Goal
 Architecture is not a document; it's a constraint system checked by CI/CD.
 
+## Steps
 ## 1. Fitness Functions (Automated Tests)
 Write tests that verify your architecture, not just your logic.
 

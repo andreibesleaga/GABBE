@@ -1,20 +1,16 @@
 ---
 name: graphql-schema
 description: Schema design, federation, and resolution strategies.
+triggers: [graphql schema]
+tags: [architecture]
 role: eng-api
-triggers:
-  - graphql
-  - schema
-  - resolver
-  - federation
-  - apollo
-  - gql
 ---
-
 # graphql-schema Skill
 
+## Goal
 This skill prevents "Graph Spaghetti" and ensuring performant Graph APIs.
 
+## Steps
 ## 1. Schema Design
 - **Consumption-First**: Design for the UI needs, not the DB schema.
 - **Naming**: `User.posts` (Good), `User.getPosts` (Bad - it's a field, not a method).

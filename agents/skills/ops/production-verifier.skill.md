@@ -1,19 +1,16 @@
 ---
 name: production-verifier
 description: Post-deployment smoke tests, synthetic user checks, and "Canary" validation in Prod.
+triggers: [production verifier]
+tags: [ops]
 role: ops-sre
-triggers:
-  - verify prod
-  - smoke test prod
-  - canary check
-  - synthetic
-  - post deploy
 ---
-
 # production-verifier Skill
 
+## Goal
 This skill verifies the system *after* it has crossed the finish line.
 
+## Steps
 ## 1. Safety First
 - **Read-Only**: Production tests should mostly be read-only (GET /health, GET /user).
 - **Test User**: If writing, use a specific `test_bot` user account. Do NOT delete real data.

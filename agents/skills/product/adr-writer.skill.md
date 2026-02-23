@@ -2,9 +2,9 @@
 name: adr-writer
 description: Generate Architecture Decision Records for significant technical decisions
 triggers: [architecture decision, ADR, why did we choose, why are we using, architectural choice]
+tags: [product]
 context_cost: low
 ---
-
 # ADR Writer Skill
 
 ## Goal

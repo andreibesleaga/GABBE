@@ -1,20 +1,16 @@
 ---
 name: file-processing
 description: Stream processing, large file uploads, and IO efficiency.
+triggers: [file processing]
+tags: [coding]
 role: eng-backend
-triggers:
-  - upload
-  - csv import
-  - excel
-  - stream
-  - large file
-  - s3 upload
 ---
-
 # file-processing Skill
 
+## Goal
 This skill guides the handling of binary data and large datasets without blowing up RAM.
 
+## Steps
 ## 1. Streaming (Chunks)
 - **Problem**: Reading 1GB CSV into memory (RAM).
 - **Solution**: Stream it line by line.

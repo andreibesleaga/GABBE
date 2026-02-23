@@ -1,14 +1,17 @@
 ---
 name: learning-adaptation
 description: Mechanisms for In-Context Reinforcement Learning, Meta-Learning, and Neuroplasticity.
+triggers: [learning adaptation]
+tags: [brain]
 context_cost: high
 tools: [replace_file_content, write_to_file]
 ---
-
 # Learning & Adaptation Skill
 
+## Goal
 > "Neurons that fire together, wire together." (Hebbian Learning)
 
+## Steps
 ## 1. Synaptic Plasticity (Rewiring)
 This skill allows the system to "rewire" itself based on experience.
 - **Potentiation (Strengthening):** If a prompt/tool works well, save it to a "Best Practices" bank.

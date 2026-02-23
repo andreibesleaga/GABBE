@@ -2,9 +2,9 @@
 name: integrity-check
 description: End-to-end 8-dimension verification — requirements through delivery, all aligned and correct
 triggers: [integrity, verify all, are we done, is it complete, end-to-end check, check everything, full verification]
+tags: [core]
 context_cost: high
 ---
-
 # Integrity Check Skill
 
 ## Goal

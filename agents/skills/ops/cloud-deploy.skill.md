@@ -1,23 +1,13 @@
 ---
 name: cloud-deploy
 description: Deploy applications to modern cloud platforms (Vercel, Railway, AWS).
+triggers: [deploy, vercel, railway, aws, sst, serverless, lambda, flightcontrol, neon, supabase]
+tags: [ops]
 context_cost: medium
 ---
 # Cloud Deploy Skill
 
-## Triggers
-- deploy
-- vercel
-- railway
-- aws
-- sst
-- serverless
-- lambda
-- flightcontrol
-- neon
-- supabase
-
-## Purpose
+## Goal
 To configure rapid, developer-friendly deployments on modern PaaS and Serverless platforms.
 
 ## Capabilities
@@ -37,7 +27,7 @@ To configure rapid, developer-friendly deployments on modern PaaS and Serverless
 -   **Constructs**: Using high-level constructs for easy setup (Cron, Bucket, Queue).
 -   **IAM**: Setting up fine-grained permissions for functions.
 
-## Instructions
+## Steps
 1.  **Platform Choice**:
     -   **Frontend/Fullstack JS**: Vercel.
     -   **Docker/Stateful/Backend**: Railway.

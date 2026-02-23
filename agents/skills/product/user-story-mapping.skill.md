@@ -1,19 +1,16 @@
 ---
 name: user-story-mapping
 description: Visualizing user journeys and slicing deliverables into releases.
+triggers: [user story mapping]
+tags: [product]
 role: prod-pm
-triggers:
-  - story map
-  - user journey
-  - release slice
-  - backbone
-  - mvp
 ---
-
 # user-story-mapping Skill
 
+## Goal
 This skill guides the creation of a 2D map of user needs (The Backbone) vs details (The Body) to scope releases.
 
+## Steps
 ## 1. The Matrix (Backbone vs Body)
 - **X-Axis (Backbone)**: The narrative flow. "User Signs Up" -> "Searches Product" -> "Adds to Cart" -> "Checks Out".
 - **Y-Axis (Priority)**: Depth of implementation.

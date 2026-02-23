@@ -1,19 +1,16 @@
 ---
 name: stakeholder-management
 description: Matrices for managing expectations and communication plans.
+triggers: [stakeholder management]
+tags: [product]
 role: prod-pm
-triggers:
-  - stakeholder
-  - communication plan
-  - raci
-  - expectations
-  - manage up
 ---
-
 # stakeholder-management Skill
 
+## Goal
 This skill helps Product Managers align diverse groups of people.
 
+## Steps
 ## 1. Power/Interest Grid (The "Mendelow Matrix")
 
 | Quadrant | Power | Interest | Strategy | Example |

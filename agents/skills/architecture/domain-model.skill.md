@@ -2,9 +2,9 @@
 name: domain-model
 description: Create or review a domain model for a system — identifying bounded contexts, entities, value objects, aggregates, domain events, and context relationships. Technology-agnostic. Works from requirements or from existing system descriptions.
 triggers: [domain model, bounded context, ubiquitous language, context map, domain design, domain analysis, domain events, aggregate, entities, DDD analysis]
+tags: [architecture]
 context_cost: medium
 ---
-
 # Domain Model Skill
 
 ## Goal
@@ -280,7 +280,8 @@ For each aggregate:
 
 ## Security & Guardrails
 
-### 1. Skill Security (Domain Modeling)
+### Steps
+## 1. Skill Security (Domain Modeling)
 - **Invariant Immutability**: The agent must establish that business invariants (e.g., "An account balance cannot be negative") defined within an Aggregate Root are inviolable security boundaries. It must forbid any design that attempts to bypass the Aggregate Root to modify internal Entity state directly, as this breaks the mathematical guarantee of system consistency.
 - **Confidentiality in Ubiquitous Language**: The agent must ensure that the Ubiquitous Language does not establish a precedent for mishandling data. For example, if the business uses the term "RawCreditCardNumber" casually, the agent must intervene in the modeling phase to ensure the domain formally processes "TokenizedPaymentMethod" instead, embedding security into the vocabulary.
 

@@ -4,12 +4,13 @@ description: Patterns from SOAR, ACT-R, and LIDA for advanced agent cognitive cy
 triggers: [cognitive, architecture, soar, act-r, lida, reasoning cycle]
 tags: [brain, architecture, theory]
 ---
-
 # Cognitive Architectures for Agents
 
+## Goal
 ## Description
 This skill provides implementation patterns derived from classic and modern Cognitive Architectures (SOAR, ACT-R, LIDA) to structure agent reasoning, memory, and decision-making processes beyond simple prompt engineering.
 
+## Steps
 ## 1. SOAR (State, Operator, And Result)
 
 **Core Idea:** Intelligence is the ability to solve problems by navigating a "Problem Space" using "Operators."

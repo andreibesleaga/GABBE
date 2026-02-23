@@ -1,14 +1,17 @@
 ---
 name: working-memory
 description: Manage Short-Term 'Working Memory' using Cognitive Chunking and Attention.
+triggers: [working memory]
+tags: [brain]
 context_cost: low
 tools: [read_file, write_to_file]
 ---
-
 # Working Memory Skill
 
+## Goal
 Use this skill when handling complex tasks that exceed the "cognitive load" (context window) or require holding multiple variables in mind.
 
+## Steps
 ## 1. Cognitive Chunking
 Don't read entire files. Chunk information into "Cognitive Units".
 *   **Rule:** Max 4-7 chunks active at once (Miller's Law).

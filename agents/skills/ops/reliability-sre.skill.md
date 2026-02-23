@@ -1,22 +1,13 @@
 ---
 name: reliability-sre
 description: Apply SRE principles (SLO, Error Budget, Chaos Engineering).
+triggers: [sre, reliability, slo, sli, error budget, chaos engineering, postmortem, incident, oncall]
+tags: [ops]
 context_cost: medium
 ---
 # Reliability & SRE Skill
 
-## Triggers
-- sre
-- reliability
-- slo
-- sli
-- error budget
-- chaos engineering
-- postmortem
-- incident
-- oncall
-
-## Purpose
+## Goal
 To treat operations as a software problem and balance improved reliability with feature velocity.
 
 ## Capabilities
@@ -35,7 +26,7 @@ To treat operations as a software problem and balance improved reliability with 
 -   **Severity Levels**: SEV1 (Critical/Down) to SEV4 (Minor bug).
 -   **MTTR**: Mean Time To Recovery (Focus on fixing fast, not just preventing failure).
 
-## Instructions
+## Steps
 1.  **Define Golden Signals**: Latency, Traffic, Errors, Saturation.
 2.  **Chaos Engineering**: Test failure modes *before* they happen in production.
 3.  **Alerting**: Alert on *symptoms* (User Pain), not *causes* (CPU High).

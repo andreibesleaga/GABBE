@@ -1,22 +1,16 @@
 ---
 name: queue-management
 description: Standards for DLQs (Dead Letter Queues), Idempotency, and Retry policies.
+triggers: [queue management]
+tags: [ops]
 role: eng-backend, ops-sre
-triggers:
-  - queue
-  - kafka
-  - rabbitmq
-  - sqs
-  - dlq
-  - dead letter
-  - idempotency
-  - retry
 ---
-
 # queue-management Skill
 
+## Goal
 Async messaging is powerful but dangerous. Messages must never be lost.
 
+## Steps
 ## 1. Dead Letter Queues (DLQ)
 - **Rule**: Every consumer MUST have a configured DLQ.
 - **Behavior**: If a message fails processing N times (Poison Pill), move it to DLQ. Alert `ops-sre`.

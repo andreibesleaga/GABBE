@@ -2,9 +2,9 @@
 name: safety-scan
 description: Active Security Enforcement. Scans code for vulnerabilities (SAST), secrets (Gitleaks), and insecure dependencies (SCA) before commit/deployment.
 triggers: [scan security, check vulnerabilities, audit code, gitleaks, semgrep, finding secrets]
+tags: [security]
 context_cost: medium
 ---
-
 # Safety Scan Skill
 
 ## Goal
@@ -12,7 +12,8 @@ Prevent "Insecure Code" from entering the codebase by strictly enforcing securit
 
 ## Flow
 
-### 1. Credentials Check (Gitleaks)
+### Steps
+## 1. Credentials Check (Gitleaks)
 **Command**: `gitleaks detect --source . -v` (or regex fallback)
 **Check**: Are there API Keys, Tokens, or Passwords in the diff?
 *   *If Found*: **BLOCK COMMIT**. Auto-delete or `.gitignore` the secret. Alert Human.

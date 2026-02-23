@@ -2,9 +2,9 @@
 name: audit-trail
 description: Maintain append-only structured audit log of all agent and human decisions and outcomes
 triggers: [log this, record decision, why did we, audit, what happened, history, trace, record this]
+tags: [core]
 context_cost: low
 ---
-
 # Audit Trail Skill
 
 ## Goal

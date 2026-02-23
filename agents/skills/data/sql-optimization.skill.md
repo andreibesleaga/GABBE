@@ -1,19 +1,16 @@
 ---
 name: sql-optimization
 description: Query tuning, indexing strategies, and EXPLAIN plan analysis.
+triggers: [sql optimization]
+tags: [data]
 role: eng-database
-triggers:
-  - slow query
-  - optimize sql
-  - index
-  - explain analyze
-  - n+1
 ---
-
 # sql-optimization Skill
 
+## Goal
 This skill focuses on ensuring database interactions are performant and scalable.
 
+## Steps
 ## 1. The Golden Rule: Indexing
 - **Primary Keys**: Always indexed by default (B-Tree).
 - **Foreign Keys**: MUST be indexed manually in most DBs (Postgres/MySQL) to avoid full table scans on joins.

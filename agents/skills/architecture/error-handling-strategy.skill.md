@@ -1,20 +1,16 @@
 ---
 name: error-handling-strategy
 description: Centralized error handling (RFC 7807), circuit breakers, and user-facing fallbacks.
+triggers: [error handling strategy]
+tags: [architecture]
 role: prod-architect, eng-backend
-triggers:
-  - error handling
-  - exception
-  - try catch
-  - rfc 7807
-  - fallback
-  - circuit breaker
 ---
-
 # error-handling-strategy Skill
 
+## Goal
 Errors are inevitable. Handling them must be consistent, predictable, and safe.
 
+## Steps
 ## 1. Unified API Error Format (RFC 7807)
 Never return raw stack traces or ad-hoc JSON strings. Use `Problem Details`:
 

@@ -1,19 +1,13 @@
 ---
 name: design-patterns
 description: Identifies, implements, and refactors code using standard Design Patterns (GoF + Modern).
+triggers: [design pattern, refactor pattern, strategy pattern, observer pattern, factory pattern, singleton]
+tags: [architecture]
 context_cost: low
 ---
 # Design Patterns Skill
 
-## Triggers
-- design pattern
-- refactor pattern
-- strategy pattern
-- observer pattern
-- factory pattern
-- singleton
-
-## Purpose
+## Goal
 To improve code maintainability, flexibility, and readability by applying proven solutions to common design problems.
 
 ## Supported Patterns (2025 Context)
@@ -37,7 +31,7 @@ To improve code maintainability, flexibility, and readability by applying proven
 -   **Sidecar**: Offloading infra concerns (logging, proxying) to a separate process/container.
 -   **BFF (Backend for Frontend)**: API layer tailored to specific UIs.
 
-## Instructions
+## Steps
 1.  **Identify the Problem**: "I have a lot of `if/else` statements for different payment methods."
 2.  **Match Pattern**: "This looks like a use case for the **Strategy Pattern**."
 3.  **Refactor**:

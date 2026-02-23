@@ -1,18 +1,13 @@
 ---
 name: secrets-management
 description: Safe handling of API keys, Vault/AWS Secrets Manager patterns, rotation.
+triggers: [secrets management]
+tags: [security]
 role: ops-security
-triggers:
-  - secret
-  - api key
-  - password
-  - credential
-  - rotation
-  - .env
 ---
-
 # secrets-management Skill
 
+## Goal
 This skill enforces the zero-trust handling of credentials.
 
 ## 1. The Core Commandments
@@ -20,7 +15,8 @@ This skill enforces the zero-trust handling of credentials.
 2.  **NEVER** log secrets to stdout/files.
 3.  **LEAST PRIVILEGE**: An App's DB user should not be `postgres` (superuser).
 
-## 2. Storage Patterns
+## Steps
+### Storage Patterns
 
 ### Level 1: Environment Variables (.env)
 - **Dev**: `.env` file (gitignored).

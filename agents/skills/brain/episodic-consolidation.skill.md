@@ -1,14 +1,17 @@
 ---
 name: episodic-consolidation
 description: Consolidate short-term events into long-term 'Semantic' memory.
+triggers: [episodic consolidation]
+tags: [brain]
 context_cost: high
 tools: [write_to_file, grep_search]
 ---
-
 # Episodic Consolidation Skill
 
+## Goal
 This skill mimics the brain's "Sleep" process (Hippocampus to Neocortex transfer). Use it at the end of a long task (Task Boundary).
 
+## Steps
 ## 1. The Consolidation Process
 1.  **Replay:** Review the `AUDIT_LOG.md` or Session History.
 2.  **Extract:** Identify "Generalized Rules" from specific events.

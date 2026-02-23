@@ -1,18 +1,13 @@
 ---
 name: clean-coder
 description: Enforces Clean Code standards, identifies code smells, and ensures SOLID principles.
+triggers: [clean code, code smell, SOLID, refactor, quality check]
+tags: [coding]
 context_cost: medium
 ---
 # Clean Coder Skill
 
-## Triggers
-- clean code
-- code smell
-- SOLID
-- refactor
-- quality check
-
-## Purpose
+## Goal
 To ensure code is readable, maintainable, and free of technical debt "smells" before it merges.
 
 ## Core Principles (2025 Standards)
@@ -33,7 +28,7 @@ To ensure code is readable, maintainable, and free of technical debt "smells" be
 -   **Feature Envy**: Using data from another object more than its own.
 -   **Shotgun Surgery**: One change requires edits in many classes.
 
-## Instructions
+## Steps
 When reviewing or writing code:
 1.  **Scan for Smells**: Check against the `clean-code-principles.md` guide.
 2.  **Suggest Refactoring**: "Split this huge function into 3 smaller ones: `validateInput`, `processData`, `saveResult`."

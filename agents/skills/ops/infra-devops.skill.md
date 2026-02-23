@@ -1,24 +1,13 @@
 ---
 name: infra-devops
 description: Design and implement cloud infrastructure (Terraform/K8s) and CI/CD pipelines.
+triggers: [infra, terraform, k8s, kubernetes, docker, cicd, pipeline, devops, aws, gcp, azure]
+tags: [ops]
 context_cost: medium
 ---
 # Infra & DevOps Skill
 
-## Triggers
-- infra
-- terraform
-- k8s
-- kubernetes
-- docker
-- cicd
-- pipeline
-- devops
-- aws
-- gcp
-- azure
-
-## Purpose
+## Goal
 To assist with Infrastructure as Code (IaC), container orchestration, and automated delivery pipelines.
 
 ## Capabilities
@@ -38,7 +27,7 @@ To assist with Infrastructure as Code (IaC), container orchestration, and automa
 -   **Steps**: Build, Test, Security Scan, Push Registry, Deploy.
 -   **GitOps**: ArgoCD configuration.
 
-## Instructions
+## Steps
 1.  **Analyze Request**: Determine cloud provider (AWS/GCP/Azure) and tool (Terraform/Pulumi).
 2.  **Security First**: Always enable encryption, private subnets, and least privilege.
 3.  **Idempotency**: Ensure scripts and manifests can be applied multiple times safeley.

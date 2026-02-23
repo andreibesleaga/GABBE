@@ -2,9 +2,9 @@
 name: loki-mode
 description: Master multi-agent swarm orchestration. Spawns and coordinates specialized personas for large projects that exceed single-agent context limits. Manages 10-phase SDLC with checkpoints, memory, and human-in-the-loop gates.
 triggers: [loki, swarm, orchestrate, big project, autonomous build, multi-agent, spawn, coordinate swarm]
+tags: [brain]
 context_cost: high
 ---
-
 # Loki Mode — Master Orchestration Skill
 
 ## Goal
@@ -468,7 +468,8 @@ Current position: Phase S0X, Task T-NNN
 
 ## Security & Guardrails
 
-### 1. Skill Security (Loki Mode)
+### Steps
+## 1. Skill Security (Loki Mode)
 - **Swarm Blast Radius**: Because `loki-mode` orchestrates multiple autonomous personas concurrently, a compromised sub-agent can execute tasks rapidly without individual human oversight. Loki must enforce mathematically rigid boundaries for each persona: a `prod-pm` persona must physical lack the kernel-level permissions to execute code, and an `eng-qa` persona must lack permissions to deploy or merge to the `main` branch.
 - **Gate Override Protection**: The 10-Phase SDLC contains mandatory "HUMAN APPROVAL REQUIRED" gates (S01, S02, S08). Loki is strictly prohibited from autonomously advancing `PROJECT_STATE.md` to the next phase without cryptographically verifying a Human-In-The-Loop interaction. The LLM must not be allowed to "hallucinate" human approval based on implicit context.
 

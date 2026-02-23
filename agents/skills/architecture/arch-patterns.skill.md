@@ -1,22 +1,16 @@
 ---
 name: arch-patterns
 description: Recommends and analyzes system architecture patterns (Microservices, EDA, Serverless, etc.) based on requirements.
+triggers: [architecture, system design, scalability, microservices, event-driven, serverless]
+tags: [architecture]
 context_cost: medium
 ---
 # Architecture Patterns Skill
 
-## Triggers
-- architecture
-- system design
-- scalability
-- microservices
-- event-driven
-- serverless
-
-## Purpose
+## Goal
 To help the user or agent select the most appropriate system architecture based on improved Non-Functional Requirements (NFRs) like scalability, cost, maintainability, and latency.
 
-## Instructions
+## Steps
 When designing a system or component:
 
 1.  **Analyze NFRs**: Identify the key constraints.

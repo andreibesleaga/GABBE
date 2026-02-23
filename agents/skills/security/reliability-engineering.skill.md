@@ -1,20 +1,16 @@
 ---
 name: reliability-engineering
 description: Designing failover patterns (Hot Standby, TMR), redundancy, and MTTF calculations.
+triggers: [reliability engineering]
+tags: [security]
 role: prod-safety-engineer, eng-arch
-triggers:
-  - reliability
-  - failover
-  - redundancy
-  - tmr
-  - mttf
-  - mtbf
 ---
-
 # reliability-engineering Skill
 
+## Goal
 This skill designs systems that continue to function in the presence of faults.
 
+## Steps
 ## 1. Redundancy Patterns
 - **Active/Passive (Hot Standby)**: Primary handles load, Secondary takes over on heartbeat loss.
 - **Active/Active (Load Balancing)**: Both handle load. System survives if N-1 nodes active.

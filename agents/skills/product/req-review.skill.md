@@ -2,9 +2,9 @@
 name: req-review
 description: Systematic review of existing requirements documents for quality, completeness, consistency, and alignment. Applies IEEE 29148 / ISO 25010 quality criteria and EARS compliance. Produces a structured review report with gap list and recommendations.
 triggers: [review requirements, audit requirements, check requirements, requirements quality, are requirements complete, requirements analysis, requirements gap, existing requirements]
+tags: [product]
 context_cost: medium
 ---
-
 # Requirements Review Skill
 
 ## Goal
@@ -266,7 +266,8 @@ Overall quality: GREEN / YELLOW / RED
 
 ## Security & Guardrails
 
-### 1. Skill Security (Requirements Review)
+### Steps
+## 1. Skill Security (Requirements Review)
 - **Security Requirement Isolation**: During the coverage analysis (Step 4), the agent must scan for a dedicated security requirements section. If security controls (AuthN, AuthZ, Audit) are organically mixed into functional requirements without explicit, centralized tracking, the agent must flag this as a critical structural failure.
 - **The "Missing Negative" Heuristic**: The agent must actively search for "Missing Negatives". If a PRD defines what a user *can* do, but completely fails to mention what a user *cannot* do (Authorization constraints), the agent must fail the "Complete" criterion.
 

@@ -2,17 +2,19 @@
 name: brain-mode
 description: Meta-Cognitive Orchestrator. Supersedes Loki by adding Active Inference, dynamic cost-routing, and episodic memory to the SDLC loop. Uses "System 2" thinking to plan, route, and optimize work.
 triggers: [brain activate, supermode, solve everything, brain mode, meta orchestrate]
+tags: [brain]
 context_cost: high
 ---
-
 # Brain Mode — Meta-Cognitive Orchestrator
 
+## Goal
 > **Supersedes**: `loki-mode`
 > **Concept**: Applies Active Inference (Free Energy Principle) to Software Engineering.
 > **Goal**: Minimize "Surprise" (Bugs, Delays, Costs) by continuously updating internal models and routing work intelligently.
 
 ---
 
+## Steps
 ## 1. The Cognitive Loop (System 2)
 
 Brain Mode runs a continuous "OODA Loop" on top of the standard SDLC:

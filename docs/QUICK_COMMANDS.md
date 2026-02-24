@@ -9,7 +9,7 @@ This guide provides a quick reference for the most common commands, setup instru
 | **Initialize Kit** | `python3 scripts/init.py` | Runs the setup wizard to configure the kit, wire your AI agents (Claude, Cursor, Gemini), and generate `BOOTSTRAP_MISSION.md` (or `SETUP_MISSION.md`) |
 | **Manual Wiring (UNIX)** | `./agents/setup-context.sh` | Manually symlinks the skills into your IDE's agent folder. |
 | **Manual Wiring (Windows)** | `.\agents\setup-context.ps1` | PowerShell equivalent of the manual wiring script. |
-| **Install GABBE CLI (Optional)**| `pip install -e .` | Installs the GABBE CLI 0.2.0 (Stable) locally. |
+| **Install GABBE CLI (Optional)**| `pip install -e .` | Installs the GABBE CLI 0.2.0 locally. |
 
 ---
 

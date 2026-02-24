@@ -603,6 +603,17 @@ graph TD
     Loki -->|Phase S01-S10| Artifacts[📂 Project Files]
     Brain -.->|Monitor| Loki
 ```
+
+Text Overview (ASCII):
+```text
+[User] --(Request)--> [Brain Mode 🧠]
+                        |
+                        +--(Route: Complex)--> [Loki Exec Layer ⚡] --(Phase S01-S10)--> [Project Files 📂]
+                        |                           ^
+                        |                           | (Monitor)
+                        |                           |
+                        +--(Route: Simple)---- [Local Script 💻]
+```
 -->
 
 ---

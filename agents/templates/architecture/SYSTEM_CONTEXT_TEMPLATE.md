@@ -61,6 +61,14 @@ C4Context
     UpdateLayoutConfig($c4ShapeInRow="3", $c4BoundaryInRow="1")
 ```
 
+```text
+[Primary User Role] ---> [System Name] <--- [Admin / Operator]
+                              |
+ +----------------------------+-----------------------------+
+ v                            v                             v
+[Upstream System]       [Downstream System]       [Identity Provider]
+```
+
 ---
 
 ## Actors and External Systems

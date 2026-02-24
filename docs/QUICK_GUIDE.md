@@ -140,6 +140,16 @@ graph TD
     Verify -->|Check| DB
 ```
 
+### Text Overview (ASCII)
+
+```text
+[User] --(Manual Edits)--> [Markdown Files] <--(Bi-Directional)--> [gabbe sync] <--> [(SQLite state.db)]
+                                                                                       ^      ^
+[gabbe brain] --(Read/Write)-----------------------------------------------------------+      |
+[gabbe verify] --(Check)--> [Markdown Files]                                                  |
+[gabbe verify] --(Check)----------------------------------------------------------------------+
+```
+
 ### How to Use
 
 #### Setup

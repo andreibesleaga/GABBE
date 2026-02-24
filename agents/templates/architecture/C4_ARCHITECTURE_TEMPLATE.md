@@ -31,6 +31,14 @@ C4Context
     UpdateLayoutConfig($c4ShapeInRow="3", $c4BoundaryInRow="1")
 ```
 
+```text
+[End User] ---> [System Name] <--- [Administrator]
+                      |
+ +--------------------+--------------------+
+ v                    v                    v
+[Email Service]   [Payment Processor]   [Identity Provider]
+```
+
 ---
 
 ## Level 2 — Container Diagram

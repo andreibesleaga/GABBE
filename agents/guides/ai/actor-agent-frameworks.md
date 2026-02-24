@@ -50,6 +50,20 @@ graph TD
     B -->|Side Effect| D[Database/API]
 ```
 
+```text
+  [Akka Supervisor]
+         | (Restarts)
+         v
+ [Agent Actor Shell] --(Sends Prompt)--> [LLM Brain]
+         |                                    |
+         |<-------(Returns Action)------------+
+         |
+    (Side Effect)
+         |
+         v
+  [(Database/API)]
+```
+
 ---
 
 ## 4. Best Practices

@@ -31,6 +31,18 @@ graph LR
     D --> F[Spec Writer Skill]
 ```
 
+```text
+   [Idea] ---> (Business Case Skill) ---> <Good ROI?>
+                                              |
+                                     +-(No)---+---(Yes)-+
+                                     |                  |
+                                     v                  v
+                               [Kill / Pivot]   [Project Approved]
+                                                        |
+                                                        v
+                                              [Spec Writer Skill]
+```
+
 ### Key Questions
 - What is the cost of doing nothing?
 - What is the Payback Period?

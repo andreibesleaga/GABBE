@@ -56,6 +56,24 @@ graph TB
     style BC04 fill:#fff2cc,stroke:#d6b656
 ```
 
+```text
+   [BC-01: Context Name [U]]          [BC-02: Context Name [U]]
+          |           |                          |
+          |           +----(Partnership)---------+
+          |
+  (OHS/PL [API name])
+          |                      (Customer/Supplier [data])
+          v                                      |
+   [BC-03: Context Name [D]] <-------------------+
+
+   [BC-01: Context Name [U]]
+          |
+  (Published Language [event])
+          |
+          v
+   [BC-04: Context Name [D]]
+```
+
 **Legend:**
 - [U] = Upstream (provides the interface)
 - [D] = Downstream (consumes the interface)

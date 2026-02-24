@@ -16,6 +16,21 @@ graph TD
     AgentA -.-> AgentB
 ```
 
+```text
+  [User]
+    |
+    v
+[Orchestrator Agent]
+    |
+    +--------+
+    |        |
+    v        v
+[Agent A] .> [Agent B]
+    |        |
+    v        v
+[(Database)] (External API)
+```
+
 ## 3. Data Flow & State
 - **Shared State**: [How do agents share context? e.g., Shared Memory, Redis, Database]
 - **Message Passing**: [Protocol used? e.g., JSON-RPC, REST, Queue]

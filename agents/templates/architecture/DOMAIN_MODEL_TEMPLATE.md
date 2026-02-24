@@ -228,6 +228,14 @@ classDiagram
     Order --> Money : totals to
 ```
 
+```text
+[Customer] <--- (placed by) ---* [Order] *--- (ships to) ---> [ShippingAddress]
+                                   | *
+                              (contains)
+                                   |
+                               [OrderItem]
+```
+
 ---
 
 ## Known Domain Complexities

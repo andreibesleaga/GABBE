@@ -51,6 +51,16 @@ graph TD
     Brain -.->|Monitor| Loki
 ```
 
+```text
+[User] --(Request)--> [Brain Mode 🧠]
+                        |
+                        +--(Route: Complex)--> [Loki Exec Layer ⚡] --(Phase S01-S10)--> [Project Files 📂]
+                        |                           ^
+                        |                           | (Monitor)
+                        |                           |
+                        +--(Route: Simple)---- [Local Script 💻]
+```
+
 ---
 
 ## CLI Reference

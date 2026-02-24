@@ -42,11 +42,19 @@ C4Context
     [Reconstruct or verify from actual system]
 ```
 
+```text
+[Reconstruct or verify Level 1 System Context from actual system]
+```
+
 ### Container View (major components / services)
 
 ```mermaid
 C4Container
     [Actual containers/components as they exist]
+```
+
+```text
+[Actual Level 2 containers/components as they exist]
 ```
 
 ### Primary Architecture Style

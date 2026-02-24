@@ -6,7 +6,8 @@
 
 ---
 
-## 1. Project Identity
+## 1. Project Identity (REQUIRED VARIABLES)
+> **ACTION REQUIRED**: Replace all `[PLACEHOLDER: ...]` values below with your specific stack.
 
 ```yaml
 project_name: "[PLACEHOLDER: My Project]"
@@ -81,8 +82,10 @@ docs: "[PLACEHOLDER: pnpm typedoc | php artisan scribe:generate]"
 ### Layer Definitions
 
 ```
+```
 [PLACEHOLDER — adapt to your architecture pattern]
 
+<!-- OPTIONAL: Architecture Examples
 Example for Clean Architecture (Node.js/TS):
   src/domain/          <- Business entities, domain events, value objects
                           MUST NOT import from: application, adapters, infrastructure
@@ -100,6 +103,8 @@ Example for Laravel DDD:
   app/Application/     <- Actions, DTOs, service interfaces
   app/Infrastructure/  <- Eloquent implementations, external API clients
   app/Http/            <- Controllers (thin -- delegate to Application layer)
+-->
+```
 ```
 
 ### Forbidden Patterns
@@ -117,15 +122,19 @@ Example for Laravel DDD:
 ### Directory Purpose Map
 
 ```
+```
 [PLACEHOLDER: Document what each top-level directory is for]
 
+<!-- OPTIONAL: Directory Map Example
 Example:
   src/           -> Application source code
   tests/         -> All test files (mirrors src/ structure)
   docs/          -> Architecture docs, ADRs, C4 diagrams
   scripts/       -> Dev tooling, DB seeds, migration scripts
-  agents/       -> Agent configuration kit (this directory)
+  agents/        -> Agent configuration kit (this directory)
   infra/         -> Docker, CI/CD, Terraform, K8s configs
+-->
+```
 ```
 
 ---
@@ -133,6 +142,7 @@ Example:
 ## 4. Code Style & Patterns
 
 ```
+<!-- OPTIONAL: Code Style Specifics
 Naming conventions:
   Files:        [PLACEHOLDER: kebab-case.ts | PascalCase.php | snake_case.py]
   Classes:      PascalCase
@@ -154,6 +164,7 @@ API response format:
 
 Import style:
   [PLACEHOLDER: "Absolute imports using @/ alias" or "Relative imports only"]
+-->
 ```
 
 ---
@@ -166,34 +177,41 @@ Agents MUST follow this order. Skipping steps is forbidden.
 ```
 1. Read this AGENTS.md completely
 2. Read CONSTITUTION.md if it exists
-3. If agents/memory/PROJECT_STATE.md exists: read it (understand current SDLC phase)
-4. If agents/memory/CONTINUITY.md exists: read it (understand past failures to avoid)
-5. Read the relevant task from project/tasks.md (if project/tasks.md exists)
+3. Read the relevant task from project/TASKS.md (if project/TASKS.md exists)
+<!-- OPTIONAL: Historical Context Loading
+4. If agents/memory/PROJECT_STATE.md exists: read it (understand current SDLC phase)
+5. If agents/memory/CONTINUITY.md exists: read it (understand past failures to avoid)
+-->
 ```
 
 ### Step 2 — Plan Before Coding
 ```
-Before touching any file, write a brief implementation plan:
+Before touching any file, write a brief implementation plan.
+<!-- OPTIONAL: Planning Questions
   - What files will you create or modify?
   - What is the expected behavior change?
   - What tests will you write?
   - Does this change affect any architecture boundaries?
   - Are there any knowledge gaps? (If yes -> invoke knowledge-gap.skill)
-
 For complex tasks: write plan.md or use PLAN_TEMPLATE.md
+-->
 ```
 
 ### Step 3 — Test First (TDD Red Phase)
 ```
 Write the failing test BEFORE writing implementation code.
+<!-- OPTIONAL: Detailed TDD Red
 Run the test -- it MUST fail (Red).
 If the test passes immediately with no implementation: the test is WRONG. Fix it.
+-->
 ```
 
 ### Step 4 — Implement (TDD Green Phase)
 ```
 Write the minimal code to make the failing test pass.
+<!-- OPTIONAL: Detailed TDD Green
 Do not add features not covered by a failing test.
+-->
 ```
 
 ### Step 5 — Verify (must all pass before marking done)
@@ -201,20 +219,26 @@ Do not add features not covered by a failing test.
 Run: [test command] -> must pass
 Run: [typecheck command] -> must pass
 Run: [lint command] -> must pass
+<!-- OPTIONAL: Deep Verification
 Run: agentic-linter check -> no boundary violations
+-->
 ```
 
 ### Step 6 — Refactor
 ```
 Improve code quality while keeping all tests green.
+<!-- OPTIONAL: Refactoring Metrics
 Check: Cyclomatic complexity < 10, no code duplication > 3 occurrences, no dead code.
+-->
 ```
 
 ### Step 7 — Log & Complete
 ```
 Write entry to agents/memory/AUDIT_LOG.md
-Update task status in project/tasks.md to DONE
+Update task status in project/TASKS.md to DONE
+<!-- OPTIONAL: High-Level Orchestration
 If this completes a SDLC phase: invoke sdlc-checkpoint.skill
+-->
 ```
 
 ---
@@ -249,17 +273,20 @@ Use: [PLACEHOLDER: dotenv | .env.vault | AWS Secrets Manager | HashiCorp Vault]
 
 ### PR Format (Conventional Commits)
 ```
+```
 Format: <type>(<scope>): <subject>
 
 Types: feat | fix | docs | style | refactor | test | chore | perf | sec | deps
 Scope: module or layer name (optional)
 
+<!-- OPTIONAL: Commit Examples
 Examples:
   feat(auth): add OAuth2 Google login
   fix(api): resolve N+1 query in users endpoint
   sec(deps): update lodash to fix CVE-2024-xxxxx
   test(domain): add unit tests for Order aggregate
   refactor(application): extract CreateOrderUseCase from controller
+-->
 
 PR body must include:
   - What changed and why
@@ -267,9 +294,11 @@ PR body must include:
   - Breaking changes (if any)
   - Security implications (if any)
 ```
+```
 
 ### Quality Gates (all must pass before PR merges)
 ```
+<!-- OPTIONAL: Quality Gates Specifics
 Gate 1 -- Syntax/Linting:    ESLint / PHP-CS-Fixer / Prettier / Ruff -- zero errors
 Gate 2 -- Type Safety:       tsc --noEmit / PHPStan L9 / mypy -- zero errors
 Gate 3 -- Test Coverage:     >96% coverage, all tests passing, no skipped tests
@@ -277,6 +306,7 @@ Gate 4 -- Integration:       Docker Compose up, API contract validation
 Gate 5 -- Security Scan:     npm audit / composer audit -- no critical or high CVEs
 Gate 6 -- Complexity:        Cyclomatic complexity < 10 on modified files
 Gate 7 -- EARS Compliance:   (for new features) All requirements have tests
+-->
 ```
 
 ---
@@ -287,6 +317,7 @@ Agents must use authoritative sources. Never guess or hallucinate.
 
 ### Source Tiers (in order of trust)
 ```
+<!-- OPTIONAL: Source Tiers
 Tier 1 (Primary -- always prefer):
   - Official language/framework docs (MDN, nodejs.org, laravel.com, docs.python.org)
   - Official specifications (RFC.editor.org, W3C, ECMA, ISO)
@@ -303,6 +334,7 @@ Tier 3 (Verified industry, as fallback):
 NOT acceptable (never cite as authoritative):
   - Blog posts, Medium articles, Reddit, StackOverflow opinions
   - Any source without official attribution
+-->
 ```
 
 ### Research Gate -- mandatory before:
@@ -350,6 +382,7 @@ Agents may autonomously fix failures up to 5 attempts.
 ### Self-Heal Escalation Protocol
 After 5 failed attempts, agent MUST:
 ```
+<!-- OPTIONAL: Escalation Protocol Steps
 1. STOP all autonomous action
 2. Create structured escalation report:
    - Error description
@@ -358,6 +391,7 @@ After 5 failed attempts, agent MUST:
    - Recommended human decision
 3. Write to AUDIT_LOG.md
 4. Wait for human response before continuing
+-->
 ```
 
 ---
@@ -378,6 +412,7 @@ ALWAYS pause and ask:
   - "I've tried 5 times and cannot fix this" (see Self-Healing Policy)
   - [PLACEHOLDER: add project-specific escalation triggers]
 
+<!-- OPTIONAL: Escalation Format
 Format for human escalation:
   ESCALATION REQUIRED
   Issue: [clear description]
@@ -386,6 +421,7 @@ Format for human escalation:
     2. [option B] -- pros: [...] cons: [...]
   Recommendation: [option X because Y]
   Awaiting: [specific decision needed]
+-->
 ```
 
 ---
@@ -428,6 +464,7 @@ For monorepos, this root AGENTS.md applies globally.
 Package-level AGENTS.md files override root for that package's scope.
 
 ```
+<!-- OPTIONAL: Monorepo Setup Example
 monorepo-root/
   AGENTS.md              <- Root: global rules (this file)
   packages/
@@ -437,6 +474,7 @@ monorepo-root/
       AGENTS.md          <- Override: API-specific rules (Fastify, Prisma, etc.)
     shared-lib/
       AGENTS.md          <- Override: Library-specific rules (no framework imports)
+-->
 ```
 
 Agent context priority: Package AGENTS.md > Root AGENTS.md
@@ -476,6 +514,7 @@ Decision log:         agents/memory/AUDIT_LOG.md
 Every session, agents MUST:
 
 ```
+<!-- OPTIONAL: Session & Continuity Procedures
 START of session:
   1. Read this AGENTS.md
   2. Read agents/memory/PROJECT_STATE.md (if exists) -> understand current state
@@ -485,12 +524,13 @@ START of session:
   6. Run integrity-check.skill before starting new work on existing code
 
 END of session:
-  1. Update project/tasks.md with current status of all in-progress tasks
+  1. Update project/TASKS.md with current status of all in-progress tasks
   2. Write session summary to agents/memory/episodic/ (DECISION_LOG_TEMPLATE.md)
   3. Update agents/memory/PROJECT_STATE.md with current SDLC phase
   4. Write all decisions/outcomes to agents/memory/AUDIT_LOG.md
   5. Create SDLC checkpoint if a phase was completed
   6. If stopping mid-task: note exactly where you stopped and why
+-->
 ```
 
 ---
@@ -500,12 +540,14 @@ END of session:
 ```
 [PLACEHOLDER: Add any additional project-specific rules, constraints, or context here.]
 
+<!-- OPTIONAL: Examples
 Examples:
   - "This project uses feature flags via LaunchDarkly -- never delete flags, only disable"
   - "API is consumed by mobile clients -- breaking changes require a 30-day deprecation period"
   - "All user-facing text must be in the i18n system -- no hardcoded strings"
   - "Analytics events must be documented in docs/analytics-schema.md before implementation"
   - "Database schema changes must be reviewed by the DBA team before migration"
+-->
 ```
 
 ---
@@ -552,6 +594,7 @@ Brain Mode **wraps** Loki Mode.
     - Errors loop.
     - Requirements drift.
 
+<!-- OPTIONAL: Active Orchestration Diagram
 ```mermaid
 graph TD
     User -->|Request| Brain[🧠 Brain Mode]
@@ -560,6 +603,7 @@ graph TD
     Loki -->|Phase S01-S10| Artifacts[📂 Project Files]
     Brain -.->|Monitor| Loki
 ```
+-->
 
 ---
 

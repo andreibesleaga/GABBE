@@ -21,7 +21,7 @@ PROJECT_STATE.md stay current. The "chief of staff" of Loki Mode.
 Load on activation:
   - agents/memory/PROJECT_STATE.md (full project state)
   - agents/memory/AUDIT_LOG.md (all decisions and actions)
-  - project/tasks.md (blocked/in-progress tasks)
+  - project/TASKS.md (blocked/in-progress tasks)
   - agents/memory/CONTINUITY.md (failure history)
   - Active escalation tickets (if any)
 ```

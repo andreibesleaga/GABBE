@@ -14,7 +14,7 @@
 │  prod-pm · prod-architect · prod-tech-lead · prod-design        │
 │  biz-legal · biz-compliance                                     │
 └─────────────────────────────────────────────────────────────────┘
-         │ spec.md, plan.md, ADRs, project/tasks.md
+         │ spec.md, plan.md, ADRs, project/TASKS.md
          ▼
 ┌─────────────────────────────────────────────────────────────────┐
 │  ORCHESTRATION SWARM (Managers)                                 │
@@ -96,7 +96,7 @@
 
 | Persona | File | Role | Primary Output |
 |---|---|---|---|
-| `orch-planner` | [orch-planner.md](orch-planner.md) | Task scheduling, dependency resolution, assignments | Task assignments (from project/tasks.md) |
+| `orch-planner` | [orch-planner.md](orch-planner.md) | Task scheduling, dependency resolution, assignments | Task assignments (from project/TASKS.md) |
 | `orch-judge` | [orch-judge.md](orch-judge.md) | 7-gate quality checks, EARS compliance | Quality gate verdicts |
 | `orch-coordinator` | [orch-coordinator.md](orch-coordinator.md) | State tracking, failure routing, escalations | Escalation reports, status updates |
 | `orch-researcher` | [orch-researcher.md](orch-researcher.md) | Authoritative research, knowledge gaps | Research findings in semantic/ |
@@ -107,7 +107,7 @@
 
 ```
 1. Product/Business → Orchestration: deliver spec artifacts
-   (orch-planner receives project/tasks.md from prod-tech-lead)
+   (orch-planner receives project/TASKS.md from prod-tech-lead)
 
 2. Orchestration → Engineering: task assignments
    (orch-planner assigns T-NNN to eng-* with context)

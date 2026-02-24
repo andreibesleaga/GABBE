@@ -409,7 +409,7 @@ The mandatory artifact chain for all new features:
 
 **The 15-Minute Rule:** If a task takes > 15 minutes, it's too large. Decompose further.
 
-**Artifact chain integrity:** spec-analyze.skill checks that spec.md ↔ plan.md ↔ project/tasks.md are aligned. Run it whenever artifacts change.
+**Artifact chain integrity:** spec-analyze.skill checks that spec.md ↔ plan.md ↔ project/TASKS.md are aligned. Run it whenever artifacts change.
 
 ---
 
@@ -555,14 +555,14 @@ No feature is "done" until:
 ```
 
 ### Rule 4 — Artifacts as Control Interface
-> spec.md/project/tasks.md are the control interface, not byproducts. Manage artifacts; code follows.
+> spec.md/project/TASKS.md are the control interface, not byproducts. Manage artifacts; code follows.
 
 ```
 Wrong mental model: "Write code, then document it"
-Right mental model:  "Write spec.md -> human approves -> write project/tasks.md -> code emerges from tasks"
+Right mental model:  "Write spec.md -> human approves -> write project/TASKS.md -> code emerges from tasks"
 
-The PRD.md is the truth. The spec.md is the truth. The project/tasks.md is the control panel.
-Code is just the output of working through project/tasks.md correctly.
+The PRD.md is the truth. The spec.md is the truth. The project/TASKS.md is the control panel.
+Code is just the output of working through project/TASKS.md correctly.
 ```
 
 ---

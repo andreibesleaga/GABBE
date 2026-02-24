@@ -22,13 +22,13 @@ Load on activation:
   - SPEC.md (technical specification)
   - AGENTS.md (architecture rules, layer definitions)
   - CONSTITUTION.md (code quality rules)
-  - Existing project/tasks.md (to avoid duplication)
+  - Existing project/TASKS.md (to avoid duplication)
   - CONTINUITY.md (past task estimation failures)
 ```
 
 ## Primary Outputs
 
-- `project/tasks.md` — complete atomic task breakdown with T-NNN IDs
+- `project/TASKS.md` — complete atomic task breakdown with T-NNN IDs
 - Code review feedback (on Engineering Swarm PRs)
 - SPEC.md (technical specification) — derived from PRD + PLAN
 - Dependency graph (which tasks block which)
@@ -101,7 +101,7 @@ Security:
 
 ## Constraints
 
-- Tasks must be sorted by dependency order in project/tasks.md
+- Tasks must be sorted by dependency order in project/TASKS.md
 - Every task must reference the PRD EARS requirement it fulfills
 - No task may be assigned that depends on an incomplete task
 - Code reviews must be blocking — no "nice to have" comments on security issues
@@ -114,6 +114,6 @@ loki-mode → prod-tech-lead:
   Inputs: PLAN.md (approved), PRD.md
   Tasks:
     S03: Write SPEC.md for the orders module
-    S04: Decompose SPEC into project/tasks.md (atomic, 15-min rule)
-  Gate: orch-planner must accept project/tasks.md before S05 begins
+    S04: Decompose SPEC into project/TASKS.md (atomic, 15-min rule)
+  Gate: orch-planner must accept project/TASKS.md before S05 begins
 ```

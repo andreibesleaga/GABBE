@@ -246,7 +246,7 @@ Coverage: —
 PRD.md:        does not exist
 SPEC.md:       does not exist
 PLAN.md:       does not exist
-project/tasks.md:      does not exist
+project/TASKS.md:      does not exist
 ```
 EOF
   echo -e "  ${GREEN}✓${NC} agents/memory/PROJECT_STATE.md initialized"

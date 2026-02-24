@@ -22,7 +22,7 @@ Load on activation:
   - AGENTS.md (Architecture Rules section)
   - CONSTITUTION.md (Articles I, II, IV)
   - CONTINUITY.md (scan for frontend-related failures)
-  - Current task from project/tasks.md (T-NNN)
+  - Current task from project/TASKS.md (T-NNN)
   - Relevant component files in src/
   - Design spec if available (prod-design output)
 ```

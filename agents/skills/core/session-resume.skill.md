@@ -35,7 +35,7 @@ Allow ANY agent at ANY time to load the complete project state and continue as i
    - Read: `agents/memory/semantic/PROJECT_KNOWLEDGE_TEMPLATE.md`
    - Note: verified library APIs, confirmed architecture decisions, known constraints
 
-6. **Read current project/tasks.md**
+6. **Read current project/TASKS.md**
    - Identify: all TODO tasks, IN_PROGRESS tasks, BLOCKED tasks
    - Note: any tasks that are blocked and what's blocking them
 
@@ -72,7 +72,7 @@ Allow ANY agent at ANY time to load the complete project state and continue as i
    - [PASS/FAIL — details if fail]
 
    ### Recommended Next Action
-   [What I will do next, starting from: task X in project/tasks.md]
+   [What I will do next, starting from: task X in project/TASKS.md]
 
    Ready to continue? Please confirm or direct me to a different task.
    ```
@@ -82,7 +82,7 @@ Allow ANY agent at ANY time to load the complete project state and continue as i
    - Human may resolve pending decisions listed in report
 
 10. **Continue from next pending task**
-    - Pick up from the first TODO or IN_PROGRESS task in project/tasks.md
+    - Pick up from the first TODO or IN_PROGRESS task in project/TASKS.md
     - Apply RARV cycle (loki/RARV_CYCLE.md)
 
 ## Memory Loading Order (critical — load in this sequence)
@@ -93,7 +93,7 @@ Allow ANY agent at ANY time to load the complete project state and continue as i
 3. AUDIT_LOG.md        → last 50 entries (recent decisions)
 4. SESSION_SNAPSHOT/   → latest milestone snapshot
 5. semantic/           → crystallized project knowledge
-6. project/tasks.md            → current task status
+6. project/TASKS.md            → current task status
 7. integrity-check     → verify state is consistent
 ```
 

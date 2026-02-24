@@ -46,7 +46,7 @@ Every task follows Reason → Act → Reflect → Verify:
 1. Write failing test (TDD Red)
 2. Implement minimal code (TDD Green)
 3. Use MCP tools for: DB queries, code search, external APIs, research
-4. Update task status in project/tasks.md → IN_PROGRESS
+4. Update task status in project/TASKS.md → IN_PROGRESS
 ```
 
 ### Reflect
@@ -122,7 +122,7 @@ Output: project/TASKS.md — reviewed by tech lead
 
 ### Phase 5: Implement (RARV cycle per task)
 ```
-Input: project/tasks.md, AGENTS.md, CONSTITUTION.md, CONTINUITY.md
+Input: project/TASKS.md, AGENTS.md, CONSTITUTION.md, CONTINUITY.md
 For each task:
   1. RARV cycle (above)
   2. Audit trail entry

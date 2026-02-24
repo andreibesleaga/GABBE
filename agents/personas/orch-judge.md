@@ -23,7 +23,7 @@ coverage, not just that tests pass.
 Load on activation:
   - PRD.md + EARS_REQUIREMENTS.md (acceptance criteria to verify)
   - SPEC.md (technical requirements)
-  - project/tasks.md (must be 100% DONE before S06 gate)
+  - project/TASKS.md (must be 100% DONE before S06 gate)
   - Full test suite results + coverage report
   - SECURITY_CHECKLIST.md (for S07 gate)
   - AUDIT_LOG.md (all decisions made)

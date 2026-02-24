@@ -27,7 +27,7 @@ Prevent "Insecure Code" from entering the codebase by strictly enforcing securit
 **Action**: LLM Review of the diff.
 *   "Does this code log User PII?"
 *   "Does this code execute arbitrary system commands (`exec`, `eval`)?"
-*   *If Risky*: Add `# TODO: SECURITY REVIEW` comment and flag in `project/tasks.md`.
+*   *If Risky*: Add `# TODO: SECURITY REVIEW` comment and flag in `project/TASKS.md`.
 
 ## Output
 *   **PASS**: "No critical issues found."

@@ -168,7 +168,7 @@ Agents MUST follow this order. Skipping steps is forbidden.
 2. Read CONSTITUTION.md if it exists
 3. If agents/memory/PROJECT_STATE.md exists: read it (understand current SDLC phase)
 4. If agents/memory/CONTINUITY.md exists: read it (understand past failures to avoid)
-5. Read the relevant task from project/tasks.md (if project/tasks.md exists)
+5. Read the relevant task from project/TASKS.md (if project/TASKS.md exists)
 ```
 
 ### Step 2 — Plan Before Coding
@@ -213,7 +213,7 @@ Check: Cyclomatic complexity < 10, no code duplication > 3 occurrences, no dead 
 ### Step 7 — Log & Complete
 ```
 Write entry to agents/memory/AUDIT_LOG.md
-Update task status in project/tasks.md to DONE
+Update task status in project/TASKS.md to DONE
 If this completes a SDLC phase: invoke sdlc-checkpoint.skill
 ```
 
@@ -481,7 +481,7 @@ START of session:
   6. Run integrity-check.skill before starting new work on existing code
 
 END of session:
-  1. Update project/tasks.md with current status of all in-progress tasks
+  1. Update project/TASKS.md with current status of all in-progress tasks
   2. Write session summary to agents/memory/episodic/ (DECISION_LOG_TEMPLATE.md)
   3. Update agents/memory/PROJECT_STATE.md with current SDLC phase
   4. Write all decisions/outcomes to agents/memory/AUDIT_LOG.md

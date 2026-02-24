@@ -131,7 +131,7 @@ Tasks:   - Read SPEC.md + PLAN.md
            - *If Plan Complexity > High*: Inject `S02_DEEP_RESEARCH` (Consult KIs / Web)
            - *If Security Critical*: Inject `safety-scan` pre-check
 
-Output:  project/tasks.md with T-NNN IDs, status: TODO, tags: [PARALLEL] if applicable
+Output:  project/TASKS.md with T-NNN IDs, status: TODO, tags: [PARALLEL] if applicable
 
 Gate:    orch-judge reviews task decomposition:
          - Are all tasks < 15 minutes?
@@ -147,7 +147,7 @@ Checkpoint: sdlc-checkpoint.skill S04
 Persona: orch-planner (coordinator), eng-* (executors)
 
 Implementation Loop (repeats until all tasks DONE):
-  1. orch-planner analyzes `project/tasks.md`:
+  1. orch-planner analyzes `project/TASKS.md`:
      - Identifies next batch of independent TODO tasks (Parallel Group)
      - Or next sequential task if dependencies exist
 
@@ -173,7 +173,7 @@ Implementation Loop (repeats until all tasks DONE):
                 Verify test fails before implementing
                 Run `safety-scan.skill` (Guardrail)
                 Implement minimal code (Apply secure-coding.skill triggers)
-                Update project/tasks.md: status → IN_PROGRESS
+                Update project/TASKS.md: status → IN_PROGRESS
 
        REFLECT: Library-First? Layer boundaries? Security inputs? PII in logs?
 
@@ -184,7 +184,7 @@ Implementation Loop (repeats until all tasks DONE):
 
   5. **Batch Result Processing**:
      - If VERIFY passes:
-       - Update project/tasks.md: status → DONE
+       - Update project/TASKS.md: status → DONE
        - Write audit-trail.skill entry: TASK_DONE
      
      - If VERIFY fails:
@@ -420,7 +420,7 @@ Escalation report contains:
   6. Estimated impact of deferral
 
 After escalation:
-  → project/tasks.md: task status → BLOCKED
+  → project/TASKS.md: task status → BLOCKED
   → AUDIT_LOG.md: HUMAN_ESCALATION entry
   → ALL autonomous work on this task stops
   → Project continues on unblocked tasks (if DAG allows)

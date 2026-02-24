@@ -388,7 +388,7 @@ flowchart TD
     K -->|No| I
     K -->|Yes| L[sdlc-checkpoint S02]
 
-    L --> M[project/tasks.md decomposition — 15-min rule]
+    L --> M[project/TASKS.md decomposition — 15-min rule]
     M --> N[sdlc-checkpoint S03/S04]
 
     N --> O[Implementation Loop]
@@ -464,7 +464,7 @@ For each task, agent:
   5. Refactors while keeping tests green (TDD Refactor)
   6. Runs: tests + lint + typecheck + agentic-linter boundary check
   7. Logs to AUDIT_LOG.md
-  8. Marks task DONE in project/tasks.md
+  8. Marks task DONE in project/TASKS.md
 ```
 
 **Steps 5-10 — Quality, Security, Deploy**

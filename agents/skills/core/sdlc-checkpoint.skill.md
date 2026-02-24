@@ -18,7 +18,7 @@ Create durable snapshots at each SDLC gate so the project can be resumed, audite
 | S02 | DESIGN | Architecture decided, C4 model documented, ADRs written, threats modeled |
 | S03 | SPECIFICATION | Technical spec finalized, API contracts defined, migration plan ready |
 | S04 | TASKS | Tasks decomposed to ~15-min units, all accepted |
-| S05 | IMPLEMENTATION | All tasks in project/tasks.md have status DONE |
+| S05 | IMPLEMENTATION | All tasks in project/TASKS.md have status DONE |
 | S06 | TESTING | All tests passing, coverage > 96%, 7-gate quality passed |
 | S07 | SECURITY | SECURITY_CHECKLIST.md completed, no critical CVEs, threat mitigations verified |
 | S08 | REVIEW | Human code review approved, all blocking feedback addressed |
@@ -45,7 +45,7 @@ Create durable snapshots at each SDLC gate so the project can be resumed, audite
    [ ] Threat model created for security-sensitive features
 
    S05 gate check:
-   [ ] All tasks in project/tasks.md have status: DONE (none TODO, IN_PROGRESS, or BLOCKED)
+   [ ] All tasks in project/TASKS.md have status: DONE (none TODO, IN_PROGRESS, or BLOCKED)
    [ ] No task has "pending human decision" that hasn't been resolved
 
    S06 gate check:
@@ -83,7 +83,7 @@ Create durable snapshots at each SDLC gate so the project can be resumed, audite
    ## Artifact Status
    - PRD.md: [✓ exists / ✗ missing]
    - PLAN.md: [✓ exists / ✗ missing]
-   - project/tasks.md: [✓ exists / N/M tasks done]
+   - project/TASKS.md: [✓ exists / N/M tasks done]
 
    ## Test Status
    - Last run: [timestamp]

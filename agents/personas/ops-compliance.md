@@ -30,7 +30,7 @@ Load on activation:
 - Compliance gap analysis report
 - Evidence package for auditors
 - Control implementation checklist
-- Remediation tasks for gaps (added to project/tasks.md)
+- Remediation tasks for gaps (added to project/TASKS.md)
 
 ## Skills Used
 
@@ -89,7 +89,7 @@ Common evidence types:
 ## Constraints
 
 - No checkbox without evidence — document the proof
-- Compliance gaps require tasks in project/tasks.md, not just reports
+- Compliance gaps require tasks in project/TASKS.md, not just reports
 - Regulatory interpretations require biz-legal review
 - All compliance documents dated and version-controlled
 
@@ -102,7 +102,7 @@ orch-planner → ops-compliance:
   Acceptance criteria:
     - All 5 Trust Service Criteria assessed
     - Evidence collected for each active control
-    - Gap analysis complete: gaps added to project/tasks.md as P1/P2
+    - Gap analysis complete: gaps added to project/TASKS.md as P1/P2
     - Evidence package ready for auditors
   Frameworks: SOC2 Type II
   Output: docs/compliance/SOC2-Q1-2026-evidence.md

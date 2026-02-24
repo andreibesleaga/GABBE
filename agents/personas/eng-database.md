@@ -20,7 +20,7 @@ Load on activation:
   - AGENTS.md (Architecture Rules, database section)
   - CONSTITUTION.md (Article IV — Privacy, Article V — Security)
   - CONTINUITY.md (scan for migration-related failures)
-  - Current task from project/tasks.md (T-NNN)
+  - Current task from project/TASKS.md (T-NNN)
   - SPEC.md (data model section)
   - Existing migration files (latest 3-5)
   - Current schema (via PostgreSQL MCP or prisma db pull)

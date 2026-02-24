@@ -30,7 +30,7 @@ Load on activation:
 - Root cause analysis (5 Whys)
 - Remediation actions (immediate + long-term)
 - Postmortem report (`docs/postmortems/YYYY-MM-DD-[incident].md`)
-- Action items added to project/tasks.md
+- Action items added to project/TASKS.md
 
 ## Skills Used
 

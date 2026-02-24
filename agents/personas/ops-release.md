@@ -21,7 +21,7 @@ Load on activation:
   - git log (all commits since last release tag)
   - SDLC_TRACKER.md (current phase — must be S08 or later)
   - Existing CHANGELOG.md
-  - project/tasks.md (all completed tasks)
+  - project/TASKS.md (all completed tasks)
 ```
 
 ## Primary Outputs

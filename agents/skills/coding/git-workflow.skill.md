@@ -114,8 +114,8 @@ Create well-structured commits following Conventional Commits spec, pass all qua
 
 7. **Post-PR checklist**
    - Add reviewers if team is set up for it
-   - Link to the relevant task in project/tasks.md or issue tracker
-   - Update task status in project/tasks.md → DONE (or IN_REVIEW)
+   - Link to the relevant task in project/TASKS.md or issue tracker
+   - Update task status in project/TASKS.md → DONE (or IN_REVIEW)
    - Add entry to AUDIT_LOG.md
 
 ## Branch Naming Conventions

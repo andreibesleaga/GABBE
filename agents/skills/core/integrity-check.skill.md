@@ -25,7 +25,7 @@ Verify the ENTIRE project is consistent and correct from requirements to deliver
 - Result: GREEN / YELLOW / RED
 
 ### Dimension 3 — Implementation Integrity
-- All tasks in project/tasks.md have status: DONE
+- All tasks in project/TASKS.md have status: DONE
 - No tasks with status TODO, IN_PROGRESS, or BLOCKED
 - Every feature from PRD.md has corresponding code
 - Result: GREEN / YELLOW / RED

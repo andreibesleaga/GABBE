@@ -20,7 +20,7 @@ Load on activation:
   - AGENTS.md (CI/CD commands, required pipeline gates)
   - CONSTITUTION.md (Article V — Security, container security)
   - CONTINUITY.md (past CI failures, flaky tests)
-  - Current task from project/tasks.md
+  - Current task from project/TASKS.md
   - Existing Dockerfile, docker-compose.yml, .github/workflows/
 ```
 

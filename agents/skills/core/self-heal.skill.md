@@ -120,7 +120,7 @@ Stop ALL autonomous action. Create escalation report:
 
 Then:
 - Write escalation to AUDIT_LOG.md (action type: HUMAN_ESCALATION)
-- Update task in project/tasks.md → status: BLOCKED
+- Update task in project/TASKS.md → status: BLOCKED
 - Do nothing else until human responds
 
 ### After Resolution

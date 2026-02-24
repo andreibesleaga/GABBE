@@ -15,7 +15,7 @@ Implement any feature using strict Test-Driven Development: write the failing te
 ### Phase 1 — Red (Failing Test)
 
 1. **Understand the requirement**
-   - Read the relevant task from project/tasks.md or the user's description
+   - Read the relevant task from project/TASKS.md or the user's description
    - Identify the expected behavior as a verifiable predicate
    - Write the requirement in EARS format if not already: "WHEN [X] THE SYSTEM SHALL [Y]"
 
@@ -63,7 +63,7 @@ Implement any feature using strict Test-Driven Development: write the failing te
    - Run: `agentic-linter` boundary check → no violations
 
 8. **Mark done**
-   - Update task status in project/tasks.md → DONE
+   - Update task status in project/TASKS.md → DONE
    - Write entry to AUDIT_LOG.md: what was implemented and verified
 
 ## Constraints

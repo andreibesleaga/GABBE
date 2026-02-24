@@ -38,7 +38,7 @@ Ask the **Meta-Architect Persona**:
 ## Safety Guardrails
 *   **Backup**: Always backup the original `.skill.md` before overwriting.
 *   **Limit**: Max 1 optimization per skill per day (prevent "drift").
-*   **Human Review**: Flag the optimization for human review in `project/tasks.md`.
+*   **Human Review**: Flag the optimization for human review in `project/TASKS.md`.
 
 ## Security & Guardrails (Extended)
 

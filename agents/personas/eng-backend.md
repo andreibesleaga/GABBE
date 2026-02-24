@@ -21,7 +21,7 @@ Load on activation:
   - AGENTS.md (Architecture Rules, Code Style sections)
   - CONSTITUTION.md (Articles I, II, V)
   - CONTINUITY.md (scan for backend-related failures)
-  - Current task from project/tasks.md (T-NNN)
+  - Current task from project/TASKS.md (T-NNN)
   - SPEC.md (relevant feature section)
   - openapi.yaml (API contract to implement against)
   - Existing domain entities and repository interfaces

@@ -62,8 +62,8 @@ EXAMPLE ENTRIES (remove this comment block when using):
 | 2025-03-15T14:00:00Z | S05-001 | eng-backend | TASK_DONE | T-001: Created User domain entity with email value object | SUCCESS | src/domain/user.ts |
 | 2025-03-15T14:30:00Z | S05-001 | eng-backend | SELF_HEAL_ATTEMPT | T-002: TypeScript error on UserDto.email — attempt 1/5 — null check missing | FAIL | src/application/create-user.use-case.ts:42 |
 | 2025-03-15T14:35:00Z | S05-001 | eng-backend | TASK_DONE | T-002: Fixed type error — added null guard before email access | SUCCESS | src/application/create-user.use-case.ts |
-| 2025-03-15T16:00:00Z | S05-001 | eng-backend | TASK_BLOCKED | T-020: Cannot implement payment integration — unclear if Stripe or Paddle | OPEN | project/tasks.md |
-| 2025-03-15T16:01:00Z | S05-001 | eng-backend | HUMAN_ESCALATION | T-020 blocked: Payment provider not decided. Options: Stripe (fees: 2.9%) vs Paddle (fees: 5%). Recommend Stripe (direct settlement). | ESCALATED | project/tasks.md |
+| 2025-03-15T16:00:00Z | S05-001 | eng-backend | TASK_BLOCKED | T-020: Cannot implement payment integration — unclear if Stripe or Paddle | OPEN | project/TASKS.md |
+| 2025-03-15T16:01:00Z | S05-001 | eng-backend | HUMAN_ESCALATION | T-020 blocked: Payment provider not decided. Options: Stripe (fees: 2.9%) vs Paddle (fees: 5%). Recommend Stripe (direct settlement). | ESCALATED | project/TASKS.md |
 | 2025-03-15T16:45:00Z | S05-001 | human:bob | DECISION | Use Stripe for payment processing — direct settlement preferred | APPROVED | — |
 | 2025-03-15T17:00:00Z | S06-001 | orch-judge | QUALITY_GATE | Gate 3 Tests: 247 pass, 0 fail, 0 skip, 84% coverage | PASS | — |
 | 2025-03-15T17:05:00Z | S07-001 | ops-security | SECURITY_FINDING | HIGH: No rate limit on /auth/login endpoint — brute force possible | OPEN | src/adapters/http/auth.controller.ts:23 |

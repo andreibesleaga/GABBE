@@ -66,7 +66,7 @@ Task assigned by orch-planner
                                               │
                                               ├─ Write escalation report
                                               ├─ AUDIT_LOG.md: HUMAN_ESCALATION
-                                              ├─ project/tasks.md: status → BLOCKED
+                                              ├─ project/TASKS.md: status → BLOCKED
                                               └─ WAIT for human decision
                                                       │
                                                     Human responds
@@ -130,7 +130,7 @@ Write out (even briefly) before touching any file:
   - "This change affects layers: [list]"
   - "Potential risks: [list]"
 
-For complex tasks: write mini-plan to project/tasks.md task notes
+For complex tasks: write mini-plan to project/TASKS.md task notes
 ```
 
 ---
@@ -226,7 +226,7 @@ If any verification fails:
 
 ### After Successful RARV
 ```
-1. Update project/tasks.md: task status → DONE
+1. Update project/TASKS.md: task status → DONE
 2. Write AUDIT_LOG.md entry: TASK_DONE
 3. Store any research findings in semantic/PROJECT_KNOWLEDGE_TEMPLATE.md
 4. If pattern worth remembering: add to semantic memory
@@ -236,7 +236,7 @@ If any verification fails:
 ### After Failed RARV (escalation)
 ```
 1. Write AUDIT_LOG.md entry: HUMAN_ESCALATION
-2. Update project/tasks.md: task status → BLOCKED
+2. Update project/TASKS.md: task status → BLOCKED
 3. Write to CONTINUITY.md: what was tried and why it failed
    This prevents the same failure in future sessions
 4. Wait for human decision

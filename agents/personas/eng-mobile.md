@@ -20,7 +20,7 @@ Load on activation:
   - AGENTS.md (mobile platform section if present)
   - CONSTITUTION.md (Article IV — Privacy, offline data storage)
   - CONTINUITY.md (scan for mobile-specific failures)
-  - Current task from project/tasks.md (T-NNN)
+  - Current task from project/TASKS.md (T-NNN)
   - openapi.yaml (API contract to implement against)
   - Design spec (prod-design output for mobile screens)
 ```

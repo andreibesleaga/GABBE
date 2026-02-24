@@ -23,7 +23,7 @@ Updated by:    [agent/human]
 | S02 | Design | NOT_STARTED | — | — | — | Architecture + ADRs + threat model |
 | S03 | Specification | NOT_STARTED | — | — | — | Tech spec + API contracts |
 | S04 | Tasks | NOT_STARTED | — | — | — | All tasks decomposed to 15-min units |
-| S05 | Implementation | NOT_STARTED | — | — | — | All project/tasks.md items DONE |
+| S05 | Implementation | NOT_STARTED | — | — | — | All project/TASKS.md items DONE |
 | S06 | Testing | NOT_STARTED | — | — | — | Tests pass, coverage ≥ 96%, 7 gates |
 | S07 | Security | NOT_STARTED | — | — | — | SECURITY_CHECKLIST.md 100%, 0 critical CVEs |
 | S08 | Review | NOT_STARTED | — | — | — | Human code review approved |
@@ -74,12 +74,12 @@ Updated by:    [agent/human]
 [ ] Each task: has testable acceptance criteria
 [ ] Tasks have correct dependency ordering
 [ ] No ambiguous tasks ("do the stuff" — must be specific files/functions)
-[ ] SESSION_SNAPSHOT/S04_tasks.md created
+[ ] SESSION_SNAPSHOT/S04_TASKS.md created
 ```
 
 ### S05 — Implementation
 ```
-[ ] All tasks in project/tasks.md have status DONE (none TODO/IN_PROGRESS/BLOCKED)
+[ ] All tasks in project/TASKS.md have status DONE (none TODO/IN_PROGRESS/BLOCKED)
 [ ] TDD followed for each task: failing test written first
 [ ] Each task commit references the task ID
 [ ] AUDIT_LOG.md has TASK_DONE entry for each task

@@ -21,7 +21,7 @@ Load on activation:
   - CONSTITUTION.md (Article I — Test-First)
   - PRD.md and SPEC.md (acceptance criteria to verify coverage for)
   - Current test results (run test suite first)
-  - project/tasks.md (which tasks are DONE — need test verification)
+  - project/TASKS.md (which tasks are DONE — need test verification)
 ```
 
 ## Primary Outputs

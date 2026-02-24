@@ -126,7 +126,7 @@ Identify architectural anti-patterns through dependency analysis and propose con
    - Use adr-writer.skill to document the migration approach
    - Major migrations require human approval before starting
 
-7. **Create tasks in project/tasks.md** (15-min rule applies to architecture work too)
+7. **Create tasks in project/TASKS.md** (15-min rule applies to architecture work too)
    - Decompose into atomic steps: one interface extracted, one class split, etc.
    - Each step must leave the codebase in a working state (all tests pass)
 
@@ -163,7 +163,7 @@ Identify architectural anti-patterns through dependency analysis and propose con
 - Measure coupling before and after to verify improvement
 
 ## Output Format
-Architecture debt report + prioritized migration roadmap + ADR for major changes + tasks in project/tasks.md.
+Architecture debt report + prioritized migration roadmap + ADR for major changes + tasks in project/TASKS.md.
 
 ## Security & Guardrails
 

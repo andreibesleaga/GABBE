@@ -51,7 +51,7 @@ Confidence:           HIGH / MEDIUM / LOW
 | PRD.md | exists / MISSING | docs/PRD.md | Human approved [date] |
 | SPEC.md | exists / MISSING | docs/SPEC.md | — |
 | PLAN.md | exists / MISSING | docs/PLAN.md | — |
-| project/tasks.md | [N/M tasks done] | project/tasks.md | [N] TODO, [N] IN_PROGRESS, [N] DONE, [N] BLOCKED |
+| project/TASKS.md | [N/M tasks done] | project/TASKS.md | [N] TODO, [N] IN_PROGRESS, [N] DONE, [N] BLOCKED |
 | ADRs | [N] created | docs/architecture/decisions/ | Latest: ADR-[NNN] |
 | Threat models | [N] created | docs/security/threat-models/ | — |
 | OpenAPI spec | exists / MISSING | docs/api/openapi.yaml | — |

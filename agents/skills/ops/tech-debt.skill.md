@@ -115,7 +115,7 @@ Surface, document, and prioritize technical debt so it can be systematically pla
    - TD-004: Rename legacy variable names in archived report module (low business value)
    ```
 
-9. **Add P1 and P2 items to project/tasks.md**
+9. **Add P1 and P2 items to project/TASKS.md**
    - Create atomic tasks (15-min rule) for each debt item
    - Link to TECH_DEBT_TEMPLATE.md entry
 

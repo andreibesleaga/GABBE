@@ -1,3 +1,4 @@
+from __future__ import annotations
 import json
 import logging
 from .database import get_db

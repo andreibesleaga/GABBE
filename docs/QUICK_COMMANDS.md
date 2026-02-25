@@ -27,6 +27,10 @@ This guide provides a quick reference for the most common commands, setup instru
 | `gabbe route <prompt>` | Arbitrates prompt between Local and Remote LLMs (requires API key). |
 | `gabbe forecast` | Strategic Forecast projects remaining work cost and tokens. |
 | `gabbe serve-mcp` | Zero-dependency JSON-RPC MCP server for agent integration. |
+| `gabbe runs [--status STATUS] [--limit N]` | List recent agent runs with status, cost, and timestamps. |
+| `gabbe audit <run-id> [--format json\|table]` | Display structured span-level audit trace for a past run. |
+| `gabbe replay <run-id> [--from-step N]` | Replay a past run deterministically from its checkpoints. |
+| `gabbe resume <run-id>` | Approve or reject pending escalations for a paused run. |
 
 ### Platform Control Layer
 The experimental `gabbe` CLI supports a **platform control layer**. It covers budget enforcement, cost and token controls, hard stops, policy rules, the tool gateway, audit tracing, human escalation, and deterministic replay. Detailed documentation is available in [`PLATFORM_CONTROLS.md`](PLATFORM_CONTROLS.md).

@@ -104,6 +104,8 @@ def _migrate(conn):
                       metadata TEXT,
                       FOREIGN KEY(run_id) REFERENCES runs(id))""")
 
+        c.execute("CREATE INDEX IF NOT EXISTS idx_audit_spans_run_id ON audit_spans(run_id)")
+
         c.execute("""CREATE TABLE IF NOT EXISTS budget_snapshots
                      (id INTEGER PRIMARY KEY AUTOINCREMENT,
                       run_id TEXT,

@@ -125,7 +125,11 @@ def activate_brain(run_context=None):
                 print(f"  {Colors.FAIL}Brain Freeze (API Error){Colors.ENDC}")
 
         except Exception as e:
-            # Escalation or budget failures
+            from .escalation import EscalationPaused
+            # EscalationPaused means a human pause was already recorded — let it propagate
+            # rather than triggering a second escalation call.
+            if isinstance(e, EscalationPaused):
+                raise
             ctx.escalation.escalate(trigger=EscalationTrigger.REPEATED_TOOL_FAILURE, context_dict={"error": str(e)})
             print(f"  {Colors.FAIL}Execution Interrupted by Platform Controls: {e}{Colors.ENDC}")
 

@@ -124,7 +124,7 @@ def _calculate_state_hash(tasks):
         return "0"
     # Sort by title to ensure consistent ordering for hashing
     sorted_tasks = sorted(tasks, key=lambda x: x['title'])
-    combined = "".join(t['hash'] for t in sorted_tasks)
+    combined = "|".join(t['hash'] for t in sorted_tasks)
     return hashlib.sha256(combined.encode()).hexdigest()
 
 

@@ -77,17 +77,22 @@ class Budget:
         total_tokens = usage_dict.get("total_tokens", 0)
         prompt_tokens = usage_dict.get("prompt_tokens", 0)
         completion_tokens = usage_dict.get("completion_tokens", 0)
+        # Reasoning tokens are included inside completion_tokens for o1/o3-class models.
         reasoning_tokens = usage_dict.get("completion_tokens_details", {}).get("reasoning_tokens", 0)
-        
-        # In OpenAI format reasoning is inside completion, but we might track it separately depending on model
+        # Cache read tokens come from prompt_tokens_details.cached_tokens (OpenAI format).
+        cache_read_tokens = usage_dict.get("prompt_tokens_details", {}).get("cached_tokens", 0)
+
         self.tokens_used += total_tokens
 
         prices = self._get_price(model_id)
+        # If no dedicated reasoning price is configured, fall back to the output rate so
+        # reasoning tokens are never silently billed at zero.
+        reasoning_price = prices["reasoning"] if prices["reasoning"] > 0 else prices["output"]
         cost = (
             (prompt_tokens * prices["input"]) +
             ((completion_tokens - reasoning_tokens) * prices["output"]) +
-            (reasoning_tokens * prices["reasoning"])
-            # cache omitted for brevity
+            (reasoning_tokens * reasoning_price) +
+            (cache_read_tokens * prices["cache_read"])
         )
         self.cost_usd += cost
         self.check()

@@ -189,13 +189,14 @@ def test_param_range_ignores_unconstrained_params():
 # from_yaml factory
 # --------------------------------------------------------------------------
 
-def test_from_yaml_no_file_allows_all(tmp_path):
+def test_from_yaml_no_file_denies_all(tmp_path):
+    """When the policy file is missing, the engine defaults to deny-all (secure default)."""
     from unittest.mock import patch
     fake_path = tmp_path / "policies.yml"
     with patch("gabbe.policy.GABBE_POLICY_FILE", fake_path):
         engine = PolicyEngine.from_yaml()
     result = engine.evaluate({"tool": "anything"})
-    assert result.allowed is True
+    assert result.allowed is False
 
 
 def test_from_yaml_reads_version(tmp_path):

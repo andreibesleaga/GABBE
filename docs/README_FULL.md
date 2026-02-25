@@ -143,6 +143,18 @@ It's an experimental work-in-progress and you can do without the whole package o
 | `GABBE_ROUTE_THRESHOLD` | `50` | Complexity score above which prompts route REMOTE |
 | `GABBE_MAX_COST_USD` | `5.0` | Maximum cost (USD) budget per run |
 | `GABBE_MAX_TOKENS_PER_RUN` | `100000` | Maximum token limit per run |
+| `GABBE_MAX_TOOL_CALLS_PER_RUN` | `50` | Maximum tool calls per run |
+| `GABBE_MAX_ITERATIONS` | `25` | Maximum brain loop iterations per run |
+| `GABBE_MAX_WALL_TIME` | `300` | Maximum wall-clock time per run (seconds) |
+| `GABBE_MAX_RECURSION_DEPTH` | `5` | Maximum agent recursion depth |
+| `GABBE_MAX_RETRIES_PER_TOOL` | `3` | Maximum retries per tool call |
+| `GABBE_LLM_MAX_RETRIES` | `3` | Number of retry attempts for LLM HTTP calls |
+| `GABBE_LOG_LEVEL` | `INFO` | Logging level (`DEBUG`, `INFO`, `WARNING`, `ERROR`) |
+| `GABBE_POLICY_FILE` | `project/policies.yml` | Path to YAML policy file for tool access control |
+| `GABBE_ESCALATION_MODE` | `cli` | Escalation mode: `cli` (interactive), `file` (pause), `silent` (auto-reject) |
+| `GABBE_SUBPROCESS_TIMEOUT` | `300` | Timeout for verify shell commands (seconds) |
+| `GABBE_MCP_TOKEN` | *(unset)* | If set, MCP clients must provide this token to authenticate |
+| `GABBE_MCP_ALLOWED_COMMANDS` | *(unset)* | Comma-separated list of executables permitted via MCP `run_command` |
 | `GABBE_OTEL_ENABLED` | `false` | Enable OpenTelemetry tracing |
 
 ### Installation
@@ -167,6 +179,10 @@ gabbe --help
 | `gabbe route` | **Cost Router**: Arbitrates between Local and Remote LLMs based on task complexity (Requires API Key). |
 | `gabbe forecast`| **Strategic Forecast**: Projects remaining work cost and tokens based on historical run data. |
 | `gabbe serve-mcp` | **MCP Gateway**: Zero-dependency JSON-RPC Model Context Protocol server for standalone agents to access tools safely. |
+| `gabbe runs [--status STATUS] [--limit N]` | **Run History**: List recent agent runs with status, cost, and timestamps. |
+| `gabbe audit <run-id> [--format json\|table]` | **Audit Trace**: Display structured span-level audit trace for a past run. |
+| `gabbe replay <run-id> [--from-step N]` | **Deterministic Replay**: Replay a past run from its checkpoints. |
+| `gabbe resume <run-id>` | **Escalation Resume**: Approve or reject pending escalations for a paused run. |
 
 ### Platform Control Layer
 The experimental `gabbe` CLI supports a **platform control layer**. It covers budget enforcement, cost and token controls, hard stops, policy rules, the tool gateway, audit tracing, human escalation, and deterministic replay. Detailed documentation is available in [`PLATFORM_CONTROLS.md`](PLATFORM_CONTROLS.md).

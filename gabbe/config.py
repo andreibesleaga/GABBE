@@ -1,8 +1,11 @@
 from __future__ import annotations
+import logging
 import os
 import re
 import warnings
 from pathlib import Path
+
+logger = logging.getLogger("gabbe.config")
 
 # Paths — PROJECT_ROOT is determined by looking for marker files (project, .git, pyproject.toml)
 # upwards from the current working directory.
@@ -93,7 +96,7 @@ def _safe_float(env_var, default):
     try:
         return float(raw)
     except ValueError:
-        warnings.warn(f"Invalid value for {env_var}={raw!r}; using default {default}")
+        logger.warning("Invalid value for %s=%r; using default %s", env_var, raw, default)
         return default
 
 
@@ -102,7 +105,7 @@ def _safe_int(env_var, default):
     try:
         return int(raw)
     except ValueError:
-        warnings.warn(f"Invalid value for {env_var}={raw!r}; using default {default}")
+        logger.warning("Invalid value for %s=%r; using default %s", env_var, raw, default)
         return default
 
 

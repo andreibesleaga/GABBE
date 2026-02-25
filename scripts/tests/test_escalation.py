@@ -64,7 +64,14 @@ def test_cli_mode_edit(tmp_project, db_conn):
     with patch("builtins.input", side_effect=["e", '{"note": "updated"}']):
         result = handler.escalate(EscalationTrigger.POLICY_VIOLATION, {})
     assert result.status == "edited"
-    assert result.response is not None
+    assert result.response == '{"note": "updated"}'
+    # Verify the response was persisted to the DB via resolve()
+    row = db_conn.execute(
+        "SELECT * FROM pending_escalations WHERE run_id='run-esc-cli3'"
+    ).fetchone()
+    assert row is not None
+    assert row["status"] == "edited"
+    assert row["response"] == '{"note": "updated"}'
 
 
 def test_resolve_updates_db(tmp_project, db_conn):

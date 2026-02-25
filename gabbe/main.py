@@ -160,7 +160,8 @@ def main():
                 if hasattr(args, "status") and args.status:
                     query += " WHERE status = ?"
                     params.append(args.status)
-                query += f" ORDER BY started_at DESC LIMIT {args.limit}"
+                query += " ORDER BY started_at DESC LIMIT ?"
+                params.append(args.limit)
                 rows = conn.execute(query, params).fetchall()
                 if not rows:
                     print("No runs found.")

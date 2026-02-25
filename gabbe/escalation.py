@@ -52,7 +52,13 @@ class EscalationHandler:
         except Exception as e:
             logger.error(f"Failed to record escalation in DB: {e}")
 
-        # 2. Handle depending on mode
+        # 2. Handle depending on mode.
+        # Intentional API contract difference:
+        #   cli  — human resolves inline; escalate() returns an EscalationResult so the
+        #           caller can continue or branch based on the decision.
+        #   file — execution must stop immediately; raises EscalationPaused so the run is
+        #           suspended and resumed later via `gabbe resume <run-id>`.
+        #   silent — auto-rejects; returns EscalationResult for CI/headless contexts.
         if self.mode == "cli":
             print("\n--- [ESCALATION REQUIRED] ---")
             print(f"Trigger: {trigger.value}")

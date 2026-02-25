@@ -53,26 +53,31 @@ class AuditTracer:
     def start_span(self, event_type: str, node_name: str, input_data: dict, parent_span_id: str | None = None):
         span_id = uuid.uuid4().hex[:16]
         start_time = time.monotonic()
-        
+        # Capture wall-clock start time so the DB timestamp reflects when the span began.
+        start_wall_time = datetime.now(timezone.utc)
+
         # OTel Span
         db_otel_span = None
         if otel_tracer:
-            # We don't yield context here to keep it simple, just start and store
+            # Use start_span (not start_as_current_span) to avoid mutating the OTel
+            # context stack, since we manage span lifecycle manually.
             db_otel_span = otel_tracer.start_span(f"{event_type}:{node_name}")
             db_otel_span.set_attribute("gabbe.run_id", self.run_id)
             db_otel_span.set_attribute("gabbe.span_id", span_id)
             db_otel_span.set_attribute("gabbe.input", json.dumps(input_data))
 
-        return {"span_id": span_id, "start_time": start_time, "event_type": event_type, 
-                "node_name": node_name, "input_data": input_data, "parent_span_id": parent_span_id,
-                "_otel_span": db_otel_span}
+        return {"span_id": span_id, "start_time": start_time, "start_wall_time": start_wall_time,
+                "event_type": event_type, "node_name": node_name, "input_data": input_data,
+                "parent_span_id": parent_span_id, "_otel_span": db_otel_span}
 
     def end_span(self, span_ctx: dict, output_data: dict | None = None, reasoning_content: str | None = None, 
                  model_name: str | None = None, token_usage: dict | None = None, cost_usd: float = 0.0, 
                  status: str = "ok", metadata: dict | None = None):
         
         duration_ms = (time.monotonic() - span_ctx["start_time"]) * 1000
-        timestamp = datetime.now(timezone.utc).isoformat()
+        # Use the wall-clock time captured at span start so the DB timestamp reflects
+        # when the operation began, not when it was recorded.
+        timestamp = span_ctx.get("start_wall_time", datetime.now(timezone.utc)).isoformat()
         
         token_usage = token_usage or {}
         p_tokens = token_usage.get("prompt_tokens", 0)

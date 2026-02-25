@@ -45,7 +45,13 @@ def test_run_command_handler_returns_dict(tmp_project):
 
 
 def test_run_command_handler_no_shell_injection(tmp_project):
-    """Shell metacharacters in command are NOT passed to a shell."""
+    """Shell metacharacters in command are NOT passed to a shell.
+
+    shlex.split('echo safe; rm -rf /tmp/evil') returns
+    ['echo', 'safe;', 'rm', '-rf', '/tmp/evil'] — all tokens, no shell expansion.
+    subprocess.run is called with shell=False so ';' is never treated as a
+    command separator; the mock verifies the exact token list and shell flag.
+    """
     from gabbe.mcp_server import run_command_handler
 
     mock_result = MagicMock()
@@ -55,13 +61,15 @@ def test_run_command_handler_no_shell_injection(tmp_project):
 
     with patch("gabbe.mcp_server.subprocess.run", return_value=mock_result) as mock_run:
         run_command_handler("echo safe; rm -rf /tmp/evil")
-        args, _ = mock_run.call_args
-        # shlex.split treats ';' as a literal token — the list should contain it
-        # but crucially shell=False means no shell expands it
+        args, kwargs = mock_run.call_args
         cmd_list = args[0]
+
+        # Must be a list of tokens (shlex.split result), not a raw string.
         assert isinstance(cmd_list, list)
-        # The semicolon ends up as a token in the list, not as a shell command separator
-        assert ";" in cmd_list or "safe;" in cmd_list
+        # shell=False ensures no shell interpretes ';' as a separator.
+        assert kwargs.get("shell") is False
+        # Verify all tokens are present exactly as shlex.split produces them.
+        assert cmd_list == ["echo", "safe;", "rm", "-rf", "/tmp/evil"]
 
 
 # ---------------------------------------------------------------------------

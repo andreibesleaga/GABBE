@@ -131,8 +131,14 @@ class PolicyEngine:
                 if param_bounds:
                     policies.append(ParameterRangePolicy(param_bounds))
         else:
-            # Default fallback: allow everything
-            policies.append(ToolAllowlistPolicy(["*"], []))
+            # Policy file not found: default to deny-all and warn the operator.
+            # This is the secure default — explicit policies must be created to allow tools.
+            import logging as _logging
+            _logging.getLogger("gabbe.policy").warning(
+                "Policy file not found at %s — defaulting to deny-all. "
+                "Create project/policies.yml to configure tool access.", path
+            )
+            policies.append(ToolAllowlistPolicy([], []))
             
         engine = cls(policies)
         engine.version = version

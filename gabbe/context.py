@@ -72,10 +72,12 @@ class RunContext:
         if exc_type:
             status = "error"
             stop_reason = str(exc_val)
-            # Differentiate specific exceptions
-            if "BudgetExceeded" in str(exc_type):
+            # Use isinstance() for reliable type checking regardless of import path.
+            from .budget import BudgetExceeded
+            from .escalation import EscalationPaused
+            if isinstance(exc_val, BudgetExceeded):
                 status = "budget_exceeded"
-            elif "EscalationPaused" in str(exc_type):
+            elif isinstance(exc_val, EscalationPaused):
                 status = "escalated"
 
         try:

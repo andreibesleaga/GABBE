@@ -113,6 +113,10 @@ parameter_bounds:
 
 Set `GABBE_POLICY_FILE` to override the path (default: `project/policies.yml`).
 
+> **Secure default:** If the policy file is absent, `PolicyEngine.from_yaml()` defaults to **deny-all** (`ToolAllowlistPolicy([], [])`). A warning is logged. Create `project/policies.yml` to configure tool access explicitly.
+
+> **Note on `policies.yml` sections:** The parser reads `version`, `tools`, `roles`, `content_safety`, and `parameter_bounds`. The `budgets:` section is informational only (budget limits are enforced by `budget.py` via env vars). The `escalation:` section is currently not parsed — escalation triggers and modes are configured via env vars (`GABBE_ESCALATION_MODE`) and the `EscalationTrigger` enum in code.
+
 ### Built-in policies
 
 | Class | Purpose |
@@ -175,10 +179,20 @@ trace = tracer.get_run_trace("abc123")  # list of span dicts
 json_str = tracer.export_json("abc123") # full trace as JSON
 ```
 
+**`@traced` decorator:** Wrap any function to auto-create a start/end span pair:
+
+```python
+from gabbe.audit import traced
+
+@traced("tool_call", "my_tool", tracer=tracer)
+def my_tool_handler(args):
+    ...
+```
+
 **Storage destinations:**
 - `project/state.db` → `audit_spans` table
 - `project/logs/run_{run_id}.jsonl` → one JSON line per span
-- OpenTelemetry → set `GABBE_OTEL_ENABLED=true` and configure OTel SDK
+- OpenTelemetry → set `GABBE_OTEL_ENABLED=true` and configure OTel SDK (soft-fail: if OTel SDK is not installed, a warning is logged and spans fall back to SQLite/JSONL only)
 
 **CLI inspection:**
 ```bash
@@ -206,9 +220,14 @@ Set via `GABBE_ESCALATION_MODE` (default: `cli`):
 
 | Mode | Behaviour |
 |---|---|
-| `cli` | Pauses and prompts the user interactively |
-| `file` | Records to `pending_escalations` table and raises `EscalationPaused` |
+| `cli` | Prompts the operator interactively (inline); execution **continues** after the operator responds (`approved`, `rejected`, or `edited`) |
+| `file` | Records to `pending_escalations` table and raises `EscalationPaused`, **suspending execution** until `gabbe resume <run-id>` is called |
 | `silent` | Auto-rejects (safe for CI/CD) |
+
+The **CLI mode** interactive prompt offers three choices:
+- **[a]pprove** — allow the action (status `approved`)
+- **[r]eject** — deny the action (status `rejected`)
+- **[e]dit context** — provide JSON overrides or notes; execution continues with `edited` status and the provided notes stored in `pending_escalations.response`
 
 **Resuming a paused run:**
 ```bash
@@ -233,7 +252,9 @@ runner = ReplayRunner(store)
 steps = runner.replay(run_id, from_step=0)   # returns list of replayed step dicts
 diff  = runner.diff(run_id_a, run_id_b)     # compare two run sequences
 
-# Reconstruct a RunContext from a checkpoint
+# Reconstruct a RunContext from a checkpoint.
+# NOTE: creates a *new* run_id (fresh UUID) — the replay is tracked as a new run,
+# not a restoration of the original run.
 ctx = RunContext.from_checkpoint(cp_id)
 ```
 
@@ -260,6 +281,8 @@ gabbe replay <run-id> --from-step 3
 | `GABBE_ESCALATION_MODE` | `cli` | Escalation mode: `cli`, `file`, or `silent` |
 | `GABBE_OTEL_ENABLED` | `false` | Enable OpenTelemetry tracing |
 | `GABBE_SUBPROCESS_TIMEOUT` | `300` | Timeout for verify shell commands |
+| `GABBE_MCP_TOKEN` | *(unset)* | If set, MCP clients must provide this token in `initialize` params. Leave unset to disable. |
+| `GABBE_MCP_ALLOWED_COMMANDS` | *(unset)* | Comma-separated executables permitted via `run_command` over MCP. When unset, all commands are blocked. |
 
 ---
 

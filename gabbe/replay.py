@@ -96,19 +96,25 @@ class ReplayRunner:
         except Exception as e:
             logger.warning(f"Could not load recorded outputs: {e}")
 
+        # Track per-node occurrence index during replay to align with the index used
+        # when recorded_outputs was built (sequential per node, not by step number).
+        node_replay_occurrence: dict = {}
         replayed = []
         for ckpt in checkpoints:
             if ckpt["step"] < from_step:
                 continue
+            nn = ckpt["node_name"]
+            idx = node_replay_occurrence.get(nn, 0)
+            node_replay_occurrence[nn] = idx + 1
             step_result = {
                 "step": ckpt["step"],
-                "node_name": ckpt["node_name"],
+                "node_name": nn,
                 "state_snapshot": json.loads(ckpt["state_snapshot"]) if isinstance(ckpt["state_snapshot"], str) else ckpt["state_snapshot"],
                 "policy_version": ckpt["policy_version"],
-                "recorded_output": recorded_outputs.get((ckpt["node_name"], ckpt["step"])),
+                "recorded_output": recorded_outputs.get((nn, idx)),
             }
             replayed.append(step_result)
-            logger.info(f"Replayed step {ckpt['step']}: {ckpt['node_name']}")
+            logger.info(f"Replayed step {ckpt['step']}: {nn}")
 
         return replayed
 

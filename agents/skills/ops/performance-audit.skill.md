@@ -146,7 +146,7 @@ Identify performance bottlenecks through measurement (never guessing), propose e
     - Added response projection to return only needed fields
 
     ### After Optimization
-    - API /users: p50=45ms (-96%), p99=120ms (-94%), 380 req/s (+744%)
+    - API /users: p50=45ms (-99%), p99=120ms (-94%), 380 req/s (+744%)
     - Web Vitals: LCP=1.8s (Good)
 
     ### Verification

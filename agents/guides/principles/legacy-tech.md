@@ -2,7 +2,7 @@
 
 Legacy systems are not "dead" code. They are "proven" code.
 
-> **Statistic**: In 2025, 60-96% of the world's banking transactions still touch a Mainframe. 95% of ATM swipes invoke COBOL.
+> **Statistic**: In 2025, many of the world's banking transactions still touch a Mainframe. 95% of ATM swipes invoke COBOL.
 
 ## 1. The Critical Stack
 

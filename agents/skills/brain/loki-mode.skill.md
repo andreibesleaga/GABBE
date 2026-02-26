@@ -213,7 +213,7 @@ Persona: eng-qa (lead), orch-judge (validator)
 
 eng-qa Tasks:
   - Run full test suite → verify all green
-  - Check coverage ≥ 96% per module
+  - Check coverage ≥ 99% per module
   - Run integration test suite
   - Identify any missing test scenarios from EARS acceptance criteria
   - Fill any gaps via tdd-cycle.skill
@@ -222,7 +222,7 @@ orch-judge Tasks:
   - 7-Gate Quality Check:
     Gate 1: Lint/Syntax  → ESLint/PHP-CS-Fixer → zero errors
     Gate 2: Type Safety  → tsc/PHPStan         → zero errors
-    Gate 3: Coverage     → Vitest/Pest          → ≥ 96%
+    Gate 3: Coverage     → Vitest/Pest          → ≥ 99%
     Gate 4: Integration  → Docker Compose       → all green
     Gate 5: Security     → dependency-security.skill → no critical vulnerabilities
     Gate 6: Complexity   → Cyclomatic < 10 for all functions

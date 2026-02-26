@@ -55,10 +55,10 @@ Load on activation:
 
 ```
 Minimum per module:
-  Statements:  96%
+  Statements:  99%
   Branches:    75%
   Functions:   85%
-  Lines:       96%
+  Lines:       99%
 
 Priority areas for 100% coverage:
   - Domain entities (all invariant validation paths)

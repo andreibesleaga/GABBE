@@ -25,7 +25,7 @@
 - Every feature, every bug fix, every refactor: **write the failing test first**
 - The test must fail before any implementation is written (Red phase)
 - A test that passes immediately with no implementation is a broken test — fix the test
-- Minimum test coverage: **96% line coverage** for all non-trivial code
+- Minimum test coverage: **99% line coverage** for all non-trivial code
 - Integration points (database, external APIs, message queues) must have integration tests
 - Violations: No PR merges without this — ever
 

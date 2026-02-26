@@ -140,7 +140,7 @@ Each QAS has 6 components:
 | **Environment** | [e.g., Production system, no assistance available] |
 | **Artifact** | [e.g., User interface] |
 | **Response** | [e.g., User successfully completes task] |
-| **Measure** | [e.g., Task completed correctly in < 5 minutes by 96% of test users] |
+| **Measure** | [e.g., Task completed correctly in < 5 minutes by 99% of test users] |
 
 **Priority**:
 **Architectural implication**:

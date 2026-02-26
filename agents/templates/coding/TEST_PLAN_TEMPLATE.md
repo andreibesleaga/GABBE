@@ -15,7 +15,7 @@
 | Level | Goal | Tools | Coverage Goal |
 |---|---|---|---|
 | **Static** | Catch typos & type errors | ESLint, TypeScript | 100% (Strict) |
-| **Unit** | Verify isolated logic | Vitest | > 96% |
+| **Unit** | Verify isolated logic | Vitest | > 99% |
 | **Integration** | Verify component interactions | Vitest / Supertest | Critical Paths |
 | **Contract** | Verify API consumers | Pact | All Microservices |
 | **E2E** | Verify user journeys | Playwright | Smoke Tests Only |

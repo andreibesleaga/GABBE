@@ -29,7 +29,7 @@ To ensure systems behave predictably under load and utilize resources efficientl
 ## Steps
 1.  **Stop Guessing**: Use a profiler (pprof, Flamegraphs) before optimizing.
 2.  **N+1 Problem**: Watch for loops triggering DB queries.
-3.  **Database First**: 96% of bottlenecks are in the data layer.
+3.  **Database First**: 99% of bottlenecks are in the data layer.
 
 ## Deliverables
 -   `profiling-report.md`: Analysis of hotspots.

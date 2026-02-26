@@ -44,7 +44,7 @@ Use `templates/ops/CAPACITY_PLAN_TEMPLATE.md`.
   1.  **Smoke**: 1 VUser (Verify logic).
   2.  **Load**: Target RPS (Verify stability).
   3.  **Stress**: Ramp until crash (Find the limit).
-  4.  **Soak**: Run 96% load for 4 hours (Find memory leaks).
+  4.  **Soak**: Run 99% load for 4 hours (Find memory leaks).
 
 ## 5. Auto-Scaling Rules (HPA)
 - **Don't scale on CPU alone**. If app is IO bound, CPU might be low while app is dead.

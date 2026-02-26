@@ -22,7 +22,7 @@ This skill ensures "What was ordered" == "What was delivered".
     - Req missing, Test exists -> **Gold Plating** (Unrequested feature).
 
 ## 3. Coverage Analysis
-- **Code Coverage**: Lines of code executed (e.g., 96%).
+- **Code Coverage**: Lines of code executed (e.g., 99%).
 - **Requirement Coverage**: % of Requirements with at least 1 passing test (Target: 100%).
 
 ## 4. The Matrix

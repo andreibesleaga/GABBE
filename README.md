@@ -471,7 +471,7 @@ Config in AGENTS.md: test_cmd="pytest", lint_cmd="ruff check ."
 | S03 | Specification | `SPEC_TEMPLATE.md` + API contracts |
 | S04 | Tasks | `TASKS_TEMPLATE.md` (15-min rule) |
 | S05 | Implementation | TDD Red→Green→Refactor + RARV |
-| S06 | Testing | Unit >96% + integration + E2E |
+| S06 | Testing | Unit >99% + integration + E2E |
 | S07 | Security | `SECURITY_CHECKLIST.md` + audit |
 | S08 | Review | Human code review |
 | S09 | Staging | Smoke tests + benchmarks |

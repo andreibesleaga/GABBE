@@ -33,7 +33,7 @@ Verify the ENTIRE project is consistent and correct from requirements to deliver
 ### Dimension 4 — Test Integrity
 ```bash
 [test command]          # Run all tests — MUST be 100% green
-[coverage command]      # Coverage MUST be >= 96%
+[coverage command]      # Coverage MUST be >= 99%
 ```
 - Zero failing tests (not even flaky ones currently failing)
 - Zero skipped tests without documented reason

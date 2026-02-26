@@ -303,7 +303,7 @@ PR body must include:
 <!-- OPTIONAL: Quality Gates Specifics
 Gate 1 -- Syntax/Linting:    ESLint / PHP-CS-Fixer / Prettier / Ruff -- zero errors
 Gate 2 -- Type Safety:       tsc --noEmit / PHPStan L9 / mypy -- zero errors
-Gate 3 -- Test Coverage:     >96% coverage, all tests passing, no skipped tests
+Gate 3 -- Test Coverage:     >99% coverage, all tests passing, no skipped tests
 Gate 4 -- Integration:       Docker Compose up, API contract validation
 Gate 5 -- Security Scan:     npm audit / composer audit -- no critical or high CVEs
 Gate 6 -- Complexity:        Cyclomatic complexity < 10 on modified files

@@ -19,7 +19,7 @@ Create durable snapshots at each SDLC gate so the project can be resumed, audite
 | S03 | SPECIFICATION | Technical spec finalized, API contracts defined, migration plan ready |
 | S04 | TASKS | Tasks decomposed to ~15-min units, all accepted |
 | S05 | IMPLEMENTATION | All tasks in project/TASKS.md have status DONE |
-| S06 | TESTING | All tests passing, coverage > 96%, 7-gate quality passed |
+| S06 | TESTING | All tests passing, coverage > 99%, 7-gate quality passed |
 | S07 | SECURITY | SECURITY_CHECKLIST.md completed, no critical CVEs, threat mitigations verified |
 | S08 | REVIEW | Human code review approved, all blocking feedback addressed |
 | S09 | STAGING | Deployed to staging, smoke tests passing |
@@ -50,7 +50,7 @@ Create durable snapshots at each SDLC gate so the project can be resumed, audite
 
    S06 gate check:
    [ ] All tests passing: [run test command, confirm green]
-   [ ] Coverage >= 96%: [run coverage command, confirm threshold]
+   [ ] Coverage >= 99%: [run coverage command, confirm threshold]
    [ ] Lint: zero errors
    [ ] Typecheck: zero errors
    [ ] agentic-linter: no architecture violations

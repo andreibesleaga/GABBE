@@ -194,7 +194,7 @@ For each QAS, assess whether the architecture satisfies it:
 | Fitness Function | Status | Measurement | Frequency |
 |---|---|---|---|
 | No cyclic dependencies | EXISTING | `madge --circular src/` | Each PR |
-| Test coverage ≥ 96% | EXISTING | CI coverage report | Each commit |
+| Test coverage ≥ 99% | EXISTING | CI coverage report | Each commit |
 | No cross-layer imports | MISSING | dependency-cruiser | Should be: each PR |
 | p99 latency < 500ms | MISSING | Load test in CI | Should be: each release |
 | No CRITICAL CVEs | EXISTING | `npm audit` | Each PR |

@@ -65,7 +65,7 @@ Last run:     [ISO datetime or "never"]
 Pass:         [N]
 Fail:         [0] (must be 0 at checkpoint)
 Skip:         [0] (or documented reason for each skip)
-Coverage:     [X]% (must be >= 96% at S06+)
+Coverage:     [X]% (must be >= 99% at S06+)
 
 Flaky tests:  [none / list any known flaky tests]
 Last test cmd: [exact command run]

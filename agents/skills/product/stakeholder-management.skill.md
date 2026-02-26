@@ -35,7 +35,7 @@ This skill helps Product Managers align diverse groups of people.
 
 ## 4. Conflict Resolution ("Disagree and Commit")
 1.  **Listen**: Ensure they feel heard. "I understand your concern about X".
-2.  **Data**: Use data, not opinion. "Analytics show 96% of users don't use feature Y".
+2.  **Data**: Use data, not opinion. "Analytics show 99% of users don't use feature Y".
 3.  **Trade-off**: "We can do X, but it delays Y by 2 weeks. Is that acceptable?"
 
 ## Security & Guardrails

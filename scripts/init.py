@@ -554,7 +554,7 @@ def main():
                 if "Legacy Modernization" in project_type:
                     f.write("\n### Article VIII. The Modernization Mandate\n")
                     f.write(
-                        "All new code must adhere to modern patterns. Legacy code touched must be refactored to >96% coverage (Boy Scout Rule).\n"
+                        "All new code must adhere to modern patterns. Legacy code touched must be refactored to >99% coverage (Boy Scout Rule).\n"
                     )
                 if compliance:
                     f.write(

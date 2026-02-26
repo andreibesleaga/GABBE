@@ -52,7 +52,7 @@ This skill defines how to implement caching to improve performance without servi
 ## 4. Implementation Checklist
 
 - [ ] **Fallbacks**: Wrap cache calls in try/catch. If Redis is down, fetch from DB.
-- [ ] **Metrics**: Track `cache_hit_rate` (Target: >96%).
+- [ ] **Metrics**: Track `cache_hit_rate` (Target: >99%).
 - [ ] **Consistency**: Is eventual consistency acceptable? If no, do not cache.
 - [ ] **Eviction Policy**: Configure Redis `maxmemory-policy` (usually `allkeys-lru` or `volatile-lru`).
 

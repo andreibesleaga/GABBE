@@ -51,7 +51,7 @@ Gate 2 — Type Safety:
 
 Gate 3 — Test Coverage:
   Tool: Vitest Coverage / Pest / Pytest-cov
-  Pass: statements ≥ 96%, branches ≥ 75%, functions ≥ 85%
+  Pass: statements ≥ 99%, branches ≥ 75%, functions ≥ 85%
   Fail: any module below threshold → BLOCKED
 
 Gate 4 — Integration Integrity:

@@ -69,7 +69,7 @@ BLOCKED      - Cannot proceed — reason documented below
 | T-028 | Register `Prisma[Entity]Repository` in DI container | TODO | Container resolves `I[Entity]Repository` correctly | |
 | T-029 | Register `Create[Entity]UseCase` in DI container | TODO | Use case receives dependencies via DI | |
 | T-030 | Register route: `POST /api/v1/[resource]` | TODO | Route exists in router, calls controller | |
-| T-031 | Run full test suite — all pass | TODO | Zero failing tests, coverage >= 96% | |
+| T-031 | Run full test suite — all pass | TODO | Zero failing tests, coverage >= 99% | |
 | T-032 | Run agentic-linter — no boundary violations | TODO | `dependency-cruiser` or `madge --circular` output clean | |
 | T-033 | Run typecheck — zero errors | TODO | `tsc --noEmit` clean | |
 | T-034 | Run lint — zero errors | TODO | `eslint` or `pint` clean | |

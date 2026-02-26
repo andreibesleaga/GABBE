@@ -24,7 +24,7 @@ Updated by:    [agent/human]
 | S03 | Specification | NOT_STARTED | — | — | — | Tech spec + API contracts |
 | S04 | Tasks | NOT_STARTED | — | — | — | All tasks decomposed to 15-min units |
 | S05 | Implementation | NOT_STARTED | — | — | — | All project/TASKS.md items DONE |
-| S06 | Testing | NOT_STARTED | — | — | — | Tests pass, coverage ≥ 96%, 7 gates |
+| S06 | Testing | NOT_STARTED | — | — | — | Tests pass, coverage ≥ 99%, 7 gates |
 | S07 | Security | NOT_STARTED | — | — | — | SECURITY_CHECKLIST.md 100%, 0 critical CVEs |
 | S08 | Review | NOT_STARTED | — | — | — | Human code review approved |
 | S09 | Staging | NOT_STARTED | — | — | — | Deployed + smoke tests passing |
@@ -89,10 +89,10 @@ Updated by:    [agent/human]
 ### S06 — Testing
 ```
 [ ] [test command] passes: 0 failing, 0 unexpected skips
-[ ] Coverage >= 96% (run [coverage command])
+[ ] Coverage >= 99% (run [coverage command])
 [ ] Gate 1 Lint: 0 errors
 [ ] Gate 2 Typecheck: 0 errors
-[ ] Gate 3 Coverage: >= 96%
+[ ] Gate 3 Coverage: >= 99%
 [ ] Gate 4 Integration: Docker Compose tests pass
 [ ] Gate 5 Security: npm/composer audit clean (0 critical/high CVEs)
 [ ] Gate 6 Complexity: max cyclomatic complexity < 10

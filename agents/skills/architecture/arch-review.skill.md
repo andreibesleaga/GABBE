@@ -179,7 +179,7 @@ is behaving as intended.
 
 Examples:
   Dependency fitness: "No module in presentation/ imports from database/"
-  Coverage fitness:   "Test coverage never drops below 96%"
+  Coverage fitness:   "Test coverage never drops below 99%"
   Complexity fitness: "No function exceeds cyclomatic complexity of 10"
   Performance fitness:"p99 response time < 500ms measured in CI"
   Availability fitness:"Error rate < 0.1% measured over 1-hour window"

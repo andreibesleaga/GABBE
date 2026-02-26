@@ -223,9 +223,9 @@ tests/integration/api/[resource].test.ts
 ```
 
 ### Coverage Target
-- Domain layer: > 96%
+- Domain layer: > 99%
 - Application layer: > 85%
-- Adapters layer: > 96% (integration tests)
+- Adapters layer: > 99% (integration tests)
 
 ---
 

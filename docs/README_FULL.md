@@ -400,7 +400,7 @@ graph TB
 | **S03 Specification** | SPEC_TEMPLATE.md, API contracts | Feature flags, rollout plan |
 | **S04 Tasks** | TASKS_TEMPLATE.md, 15-min decomposition | Epic planning, story points |
 | **S05 Implementation** | TDD (test first), RARV cycle, audit log | Browser-TDD (frontend only), pair-agent review |
-| **S06 Testing** | Unit tests >96% coverage, integration tests | E2E tests, load tests, visual regression |
+| **S06 Testing** | Unit tests >99% coverage, integration tests | E2E tests, load tests, visual regression |
 | **S07 Security** | SECURITY_CHECKLIST.md, `npm audit` clean, `compliance-review` | DAST, penetration test, formal compliance review |
 | **S08 Review** | Human code review | orch-judge EARS compliance check |
 | **S09 Staging** | Smoke tests | Performance benchmarks, accessibility audit |

@@ -33,6 +33,10 @@ It provides:
 
 ---
 
+*An example project where GABBE is used, is here: [Agentic AI Medical Imagery Diagnostic Helper](https://github.com/andreibesleaga/AgenticMedicalImagingHelper)*
+
+--
+
 ### ⚡ Automated Setup (Recommended)
 The `init.py` script is a **Universal Skill Compiler**. It generates the correct formats for your AI tools:
 - **Cursor**: Generates `.cursor/rules/*.mdc` (Optimized with Globs)

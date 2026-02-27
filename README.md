@@ -29,7 +29,7 @@ It provides:
 
 ---
 
-*Full documentation: [README_FULL.md](docs/README_FULL.md) · Full quick guide: [QUICK_GUIDE.md](docs/QUICK_GUIDE.md) · Quick commands: [QUICK_COMMANDS.md](docs/QUICK_COMMANDS.md) · CLI reference: [CLI_REFERENCE.md](docs/CLI_REFERENCE.md)*
+*Full documentation: [README_FULL.md](docs/README_FULL.md) · Full quick guide: [QUICK_GUIDE.md](docs/QUICK_GUIDE.md) · Quick commands: [QUICK_COMMANDS.md](docs/QUICK_COMMANDS.md) · CLI reference: [CLI_REFERENCE.md](docs/CLI_REFERENCE.md) · Online articles: [Medium](https://medium.com/towards-artificial-intelligence/gabbe-the-cognitive-engineering-platform-that-transforms-ai-coding-agents-into-engineering-teams-580226b05373), [Substack](https://andreibesleaga.substack.com/p/gabbe-the-cognitive-engineering-platform)*
 
 ---
 

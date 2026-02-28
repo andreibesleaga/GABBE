@@ -130,6 +130,35 @@ def verify_edge_cases(ctx):
     ctx.assert_exists(AGENTS_DIR / "memory/semantic/VECTOR_DB_CONFIG_TEMPLATE.json", "Vector DB config template")
     ctx.assert_exists(AGENTS_DIR / "templates/core/AUDIT_LOG_TEMPLATE.md", "Append-only project decision log")
 
+    print("\n--- AGENTS.md & CONSTITUTION.md ---")
+    # Template must exist for init.py to generate AGENTS.md
+    ctx.assert_exists(AGENTS_DIR / "templates/coordination/AGENTS_TEMPLATE.md", "AGENTS.md template for init.py")
+    # Live files must exist
+    ctx.assert_exists(AGENTS_DIR / "AGENTS.md", "Live AGENTS.md configuration")
+    ctx.assert_exists(AGENTS_DIR / "CONSTITUTION.md", "Live CONSTITUTION.md governance")
+    # AGENTS.md must differ from template (init.py customizes it)
+    template_path = AGENTS_DIR / "templates/coordination/AGENTS_TEMPLATE.md"
+    live_path = AGENTS_DIR / "AGENTS.md"
+    if template_path.exists() and live_path.exists():
+        template_content = template_path.read_text()
+        live_content = live_path.read_text()
+        if live_content != template_content:
+            print(f"{GREEN}✓ PASS: AGENTS.md differs from template (customized by init.py){NC}")
+            ctx.passed += 1
+        else:
+            ctx.errors.append("AGENTS.md is identical to template — init.py may not have run")
+            ctx.failed += 1
+    # CONSTITUTION.md must contain core articles
+    const_path = AGENTS_DIR / "CONSTITUTION.md"
+    if const_path.exists():
+        const_content = const_path.read_text()
+        if "Article" in const_content:
+            print(f"{GREEN}✓ PASS: CONSTITUTION.md contains constitutional articles{NC}")
+            ctx.passed += 1
+        else:
+            ctx.errors.append("CONSTITUTION.md missing constitutional articles")
+            ctx.failed += 1
+
     print("\n--- Advanced Migration Flows ---")
     ctx.assert_exists(AGENTS_DIR / "templates/architecture/LEGACY_AUDIT_TEMPLATE.md", "Legacy tech boundaries audit")
     ctx.assert_exists(AGENTS_DIR / "skills/architecture/enterprise-patterns.skill.md", "Strangler fig pattern etc.")

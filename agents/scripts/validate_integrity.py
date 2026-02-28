@@ -7,10 +7,10 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).parent.parent.parent
 AGENTS_DIR = PROJECT_ROOT / "agents"
 
-RED = "\0.2.0;31m"
-GREEN = "\0.2.0;32m"
-BLUE = "\0.2.0;34m"
-NC = "\0.2.0m"
+RED = "\033[0;31m"
+GREEN = "\033[0;32m"
+BLUE = "\033[0;34m"
+NC = "\033[0m"
 
 REQUIRED_FILES = [
     PROJECT_ROOT / "scripts/init.py",

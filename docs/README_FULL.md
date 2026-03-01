@@ -33,23 +33,23 @@ It provides:
 5. [Workflow 1: New Project from Scratch](#5-workflow-1-new-project-from-scratch)
 6. [Workflow 2: Refactoring & Bugfixing Existing Project](#6-workflow-2-refactoring-bugfixing-existing-project)
 7. [Self-Healing + Research Loop](#7-self-healing-research-loop)
-8. [Multi-Agent Systems (MAS)](#8-multi-agent-systems-mas)
-9. [Architecture & Design Patterns](#9-architecture-design-patterns)
-10. [Agentic Patterns (Advanced AI)](#10-agentic-patterns-advanced-ai)
-11. [Testing Strategy](#11-testing-strategy)
-12. [Enterprise Domains (Infra, Data, Integration)](#12-enterprise-domains-infra-data-integration)
-13. [Environment & Deployment (Local/Remote/Cloud)](#13-environment-deployment-localremotecloud)
-14. [Legacy Systems (COBOL, Mainframe)](#14-legacy-systems-cobol-mainframe)
-15. [Future Tech & Adaptive Skills (2026-2030)](#15-future-tech-adaptive-skills-2026-2030)
-16. [System Quality & Evolution (SRE, Performance)](#16-system-quality-evolution-sre-performance)
-17. [System Lifecycle & Traceability](#17-system-lifecycle-traceability)
-18. [Skills Reference](#18-skills-reference)
-19. [Templates Reference](#19-templates-reference)
-20. [MCP Configuration](#20-mcp-configuration)
-21. [Extending the Kit](#21-extending-the-kit)
-22. [Loki Mode (Large Projects)](#22-loki-mode-large-projects)
-23. [Guides by Technology Stack](#23-guides-by-technology-stack)
-24. [Troubleshooting](#24-troubleshooting)
+9. [Multi-Agent Systems (MAS)](#9-multi-agent-systems-mas)
+10. [Architecture & Design Patterns](#10-architecture-design-patterns)
+11. [Agentic Patterns (Advanced AI)](#11-agentic-patterns-advanced-ai)
+12. [Testing Strategy](#12-testing-strategy)
+13. [Enterprise Domains (Infra, Data, Integration)](#13-enterprise-domains-infra-data-integration)
+14. [Environment & Deployment (Local/Remote/Cloud)](#14-environment-deployment-localremotecloud)
+15. [Legacy Systems (COBOL, Mainframe)](#15-legacy-systems-cobol-mainframe)
+16. [Future Tech & Adaptive Skills (2026-2030)](#16-future-tech-adaptive-skills-2026-2030)
+17. [System Quality & Evolution (SRE, Performance)](#17-system-quality-evolution-sre-performance)
+18. [System Lifecycle & Traceability](#18-system-lifecycle-traceability)
+19. [Skills Reference](#19-skills-reference)
+20. [Templates Reference](#20-templates-reference)
+21. [MCP Configuration](#21-mcp-configuration)
+22. [Extending the Kit](#22-extending-the-kit)
+23. [Loki Mode (Large Projects)](#23-loki-mode-large-projects)
+24. [Guides by Technology Stack](#24-guides-by-technology-stack)
+25. [Troubleshooting](#25-troubleshooting)
 
 ---
 
@@ -336,8 +336,16 @@ gabbe verify
 Uses Active Inference to plan, route between local/remote models, and learn from past outcomes.
 
 ### Activate Loki Mode (Large Projects)
-```
-"Activate Loki Mode. Goal: [build X / migrate Y / refactor Z]."
+
+**Using the CLI:**
+> `gabbe brain activate` (Loki may be triggered autonomously by the Brain based on context cost).
+Or explicitly:
+> `gabbe swarm <goal>` (Experimental mapping).
+
+**Using Pure Agent Mode (No CLI):**
+> "Activate `agents/skills/brain/loki-mode.skill.md`. Goal: [build X]. Do not ask me for permission unless you hit a mandatory Human Approval Gate or a task requires True A2A Delegation."
+
+
 ```
 Multi-agent swarm with 30+ specialized personas for projects >5 features or >20 files.
 
@@ -653,7 +661,54 @@ flowchart LR
 
 ---
 
-## 8. Multi-Agent Systems (MAS)
+## 8. Cognitive Architecture Integration (Evolution & Healing)
+
+GABBE's true power lies in its **Meta-Cognitive triad**: Active Inference (`activate`), Genetic Evolution (`evolve`), and Autonomous Recovery (`heal`). These tools run in the background or at specific SDLC gates to continuously optimize the team's performance.
+
+### 8.1. Sensory MCPs to Working Memory
+When an agent uses a sensory tool (like `visual-specs` or `excalidraw`), the parsed visual context is directly committed to the `WORKING_MEMORY.md`. 
+When `gabbe route` or `gabbe brain activate` runs, the **Cost-Benefit Router** actively reads this memory. If the visual data is highly complex, the router will automatically escalate the task to a **REMOTE** LLM to preserve reasoning quality, overriding local restrictions.
+
+### 8.2. Enforcing Brain Mode (`activate`)
+Brain Mode should be integrated into your development loop after significant milestones:
+- **After Requirements (S01)**: To predict architectural bottlenecks before they are written.
+- **Before Testing (S06)**: To foresee edge cases the standard developer agent missed.
+
+**Using the CLI:**
+Map `gabbe brain activate` as a Git pre-commit hook or explicitly call it:
+```bash
+gabbe brain activate
+```
+
+**Using Pure Agent Mode (No CLI):**
+> "Activate Brain Mode for this session by reading `agents/skills/brain/brain-mode.skill.md`. Your goal is to [build X feature]. Follow the Observe -> Orient -> Decide -> Act loop in that document before you write any code."
+
+### 8.3. Genetic Evolution (Meta-Optimization)
+Whenever a specific skill yields repeatedly poor code or requires manual human correction, you should trigger **Evolutionary Prompt Optimization (EPO)**.
+
+**Using the CLI:**
+Run this after completing a sprint or resolving a major bug. The system reads the failing context and rewrites the skill's system prompt in the SQLite `genes` table.
+```bash
+gabbe brain evolve --skill tdd-cycle
+gabbe brain evolve --skill code-review
+```
+
+**Using Pure Agent Mode (No CLI):**
+> "We continually fail when writing React hooks. Invoke the `meta-optimize` skill. Read the last 5 chat messages, identify why your previous attempts failed, and directly edit `agents/skills/coding/react-components.skill.md` to add new constraints preventing this failure in the future. Log the change to `meta-evolution.log`."
+
+### 8.4. Self-Healing Enforcement (`heal`)
+The healing protocol acts as an infrastructure watchdog to recover from failures.
+
+**Using the CLI:**
+Checks for missing files (`AGENTS.md`, `CONSTITUTION.md`), corrupted SQLite databases, and network reachability. Run this in your CI/CD pipeline.
+```bash
+gabbe brain heal
+```
+
+**Using Pure Agent Mode (No CLI):**
+> "The build is failing. Invoke `agents/skills/core/self-heal.skill.md`. Do not ask me for permission between steps. Diagnose the error, hypothesize a fix, write the code, and run the tests. If it fails again, loop back to step 1. You have a maximum of 5 attempts before you must escalate to me."
+
+## 9. Multi-Agent Systems (MAS)
 
 This kit includes specialized tools for building orchestrator-worker swarms and complex agent topologies.
 
@@ -671,7 +726,7 @@ This kit includes specialized tools for building orchestrator-worker swarms and 
 
 ---
 
-## 9. Architecture & Design Patterns
+## 10. Architecture & Design Patterns
 
 Embeds 2025-standard patterns into your workflow.
 
@@ -686,7 +741,7 @@ Embeds 2025-standard patterns into your workflow.
 
 ---
 
-## 10. Agentic Patterns (Advanced AI)
+## 11. Agentic Patterns (Advanced AI)
 
 Tools for building self-correcting, planning, and memory-augmented agents.
 
@@ -697,7 +752,7 @@ Tools for building self-correcting, planning, and memory-augmented agents.
 
 ---
 
-## 11. Testing Strategy
+## 12. Testing Strategy
 
 Comprehensive testing resources using Pyramid or Trophy models.
 
@@ -710,7 +765,7 @@ Comprehensive testing resources using Pyramid or Trophy models.
 
 ---
 
-## 12. Enterprise Domains (Infra, Data, Integration)
+## 13. Enterprise Domains (Infra, Data, Integration)
 
 Specialized resources for specialized domains.
 
@@ -729,7 +784,7 @@ Specialized resources for specialized domains.
 
 ---
 
-## 13. Environment & Deployment (Local/Remote/Cloud)
+## 14. Environment & Deployment (Local/Remote/Cloud)
 
 Tools for the full lifecycle: from localhost to production.
 
@@ -748,7 +803,7 @@ Tools for the full lifecycle: from localhost to production.
 
 ---
 
-## 14. Legacy Systems (COBOL, Mainframe)
+## 15. Legacy Systems (COBOL, Mainframe)
 
 "Old" code runs the world economy. Treat it with respect.
 
@@ -759,7 +814,7 @@ Tools for the full lifecycle: from localhost to production.
 
 ---
 
-## 15. Future Tech & Adaptive Skills (2026-2030)
+## 16. Future Tech & Adaptive Skills (2026-2030)
 
 Preparing for the next wave: 6G, Agentic IoT, and Evolutionary Architecture.
 
@@ -771,7 +826,7 @@ Preparing for the next wave: 6G, Agentic IoT, and Evolutionary Architecture.
 
 ---
 
-## 16. System Quality & Evolution (SRE, Performance)
+## 17. System Quality & Evolution (SRE, Performance)
 
 Resources for ensuring your software is reliable, fast, and adaptable.
 
@@ -789,7 +844,7 @@ Resources for ensuring your software is reliable, fast, and adaptable.
 
 ---
 
-## 17. System Lifecycle & Traceability
+## 18. System Lifecycle & Traceability
 
 Resources for binding Requirements to Code and Tests (The Golden Thread).
 
@@ -802,7 +857,7 @@ Resources for binding Requirements to Code and Tests (The Golden Thread).
 
 ---
 
-## 18. Skills Reference
+## 19. Skills Reference
 
 All 120+ skills live in `skills/` subdirectories. Invoke by mentioning the trigger keyword or using slash commands in VS Code.
 
@@ -960,7 +1015,7 @@ See `agents/skills/00-index.md` for full details including context costs.
 
 ---
 
-## 19. Templates Reference
+## 20. Templates Reference
 
 All templates now live in categorized subdirectories under `agents/templates/`.
 
@@ -1077,7 +1132,7 @@ All templates now live in categorized subdirectories under `agents/templates/`.
 
 ---
 
-## 20. MCP Configuration
+## 21. MCP Configuration
 
 MCP (Model Context Protocol) servers extend agent capabilities. Configure them in `templates/core/MCP_CONFIG_TEMPLATE.json`. For detailed installation and setup guides for each server, see [MCP_CONFIGURATIONS.md](MCP_CONFIGURATIONS.md).
 
@@ -1126,7 +1181,7 @@ See [MCP_CONFIGURATIONS.md](MCP_CONFIGURATIONS.md) for comprehensive per-server 
 
 ---
 
-## 21. Extending the Kit
+## 22. Extending the Kit
 
 ### Adding Custom Skills
 
@@ -1173,7 +1228,7 @@ See [MCP_CONFIGURATIONS.md](MCP_CONFIGURATIONS.md) for comprehensive per-server 
 
 ---
 
-## 22. Loki Mode (Large Projects)
+## 23. Loki Mode (Large Projects)
 
 Loki Mode activates a multi-agent swarm for large projects (new product builds, major refactors, system migrations) where a single agent would hit context limits or require sustained multi-day work.
 
@@ -1188,7 +1243,7 @@ Loki Mode activates a multi-agent swarm for large projects (new product builds, 
 "Activate Loki Mode. Goal: [build X / migrate Y / refactor Z]"
 ```
 
-## 23. What's Inside?
+## 24. What's Inside?
 
 > **Stats**: 120+ Skills · 60+ Templates · 30+ Personas · 30+ Guides
 
@@ -1209,7 +1264,7 @@ Loki Mode activates a multi-agent swarm for large projects (new product builds, 
 
 ---
 
-## 24. 🚀 Common Actions (Copy-Paste Prompts)
+## 25. 🚀 Common Actions (Copy-Paste Prompts)
 
 Copy and paste these exact prompts into your AI chat window to kick off standard workflows.
 
@@ -1247,11 +1302,20 @@ Copy and paste these exact prompts into your AI chat window to kick off standard
 > "Activate Brain Mode. Goal: [build X / migrate Y / solve Z]."
 
 ### Activate Loki Mode (Large Projects)
-> "Activate Loki Mode. Goal: [build X / migrate Y / refactor Z]."
+
+**Using the CLI:**
+> `gabbe brain activate` (Loki may be triggered autonomously by the Brain based on context cost).
+Or explicitly:
+> `gabbe swarm <goal>` (Experimental mapping).
+
+**Using Pure Agent Mode (No CLI):**
+> "Activate `agents/skills/brain/loki-mode.skill.md`. Goal: [build X]. Do not ask me for permission unless you hit a mandatory Human Approval Gate or a task requires True A2A Delegation."
+
+
 
 ---
 
-## 25. Guides by Technology Stack
+## 26. Guides by Technology Stack
 
 | Guide | Stack | Key Topics |
 |---|---|---|
@@ -1323,7 +1387,7 @@ Copy and paste these exact prompts into your AI chat window to kick off standard
 
 ---
 
-## 26. Troubleshooting
+## 27. Troubleshooting
 
 **Agent ignores AGENTS.md:**
 - Run `setup-context.sh` to create tool-specific symlinks

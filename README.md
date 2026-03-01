@@ -162,8 +162,9 @@ chmod +x agents/setup-context.sh && agents/setup-context.sh
 Uses Active Inference to plan, route between local/remote models, and learn from past outcomes.
 
 ### Activate Loki Mode (Large Projects)
-```
-"Activate Loki Mode. Goal: [build X / migrate Y / refactor Z]."
+**Using Pure Agent Mode (No CLI):**
+> "Activate `agents/skills/brain/loki-mode.skill.md`. Goal: [build X]. Do not ask me for permission unless you hit a mandatory Human Approval Gate or a task requires True A2A Delegation."
+
 ```
 Multi-agent swarm with 30+ specialized personas for projects >5 features or >20 files.
 
@@ -393,6 +394,11 @@ flowchart TD
    v
 5. VERIFY & SHIP (S06-S10)
    -> Integrity Check -> Security Audit -> Deploy
+
+6. COGNITIVE ORCHESTRATION & HEALING
+   -> gabbe brain activate -> Predict bottlenecks & route complexity
+   -> gabbe brain evolve -> Meta-optimize failing skills into Semantic Memory
+   -> gabbe brain heal -> Recover from environment/DB corruption
 ```
 
 ---

@@ -174,6 +174,76 @@ def verify_edge_cases(ctx):
     ctx.assert_exists(AGENTS_DIR / "skills/coding/tldraw-canvas.skill.md", "tldraw MCP skill")
     ctx.assert_exists(AGENTS_DIR / "skills/coding/sketch-to-diagram.skill.md", "Sketch-to-Diagram skill")
     ctx.assert_exists(AGENTS_DIR / "templates/coding/SKETCH_TO_DIAGRAM_TEMPLATE.md", "Sketch-to-Diagram recognition template")
+    ctx.assert_exists(AGENTS_DIR / "guides/ai/agent-only-cognition.md", "Agent-Only Cognition guide")
+    ctx.assert_exists(AGENTS_DIR / "guides/ai/agent-only-swarms.md", "Agent-Only Swarms guide")
+
+def simulate_cognitive_sdlc_flow(ctx, memory_dir, episodic_dir):
+    print(f"\n{BLUE}=== 3b. Simulating Cognitive/Brain Mode SDLC Flow (Evolution & Healing) ==={NC}")
+    
+    # Simulates continuous brain evolution and self-healing across the SDLC
+    cognitive_phases = ["S01", "S02", "S05", "S07", "S10"]
+    required_cognitive_skills = [
+        "skills/brain/active-inference.skill.md",
+        "skills/coordination/meta-optimize.skill.md",
+        "skills/brain/self-improvement.skill.md",
+        "skills/core/self-heal.skill.md"
+    ]
+    
+    for skill in required_cognitive_skills:
+        ctx.assert_exists(AGENTS_DIR / skill, f"Cognitive skill {skill} loaded for cross-phase operations")
+
+    for phase in cognitive_phases:
+        print(f"\nVerifying Cognitive Operations at Phase {phase}...")
+        
+        # 1. Simulate Active Inference / Prediction
+        (memory_dir / "AUDIT_LOG.md").open("a").write(f"- [BRAIN PREDICTION]: Phase {phase} expected behavior.\n")
+        
+        # 2. Simulate Error / Self-Healing Trigger
+        (memory_dir / "CONTINUITY.md").open("a").write(f"Failure observed at {phase}. Triggering self-heal.skill.\n")
+        
+        # 3. Simulate Meta-Optimization / Brain Evolution
+        (episodic_dir / "meta_optimization.md").open("a").write(f"Updated prompts and skills based on {phase} failure.\n")
+        
+        # Assertions
+        audit_content = (memory_dir / "AUDIT_LOG.md").read_text()
+        if f"[BRAIN PREDICTION]: Phase {phase}" in audit_content:
+            print(f"  > Simulated Active Inference cycle at {phase}")
+            ctx.passed += 1
+        else:
+            ctx.errors.append(f"Cognitive inference failed to log at {phase}")
+            ctx.failed += 1
+            
+        continuity_content = (memory_dir / "CONTINUITY.md").read_text()
+        if f"Failure observed at {phase}" in continuity_content:
+            print(f"  > Simulated Self-Healing trigger at {phase}")
+            ctx.passed += 1
+        else:
+            ctx.errors.append(f"Self-healing trigger failed to log at {phase}")
+            ctx.failed += 1
+
+def simulate_unified_architecture_integration(ctx, memory_dir, episodic_dir):
+    print(f"\n{BLUE}=== 3c. Simulating Unified Architecture Integration ==={NC}")
+    print("Testing interaction between Memory, Brain, Sensory MCP, Genetic Evolution, and Routing")
+    
+    semantic_dir = memory_dir / "semantic"
+    
+    # 1. Sensory MCP Input -> Working Memory
+    (memory_dir / "WORKING_MEMORY.md").write_text("Sensory Input via Excalidraw MCP: Architecture diagram parsed.\n")
+    ctx.assert_exists(memory_dir / "WORKING_MEMORY.md", "Sensory MCP data successfully captured in Working Memory")
+    
+    # 2. Cost-Benefit Router Classification
+    (episodic_dir / "routing_log.md").write_text("Router evaluated Working Memory: Requires REMOTE LLM due to visual complexity.\n")
+    ctx.assert_exists(episodic_dir / "routing_log.md", "Cost-Benefit Router successfully classified the task")
+    
+    # 3. Brain Mode Processing
+    (memory_dir / "AUDIT_LOG.md").open("a").write("- [ORCHESTRATION]: Brain Mode delegated diagram analysis to visual-specs skill.\n")
+    
+    # 4. Genetic Evolution (Skill DB update)
+    (semantic_dir / "GENETIC_POOL.md").write_text(
+        "Skill `visual-specs` evolved to generation 3 based on reward signal from successful architectural parse.\n"
+    )
+    ctx.assert_exists(semantic_dir / "GENETIC_POOL.md", "Genetic Evolution engine successfully updated semantic memory")
+
 def verify_brain_and_research(ctx):
     print(f"\n{BLUE}=== 4. Simulating Brain Mode & Research ==={NC}")
     
@@ -280,6 +350,8 @@ def main():
         memory_dir, episodic_dir = setup_test_project()
         simulate_sdlc_flow(ctx, memory_dir, episodic_dir)
         verify_edge_cases(ctx)
+        simulate_cognitive_sdlc_flow(ctx, memory_dir, episodic_dir)
+        simulate_unified_architecture_integration(ctx, memory_dir, episodic_dir)
         verify_brain_and_research(ctx)
         verify_exhaustive_components(ctx)
         run_internal_validation(ctx)

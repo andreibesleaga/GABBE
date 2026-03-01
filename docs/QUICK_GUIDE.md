@@ -283,8 +283,16 @@ gabbe verify
 Uses Active Inference to plan, route between local/remote models, and learn from past outcomes.
 
 ### Activate Loki Mode (Large Projects)
-```
-"Activate Loki Mode. Goal: [build X / migrate Y / refactor Z]."
+
+**Using the CLI:**
+> `gabbe brain activate` (Loki may be triggered autonomously)
+Or explicitly:
+> `gabbe swarm <goal>`
+
+**Using Pure Agent Mode (No CLI):**
+> "Activate `agents/skills/brain/loki-mode.skill.md`. Goal: [build X]. Do not ask me for permission unless you hit a mandatory Human Approval Gate or a task requires True A2A Delegation."
+
+
 ```
 Multi-agent swarm with 30+ specialized personas for projects >5 features or >20 files.
 
@@ -694,7 +702,9 @@ Agents must use authoritative sources. Non-authoritative answers are hallucinati
 
 ## Self-Healing & Human-in-the-Loop
 
-### Self-Healing Loop (max 5 attempts)
+### Self-Healing Loop (`gabbe brain heal` / max 5 attempts)
+
+**Using the CLI:**
 ```
 Task assigned
   -> Detect knowledge gap? -> knowledge-gap.skill -> research.skill
@@ -705,6 +715,24 @@ Task assigned
      -> After 5 attempts: ESCALATE (stop, report, wait for human)
   -> Verification PASSES -> audit-trail.skill -> Done
 ```
+
+**Using Pure Agent Mode (No CLI):**
+> "The build is failing. Invoke `agents/skills/core/self-heal.skill.md`. Do not ask me for permission between steps. Diagnose the error, hypothesize a fix, write the code, and run the tests. If it fails again, loop back to step 1. You have a maximum of 5 attempts before you must escalate to me."
+
+### Genetic Evolution (`gabbe brain evolve`)
+If the self-healing loop frequently fails or a specific skill repeatedly produces bad code:
+
+**Using the CLI:**
+```
+1. Human or System detects persistent failure in a specific skill (e.g., `tdd-cycle.skill`).
+2. Run: `gabbe brain evolve --skill tdd-cycle`
+3. Brain Mode analyzes the specific failure contexts from Episodic Memory.
+4. Brain Mode rewrites the `tdd-cycle` system prompt in Semantic Memory (SQLite `genes` database).
+5. Next execution: The agent uses the highly optimized Generation 2 prompt.
+```
+
+**Using Pure Agent Mode (No CLI):**
+> "We continually fail when writing React hooks. Invoke the `meta-optimize` skill. Read the last 5 chat messages, identify why your previous attempts failed, and directly edit `agents/skills/coding/react-components.skill.md` to add new constraints preventing this failure in the future. Log the change to `meta-evolution.log`."
 
 ### Human-in-the-Loop — When to Pause and Ask
 ```

@@ -32,6 +32,11 @@ When the user asks to "orchestrate a swarm" or "design a multi-agent system":
 -   **Error Handling**: Who handles failure? (Usually the Orchestrator or Manager).
 -   **Human-in-the-Loop**: Designate checkpoints where human review is required.
 
+## Agent-Only (CLI-Less) Execution Tactics
+If orchestrating a swarm inside a pure chat interface (without the `gabbe` CLI running):
+- **Tactic A (In-Context Simulation)**: The Orchestrator adopts the required Personas sequentially within its own response (e.g., Outputting `**[Persona: eng-qa]**: I have reviewed the code...`). Use this for fast, low-complexity tasks.
+- **Tactic B (True A2A Subagent Delegation)**: For high-complexity tasks, the Orchestrator MUST NOT simulate the persona. Instead, it must generate a `delegation-payload.md` file containing the exact context, the target persona file path, and the sub-task. It then instructs the human "Router" to copy-paste this payload into a fresh, isolated online LLM instance (e.g., Claude, Gemini) and wait for the human to paste the subagent's result back into the main thread.
+
 ## Security & Guardrails
 
 ### 1. Skill Security (Multi-Agent Orchestration)

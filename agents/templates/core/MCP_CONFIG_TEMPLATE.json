@@ -1,7 +1,7 @@
 {
   "_comment": "MCP (Model Context Protocol) server configuration template",
   "_comment2": "Customise for your project. Security rules: prod databases = read-only, dev = read-write.",
-  "_comment3": "Install instructions: see skills/00-index.md MCP Server Catalog section",
+  "_comment3": "Install instructions: see docs/MCP_CONFIGURATIONS.md for detailed per-server setup",
 
   "mcpServers": {
 

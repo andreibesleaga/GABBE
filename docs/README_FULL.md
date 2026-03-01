@@ -1074,7 +1074,7 @@ All templates now live in categorized subdirectories under `agents/templates/`.
 
 ## 20. MCP Configuration
 
-MCP (Model Context Protocol) servers extend agent capabilities. Configure them in `templates/core/MCP_CONFIG_TEMPLATE.json`.
+MCP (Model Context Protocol) servers extend agent capabilities. Configure them in `templates/core/MCP_CONFIG_TEMPLATE.json`. For detailed installation and setup guides for each server, see [MCP_CONFIGURATIONS.md](MCP_CONFIGURATIONS.md).
 
 **Essential MCP servers:**
 
@@ -1112,6 +1112,7 @@ MCP (Model Context Protocol) servers extend agent capabilities. Configure them i
 - Secrets/credentials: never passed as MCP config, use env vars
 
 See `templates/core/MCP_CONFIG_TEMPLATE.json` for the full catalog with install commands.
+See [MCP_CONFIGURATIONS.md](MCP_CONFIGURATIONS.md) for comprehensive per-server installation, API key setup, and usage guides.
 
 ---
 

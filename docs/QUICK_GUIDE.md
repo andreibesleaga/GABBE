@@ -668,6 +668,7 @@ Actions:
 | **Qdrant MCP** | `docker run qdrant/qdrant` + MCP server | Long-term semantic memory |
 
 See `templates/core/MCP_CONFIG_TEMPLATE.json` for the full catalog with security configuration.
+See [MCP_CONFIGURATIONS.md](MCP_CONFIGURATIONS.md) for per-server setup instructions and API key guides.
 
 ---
 

@@ -85,6 +85,7 @@ THE SYSTEM SHALL NOT [forbidden behavior].
 ## 6. Data Model (Sketch)
 
 <!-- Rough entity diagram — full schema in SPEC_TEMPLATE.md -->
+<!-- For visual ER diagram, use Mermaid erDiagram or Draw.io -->
 
 ```
 Entity: [Name]
@@ -98,6 +99,23 @@ Relationships:
   [Entity] has many [Entity]
   [Entity] belongs to [Entity]
 ```
+
+### 6.1 Visual Data Model
+
+<!-- Generate from sketch using image-recognition + Mermaid, or create directly -->
+<!-- If you have a hand-drawn ER diagram, use visual-specs.skill to convert -->
+
+```mermaid
+erDiagram
+    ENTITY_A ||--o{ ENTITY_B : "has many"}
+    ENTITY_A {
+        uuid id PK
+        string name
+        timestamp created_at
+    }
+```
+
+**Full visual data model**: See [Visual Spec Package](VISUAL_SPEC_PACKAGE_TEMPLATE.md) Section 4.
 
 ---
 
@@ -117,9 +135,13 @@ DELETE /api/v1/[resource]/{id}      Delete
 
 ## 8. UI/UX Notes
 
-<!-- Link to Figma if designs exist, or describe the UI behavior -->
+<!-- Link to Figma, tldraw wireframes, or Excalidraw mockups -->
+<!-- To convert hand-drawn wireframes: use sketch-to-diagram.skill or visual-specs.skill -->
 
-**Designs:** [Link to Figma / wireframe / mockup]
+**Designs:** [Link to Figma / tldraw .tldr wireframe / Excalidraw .excalidraw mockup]
+
+**Wireframe files** (if created via tldraw MCP):
+- [path/to/screen-name.tldr]
 
 **Key interactions:**
 - [What happens when the user does X]
@@ -130,6 +152,8 @@ DELETE /api/v1/[resource]/{id}      Delete
 **Accessibility requirements:**
 - WCAG 2.2 Level AA compliance required
 - [any specific a11y requirements for this feature]
+
+**Visual Spec Package**: [Link to VISUAL_SPEC_PACKAGE_TEMPLATE.md — Section 3 for UI wireframes, Section 2 for user flow diagrams]
 
 ---
 

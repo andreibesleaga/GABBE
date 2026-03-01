@@ -195,6 +195,7 @@ ln -sf /path/to/agents/skills/*/*.skill.md ~/.agent/skills/
 | Accessibility | `product/accessibility.skill.md` | a11y, wcag | Accessibility audit |
 | Green Software | `product/green-software.skill.md` | green, carbon | medium | Sustainable Software |
 | Sustainability | `product/sustainability-checks.skill.md` | esg, sustain | ESG & Sustainability checks |
+| Visual Specs | `product/visual-specs.skill.md` | visual spec, diagram spec | Visual inputs → spec package |
 
 ### 7. Coordination & Agents (`coordination/`)
 | Skill | File | Triggers | Purpose |

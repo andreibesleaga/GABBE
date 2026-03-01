@@ -167,7 +167,13 @@ def verify_edge_cases(ctx):
     ctx.assert_exists(AGENTS_DIR / "skills/architecture/visual-whiteboarding.skill.md", "Visual Map Whiteboarding skill")
     ctx.assert_exists(AGENTS_DIR / "templates/core/WHITEBOARD_DESIGN_TEMPLATE.md", "Whiteboard mapping template")
     ctx.assert_exists(AGENTS_DIR / "guides/ai/visual-mcp-integration.md", "Visual vs Text diagramming guide")
-
+    ctx.assert_exists(AGENTS_DIR / "guides/planning/visual-product-specs.md", "Visual Product Design Phase guide")
+    ctx.assert_exists(AGENTS_DIR / "skills/product/visual-specs.skill.md", "Visual Specs skill")
+    ctx.assert_exists(AGENTS_DIR / "templates/product/VISUAL_SPEC_PACKAGE_TEMPLATE.md", "Visual Spec Package template")
+    ctx.assert_exists(AGENTS_DIR / "skills/coding/excalidraw.skill.md", "Excalidraw MCP skill")
+    ctx.assert_exists(AGENTS_DIR / "skills/coding/tldraw-canvas.skill.md", "tldraw MCP skill")
+    ctx.assert_exists(AGENTS_DIR / "skills/coding/sketch-to-diagram.skill.md", "Sketch-to-Diagram skill")
+    ctx.assert_exists(AGENTS_DIR / "templates/coding/SKETCH_TO_DIAGRAM_TEMPLATE.md", "Sketch-to-Diagram recognition template")
 def verify_brain_and_research(ctx):
     print(f"\n{BLUE}=== 4. Simulating Brain Mode & Research ==={NC}")
     

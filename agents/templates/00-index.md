@@ -82,6 +82,7 @@
 | Stakeholder Register | `product/STAKEHOLDER_REGISTER_TEMPLATE.md` | RACI and stakeholder map |
 | NFR Definition | `product/NFR_TEMPLATE.md` | Non-functional requirements |
 | Green Software Report | `product/GREEN_SOFTWARE_REPORT_TEMPLATE.md` | Sustainability Audit |
+| Visual Spec Package | `product/VISUAL_SPEC_PACKAGE_TEMPLATE.md` | Visual design artifacts + readiness gate |
 
 
 ### 6. Data & Analytics (`data/`)

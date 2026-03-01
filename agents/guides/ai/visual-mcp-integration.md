@@ -97,3 +97,11 @@ Photo/Scan → image-recognition MCP → Structured Element List → Human Verif
 **See:** `coding/sketch-to-diagram.skill.md` for full usage.
 **Template:** `coding/SKETCH_TO_DIAGRAM_TEMPLATE.md` for structured output.
 
+## 7. Visual Product Design Phase
+
+For a complete end-to-end workflow that processes visual inputs (scanned sketches, architecture diagrams, wireframes) into structured product specifications before implementation, see:
+
+- **Guide:** `planning/visual-product-specs.md` — input catalogue, recognition pipeline, output mapping, design readiness gate
+- **Skill:** `product/visual-specs.skill.md` — 5-phase workflow from visual inputs to Visual Spec Package
+- **Template:** `product/VISUAL_SPEC_PACKAGE_TEMPLATE.md` — collects all visual design artifacts with readiness checklist
+

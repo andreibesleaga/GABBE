@@ -89,6 +89,7 @@
 | Guide | File | Purpose |
 |---|---|---|
 | Product Reqs. | `planning/product-requirements.md` | EARS syntax and req. engineering |
+| Visual Product Specs | `planning/visual-product-specs.md` | Visual inputs → specs pipeline |
 | Strategic Anal. | `planning/strategic-analysis.md` | Pre-development strategic analysis |
 | Green Software | `planning/green-software.md` | Sustainable engineering (SCI) |
 | Sustainability | `planning/sustainability-checks.md` | Checklist for green software |

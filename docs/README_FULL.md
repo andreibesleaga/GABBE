@@ -474,7 +474,9 @@ Approve: "Approved. Move to Step 1 Requirements."
 ```
 Tell agent: "Use spec-writer skill. Build [your goal]."
 Agent produces: PRD.md using EARS syntax (templates/product/PRD_TEMPLATE.md)
-You review: Check that all requirements are verifiable predicates
+(Optional) Tell agent: "Use visual-specs skill to process these whiteboard photos."
+Agent produces: VISUAL_SPEC_PACKAGE_TEMPLATE.md + diagrams
+You review: Check that all requirements are verifiable predicates and visual specs match intent.
 Approve: "Approved. Create SDLC checkpoint S01."
 ```
 

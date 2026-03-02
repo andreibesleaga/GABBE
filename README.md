@@ -17,15 +17,16 @@
 - It has experimental support for budget enforcement, tokens, hard stops, policy rules, cli tool gateway (via MCP server), audit tracing and logs, human escalation, and deterministic replay.
 
 
-It provides:
-- **120+ Skills** (specialized capabilities)
-- **60+ Templates** (standardized documents)
-- **30+ Guides** (language & domain expertise)
+It contains:
+- **140+ Skills** (specialized capabilities)
+- **70+ Templates** (standardized documents)
+- **40+ Guides** (language & domain expertise)
 - **30+ Personas** (specialized roles)
+- **40+ MCP servers** (configuration and guides for AI tools)
 - **Brain Mode** (meta-cognitive orchestration)
-- **Loki Mode** (multi-agent swarm engineering team for large projects)
+- **Loki Mode** (multi-agent swarm engineering personas team for large projects)
 
-> **120+ Skills · 60+ Templates · 30+ Guides · 30+ Personas · Loki / Brain Mode**
+> **140+ Skills · 70+ Templates · 40+ Guides · 30+ Personas · 40+ MCPs · Loki / Brain Mode CLI**
 
 ---
 

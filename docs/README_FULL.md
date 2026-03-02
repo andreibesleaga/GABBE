@@ -12,15 +12,16 @@
 - The system features an experimental **Meta-Cognitive Orchestrator "Brain"** (Neurocognitive based architecture derived from Neuroscience, Cognitive Psychology, Epistemology, treating the Software System not as a machine, but as a **Cognitive Entity**), using Active Inference to plan, route, and optimize work.
 - The system features a **Multi-Agent Swarm "Loki" Engineering Team** (30+ specialized agent roles for large projects), providing episodic and semantic memory, project history auditing and checkpoints.
 
-It provides:
-- **120+ Skills** (specialized capabilities)
-- **60+ Templates** (standardized documents)
-- **30+ Guides** (language & domain expertise)
+It contains:
+- **140+ Skills** (specialized capabilities)
+- **70+ Templates** (standardized documents)
+- **40+ Guides** (language & domain expertise)
 - **30+ Personas** (specialized roles)
+- **40+ MCP servers** (configuration and guides for AI tools)
 - **Brain Mode** (meta-cognitive orchestration)
-- **Loki Mode** (multi-agent swarm engineering team for large projects)
+- **Loki Mode** (multi-agent swarm engineering personas team for large projects)
 
-> **120+ Skills · 60+ Templates · 30+ Guides · 30+ Personas · Loki / Brain Mode**
+> **140+ Skills · 70+ Templates · 40+ Guides · 30+ Personas · 40+ MCPs · Loki / Brain Mode CLI**
 
 ---
 
@@ -124,7 +125,7 @@ python3 scripts/init.py
 
 ## 3.1. GABBE CLI (experimental)
 
-The core of GABBE 2.0 is the **Zero-Dependency CLI** (`gabbe`) which powers the "Hybrid Mode". It bridges the gap between flexible Markdown files and a robust SQLite database.
+GABBE has a **Zero-Dependency CLI** (`gabbe`) CLI which powers the "Hybrid Mode". It bridges the gap between flexible Markdown files and a robust SQLite database.
 It's an experimental work-in-progress and you can do without the whole package only with the rest of the kit.
 
 ### Prerequisites

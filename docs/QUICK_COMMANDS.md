@@ -59,7 +59,7 @@ You can invoke these skills directly in your IDE chat (e.g., Cursor, GitHub Copi
 | **Modes** | `loki-mode` | "loki", "swarm" | 10-phase SDLC orchestration. |
 | **Modes** | `brain-mode` | "brain activate" | Meta-cognitive orchestrator. |
 
-*(For the complete 120+ skills list, see `agents/skills/00-index.md`)*
+*(For the complete 140+ skills list, see `agents/skills/00-index.md`)*
 
 ---
 

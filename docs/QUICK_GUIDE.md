@@ -72,8 +72,7 @@ python3 GABBE/scripts/init.py
 
 ## 🚀 GABBE CLI (Experimental)
 
-The core of GABBE 2.0 is the **Zero-Dependency CLI** (`gabbe`) which powers the "Hybrid Mode". It bridges the gap between flexible Markdown files and a robust SQLite database.
-It's an experimental work-in-progress and you can do without the whole package only with the rest of the kit.
+GABBE contains a **Zero-Dependency CLI** (`gabbe`) CLI which powers the "Hybrid Mode". It bridges the gap between flexible Markdown files and a robust SQLite database. It's an experimental work-in-progress and you can do without the whole package only with the rest of the kit.
 
 ### Prerequisites
 - Python 3.8+
@@ -134,7 +133,7 @@ gabbe --help
 The experimental `gabbe` CLI supports a **platform control layer**. It covers budget enforcement, cost and token controls, hard stops, policy rules, the tool gateway, audit tracing, human escalation, and deterministic replay. Detailed documentation is available in [`PLATFORM_CONTROLS.md`](PLATFORM_CONTROLS.md).
 
 ### Architecture
-GABBE 2.0 uses a **Hybrid Architecture** where agents and humans interact via Markdown, but the system of record is SQLite.
+GABBE CLI uses a **Hybrid Architecture** where agents and humans interact via Markdown, but the system of record is SQLite.
 
 ```mermaid
 graph TD
@@ -888,7 +887,7 @@ python3 GABBE/scripts/init.py
 
 ## 🛡️ Security & Guardrails
 
-All 120+ skills in the GABBE kit feature a heavily enforced **"Security & Guardrails"** section that binds agents to the project's CONSTITUTION.md. The 3-layer security constraints include:
+All 140+ skills in the GABBE kit feature a heavily enforced **"Security & Guardrails"** section that binds agents to the project's CONSTITUTION.md. The 3-layer security constraints include:
 
 1.  **Skill Security**: Tool-specific protection (e.g., preventing command injection or sandbox escapes).
 2.  **System Integration Security**: Safe external integration (e.g., verifying boundary enforcement or ensuring test coverage).

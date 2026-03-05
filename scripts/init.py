@@ -138,6 +138,51 @@ def ask_multiselect(question, options):
     return selected
 
 
+def safe_merge_directory(src_root, dst_root, is_kit_root=False):
+    PRESERVE_FILES = {"AGENTS.md", "CONSTITUTION.md", "TASKS.md", "policies.yml", "config.json"}
+    notified_preservations = set()
+    
+    for src_dir, dirs, files in os.walk(src_root):
+        rel_path = os.path.relpath(src_dir, src_root)
+        dst_dir = Path(dst_root) / (rel_path if rel_path != '.' else '')
+        
+        dst_dir.mkdir(parents=True, exist_ok=True)
+        in_memory = "memory" in Path(rel_path).parts
+        in_project = "project" in Path(rel_path).parts
+        
+        for file_ in files:
+            src_file = Path(src_dir) / file_
+            dst_file = dst_dir / file_
+            
+            preserve = False
+            if is_kit_root and dst_file.exists():
+                if in_memory:
+                    preserve = True
+                elif in_project:
+                    preserve = True
+                elif file_ in PRESERVE_FILES:
+                    preserve = True
+                elif file_.startswith("PROJECT") and file_.endswith(".md"):
+                    preserve = True
+                    
+            if preserve:
+                log_path = str(dst_file.relative_to(dst_root))
+                if in_memory:
+                    log_path = "memory/*"
+                elif in_project:
+                    log_path = "project/*"
+                if log_path not in notified_preservations:
+                    print(f"  {YELLOW}→ Preserved user file(s): {log_path} (check kit templates to update manually){NC}")
+                    notified_preservations.add(log_path)
+                continue
+                
+            if dst_file.exists():
+                try:
+                    dst_file.unlink()
+                except Exception:
+                    pass
+            shutil.copy2(src_file, dst_file)
+
 def create_symlink(source, target):
     """Creates a symlink from target to source, backing up if exists."""
     if target.is_symlink():
@@ -171,9 +216,7 @@ def create_symlink(source, target):
         print(f"  {YELLOW}! Symlink failed ({e}), falling back to copy...{NC}")
         try:
             if source.is_dir():
-                if target.exists():
-                    shutil.rmtree(target)
-                shutil.copytree(source, target)
+                safe_merge_directory(source, target)
             else:
                 if target.exists():
                     target.unlink()
@@ -318,15 +361,21 @@ def main():
         target_agents_dir = Path(path_str)
 
     # Perform Install / Copy
+    IS_UPDATE = False
     if target_agents_dir.exists():
-        print(f"\n{YELLOW}! Directory {target_agents_dir} already exists.{NC}")
-        overwrite = ask("Overwrite/Update it? (y/n)", "n")
-        if overwrite.lower() == "y":
-            shutil.rmtree(target_agents_dir)
-            shutil.copytree(SOURCE_AGENTS_DIR, target_agents_dir)
-            print(f"  {GREEN}✓ Kit updated at {target_agents_dir}{NC}")
+        if target_agents_dir.resolve() == SOURCE_AGENTS_DIR.resolve():
+            print(f"  {BLUE}→ Target is the same as source directory ({target_agents_dir}), skipping copy.{NC}")
+            IS_UPDATE = True
         else:
-            print(f"  {BLUE}→ Using existing kit at {target_agents_dir}{NC}")
+            print(f"\n{YELLOW}! Directory {target_agents_dir} already exists.{NC}")
+            update = ask("Install/Merge kit files into this directory? (y/n)", "y")
+            if update.lower() == "y":
+                IS_UPDATE = True
+                safe_merge_directory(SOURCE_AGENTS_DIR, target_agents_dir, is_kit_root=True)
+                print(f"  {GREEN}✓ Kit merged/updated at {target_agents_dir}{NC}")
+            else:
+                IS_UPDATE = True
+                print(f"  {BLUE}→ Using existing files at {target_agents_dir}{NC}")
     else:
         shutil.copytree(SOURCE_AGENTS_DIR, target_agents_dir)
         print(f"  {GREEN}✓ Kit installed to {target_agents_dir}{NC}")
@@ -481,8 +530,16 @@ def main():
     # --- Step 4: Generate AGENTS.md ---
     print(f"\n{YELLOW}Part 4: Configuring Installed Kit{NC}")
 
+    target_agents_md = AGENTS_DIR / "AGENTS.md"
     template_path = AGENTS_DIR / "templates/coordination/AGENTS_TEMPLATE.md"
-    if template_path.exists():
+    
+    skip_step_4 = False
+    if IS_UPDATE and target_agents_md.exists():
+        print(f"  {BLUE}→ AGENTS.md already exists. Skipping auto-generation to preserve user modifications.{NC}")
+        print(f"  {BLUE}→ Check {template_path.name} for any new additions.{NC}")
+        skip_step_4 = True
+
+    if not skip_step_4 and template_path.exists():
         content = template_path.read_text()
 
         # Replacements
@@ -599,7 +656,7 @@ def main():
         print(f"  {RED}x Template not found: {template_path}{NC}")
 
     # --- Step 4.1: Append to CONSTITUTION.md ---
-    if compliance or project_type == "Legacy Modernization":
+    if not IS_UPDATE and (compliance or project_type == "Legacy Modernization"):
         const_path = AGENTS_DIR / "CONSTITUTION.md"
         if const_path.exists():
             with open(const_path, "a") as f:

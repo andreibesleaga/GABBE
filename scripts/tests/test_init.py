@@ -131,9 +131,10 @@ def test_reinstallation(temp_project):
     agents_dir = temp_project / "agents"
     agents_dir.mkdir(parents=True)
     (agents_dir / "foo.txt").write_text("bar")
+    (agents_dir / "AGENTS.md").write_text("custom user agents")
     inputs = [
         "1",                    # Local, points to temp_project/agents which already exists
-        "y",                    # Overwrite? Yes
+        "y",                    # Merge kit files? Yes (dirs_exist_ok=True logic)
         "",                     # Name
         "",                     # Desc
         "1",                    # Team: Solo
@@ -150,11 +151,174 @@ def test_reinstallation(temp_project):
     ]
     with patch('builtins.input', side_effect=inputs):
         init.main()
-    assert not (agents_dir / "foo.txt").exists()
+    # Given the new logic `dirs_exist_ok=True` or the Python < 3.8 fallback,
+    # foo.txt should STILL exist because we only overwrite files that match SOURCE_AGENTS_DIR files.
+    assert (agents_dir / "foo.txt").exists()
+    assert (agents_dir / "AGENTS.md").read_text() == "custom user agents"
+
+def test_install_global_first_time(temp_project):
+    global_target = Path.home() / "agents"
+    # We need to mock Path.home() so we don't pollute the actual user home dir in tests
+    with patch('pathlib.Path.home', return_value=temp_project / "mock_home"):
+        inputs = [
+            "2",                    # Global
+            "",                     # Name
+            "",                     # Desc
+            "1",                    # Team: Solo
+            "1",                    # Type: Greenfield
+            "3",                    # Python
+            "",                     # Framework
+            "6",                    # DB
+            "7",                    # Cloud
+            "n",                    # Dynamic
+            "n",                    # Analytics
+            "n",                    # Meta
+            "n",                    # GABBE CLI: NO
+            "7",                    # Gemini
+        ]
+        with patch('builtins.input', side_effect=inputs):
+            init.main()
+        
+        expected_target = temp_project / "mock_home" / "agents"
+        assert expected_target.exists()
+        assert (expected_target / "AGENTS.md").exists()
+
+def test_update_global(temp_project):
+    with patch('pathlib.Path.home', return_value=temp_project / "mock_home"):
+        global_target = temp_project / "mock_home" / "agents"
+        global_target.mkdir(parents=True)
+        (global_target / "user_custom_file.txt").write_text("should_not_be_deleted")
+        (global_target / "CONSTITUTION.md").write_text("my custom rules")
+        mem_dir = global_target / "memory" / "episodic"
+        mem_dir.mkdir(parents=True)
+        (mem_dir / "SESSION_SNAPSHOT.md").write_text("mem")
+        
+        proj_dir = global_target / "project"
+        proj_dir.mkdir(parents=True)
+        (proj_dir / "TASKS.md").write_text("my custom tasks")
+        (proj_dir / "policies.yml").write_text("my custom policy")
+        
+        inputs = [
+            "2",                    # Global
+            "y",                    # Merge kit files? Yes
+            "",                     # Name
+            "",                     # Desc
+            "1",                    # Team: Solo
+            "1",                    # Type: Greenfield
+            "3",                    # Python
+            "",                     # Framework
+            "6",                    # DB
+            "7",                    # Cloud
+            "n",                    # Dynamic
+            "n",                    # Analytics
+            "n",                    # Meta
+            "n",                    # GABBE CLI: NO
+            "7",                    # Gemini
+        ]
+        with patch('builtins.input', side_effect=inputs):
+            init.main()
+            
+        assert global_target.exists()
+        assert (global_target / "AGENTS.md").exists()
+        assert (global_target / "user_custom_file.txt").exists()
+        assert (global_target / "CONSTITUTION.md").read_text() == "my custom rules"
+        assert (mem_dir / "SESSION_SNAPSHOT.md").read_text() == "mem"
+        assert (proj_dir / "TASKS.md").read_text() == "my custom tasks"
+        assert (proj_dir / "policies.yml").read_text() == "my custom policy"
+
+def test_install_custom_first_time(temp_project):
+    custom_target = temp_project / "custom_agents_dir"
+    inputs = [
+        "3",                    # Custom Path
+        str(custom_target),     # The path
+        "",                     # Name
+        "",                     # Desc
+        "1",                    # Team: Solo
+        "1",                    # Type: Greenfield
+        "3",                    # Python
+        "",                     # Framework
+        "6",                    # DB
+        "7",                    # Cloud
+        "n",                    # Dynamic
+        "n",                    # Analytics
+        "n",                    # Meta
+        "n",                    # GABBE CLI: NO
+        "7",                    # Gemini
+    ]
+    with patch('builtins.input', side_effect=inputs):
+        init.main()
+        
+    assert custom_target.exists()
+    assert (custom_target / "AGENTS.md").exists()
+
+def test_update_custom(temp_project):
+    custom_target = temp_project / "custom_agents_dir"
+    custom_target.mkdir(parents=True)
+    (custom_target / "user_data.json").write_text('{"key": "value"}')
+    (custom_target / "TASKS.md").write_text('my tasks')
+    
+    inputs = [
+        "3",                    # Custom Path
+        str(custom_target),     # The path
+        "y",                    # Merge kit files? Yes
+        "",                     # Name
+        "",                     # Desc
+        "1",                    # Team: Solo
+        "1",                    # Type: Greenfield
+        "3",                    # Python
+        "",                     # Framework
+        "6",                    # DB
+        "7",                    # Cloud
+        "n",                    # Dynamic
+        "n",                    # Analytics
+        "n",                    # Meta
+        "n",                    # GABBE CLI: NO
+        "7",                    # Gemini
+    ]
+    with patch('builtins.input', side_effect=inputs):
+        init.main()
+        
+    assert custom_target.exists()
+    assert (custom_target / "AGENTS.md").exists()
+    assert (custom_target / "user_data.json").exists()
+    assert (custom_target / "TASKS.md").read_text() == "my tasks"
 
 def test_missing_source_directory(temp_project):
     init.SOURCE_AGENTS_DIR = init.KIT_SOURCE / "invalid_non_existent"
     with pytest.raises(SystemExit) as e:
         init.main()
     assert e.value.code == 1
+
+def test_same_source_and_target_directory(temp_project):
+    # Simulate running the kit inside the source folder itself
+    init.SOURCE_AGENTS_DIR = temp_project / "agents"
+    init.SOURCE_AGENTS_DIR.mkdir(parents=True)
+    # create required directories to pass early validation
+    for subdir in ["skills", "templates", "personas", "memory"]:
+        (init.SOURCE_AGENTS_DIR / subdir).mkdir(parents=True, exist_ok=True)
+        
+    (init.SOURCE_AGENTS_DIR / "foo.txt").write_text("bar")
+    
+    inputs = [
+        "1",                    # Local, points to temp_project/agents which IS SOURCE_AGENTS_DIR
+        # NO prompt for Overwrite/Merge because it skips!
+        "",                     # Name
+        "",                     # Desc
+        "1",                    # Team: Solo
+        "1",                    # Type: Greenfield
+        "3",                    # Python
+        "",                     # Framework
+        "6",                    # DB
+        "7",                    # Cloud
+        "n",                    # Dynamic
+        "n",                    # Analytics
+        "n",                    # Meta
+        "n",                    # GABBE CLI: NO
+        "7",                    # Gemini
+    ]
+    with patch('builtins.input', side_effect=inputs):
+        init.main()
+    
+    # Should complete without throwing SameFileError and foo.txt should still exist
+    assert (init.SOURCE_AGENTS_DIR / "foo.txt").exists()
 

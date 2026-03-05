@@ -699,28 +699,33 @@ def main():
         )
         print(f"  {GREEN}✓ Initialized Loki Memory{NC}")
 
-    # Copy setup-context.sh
-    setup_src = AGENTS_DIR / "scripts/setup-context.sh"
-    setup_dest = PROJECT_ROOT / "setup-context.sh"
-    if setup_src.exists():
-        shutil.copy2(setup_src, setup_dest)
-        setup_dest.chmod(0o755)
-        print(f"  {GREEN}✓ Installed setup-context.sh{NC}")
-    else:
-        print(
-            f"  {YELLOW}! Could not find {setup_src}, skipping setup-context.sh install{NC}"
-        )
+    _is_windows = sys.platform == "win32"
+    _is_unix = not _is_windows
 
-    # Copy setup-context.ps1 (Windows Support)
-    setup_ps1_src = AGENTS_DIR / "scripts/setup-context.ps1"
-    setup_ps1_dest = PROJECT_ROOT / "setup-context.ps1"
-    if setup_ps1_src.exists():
-        shutil.copy2(setup_ps1_src, setup_ps1_dest)
-        print(f"  {GREEN}✓ Installed setup-context.ps1 (Windows Support){NC}")
-    else:
-        print(
-            f"  {YELLOW}! Could not find {setup_ps1_src}, skipping setup-context.ps1 install{NC}"
-        )
+    # Copy setup-context.sh (Linux / macOS)
+    if _is_unix:
+        setup_src = AGENTS_DIR / "scripts/setup-context.sh"
+        setup_dest = PROJECT_ROOT / "setup-context.sh"
+        if setup_src.exists():
+            shutil.copy2(setup_src, setup_dest)
+            setup_dest.chmod(0o755)
+            print(f"  {GREEN}✓ Installed setup-context.sh{NC}")
+        else:
+            print(
+                f"  {YELLOW}! Could not find {setup_src}, skipping setup-context.sh install{NC}"
+            )
+
+    # Copy setup-context.ps1 (Windows)
+    if _is_windows:
+        setup_ps1_src = AGENTS_DIR / "scripts/setup-context.ps1"
+        setup_ps1_dest = PROJECT_ROOT / "setup-context.ps1"
+        if setup_ps1_src.exists():
+            shutil.copy2(setup_ps1_src, setup_ps1_dest)
+            print(f"  {GREEN}✓ Installed setup-context.ps1 (Windows Support){NC}")
+        else:
+            print(
+                f"  {YELLOW}! Could not find {setup_ps1_src}, skipping setup-context.ps1 install{NC}"
+            )
 
     # Symlinks
     skills_src = AGENTS_DIR / "skills"

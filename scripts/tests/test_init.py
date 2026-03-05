@@ -333,3 +333,54 @@ def test_same_source_and_target_directory(temp_project):
     # Should complete without throwing SameFileError and foo.txt should still exist
     assert (init.SOURCE_AGENTS_DIR / "foo.txt").exists()
 
+
+def test_setup_context_sh_only_on_linux(temp_project):
+    """On Linux/macOS, only setup-context.sh is installed (not .ps1)."""
+    inputs = [
+        "1",  # Local
+        "",   # Name
+        "",   # Desc
+        "1",  # Team
+        "1",  # Greenfield
+        "3",  # Python
+        "",   # Framework
+        "6",  # DB: None
+        "7",  # Cloud: On-Prem
+        "n",  # Dynamic
+        "n",  # Analytics
+        "n",  # Meta
+        "n",  # GABBE CLI: NO
+        "7",  # Gemini
+    ]
+    with patch("sys.platform", "linux"), \
+         patch("builtins.input", side_effect=inputs):
+        init.main()
+
+    assert (temp_project / "setup-context.sh").exists()
+    assert not (temp_project / "setup-context.ps1").exists()
+
+
+def test_setup_context_ps1_only_on_windows(temp_project):
+    """On Windows, only setup-context.ps1 is installed (not .sh)."""
+    inputs = [
+        "1",  # Local
+        "",   # Name
+        "",   # Desc
+        "1",  # Team
+        "1",  # Greenfield
+        "3",  # Python
+        "",   # Framework
+        "6",  # DB: None
+        "7",  # Cloud: On-Prem
+        "n",  # Dynamic
+        "n",  # Analytics
+        "n",  # Meta
+        "n",  # GABBE CLI: NO
+        "7",  # Gemini
+    ]
+    with patch("sys.platform", "win32"), \
+         patch("builtins.input", side_effect=inputs):
+        init.main()
+
+    assert (temp_project / "setup-context.ps1").exists()
+    assert not (temp_project / "setup-context.sh").exists()

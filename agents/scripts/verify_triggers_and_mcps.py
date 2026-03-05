@@ -75,7 +75,7 @@ def verify_triggers_and_mcps():
     # Regex to find: "run X skill" or "use X skill"
     prompt_skill_regex = re.compile(r'(?:use|run)\s+(?:the\s+)?([a-zA-Z0-9-]+)\s*skill', re.IGNORECASE)
     
-    stop_words = {"a", "this", "that", "any", "some", "which", "your", "my", "our", "one", "another"}
+    stop_words = {"a", "this", "that", "any", "some", "which", "your", "my", "our", "one", "another", "these"}
     
     errors = 0
     warnings = 0

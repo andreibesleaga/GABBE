@@ -1,4 +1,4 @@
-__version__ = "0.7.0"
+__version__ = "0.8.0"
 
 # Lazy imports: do not import submodules at package level to avoid side effects
 # (e.g. argparse setup, path resolution) when the package is merely imported

@@ -15,7 +15,7 @@
 - The system features an experimental **Meta-Cognitive Orchestrator "Brain"** (Neurocognitive based architecture derived from Neuroscience, Cognitive Psychology, Epistemology, treating the Software System not as a machine, but as a **Cognitive Entity**), using Active Inference to plan, route, and optimize work.
 - The system features a **Multi-Agent Swarm "Loki" Engineering Team** (30+ specialized agent roles for large projects), providing episodic and semantic memory, project history auditing and checkpoints.
 - It has experimental support for budget enforcement, tokens, hard stops, policy rules, cli tool gateway (via MCP server), audit tracing and logs, human escalation, and deterministic replay.
-
+- **Optimal Execution Mandates**: Built-in rules forcing agents to actively select the best specialized skills/guides, proactively recommend necessary MCP servers, and default to continuous cost & budget optimization—always requiring human approval for expensive operations.
 
 It contains:
 - **140+ Skills** (specialized capabilities)
@@ -30,7 +30,7 @@ It contains:
 
 ---
 
-*Full documentation: [README_FULL.md](docs/README_FULL.md) · Full quick guide: [QUICK_GUIDE.md](docs/QUICK_GUIDE.md) · Quick commands: [QUICK_COMMANDS.md](docs/QUICK_COMMANDS.md) · CLI reference: [CLI_REFERENCE.md](docs/CLI_REFERENCE.md) · MCP servers: [MCP_CONFIGURATIONS.md](docs/MCP_CONFIGURATIONS.md) · Platform Controls: [PLATFORM_CONTROLS.md](docs/PLATFORM_CONTROLS.md)*
+*Full documentation: [README_FULL.md](docs/README_FULL.md) · Full quick guide: [QUICK_GUIDE.md](docs/QUICK_GUIDE.md) · Quick commands: [QUICK_COMMANDS.md](docs/QUICK_COMMANDS.md) · CLI reference: [CLI_REFERENCE.md](docs/CLI_REFERENCE.md) · MCP servers: [MCP_CONFIGURATIONS.md](docs/MCP_CONFIGURATIONS.md) · Platform Controls: [PLATFORM_CONTROLS.md](docs/PLATFORM_CONTROLS.md) · Verification Guide: [VERIFICATION_GUIDE.md](docs/VERIFICATION_GUIDE.md)*
 
 ---
 
@@ -600,6 +600,7 @@ Task → Knowledge gap? → research.skill → Execute → Verify
 | Stack | Guide |
 |---|---|
 | JS/TS/Node.js | `guides/languages/js-ts-nodejs.md` |
+| Node.js Advanced & TS | `guides/languages/nodejs-advanced.md` |
 | Go | `guides/languages/go-lang.md` |
 | PHP/Laravel | `guides/languages/php-laravel.md` |
 | Python/FastAPI | `guides/languages/python-fastapi-ai.md` |
@@ -617,6 +618,7 @@ Task → Knowledge gap? → research.skill → Execute → Verify
 | Secure Arch | `guides/security/secure-architecture.md` |
 | Threat Modeling | `guides/security/threat-modeling.md` |
 | DevOps/Environments | `guides/ops/dev-environments.md` |
+| Developer Workflow | `guides/ops/dev-workflow.md` |
 | Legacy/COBOL | `guides/principles/legacy-tech.md` |
 | Future Tech 2030 | `guides/principles/future-tech.md` |
 | C-Sharp / .NET | `guides/languages/c-sharp.md` |

@@ -132,6 +132,8 @@ gabbe --help
 ### Platform Control Layer
 The experimental `gabbe` CLI supports a **platform control layer**. It covers budget enforcement, cost and token controls, hard stops, policy rules, the tool gateway, audit tracing, human escalation, and deterministic replay. Detailed documentation is available in [`PLATFORM_CONTROLS.md`](PLATFORM_CONTROLS.md).
 
+For exhaustive testing of the platform, SDKs, and workflow execution boundaries, consult the [`VERIFICATION_GUIDE.md`](VERIFICATION_GUIDE.md).
+
 ### Architecture
 GABBE CLI uses a **Hybrid Architecture** where agents and humans interact via Markdown, but the system of record is SQLite.
 

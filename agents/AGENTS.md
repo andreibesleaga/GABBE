@@ -85,25 +85,7 @@ docs: "[PLACEHOLDER: pnpm typedoc | php artisan scribe:generate]"
 ```
 [PLACEHOLDER — adapt to your architecture pattern]
 
-<!-- OPTIONAL: Architecture Examples
-Example for Clean Architecture (Node.js/TS):
-  src/domain/          <- Business entities, domain events, value objects
-                          MUST NOT import from: application, adapters, infrastructure
-  src/application/     <- Use cases, command/query handlers
-                          MUST NOT import from: adapters, infrastructure
-  src/adapters/        <- Controllers, presenters, gateways (interface adapters)
-                          MUST NOT import from: infrastructure directly (use DI)
-  src/infrastructure/  <- Database, external APIs, file system implementations
-                          CAN import from: all layers (implements interfaces)
-  src/main/            <- Composition root, DI wiring, app bootstrap
-                          CAN import from: all layers
-
-Example for Laravel DDD:
-  app/Domain/          <- Business logic (models, value objects, domain events)
-  app/Application/     <- Actions, DTOs, service interfaces
-  app/Infrastructure/  <- Eloquent implementations, external API clients
-  app/Http/            <- Controllers (thin -- delegate to Application layer)
--->
+<!-- OPTIONAL: Architecture Examples -> Document layer mappings (e.g., Domain -> Application -> Adapters -> Infrastructure) -->
 ```
 ```
 
@@ -125,15 +107,7 @@ Example for Laravel DDD:
 ```
 [PLACEHOLDER: Document what each top-level directory is for]
 
-<!-- OPTIONAL: Directory Map Example
-Example:
-  src/           -> Application source code
-  tests/         -> All test files (mirrors src/ structure)
-  docs/          -> Architecture docs, ADRs, C4 diagrams
-  scripts/       -> Dev tooling, DB seeds, migration scripts
-  agents/        -> Agent configuration kit (this directory)
-  infra/         -> Docker, CI/CD, Terraform, K8s configs
--->
+<!-- OPTIONAL: Directory Map Example -> e.g., src/ -> src code, tests/ -> test suites, docs/ -> Architectural info -->
 ```
 ```
 
@@ -141,32 +115,7 @@ Example:
 
 ## 4. Code Style & Patterns
 
-<!-- OPTIONAL: Code Style Specifics
-```
-Naming conventions:
-  Files:        [PLACEHOLDER: kebab-case.ts | PascalCase.php | snake_case.py]
-  Classes:      PascalCase
-  Functions:    camelCase (JS/TS) | snake_case (Python/PHP)
-  Constants:    SCREAMING_SNAKE_CASE
-  Types/Interfaces: PascalCase, prefix I for interfaces if using that convention
-
-Functional vs OOP:
-  [PLACEHOLDER: "Prefer functional pure functions" or "Use classes for domain entities"]
-
-Error handling:
-  [PLACEHOLDER: "Use Result<T, E> type pattern" or "Throw typed domain errors" or "Use Laravel's Handler"]
-
-State management:
-  [PLACEHOLDER: "No global mutable state" or "Redux/Zustand for frontend state"]
-
-API response format:
-  [PLACEHOLDER: Document your standard response envelope, e.g. { data, meta, errors }]
-
-Import style:
-  [PLACEHOLDER: "Absolute imports using @/ alias" or "Relative imports only"]
-
-```
--->
+<!-- OPTIONAL: Code Style Specifics -> Document naming conventions, OOP vs Functional, Error handling, State management, API response format, Import styles -->
 ---
 
 ## 5. Workflow for Agents — Review-Driven Development
@@ -176,6 +125,13 @@ Agents MUST follow this order. Skipping steps is forbidden.
 Agents must always verify that agents/memory files are kept up-to-date at each task (episodic, metrics, semantic, AUDIT_LOG, CONTINUITY, PROJECT_STATE), according to this project structure and logic.
 
 Agents must read agents/guides/ skills/ templates/ for any relevant information discovered during research and added by you or other agents, and use appropiate ones or knowledge in them, at each step and task of R&D, if needed.
+
+**CRITICAL MANDATE: Optimal Skill, Guide & MCP Selection**
+Agents must **always analyze the task/prompt and select (or ask the user to confirm/select) the best `guides` and `skills`** for the specific tasks, user queries, actions being performed, gate passing, or system workflows. Do not default to generic execution if a specialized skill or guide exists. If in doubt, present the best options to the user and ask for their selection.
+Additionally, agents must explicitly evaluate whether any **MCP (Model Context Protocol) servers** (either universal or task-specific) would optimally assist the task. If essential or highly beneficial MCP servers are not currently enabled, agents *must recommend* the user to enable them before proceeding.
+
+**CRITICAL MANDATE: Default Cost & Budget Optimization**
+Agents must continuously design and execute solutions focusing on minimizing token load, context size, and api costs by default. Do not use complex swarms or expensive remote SOTA models for simple changes. If a task necessitates an expensive strategy, complex reasoning traces, or high-cost MCP tools, agents **must always ask the human user for explicit approval** before deploying that approach, providing a brief explanation for the cost-to-benefit ratio.
 
 ### Step 1 — Load Context (every session start)
 ```
@@ -202,18 +158,13 @@ For complex tasks: write PLAN.md or use PLAN_TEMPLATE.md
 ### Step 3 — Test First (TDD Red Phase)
 ```
 Write the failing test BEFORE writing implementation code.
-<!-- OPTIONAL: Detailed TDD Red
-Run the test -- it MUST fail (Red).
-If the test passes immediately with no implementation: the test is WRONG. Fix it.
--->
+<!-- OPTIONAL: Detailed TDD Red -> The test MUST fail (Red). Do not implement features not covered by a test -->
 ```
 
 ### Step 4 — Implement (TDD Green Phase)
 ```
 Write the minimal code to make the failing test pass.
-<!-- OPTIONAL: Detailed TDD Green
-Do not add features not covered by a failing test.
--->
+<!-- OPTIONAL: Detailed TDD Green -> Do not add features not covered by a failing test -->
 ```
 
 ### Step 5 — Verify (must all pass before marking done)
@@ -221,26 +172,20 @@ Do not add features not covered by a failing test.
 Run: [test command] -> must pass
 Run: [typecheck command] -> must pass
 Run: [lint command] -> must pass
-<!-- OPTIONAL: Deep Verification
-Run: agentic-linter check -> no boundary violations
--->
+<!-- OPTIONAL: Deep Verification -> E.g. Run agentic-linter to enforce boundaries -->
 ```
 
 ### Step 6 — Refactor
 ```
 Improve code quality while keeping all tests green.
-<!-- OPTIONAL: Refactoring Metrics
-Check: Cyclomatic complexity < 10, no code duplication > 3 occurrences, no dead code.
--->
+<!-- OPTIONAL: Refactoring Metrics -> E.g. Complexity < 10, no duplication > 3 -->
 ```
 
 ### Step 7 — Log & Complete
 ```
 Write entry to agents/memory/AUDIT_LOG.md
 Update task status in project/TASKS.md to DONE
-<!-- OPTIONAL: High-Level Orchestration
-If this completes a SDLC phase: invoke sdlc-checkpoint.skill
--->
+<!-- OPTIONAL: High-Level Orchestration -> E.g. sdlc-checkpoint.skill -> mark phase done -->
 ```
 
 ---
@@ -281,14 +226,7 @@ Format: <type>(<scope>): <subject>
 Types: feat | fix | docs | style | refactor | test | chore | perf | sec | deps
 Scope: module or layer name (optional)
 
-<!-- OPTIONAL: Commit Examples
-Examples:
-  feat(auth): add OAuth2 Google login
-  fix(api): resolve N+1 query in users endpoint
-  sec(deps): update lodash to fix CVE-2024-xxxxx
-  test(domain): add unit tests for Order aggregate
-  refactor(application): extract CreateOrderUseCase from controller
--->
+<!-- OPTIONAL: Commit Examples -> e.g. feat(auth): add OAuth2 login -->
 
 PR body must include:
   - What changed and why
@@ -300,15 +238,7 @@ PR body must include:
 
 ### Quality Gates (all must pass before PR merges)
 ```
-<!-- OPTIONAL: Quality Gates Specifics
-Gate 1 -- Syntax/Linting:    ESLint / PHP-CS-Fixer / Prettier / Ruff -- zero errors
-Gate 2 -- Type Safety:       tsc --noEmit / PHPStan L9 / mypy -- zero errors
-Gate 3 -- Test Coverage:     >99% coverage, all tests passing, no skipped tests
-Gate 4 -- Integration:       Docker Compose up, API contract validation
-Gate 5 -- Security Scan:     npm audit / composer audit -- no critical or high CVEs
-Gate 6 -- Complexity:        Cyclomatic complexity < 10 on modified files
-Gate 7 -- EARS Compliance:   (for new features) All requirements have tests
--->
+<!-- OPTIONAL: Quality Gates Specifics -> Document testing, linting, code coverage >99%, CI integration gates -->
 ```
 
 ---
@@ -319,24 +249,7 @@ Agents must use authoritative sources. Never guess or hallucinate.
 
 ### Source Tiers (in order of trust)
 ```
-<!-- OPTIONAL: Source Tiers
-Tier 1 (Primary -- always prefer):
-  - Official language/framework docs (MDN, nodejs.org, laravel.com, docs.python.org)
-  - Official specifications (RFC.editor.org, W3C, ECMA, ISO)
-  - Security standards (OWASP, NIST, CIS, CVE.mitre.org)
-
-Tier 2 (Academic/Official repos):
-  - arXiv.org, IEEE Xplore, ACM Digital Library
-  - GitHub official organization repos
-  - Official changelog/release notes
-
-Tier 3 (Verified industry, as fallback):
-  - Anthropic docs, AWS docs, Google Cloud docs, Microsoft Docs
-
-NOT acceptable (never cite as authoritative):
-  - Blog posts, Medium articles, Reddit, StackOverflow opinions
-  - Any source without official attribution
--->
+<!-- OPTIONAL: Source Tiers -> Tier 1: Official docs/Specs. Tier 2: Academic. Tier 3: Verified blogs. Avoid: Reddit/SO. -->
 ```
 
 ### Research Gate -- mandatory before:
@@ -414,16 +327,7 @@ ALWAYS pause and ask:
   - "I've tried 5 times and cannot fix this" (see Self-Healing Policy)
   - [PLACEHOLDER: add project-specific escalation triggers]
 
-<!-- OPTIONAL: Escalation Format
-Format for human escalation:
-  ESCALATION REQUIRED
-  Issue: [clear description]
-  Options considered:
-    1. [option A] -- pros: [...] cons: [...]
-    2. [option B] -- pros: [...] cons: [...]
-  Recommendation: [option X because Y]
-  Awaiting: [specific decision needed]
--->
+<!-- OPTIONAL: Escalation Format -> Detail issue, options considered, and recommendation -->
 ```
 
 ---
@@ -466,17 +370,7 @@ For monorepos, this root AGENTS.md applies globally.
 Package-level AGENTS.md files override root for that package's scope.
 
 ```
-<!-- OPTIONAL: Monorepo Setup Example
-monorepo-root/
-  AGENTS.md              <- Root: global rules (this file)
-  packages/
-    web-app/
-      AGENTS.md          <- Override: web-specific rules (React, Tailwind, etc.)
-    api-service/
-      AGENTS.md          <- Override: API-specific rules (Fastify, Prisma, etc.)
-    shared-lib/
-      AGENTS.md          <- Override: Library-specific rules (no framework imports)
--->
+<!-- OPTIONAL: Monorepo Setup Example -> Add AGENTS.md per package to override root settings -->
 ```
 
 Agent context priority: Package AGENTS.md > Root AGENTS.md
@@ -540,14 +434,7 @@ END of session:
 ```
 [PLACEHOLDER: Add any additional project-specific rules, constraints, or context here.]
 
-<!-- OPTIONAL: Examples
-Examples:
-  - "This project uses feature flags via LaunchDarkly -- never delete flags, only disable"
-  - "API is consumed by mobile clients -- breaking changes require a 30-day deprecation period"
-  - "All user-facing text must be in the i18n system -- no hardcoded strings"
-  - "Analytics events must be documented in docs/analytics-schema.md before implementation"
-  - "Database schema changes must be reviewed by the DBA team before migration"
--->
+<!-- OPTIONAL: Examples -> e.g. "API consumed by mobile, 30-day deprecation", "no hardcoded i18n strings" -->
 ```
 
 ---
@@ -558,49 +445,8 @@ Examples:
 >
 > **This section is optional.** The GABBE CLI provides platform controls (budget, audit, replay, escalation) but is NOT required. Agents can fully operate via markdown inference without it.
 
-### Integration Modes
-
-| Mode | Description |
-|---|---|
-| **Disabled** (default) | CLI not used. Agents operate via markdown inference only. |
-| **Manual** | Human runs `gabbe` commands directly when needed. Agents are not required to use them. |
-| **MCP Enforced** | All `gabbe` commands flow through `gabbe serve-mcp`. Agents MUST use the MCP JSON-RPC interface. |
-
-## Essential Commands
-
-| Command | Purpose |
-|---|---|
-| `gabbe init` | Initialize DB (first-time setup) |
-| `gabbe sync` | Sync `project/TASKS.md` ↔ SQLite |
-| `gabbe status` | Project dashboard |
-| `gabbe verify` | Integrity checks (files, lint, tests) |
-| `gabbe route "<prompt>"` | LOCAL or REMOTE routing |
-| `gabbe brain activate` | Active Inference Loop (**needs API key**) |
-| `gabbe brain evolve --skill <name>` | EPO prompt optimization (**needs API key**) |
-| `gabbe brain heal` | Self-healing watchdog |
-| `gabbe forecast` | Cost/token projections |
-| `gabbe serve-mcp` | MCP JSON-RPC server |
-| `gabbe runs` | List recent runs |
-| `gabbe audit <run-id>` | Audit trace for a run |
-| `gabbe replay <run-id>` | Replay from checkpoints |
-| `gabbe resume <run-id>` | Resume paused runs |
-
-## Standard Workflow Order
-
-```text
-gabbe init → gabbe sync → gabbe status → gabbe verify
-→ gabbe brain activate → gabbe forecast → gabbe runs → gabbe audit
-```
-
-## Platform Controls (Active During Runs)
-
-- **Budget**: Token/cost/time limits (env vars: `GABBE_MAX_*`)
-- **HardStop**: Absolute iteration/depth/timeout guards
-- **Policy**: `project/policies.yml` (deny-first, RBAC)
-- **Gateway**: Single mediated tool execution point
-- **Escalation**: Human-in-the-loop when limits hit (`cli`/`file`/`silent` modes)
-- **Audit**: Every event recorded as spans in `audit_spans`
-- **Replay**: Deterministic re-execution from `checkpoints`
+### Core CLI Integration
+See `agents/guides/ops/gabbe-cli-workflows.md` for standard CLI workflows: Init, Sync, Verify, Status, Route, Forecast, and Brain execution controls. (Note: The GABBE CLI is an optional experimental tool; agents can fully rely on markdown inference execution otherwise).
 
 ---
 

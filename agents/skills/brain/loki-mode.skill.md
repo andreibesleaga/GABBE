@@ -13,6 +13,12 @@ Coordinate a swarm of specialized agent personas through a full SDLC lifecycle, 
 durable checkpoints, memory, and human approval gates — enabling large projects that
 would otherwise exceed a single agent's context limits.
 
+## Skill, Guide & MCP Selection Mandate
+**CRITICAL**: In every phase, gate, and checkpoint of the SDLC, the orchestrator and all sub-personas must **always select (and ask the user to confirm/select) the best guides and skills** for the specific tasks, user query prompt, action, gate passing, or system workflow before executing. Note this in your execution plans. You must also recommend that the user enable any missing **MCP servers** (universal or task-specific) that would optimally assist the current phase.
+
+## Cost & Budget Optimization Mandate
+**CRITICAL**: Loki Mode natively orchestrates swarms which can become extremely expensive. All sub-personas must assume a frugal posture, choosing efficient context retrieval over "load everything" approaches. If a specific atomic task requires heavy compute, remote SOTA reasoning, or large API cost spikes, the orchestrator **must present the cost-tradeoff and ask the human user for explicit approval** before delegating that task.
+
 ---
 
 ## Pre-Start Check

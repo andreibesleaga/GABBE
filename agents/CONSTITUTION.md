@@ -29,14 +29,7 @@
 - Integration points (database, external APIs, message queues) must have integration tests
 - Violations: No PR merges without this — ever
 
-<!-- OPTIONAL: EARS Example
-**EARS Example:**
-```
-WHEN a user submits an invalid email address
-THE SYSTEM SHALL return HTTP 422 with field-level validation errors
-```
-The test for this requirement is written before the validation code.
--->
+<!-- OPTIONAL: EARS Example -> WHEN [event] THE SYSTEM SHALL [response] -->
 
 ---
 
@@ -50,24 +43,7 @@ The test for this requirement is written before the validation code.
 - **Clean Architecture enforcement:** domain → application → adapters → infrastructure → main
 - No circular dependencies between modules (enforced by agentic-linter on every PR)
 
-<!-- OPTIONAL: Anti-patterns (forbidden)
-**Anti-patterns (forbidden):**
-```
-// WRONG: Business logic in controller
-app.post('/orders', async (req, res) => {
-  if (req.body.total > 10000) {  // <- business rule in controller layer
-    await sendFraudAlert(req.body); // <- side effect in controller
-  }
-  // ...
-});
-
-// RIGHT: Controller delegates to use case
-app.post('/orders', async (req, res) => {
-  const result = await createOrderUseCase.execute(req.body);
-  res.json(result);
-});
-```
--->
+<!-- OPTIONAL: Anti-patterns (forbidden) -> e.g. Business logic in controllers. Instead delegate to explicit use cases. -->
 
 ---
 
@@ -83,14 +59,7 @@ app.post('/orders', async (req, res) => {
 - Maximum function length: **30 lines**. Extract smaller functions for complex logic
 - Cyclomatic complexity limit: **10** per function. Exceed this → refactor required
 
-<!-- OPTIONAL: Rule of Three Concept
-**Rule of Three:**
-```
-// First time: write the code inline
-// Second time: write it inline again (don't abstract yet)
-// Third time: NOW extract an abstraction
-```
--->
+<!-- OPTIONAL: Rule of Three Concept -> Keep inline -> inline again -> extract into abstraction on the 3rd time -->
 
 ---
 
@@ -105,20 +74,7 @@ app.post('/orders', async (req, res) => {
 - **Data retention:** Define explicit retention periods — no indefinite storage of PII
 - **PII definition includes:** names, emails, phone numbers, IP addresses, device IDs, location data, behavioral data that can identify individuals
 
-<!-- OPTIONAL: Logging Examples
-**Forbidden in logs:**
-```
-# NEVER log these:
-logger.info(`User ${user.email} logged in`);     // WRONG: email in log
-logger.error(`Payment failed: card ${cardNumber}`); // WRONG: PAN in log
-console.log(JSON.stringify(req.body));           // WRONG: may contain PII
-
-# ALLOWED:
-logger.info(`User ${user.id} logged in`);        // OK: only ID
-logger.error(`Payment failed: card ending ${last4}`); // OK: last 4 only
-logger.error(`Validation failed`, { fields: Object.keys(req.body) }); // OK: field names only
-```
--->
+<!-- OPTIONAL: Logging Examples -> DO NOT log email/device IDs/PAN. Instead log DB IDs or last 4 digits. -->
 
 ---
 
@@ -178,6 +134,28 @@ logger.error(`Validation failed`, { fields: Object.keys(req.body) }); // OK: fie
 
 ---
 
+### Article IX — Optimal Context & Skill Selection Mandate
+
+> Agents must proactively load the most relevant context and specialized capabilities for every task.
+
+- Agents **must always select** (and ask the user to select or confirm) the best guides, skills, and templates for the specific tasks, user queries, prompts, actions, gate passing, or system workflows they are executing.
+- Before beginning any action, verify which specialized `/skills/` and `/guides/` are most appropriate and explicitly load them.
+- If multiple skills or guides seem applicable, ask the user to disambiguate or confirm the selection to ensure optimal task execution.
+- **MCP Server Recommendations**: Agents must actively evaluate if specific MCP (Model Context Protocol) servers (either universal or task-specific) are needed or highly beneficial for the task but are not currently enabled. If so, they must proactively recommend that the user enable them before continuing.
+- This applies universally across all workflows, SDLC phases, and orchestrators.
+
+---
+
+### Article X — Default Cost & Budget Optimization Mandate
+
+> Cost efficiency is a continuous requirement, not an afterthought.
+
+- **Default to Frugality**: Agents must continuously optimize for cost and token budget across all planning and execution phases. Choose the lowest-cost model, tool, or path that reliably meets the technical requirements of the task.
+- **Human Approval for High Cost**: If a subtask strictly requires a more expensive SOTA (State of the Art) model, extensive search, elevated token contexts, or otherwise significantly increased costs, agents *must explicitly ask the human user for approval* before proceeding.
+- **Explain Trade-offs**: When requesting a budget increase or expensive resource allocation, briefly explain why the cheaper approach will fail or carry unacceptable risk.
+
+---
+
 ## Section 2 — Project-Specific Articles
 
 > Add project-specific constitutional rules below.
@@ -187,123 +165,11 @@ logger.error(`Validation failed`, { fields: Object.keys(req.body) }); // OK: fie
 <!-- This section is reserved for project-specific rules added by the user or init.py -->
 <!-- Example: Tenant Isolation, Audit Trails, or Performance Budgets -->
 
-<!-- OPTIONAL: Example Articles
-```
-Example articles for different project types:
-
---- SaaS Multi-tenant ---
-Article VIII — Tenant Isolation
-  Every database query on tenant-owned data MUST include a tenant_id filter.
-  Cross-tenant data access is categorically forbidden.
-  Violation: immediate security incident — revert, audit, report.
-
---- Regulated Industries (HIPAA/PCI) ---
-Article VIII — Audit Trail Completeness
-  Every mutation of PHI (Protected Health Information) or PCI data must:
-  - Be logged with: user ID, timestamp, action, before-value, after-value
-  - Be retained for minimum 7 years (HIPAA) or 12 months (PCI-DSS)
-  - Be immutable (append-only log, cryptographic verification)
-
---- Public API ---
-Article VIII — Backward Compatibility
-  Once an API endpoint is in production, its response schema is frozen.
-  Breaking changes require: new API version, 6-month parallel support, deprecation notice.
-
---- High-Traffic Applications ---
-Article VIII — Performance Budget
-  All API endpoints must respond within 200ms at p99 under normal load.
-  Any change that degrades p99 latency by > 20% is a performance regression — blocked.
-  Database queries must use EXPLAIN ANALYZE before committing any new query.
-```
--->
+<!-- OPTIONAL: Example Articles -> E.g. Multi-tenant rules, Audit trailing for regulated sectors, P99 payload latency strictness -->
 
 ---
 
-<!-- OPTIONAL BOILERPLATE: EARS Syntax Quick Reference & Example Clauses
-
-## Section 3 — EARS Syntax Quick Reference
-
-Use EARS (Easy Approach to Requirements Syntax) for all requirements in PRD.md and spec.md.
-
-### Pattern 1 — Ubiquitous (always applies)
-```
-THE SYSTEM SHALL [action].
-
-Example:
-THE SYSTEM SHALL encrypt all data in transit using TLS 1.3 or higher.
-```
-
-### Pattern 2 — Event-Driven (triggered by an event)
-```
-WHEN [trigger event]
-THE SYSTEM SHALL [response].
-
-Example:
-WHEN a user submits a login form with incorrect credentials 3 consecutive times
-THE SYSTEM SHALL lock the account for 15 minutes and send an unlock email.
-```
-
-### Pattern 3 — State-Driven (while in a state)
-```
-WHILE [system state]
-THE SYSTEM SHALL [behavior].
-
-Example:
-WHILE the payment processing service is unavailable
-THE SYSTEM SHALL queue payment requests and retry with exponential backoff.
-```
-
-### Pattern 4 — Optional Feature
-```
-WHERE [feature is enabled]
-THE SYSTEM SHALL [behavior].
-
-Example:
-WHERE two-factor authentication is enabled for the account
-THE SYSTEM SHALL require a TOTP code on each login.
-```
-
-### Pattern 5 — Unwanted Behavior (negative requirement)
-```
-THE SYSTEM SHALL NOT [forbidden behavior].
-
-Example:
-THE SYSTEM SHALL NOT store plaintext passwords in any storage medium.
-THE SYSTEM SHALL NOT expose stack traces in HTTP responses in production.
-```
-
----
-
-## Section 4 — Example Constitutional Clauses by Project Type
-
-### SaaS Web Application
-```
-- Article on: tenant isolation, rate limiting, subscription enforcement
-- Rate limit: 100 req/min per API key, 1000 req/min per tenant
-- Subscription enforcement: feature flags tied to plan level
-```
-
-### REST API (consumed by mobile clients)
-```
-- Article on: backward compatibility (6-month deprecation window)
-- Article on: versioned URLs (/v1/, /v2/) not header versioning
-- Article on: response envelope: { data, meta: { page, total }, errors }
-```
-
-### E-commerce / Payment Processing
-```
-- Article on: PCI-DSS: never store raw card numbers
-- Article on: idempotency: all payment operations idempotent with idempotency-key
-- Article on: inventory: never sell more than available stock (optimistic locking)
-```
-
-### Internal Developer Tool
-```
-- Article on: no breaking CLI changes without major version bump
-- Article on: all config changes backward compatible for 2 minor versions
-- Article on: exit codes: 0 = success, 1 = user error, 2 = system error
-```
--->
+<!-- OPTIONAL BOILERPLATE: EARS Syntax Quick Reference -> Refer to guides/principles/Spec-Driven-Development.md or PRD_TEMPLATE.md for usage and implementation details of EARS (Ubiquitous, Event-Driven, State-Driven, Optional, Unwanted Behavior constraint formats). -->
 
 ---
 

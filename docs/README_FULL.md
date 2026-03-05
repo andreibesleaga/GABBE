@@ -50,7 +50,8 @@ It contains:
 22. [Extending the Kit](#22-extending-the-kit)
 23. [Loki Mode (Large Projects)](#23-loki-mode-large-projects)
 24. [Guides by Technology Stack](#24-guides-by-technology-stack)
-25. [Troubleshooting](#25-troubleshooting)
+25. [Testing & Verification](#25-testing--verification)
+26. [Troubleshooting](#26-troubleshooting)
 
 ---
 
@@ -64,6 +65,7 @@ This kit gives AI coding agents the **context, skills, memory, and workflows** t
 - **Self-Evolution**: Agents rewrite their own prompts (`meta-optimize`) to fix recurring errors.
 - **Adaptive Orchestration**: Loki Mode dynamically injects research/safety phases based on complexity.
 - **Vibe Coding**: Translates high-level aesthetic intents ("Make it pop") into concrete CSS/JS.
+- **Optimal Execution Mandates**: Built-in rules forcing agents to prioritize the best specialized skills, proactively recommend missing MCP servers, and aggressively default to cost & budget optimization unless authorized by a human.
 
 The kit enforces **Spec-Driven Development (SDD)**, **Test-Driven Development (TDD)**, **Architecture-Driven Development (ADD)**, and structured **human-in-the-loop checkpoints** — so agents build correct, secure, maintainable software the first time.
 
@@ -1326,6 +1328,7 @@ Or explicitly:
 | `guides/principles/future-tech.md` | Future/2030 | 6G, IoT Matter, Vector DBs, WASM |
 | `guides/principles/legacy-tech.md` | Legacy/Mainframe | COBOL, Fortran, Modernization |
 | `guides/ops/dev-environments.md` | Dev Environment | Local vs Remote vs Cloud, Docker Watch |
+| `guides/ops/dev-workflow.md` | Ops/Workflow | Diátaxis Docs, GitHub CLI, Commit Standards |
 | `guides/patterns/enterprise-patterns.md` | Enterprise | Strangler Fig, ACL, CDC, Legacy Migration |
 | `guides/architecture/api-standards.md` | API Design | REST, GraphQL, Versioning, Governance |
 | `guides/principles/testing-strategy.md` | Testing | Pyramid, Trophy, Contract Testing |
@@ -1342,6 +1345,7 @@ Or explicitly:
 | `guides/patterns/autonomous-swarm-patterns.md` | AI/Agentic | Self-organizing Swarm Patterns |
 | `guides/ai/agent-communication.md` | All Stacks | MCP, A2A, ACP, Handshake Protocols |
 | `guides/languages/js-ts-nodejs.md` | JS/TS/Node.js | Clean Architecture, Vitest, Zod, Prisma, Playwright |
+| `guides/languages/nodejs-advanced.md` | Node.js Advanced | Fastify Architecture, Internals, Zero-Any TS |
 | `guides/languages/go-lang.md` | Go (Golang) | Echo/Gin, Ent, Testify, Clean Arch |
 | `guides/languages/php-laravel.md` | PHP/Laravel | DDD, Actions, Pest PHP, PHPStan L9, Enlightn |
 | `guides/languages/python-fastapi-ai.md` | Python/FastAPI/AI | Clean Architecture, Pydantic, Agents |

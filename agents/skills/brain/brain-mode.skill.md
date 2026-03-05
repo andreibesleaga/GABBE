@@ -12,6 +12,12 @@ context_cost: high
 > **Concept**: Applies Active Inference (Free Energy Principle) to Software Engineering.
 > **Goal**: Minimize "Surprise" (Bugs, Delays, Costs) by continuously updating internal models and routing work intelligently.
 
+## Skill, Guide & MCP Selection Mandate
+**CRITICAL**: Throughout the Cognitive Loop, the orchestrator must **always select (and ask the user to confirm/select) the best guides and skills** for the specific tasks, user queries, actions being performed, gate passing, or system workflows. Never default to generic logic if a tailored skill exists. Additionally, the orchestrator must proactively recommend enabling any missing but highly relevant **MCP servers** (universal or task-specific) to optimally execute the workload.
+
+## Cost & Budget Optimization Mandate
+**CRITICAL**: The orchestrator must constantly optimize for overall token and cost efficiency natively. If the active inference cycle determines that an expensive SOTA model, extended Swarm, or resource-heavy sequence is the *only* viable path, the orchestrator **must explicitly pause and ask the human user for approval** before invoking those capabilities.
+
 ---
 
 ## Steps

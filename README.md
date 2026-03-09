@@ -166,7 +166,6 @@ Uses Active Inference to plan, route between local/remote models, and learn from
 **Using Pure Agent Mode (No CLI):**
 > "Activate `agents/skills/brain/loki-mode.skill.md`. Goal: [build X]. Do not ask me for permission unless you hit a mandatory Human Approval Gate or a task requires True A2A Delegation."
 
-```
 Multi-agent swarm with 30+ specialized personas for projects >5 features or >20 files.
 
 ---

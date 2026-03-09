@@ -14,8 +14,8 @@
 - **Write Once, Run Everywhere**: SKILLS for Cursor (`.mdc`), VS Code (`folder/skill`), Claude (`.skill.md`), Gemini.
 - The system features an experimental **Meta-Cognitive Orchestrator "Brain"** (Neurocognitive based architecture derived from Neuroscience, Cognitive Psychology, Epistemology, treating the Software System not as a machine, but as a **Cognitive Entity**), using Active Inference to plan, route, and optimize work.
 - The system features a **Multi-Agent Swarm "Loki" Engineering Team** (30+ specialized agent roles for large projects), providing episodic and semantic memory, project history auditing and checkpoints.
-- It has experimental support for budget enforcement, tokens, hard stops, policy rules, cli tool gateway (via MCP server), audit tracing and logs, human escalation, and deterministic replay.
-- **Optimal Execution Mandates**: Built-in rules forcing agents to actively select the best specialized skills/guides, proactively recommend necessary MCP servers, and default to continuous cost & budget optimization—always requiring human approval for expensive operations.
+- Experimental support for budget enforcement, tokens, hard stops, policy rules, cli tool gateway (via MCP server), audit tracing and logs, human escalation, and deterministic replay.
+- **Optimal Execution Mandates**: Built-in rules for agents to actively select the best specialized skills/guides, proactively recommend necessary MCP servers, and default to continuous cost & budget optimization—always requiring human approval for expensive operations.
 
 It contains:
 - **140+ Skills** (specialized capabilities)

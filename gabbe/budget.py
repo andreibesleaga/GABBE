@@ -2,20 +2,23 @@
 import sqlite3
 import time
 from dataclasses import dataclass, field
-from .database import get_db
+
 from .config import (
+    GABBE_MAX_COST_USD,
+    GABBE_MAX_ITERATIONS,
     GABBE_MAX_TOKENS_PER_RUN,
     GABBE_MAX_TOOL_CALLS_PER_RUN,
-    GABBE_MAX_ITERATIONS,
     GABBE_MAX_WALL_TIME,
-    GABBE_MAX_COST_USD,
 )
+from .database import get_db
+
 
 class BudgetExceeded(Exception):
     def __init__(self, reason, snapshot):
         super().__init__(f"Budget Exceeded: {reason}")
         self.reason = reason
         self.snapshot = snapshot
+
 
 @dataclass
 class Budget:
@@ -52,14 +55,20 @@ class Budget:
                 }
             conn.close()
         except sqlite3.Error:
-            pass # Fallback to 0 if db fails
+            pass  # Fallback to 0 if db fails
 
     def _get_price(self, model_id: str):
         # Default empty pricing
-        return self._cached_prices.get(model_id, {
-            "input": 0.0, "output": 0.0, "reasoning": 0.0, 
-            "cache_creation": 0.0, "cache_read": 0.0
-        })
+        return self._cached_prices.get(
+            model_id,
+            {
+                "input": 0.0,
+                "output": 0.0,
+                "reasoning": 0.0,
+                "cache_creation": 0.0,
+                "cache_read": 0.0,
+            },
+        )
 
     def check(self):
         wall_time = time.monotonic() - self._start_time
@@ -79,7 +88,9 @@ class Budget:
         prompt_tokens = usage_dict.get("prompt_tokens", 0)
         completion_tokens = usage_dict.get("completion_tokens", 0)
         # Reasoning tokens are included inside completion_tokens for o1/o3-class models.
-        reasoning_tokens = usage_dict.get("completion_tokens_details", {}).get("reasoning_tokens", 0)
+        reasoning_tokens = usage_dict.get("completion_tokens_details", {}).get(
+            "reasoning_tokens", 0
+        )
         # Cache read tokens come from prompt_tokens_details.cached_tokens (OpenAI format).
         cache_read_tokens = usage_dict.get("prompt_tokens_details", {}).get("cached_tokens", 0)
 
@@ -90,10 +101,10 @@ class Budget:
         # reasoning tokens are never silently billed at zero.
         reasoning_price = prices["reasoning"] if prices["reasoning"] > 0 else prices["output"]
         cost = (
-            (prompt_tokens * prices["input"]) +
-            ((completion_tokens - reasoning_tokens) * prices["output"]) +
-            (reasoning_tokens * reasoning_price) +
-            (cache_read_tokens * prices["cache_read"])
+            (prompt_tokens * prices["input"])
+            + ((completion_tokens - reasoning_tokens) * prices["output"])
+            + (reasoning_tokens * reasoning_price)
+            + (cache_read_tokens * prices["cache_read"])
         )
         self.cost_usd += cost
         self.check()
@@ -112,7 +123,7 @@ class Budget:
             "tool_calls_used": self.tool_calls_used,
             "cost_usd": self.cost_usd,
             "iterations": self.iterations,
-            "wall_time_sec": time.monotonic() - self._start_time
+            "wall_time_sec": time.monotonic() - self._start_time,
         }
 
     def remaining(self) -> dict:

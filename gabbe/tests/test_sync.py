@@ -1,13 +1,21 @@
 # SPDX-License-Identifier: Apache-2.0
 """Unit tests for gabbe.sync."""
-import pytest
-from unittest.mock import patch
-from gabbe.sync import parse_markdown_tasks, generate_markdown_tasks, _parse_db_timestamp, _atomic_write
 
+from unittest.mock import patch
+
+import pytest
+
+from gabbe.sync import (
+    _atomic_write,
+    _parse_db_timestamp,
+    generate_markdown_tasks,
+    parse_markdown_tasks,
+)
 
 # ---------------------------------------------------------------------------
 # parse_markdown_tasks
 # ---------------------------------------------------------------------------
+
 
 def test_parse_empty_content():
     assert parse_markdown_tasks("") == []
@@ -64,6 +72,7 @@ def test_parse_strips_title_whitespace():
 # generate_markdown_tasks
 # ---------------------------------------------------------------------------
 
+
 def test_generate_empty_list():
     content = generate_markdown_tasks([])
     assert "# Project Tasks" in content
@@ -99,6 +108,7 @@ def test_roundtrip():
 # _parse_db_timestamp
 # ---------------------------------------------------------------------------
 
+
 def test_parse_standard_format():
     ts = _parse_db_timestamp("2026-01-15 12:00:00")
     assert ts > 0
@@ -118,14 +128,17 @@ def test_parse_invalid_returns_zero():
 # sync_tasks integration
 # ---------------------------------------------------------------------------
 
+
 def test_sync_import_from_md(tmp_project):
     import gabbe.sync as sync_mod
+
     tasks_file = tmp_project / "project/TASKS.md"
     tasks_file.write_text("- [ ] Task Alpha\n- [x] Task Beta\n")
 
     sync_mod.sync_tasks()
 
     from gabbe.database import get_db
+
     conn = get_db()
     try:
         c = conn.cursor()
@@ -163,6 +176,7 @@ def test_sync_export_to_md(tmp_project):
 def test_sync_both_empty(tmp_project):
     """When both DB and file are empty, sync should not crash."""
     import gabbe.sync as sync_mod
+
     sync_mod.sync_tasks()  # no exception
 
 
@@ -189,6 +203,7 @@ def test_sync_atomic_write_creates_file(tmp_project):
 # ---------------------------------------------------------------------------
 # _atomic_write
 # ---------------------------------------------------------------------------
+
 
 def test_atomic_write_cleans_up_on_os_error(tmp_path):
     """On os.replace failure the temp file must be deleted (no leftovers)."""

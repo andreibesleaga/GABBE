@@ -2303,23 +2303,28 @@
     "type": "file"
   },
   "agents/scripts/check_skills_docs.py": {
-    "sha256": "6f9d37e083e54e8f81bf427cca6204d865068a9bd03edd94557ad3c42cb4633d",
-    "size": 4786,
+    "sha256": "558c9295b575c34d614faae0217d61bf75e340b04452147f7f789c64a3d07551",
+    "size": 4682,
     "type": "file"
   },
   "agents/scripts/compile_skills.py": {
-    "sha256": "e3422c2da588545ab9d696012151a648ac7c42f78bc0072e6305f5e1e9cc7c0f",
-    "size": 9248,
+    "sha256": "10d4425d5b3a5efd3f729180824828d45259b28d829ff924d52a4ccc4a4ae1ba",
+    "size": 9340,
     "type": "file"
   },
   "agents/scripts/comprehensive_checker.py": {
-    "sha256": "82cbe41084a493e9501de37f4a86780729890a5fbe6b553b2676001f4e7f7a51",
-    "size": 6936,
+    "sha256": "fd5aa92de6e9db5a690f3f1ff3bae3a03fa5cb5319423e62f9ae6d3de2d26e38",
+    "size": 6685,
     "type": "file"
   },
   "agents/scripts/dump-context.sh": {
     "sha256": "6d43fa188987c61a4f433bcebc5e11188d36ad9ba120cf6f7a6abebe6740a6a8",
     "size": 1118,
+    "type": "file"
+  },
+  "agents/scripts/report_duplicates.py": {
+    "sha256": "d696134c810bc7d552ddc05197a9cc20d943b283f5be77fcedd292f7e0dc20b0",
+    "size": 3913,
     "type": "file"
   },
   "agents/scripts/setup-context.ps1": {
@@ -2333,38 +2338,38 @@
     "type": "file"
   },
   "agents/scripts/validate_integrity.py": {
-    "sha256": "1bb4ba6a0e2df80bfdbf3bed5e0a2206bcc3bf43a9122ea2d434c4acb231be66",
-    "size": 2387,
+    "sha256": "f3d25e0049589c51aee013bd66e5a3b0552b7d8196f91398d07288075584bd6f",
+    "size": 2444,
     "type": "file"
   },
   "agents/scripts/validate_links.py": {
-    "sha256": "322eff13a16c19bc10c135a64b4abd57d211d4250702bdf03811ac0889939d2f",
-    "size": 2754,
+    "sha256": "25b6451bad0fb95f882be3628b16049702d48b6e290278592888028d3a91dfb7",
+    "size": 2778,
     "type": "file"
   },
   "agents/scripts/validate_skills.py": {
-    "sha256": "8c61fa39c8dd671f43225cff0909035563373775644e1ea9cc8377a7deb162eb",
-    "size": 1676,
+    "sha256": "d5f1bf9d3c0754fcebd1947b10e70cc6eb39048b5dbf985d4ba5070b36db6e7c",
+    "size": 1611,
     "type": "file"
   },
   "agents/scripts/verify_e2e_init_flows.py": {
-    "sha256": "f5743ebedb00bd1e7b51eaf1243c49197ebb63c93ed37d9f909a7cbb9b56432d",
-    "size": 7638,
+    "sha256": "a9503891d01985becb02cf4b50022f84a8138bf0193aa6ec2d57f0e53e565942",
+    "size": 8205,
     "type": "file"
   },
   "agents/scripts/verify_setup_simulation.py": {
-    "sha256": "b615a3dd83263e0cbd3a210b6e834126136e3ea5d5765b908c809f19daf47f6d",
-    "size": 3904,
+    "sha256": "581a3c5a1ac7969cc1f84be4414f329fb09c8d7e72f0ddc339bf8179899e582f",
+    "size": 3854,
     "type": "file"
   },
   "agents/scripts/verify_triggers_and_mcps.py": {
-    "sha256": "d6b1b1c22799d008065ec2fbdc3c4a54d3ebc941148475b297baca20ac7069d0",
-    "size": 5299,
+    "sha256": "41d954f73d5227914eb67211f0e3c45bc228ff004bd581f42d0efb4e02465ac4",
+    "size": 5401,
     "type": "file"
   },
   "agents/scripts/verify_use_cases.py": {
-    "sha256": "bcc909bc4e71348527fffc9115d605c6ebb1bec8360b90b60f11dc005e4c08aa",
-    "size": 18681,
+    "sha256": "c86f58e66e3964098e40c4648403011d720268994c681e66485e3698458a83e6",
+    "size": 19452,
     "type": "file"
   },
   "agents/skills/00-index.md": {

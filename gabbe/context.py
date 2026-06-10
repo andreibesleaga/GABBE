@@ -1,33 +1,44 @@
 # SPDX-License-Identifier: Apache-2.0
 from __future__ import annotations
+
 import json
 import logging
-import uuid
 import time
-from .database import get_db
-from .budget import Budget
-from .hardstop import HardStop
+import uuid
+
 from .audit import AuditTracer
-from .gateway import ToolGateway
-from .policy import PolicyEngine
+from .budget import Budget
+from .database import get_db
 from .escalation import EscalationHandler
+from .gateway import ToolGateway
+from .hardstop import HardStop
+from .policy import PolicyEngine
 from .replay import CheckpointStore
 
 logger = logging.getLogger("gabbe.context")
 
+
 class RunContext:
-    def __init__(self, command: str, initiator: str = "cli", agent_persona: str | None = None, 
-                 run_id: str | None = None, budget: Budget | None = None, hard_stop: HardStop | None = None, 
-                 policy: PolicyEngine | None = None, gateway: ToolGateway | None = None):
+    def __init__(
+        self,
+        command: str,
+        initiator: str = "cli",
+        agent_persona: str | None = None,
+        run_id: str | None = None,
+        budget: Budget | None = None,
+        hard_stop: HardStop | None = None,
+        policy: PolicyEngine | None = None,
+        gateway: ToolGateway | None = None,
+    ):
         self.run_id = run_id or str(uuid.uuid4())
         self.command = command
         self.initiator = initiator
         self.agent_persona = agent_persona
-        
+
         self.budget = budget or Budget.from_config()
         self.hard_stop = hard_stop or HardStop()
         self.policy = policy or PolicyEngine.from_yaml()
-        
+
         self.db_conn = get_db()
         self.tracer = AuditTracer(self.run_id, db_conn=self.db_conn)
         self.gateway = gateway or ToolGateway()
@@ -40,23 +51,32 @@ class RunContext:
     def __enter__(self):
         try:
             cursor = self.db_conn.cursor()
-            
+
             # Serialize the active limits as config snapshot
             config_snap = {
                 "budget": {
                     "max_tokens": self.budget.max_tokens,
                     "max_cost_usd": self.budget.max_cost_usd,
-                    "max_tool_calls": self.budget.max_tool_calls
+                    "max_tool_calls": self.budget.max_tool_calls,
                 },
-                "policy_version": self.policy.version
+                "policy_version": self.policy.version,
             }
 
-            cursor.execute("""
+            cursor.execute(
+                """
                 INSERT INTO runs 
                 (id, command, status, initiator, agent_persona, config_snapshot)
                 VALUES (?, ?, ?, ?, ?, ?)
-            """, (self.run_id, self.command, "running", self.initiator, 
-                  self.agent_persona, json.dumps(config_snap)))
+            """,
+                (
+                    self.run_id,
+                    self.command,
+                    "running",
+                    self.initiator,
+                    self.agent_persona,
+                    json.dumps(config_snap),
+                ),
+            )
             self.db_conn.commit()
             self._is_active = True
         except Exception as e:
@@ -66,16 +86,17 @@ class RunContext:
     def __exit__(self, exc_type, exc_val, exc_tb):
         if not self._is_active:
             return
-            
+
         status = "completed"
         stop_reason = "success"
-        
+
         if exc_type:
             status = "error"
             stop_reason = str(exc_val)
             # Use isinstance() for reliable type checking regardless of import path.
             from .budget import BudgetExceeded
             from .escalation import EscalationPaused
+
             if isinstance(exc_val, BudgetExceeded):
                 status = "budget_exceeded"
             elif isinstance(exc_val, EscalationPaused):
@@ -83,16 +104,19 @@ class RunContext:
 
         try:
             cursor = self.db_conn.cursor()
-            cursor.execute("""
+            cursor.execute(
+                """
                 UPDATE runs 
                 SET ended_at = CURRENT_TIMESTAMP, status = ?, stop_reason = ?, 
                     total_tokens_used = ?, total_cost_usd = ?
                 WHERE id = ?
-            """, (status, stop_reason, self.budget.tokens_used, self.budget.cost_usd, self.run_id))
+            """,
+                (status, stop_reason, self.budget.tokens_used, self.budget.cost_usd, self.run_id),
+            )
             self.db_conn.commit()
         except Exception as e:
             logger.error(f"Failed to finalize RunContext {self.run_id}: {e}")
-            
+
         self.db_conn.close()
 
     @classmethod
@@ -113,9 +137,7 @@ class RunContext:
             run_id = row["run_id"]
 
             # Load the original run's config snapshot to restore budget limits
-            run_row = db_conn.execute(
-                "SELECT * FROM runs WHERE id = ?", (run_id,)
-            ).fetchone()
+            run_row = db_conn.execute("SELECT * FROM runs WHERE id = ?", (run_id,)).fetchone()
             budget = Budget.from_config()
             if run_row and run_row["config_snapshot"]:
                 snap = json.loads(run_row["config_snapshot"])

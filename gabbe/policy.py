@@ -1,8 +1,11 @@
 # SPDX-License-Identifier: Apache-2.0
-import yaml
 from dataclasses import dataclass
-from typing import List, Dict
+from typing import Dict, List
+
+import yaml
+
 from .config import GABBE_POLICY_FILE, PII_PATTERNS
+
 
 @dataclass
 class PolicyResult:
@@ -10,14 +13,17 @@ class PolicyResult:
     reason: str
     policy_name: str
 
+
 class Policy:
     name: str = "BasePolicy"
-    
+
     def check(self, context: dict) -> PolicyResult:
         raise NotImplementedError
 
+
 class ToolAllowlistPolicy(Policy):
     name = "ToolAllowlistPolicy"
+
     def __init__(self, allowed_tools: List[str], denied_tools: List[str]):
         self.allowed = set(allowed_tools)
         self.denied = set(denied_tools)
@@ -26,35 +32,39 @@ class ToolAllowlistPolicy(Policy):
         tool_name = context.get("tool")
         if not tool_name:
             return PolicyResult(True, "No tool to check", self.name)
-        
+
         if tool_name in self.denied or ("*" in self.denied):
             return PolicyResult(False, f"Tool {tool_name} is explicitly denied", self.name)
-            
+
         if "*" in self.allowed or tool_name in self.allowed:
             return PolicyResult(True, f"Tool {tool_name} is allowed", self.name)
-            
+
         return PolicyResult(False, f"Tool {tool_name} is not in allowlist", self.name)
+
 
 class RolePolicy(Policy):
     name = "RolePolicy"
+
     def __init__(self, roles: Dict[str, List[str]]):
         self.roles = roles
-        
+
     def check(self, context: dict) -> PolicyResult:
         tool_name = context.get("tool")
         role_name = context.get("role")
-        
+
         if not role_name or not tool_name:
             return PolicyResult(True, "Missing role or tool context", self.name)
-            
+
         allowed_for_role = self.roles.get(role_name, [])
         if "*" in allowed_for_role or tool_name in allowed_for_role:
             return PolicyResult(True, f"Role {role_name} allowed to use {tool_name}", self.name)
-            
+
         return PolicyResult(False, f"Role {role_name} denied from using {tool_name}", self.name)
+
 
 class ContentSafetyPolicy(Policy):
     """Deny tool calls whose input text contains PII patterns."""
+
     name = "ContentSafetyPolicy"
 
     def check(self, context: dict) -> PolicyResult:
@@ -71,6 +81,7 @@ class ContentSafetyPolicy(Policy):
 
 class ParameterRangePolicy(Policy):
     """Validate numeric parameters against defined min/max bounds."""
+
     name = "ParameterRangePolicy"
 
     def __init__(self, bounds: Dict[str, Dict[str, float]]):
@@ -114,13 +125,15 @@ class PolicyEngine:
             with open(path, "r") as f:
                 data = yaml.safe_load(f) or {}
                 version = data.get("version", "1")
-                
+
                 tools = data.get("tools", {})
-                policies.append(ToolAllowlistPolicy(
-                    allowed_tools=tools.get("allowed", ["*"]),
-                    denied_tools=tools.get("denied", [])
-                ))
-                
+                policies.append(
+                    ToolAllowlistPolicy(
+                        allowed_tools=tools.get("allowed", ["*"]),
+                        denied_tools=tools.get("denied", []),
+                    )
+                )
+
                 roles = data.get("roles", {})
                 if roles:
                     policies.append(RolePolicy(roles))
@@ -135,12 +148,14 @@ class PolicyEngine:
             # Policy file not found: default to deny-all and warn the operator.
             # This is the secure default — explicit policies must be created to allow tools.
             import logging as _logging
+
             _logging.getLogger("gabbe.policy").warning(
                 "Policy file not found at %s — defaulting to deny-all. "
-                "Create project/policies.yml to configure tool access.", path
+                "Create project/policies.yml to configure tool access.",
+                path,
             )
             policies.append(ToolAllowlistPolicy([], []))
-            
+
         engine = cls(policies)
         engine.version = version
         return engine

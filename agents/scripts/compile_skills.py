@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
+import argparse
+import json
 import os
 import re
-import sys
 import shutil
-import json
-import argparse
+import sys
 from pathlib import Path
 
 # Colors
@@ -50,13 +50,20 @@ def inject_schema_version(content):
             head = content[:3]
             block = content[3:end]
             tail = content[end:]
-            return head + block.rstrip("\n") + f"\ngabbe-schema-version: {GABBE_SCHEMA_VERSION}\n" + tail
+            return (
+                head
+                + block.rstrip("\n")
+                + f"\ngabbe-schema-version: {GABBE_SCHEMA_VERSION}\n"
+                + tail
+            )
     return content
+
 
 def ensure_yaml_frontmatter(content, filename):
     """Ensures content has valid YAML frontmatter using PyYAML. Returns (frontmatter_dict, content)."""
     try:
         import yaml
+
         if content.startswith("---"):
             end_yaml = content.find("---", 3)
             if end_yaml != -1:
@@ -71,15 +78,15 @@ def ensure_yaml_frontmatter(content, filename):
             if end_yaml != -1:
                 yaml_text = content[3:end_yaml]
                 data = {}
-                for line in yaml_text.strip().split('\n'):
-                     if ':' in line:
-                         k, v = line.split(':', 1)
-                         data[k.strip()] = v.strip().strip('"\'')
+                for line in yaml_text.strip().split("\n"):
+                    if ":" in line:
+                        k, v = line.split(":", 1)
+                        data[k.strip()] = v.strip().strip("\"'")
                 return data, content
     except Exception:
         # print(f"Warning: Failed to parse YAML for {filename}: {e}")
         pass
-            
+
     # Default frontmatter if missing or failed
     name = filename.replace(".skill.md", "").replace(".md", "").replace(".mdc", "")
     frontmatter = f"""---
@@ -91,6 +98,7 @@ author: GABBE-Kit
 """
     return {"name": name}, frontmatter + content
 
+
 def create_symlink(source, target, project_root):
     """Creates a symlink from target to source, backing up if exists."""
     if target.is_symlink():
@@ -100,21 +108,21 @@ def create_symlink(source, target, project_root):
         # extension, e.g. config.json -> config.bak).
         backup = target.parent / (target.name + ".bak")
         if target.is_dir():
-             print(f"  {YELLOW}! Backing up existing directory {target.name} to {backup.name}{NC}")
-             shutil.move(str(target), str(backup))
+            print(f"  {YELLOW}! Backing up existing directory {target.name} to {backup.name}{NC}")
+            shutil.move(str(target), str(backup))
         else:
-             print(f"  {YELLOW}! Backing up existing file {target.name} to {backup.name}{NC}")
-             target.rename(backup)
-    
+            print(f"  {YELLOW}! Backing up existing file {target.name} to {backup.name}{NC}")
+            target.rename(backup)
+
     # Ensure parent dir exists
     target.parent.mkdir(parents=True, exist_ok=True)
-    
+
     # Calculate relative path if possible, else absolute
     try:
         if str(project_root) in str(source.absolute()):
-             link_path = os.path.relpath(source, target.parent)
+            link_path = os.path.relpath(source, target.parent)
         else:
-             link_path = source.absolute()
+            link_path = source.absolute()
 
         os.symlink(link_path, target)
         # print(f"  {GREEN}✓ Linked {target.name} -> {link_path}{NC}")
@@ -132,7 +140,7 @@ def create_symlink(source, target, project_root):
                 shutil.copy2(source, target)
             print(f"  {GREEN}✓ Copied {target.name} (Symlink fallback){NC}")
         except Exception as e2:
-             print(f"  {RED}x Failed to copy {target}: {e2}{NC}")
+            print(f"  {RED}x Failed to copy {target}: {e2}{NC}")
     except Exception as e:
         print(f"  {RED}x Failed to link {target}: {e}{NC}")
 
@@ -143,15 +151,15 @@ def setup_skills_for_platform(platform, skills_src_dir, target_dir, project_root
     """
     print(f"\n{BLUE}→ Setting up skills for {platform}...{NC}")
     target_dir.mkdir(parents=True, exist_ok=True)
-    
+
     # Get all .skill.md files recursively
     skill_files = list(skills_src_dir.rglob("*.skill.md"))
-    
+
     count = 0
     for skill_file in skill_files:
         content = skill_file.read_text()
         meta, content_with_fm = ensure_yaml_frontmatter(content, skill_file.name)
-        
+
         # Slugify name for files/commands (e.g. "Agent Interop" -> "agent-interop").
         # safe_slug() prevents path traversal via a malicious frontmatter name.
         raw_name = meta.get("name", skill_file.stem.replace(".skill", ""))
@@ -203,10 +211,18 @@ def setup_skills_for_platform(platform, skills_src_dir, target_dir, project_root
 
     print(f"  {GREEN}✓ Processed {count} skills for {platform}{NC}")
 
+
 def main():
     parser = argparse.ArgumentParser(description="Compile skills for specific platforms.")
-    parser.add_argument("--platform", required=True, choices=["Cursor", "VS Code", "GitHub Copilot", "Claude Code", "All"], help="Target platform")
-    parser.add_argument("--skills-dir", required=True, help="Source directory for skills (agents/skills)")
+    parser.add_argument(
+        "--platform",
+        required=True,
+        choices=["Cursor", "VS Code", "GitHub Copilot", "Claude Code", "All"],
+        help="Target platform",
+    )
+    parser.add_argument(
+        "--skills-dir", required=True, help="Source directory for skills (agents/skills)"
+    )
     parser.add_argument("--target-dir", required=True, help="Target directory for output")
     parser.add_argument("--project-root", required=True, help="Root of the project")
 
@@ -225,6 +241,7 @@ def main():
         pass
     else:
         setup_skills_for_platform(args.platform, skills_src, target_dir, project_root)
+
 
 if __name__ == "__main__":
     main()

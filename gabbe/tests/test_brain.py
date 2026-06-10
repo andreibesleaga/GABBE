@@ -1,14 +1,16 @@
 # SPDX-License-Identifier: Apache-2.0
 """Unit tests for gabbe.brain."""
-from unittest.mock import patch
 
+from unittest.mock import patch
 
 # ---------------------------------------------------------------------------
 # activate_brain
 # ---------------------------------------------------------------------------
 
+
 def test_activate_brain_prints_action(tmp_project, capsys):
     from gabbe.brain import activate_brain
+
     with patch("gabbe.brain.call_llm", return_value="Focus on critical path"):
         activate_brain()
     out = capsys.readouterr().out
@@ -19,6 +21,7 @@ def test_activate_brain_prints_action(tmp_project, capsys):
 def test_activate_brain_handles_empty_tasks(tmp_project, capsys):
     """activate_brain should not crash on an empty task table."""
     from gabbe.brain import activate_brain
+
     with patch("gabbe.brain.call_llm", return_value="No tasks, initialise project"):
         activate_brain()
     out = capsys.readouterr().out
@@ -28,6 +31,7 @@ def test_activate_brain_handles_empty_tasks(tmp_project, capsys):
 def test_activate_brain_handles_llm_none(tmp_project, capsys):
     """When call_llm returns None, Brain Freeze message is shown."""
     from gabbe.brain import activate_brain
+
     with patch("gabbe.brain.call_llm", return_value=None):
         activate_brain()
     out = capsys.readouterr().out
@@ -36,8 +40,9 @@ def test_activate_brain_handles_llm_none(tmp_project, capsys):
 
 def test_activate_brain_with_tasks_in_db(tmp_project, capsys):
     """activate_brain observes real task stats from DB."""
-    from gabbe.database import get_db
     from gabbe.brain import activate_brain
+    from gabbe.database import get_db
+
     conn = get_db()
     conn.execute("INSERT INTO tasks (title, status) VALUES ('Task A', 'DONE')")
     conn.execute("INSERT INTO tasks (title, status) VALUES ('Task B', 'TODO')")
@@ -55,6 +60,7 @@ def test_activate_brain_with_tasks_in_db(tmp_project, capsys):
 # ---------------------------------------------------------------------------
 # evolve_prompts
 # ---------------------------------------------------------------------------
+
 
 def test_evolve_prompts_seeds_gene_pool(tmp_project):
     """First call creates the seed gene (generation 0) and mutates it."""
@@ -128,9 +134,7 @@ def test_evolve_prompts_gene_content_is_not_none(tmp_project):
         evolve_prompts("good-skill")
 
     conn = get_db()
-    rows = conn.execute(
-        "SELECT prompt_content FROM genes WHERE skill_name='good-skill'"
-    ).fetchall()
+    rows = conn.execute("SELECT prompt_content FROM genes WHERE skill_name='good-skill'").fetchall()
     conn.close()
 
     for row in rows:
@@ -140,6 +144,7 @@ def test_evolve_prompts_gene_content_is_not_none(tmp_project):
 # ---------------------------------------------------------------------------
 # run_healer
 # ---------------------------------------------------------------------------
+
 
 def test_run_healer_all_clear(tmp_project, capsys):
     """Healer reports nominal when DB reachable and all files exist."""
@@ -170,7 +175,7 @@ def test_run_healer_missing_files(tmp_project, capsys):
 
     required = [
         tmp_project / "agents/AGENTS.md",  # does not exist
-        tmp_project / "project/TASKS.md",            # does not exist
+        tmp_project / "project/TASKS.md",  # does not exist
     ]
     with patch("gabbe.config.REQUIRED_FILES", required):
         run_healer()
@@ -184,8 +189,9 @@ def test_run_healer_db_unreachable(tmp_project, capsys):
     """Healer reports DB issue when get_db raises."""
     from gabbe.brain import run_healer
 
-    with patch("gabbe.brain.get_db", side_effect=Exception("locked")), \
-         patch("gabbe.brain.REQUIRED_FILES", []):
+    with patch("gabbe.brain.get_db", side_effect=Exception("locked")), patch(
+        "gabbe.brain.REQUIRED_FILES", []
+    ):
         run_healer()
 
     out = capsys.readouterr().out

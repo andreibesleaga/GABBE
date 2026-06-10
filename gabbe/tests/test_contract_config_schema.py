@@ -5,6 +5,7 @@ Every baseline config constant must still exist with the same Python type,
 and every baseline SQL statement must still be present in a freshly
 initialized database. Additions are allowed.
 """
+
 import json
 import sqlite3
 import subprocess

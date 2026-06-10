@@ -1,12 +1,14 @@
 # SPDX-License-Identifier: Apache-2.0
 """Unit tests for gabbe.route."""
-from unittest.mock import patch
-from gabbe.route import detect_pii, calculate_complexity, route_request
 
+from unittest.mock import patch
+
+from gabbe.route import calculate_complexity, detect_pii, route_request
 
 # ---------------------------------------------------------------------------
 # detect_pii
 # ---------------------------------------------------------------------------
+
 
 class TestDetectPii:
     def test_no_pii(self):
@@ -35,6 +37,7 @@ class TestDetectPii:
 # calculate_complexity
 # ---------------------------------------------------------------------------
 
+
 class TestCalculateComplexity:
     def test_short_prompt_is_simple(self):
         score, reason = calculate_complexity("Fix typo")
@@ -59,6 +62,7 @@ class TestCalculateComplexity:
 # ---------------------------------------------------------------------------
 # route_request
 # ---------------------------------------------------------------------------
+
 
 class TestRouteRequest:
     def test_simple_prompt_routes_local(self):

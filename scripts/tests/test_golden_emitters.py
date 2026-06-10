@@ -17,6 +17,7 @@ removed or byte-changed artifact fails. To intentionally update a baseline
 
 and review the diff against the additive-only rule before committing.
 """
+
 import json
 import subprocess
 import sys

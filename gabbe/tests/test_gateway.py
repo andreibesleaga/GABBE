@@ -1,8 +1,10 @@
 # SPDX-License-Identifier: Apache-2.0
 """Unit tests for gabbe.gateway."""
+
 import pytest
-from gabbe.gateway import ToolDefinition, ToolNotFound, PolicyDenied, CircuitOpen, RateLimitExceeded
+
 from gabbe.budget import Budget, BudgetExceeded
+from gabbe.gateway import CircuitOpen, PolicyDenied, RateLimitExceeded, ToolDefinition, ToolNotFound
 from gabbe.policy import PolicyEngine, ToolAllowlistPolicy
 
 
@@ -17,6 +19,7 @@ def _simple_tool(x=1):
 
 def test_register_and_execute(tmp_project):
     from gabbe.context import RunContext
+
     with RunContext.from_config(command="gw-test", policy=_allow_all_policy()) as ctx:
         ctx.gateway.register(ToolDefinition("double", "doubles x", {}, _simple_tool, {"tester"}))
         result = ctx.gateway.execute("double", {"x": 5}, "tester", ctx)
@@ -25,6 +28,7 @@ def test_register_and_execute(tmp_project):
 
 def test_tool_not_found(tmp_project):
     from gabbe.context import RunContext
+
     with RunContext.from_config(command="gw-test", policy=_allow_all_policy()) as ctx:
         with pytest.raises(ToolNotFound):
             ctx.gateway.execute("nonexistent", {}, "tester", ctx)
@@ -32,6 +36,7 @@ def test_tool_not_found(tmp_project):
 
 def test_policy_denied(tmp_project):
     from gabbe.context import RunContext
+
     deny_policy = PolicyEngine([ToolAllowlistPolicy([], ["double"])])
     with RunContext.from_config(command="gw-test", policy=deny_policy) as ctx:
         ctx.gateway.register(ToolDefinition("double", "desc", {}, _simple_tool, {"tester"}))
@@ -41,9 +46,12 @@ def test_policy_denied(tmp_project):
 
 def test_budget_exceeded_on_execute(tmp_project):
     from gabbe.context import RunContext
+
     tiny_budget = Budget(max_tool_calls=0)
     tiny_budget.tool_calls_used = 1  # already over limit
-    with RunContext.from_config(command="gw-test", budget=tiny_budget, policy=_allow_all_policy()) as ctx:
+    with RunContext.from_config(
+        command="gw-test", budget=tiny_budget, policy=_allow_all_policy()
+    ) as ctx:
         ctx.gateway.register(ToolDefinition("noop", "desc", {}, lambda: None, {"tester"}))
         with pytest.raises(BudgetExceeded):
             ctx.gateway.execute("noop", {}, "tester", ctx)
@@ -51,11 +59,16 @@ def test_budget_exceeded_on_execute(tmp_project):
 
 def test_circuit_breaker_opens(tmp_project):
     from gabbe.context import RunContext
+
     def failing_tool():
         raise RuntimeError("fail")
 
     with RunContext.from_config(command="gw-test", policy=_allow_all_policy()) as ctx:
-        ctx.gateway.register(ToolDefinition("fail_tool", "desc", {}, failing_tool, {"t"}, circuit_breaker_threshold=2))
+        ctx.gateway.register(
+            ToolDefinition(
+                "fail_tool", "desc", {}, failing_tool, {"t"}, circuit_breaker_threshold=2
+            )
+        )
         for _ in range(2):
             with pytest.raises(RuntimeError):
                 ctx.gateway.execute("fail_tool", {}, "t", ctx)
@@ -65,7 +78,9 @@ def test_circuit_breaker_opens(tmp_project):
 
 def test_circuit_breaker_resets_on_success(tmp_project):
     from gabbe.context import RunContext
+
     call_count = {"n": 0}
+
     def sometimes_fails():
         call_count["n"] += 1
         if call_count["n"] == 1:
@@ -73,7 +88,11 @@ def test_circuit_breaker_resets_on_success(tmp_project):
         return "ok"
 
     with RunContext.from_config(command="gw-test", policy=_allow_all_policy()) as ctx:
-        ctx.gateway.register(ToolDefinition("conditional", "desc", {}, sometimes_fails, {"t"}, circuit_breaker_threshold=3))
+        ctx.gateway.register(
+            ToolDefinition(
+                "conditional", "desc", {}, sometimes_fails, {"t"}, circuit_breaker_threshold=3
+            )
+        )
         with pytest.raises(RuntimeError):
             ctx.gateway.execute("conditional", {}, "t", ctx)
         result = ctx.gateway.execute("conditional", {}, "t", ctx)
@@ -83,8 +102,11 @@ def test_circuit_breaker_resets_on_success(tmp_project):
 
 def test_rate_limit(tmp_project):
     from gabbe.context import RunContext
+
     with RunContext.from_config(command="gw-test", policy=_allow_all_policy()) as ctx:
-        ctx.gateway.register(ToolDefinition("rate_tool", "desc", {}, lambda: "ok", {"t"}, rate_limit_per_min=2))
+        ctx.gateway.register(
+            ToolDefinition("rate_tool", "desc", {}, lambda: "ok", {"t"}, rate_limit_per_min=2)
+        )
         ctx.gateway.execute("rate_tool", {}, "t", ctx)
         ctx.gateway.execute("rate_tool", {}, "t", ctx)
         with pytest.raises(RateLimitExceeded):
@@ -94,6 +116,7 @@ def test_rate_limit(tmp_project):
 def test_execute_records_audit_span(tmp_project):
     from gabbe.context import RunContext
     from gabbe.database import get_db
+
     with RunContext.from_config(command="gw-audit", policy=_allow_all_policy()) as ctx:
         ctx.gateway.register(ToolDefinition("spy", "desc", {}, lambda: "seen", {"t"}))
         ctx.gateway.execute("spy", {}, "t", ctx)

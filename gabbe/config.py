@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 from __future__ import annotations
+
 import logging
 import os
 import re
@@ -8,18 +9,24 @@ from pathlib import Path
 
 logger = logging.getLogger("gabbe.config")
 
+
 # Paths — PROJECT_ROOT is determined by looking for marker files (project, .git, pyproject.toml)
 # upwards from the current working directory.
 def _find_project_root(start_path):
     current = start_path.resolve()
     for _ in range(10):  # Limit recursion depth
-        if (current / "project").exists() or (current / ".git").exists() or (current / "pyproject.toml").exists():
+        if (
+            (current / "project").exists()
+            or (current / ".git").exists()
+            or (current / "pyproject.toml").exists()
+        ):
             return current
         parent = current.parent
         if parent == current:
             break
         current = parent
     return start_path.resolve()  # Fallback to CWD
+
 
 PROJECT_ROOT = _find_project_root(Path(os.getcwd()))
 
@@ -30,9 +37,7 @@ PII_PATTERNS = [
     # re.compile(r'\b\d{9}\b'),                               # REMOVED: matches any 9-digit number
     re.compile(r"\b\d{3}-\d{2}-\d{4}\b"),  # SSN (dashes)
     re.compile(r"\b(?:\d{4}[-\s]?){3}\d{4}\b"),  # credit card
-    re.compile(
-        r"(?i)\b(?:password|passwd|api[_\-]?key|secret|token)\s*[:=]\s*\S+"
-    ),  # credentials
+    re.compile(r"(?i)\b(?:password|passwd|api[_\-]?key|secret|token)\s*[:=]\s*\S+"),  # credentials
 ]
 GABBE_DIR = PROJECT_ROOT / "project"
 DB_PATH = GABBE_DIR / "state.db"
@@ -68,9 +73,7 @@ if GABBE_CONFIG_FILE.exists():
                         candidate.relative_to(project_root_resolved)
                         REQUIRED_FILES.append(candidate)
                     except ValueError:
-                        warnings.warn(
-                            f"Skipping config.json path outside project root: {rf}"
-                        )
+                        warnings.warn(f"Skipping config.json path outside project root: {rf}")
     except Exception as e:
         warnings.warn(f"Failed to load extra config from {GABBE_CONFIG_FILE}: {e}")
 
@@ -85,9 +88,7 @@ if env_file.exists():
                 if sep:
                     os.environ.setdefault(key.strip(), val.strip().strip("'\""))
 
-GABBE_API_URL = os.environ.get(
-    "GABBE_API_URL", "https://api.openai.com/v1/chat/completions"
-)
+GABBE_API_URL = os.environ.get("GABBE_API_URL", "https://api.openai.com/v1/chat/completions")
 GABBE_API_KEY = os.environ.get("GABBE_API_KEY")
 GABBE_API_MODEL = os.environ.get("GABBE_API_MODEL", "gpt-4o")
 
@@ -133,7 +134,7 @@ GABBE_MAX_RECURSION_DEPTH = _safe_int("GABBE_MAX_RECURSION_DEPTH", 5)
 GABBE_MAX_RETRIES_PER_TOOL = _safe_int("GABBE_MAX_RETRIES_PER_TOOL", 3)
 GABBE_MAX_COST_USD = _safe_float("GABBE_MAX_COST_USD", 5.0)
 GABBE_POLICY_FILE = PROJECT_ROOT / os.environ.get("GABBE_POLICY_FILE", "project/policies.yml")
-GABBE_ESCALATION_MODE = os.environ.get("GABBE_ESCALATION_MODE", "cli") # cli, file, silent
+GABBE_ESCALATION_MODE = os.environ.get("GABBE_ESCALATION_MODE", "cli")  # cli, file, silent
 GABBE_OTEL_ENABLED = os.environ.get("GABBE_OTEL_ENABLED", "false").lower() == "true"
 
 # Task status constants — single source of truth used across brain, sync, status

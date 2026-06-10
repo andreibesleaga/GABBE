@@ -13,6 +13,7 @@ committing megabytes of compiled output.
 Usage:
     python scripts/gates/capture_emitter_baseline.py <output_dir>
 """
+
 import hashlib
 import io
 import json
@@ -46,7 +47,9 @@ KEY_FILES = [
 def load_init_module():
     sys.path.insert(0, str(KIT_ROOT / "scripts"))
     import importlib
+
     import init as init_module
+
     importlib.reload(init_module)
     return init_module
 
@@ -54,28 +57,36 @@ def load_init_module():
 def scripted_answers(platform_agents):
     """Answers for the wizard, in the exact order main() asks them."""
     return {
-        "select_index": iter([
-            0,  # Install Location -> Local
-            0,  # Team Size -> Solo
-        ]),
-        "select": iter([
-            "Greenfield (New)",   # Project Type
-            "Python",             # Primary Language
-        ]),
-        "ask": iter([
-            "golden-project",         # Project Name
-            "Golden baseline project",  # Description
-            "FastAPI",                # Primary Framework
-            "n",                      # Dynamic Agent Setup
-            "n",                      # Agent Analytics
-            "n",                      # Self-Evolving Capabilities
-            "n",                      # GABBE CLI platform controls
-        ]),
-        "ask_multiselect": iter([
-            ["SQLite"],          # Databases
-            [],                  # Infrastructure / Cloud
-            platform_agents,     # Which AI Agents
-        ]),
+        "select_index": iter(
+            [
+                0,  # Install Location -> Local
+                0,  # Team Size -> Solo
+            ]
+        ),
+        "select": iter(
+            [
+                "Greenfield (New)",  # Project Type
+                "Python",  # Primary Language
+            ]
+        ),
+        "ask": iter(
+            [
+                "golden-project",  # Project Name
+                "Golden baseline project",  # Description
+                "FastAPI",  # Primary Framework
+                "n",  # Dynamic Agent Setup
+                "n",  # Agent Analytics
+                "n",  # Self-Evolving Capabilities
+                "n",  # GABBE CLI platform controls
+            ]
+        ),
+        "ask_multiselect": iter(
+            [
+                ["SQLite"],  # Databases
+                [],  # Infrastructure / Cloud
+                platform_agents,  # Which AI Agents
+            ]
+        ),
     }
 
 
@@ -100,10 +111,7 @@ def run_wizard(init_module, project_dir, platform_agents):
 
 
 def normalize(path_str, project_dir):
-    return (
-        path_str.replace(str(project_dir), "<PROJECT_ROOT>")
-        .replace(str(KIT_ROOT), "<KIT>")
-    )
+    return path_str.replace(str(project_dir), "<PROJECT_ROOT>").replace(str(KIT_ROOT), "<KIT>")
 
 
 def build_manifest(project_dir):
@@ -155,9 +163,7 @@ def capture(platform_key, out_root):
         (out_dir / "manifest.json").write_text(
             json.dumps(manifest, indent=2, sort_keys=True) + "\n"
         )
-        (out_dir / "transcript.txt").write_text(
-            normalize(transcript, project_dir)
-        )
+        (out_dir / "transcript.txt").write_text(normalize(transcript, project_dir))
         for key_file in KEY_FILES:
             src = project_dir / key_file
             if src.exists() and not src.is_symlink():

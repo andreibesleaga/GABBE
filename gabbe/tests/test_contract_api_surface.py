@@ -4,6 +4,7 @@
 Compares the live surface (via scripts/gates/dump_api.py) against the frozen
 baseline. Additions are allowed; removals and signature changes fail.
 """
+
 import json
 import sys
 from pathlib import Path
@@ -28,9 +29,5 @@ def test_api_surface_is_superset_of_baseline():
             if name not in current[mod]:
                 problems.append(f"removed: {mod}.{name}")
             elif current[mod][name] != desc:
-                problems.append(
-                    f"changed: {mod}.{name}: {desc} -> {current[mod][name]}"
-                )
-    assert not problems, "API surface regression (additive-only policy):\n" + "\n".join(
-        problems
-    )
+                problems.append(f"changed: {mod}.{name}: {desc} -> {current[mod][name]}")
+    assert not problems, "API surface regression (additive-only policy):\n" + "\n".join(problems)

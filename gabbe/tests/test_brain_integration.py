@@ -1,9 +1,11 @@
 # SPDX-License-Identifier: Apache-2.0
 """Integration tests for gabbe.brain with platform controls (RunContext)."""
+
 from unittest.mock import patch
+
 from gabbe.budget import Budget
-from gabbe.hardstop import HardStop
 from gabbe.context import RunContext
+from gabbe.hardstop import HardStop
 
 
 def test_brain_run_creates_db_row(tmp_project):
@@ -24,6 +26,7 @@ def test_brain_run_creates_db_row(tmp_project):
 def test_brain_activate_prints_action(tmp_project, capsys):
     """Brain activate with mocked LLM should print the recommended action."""
     from gabbe.brain import activate_brain
+
     with patch("gabbe.brain.call_llm", return_value="Ship the feature"):
         activate_brain()
     out = capsys.readouterr().out
@@ -33,6 +36,7 @@ def test_brain_activate_prints_action(tmp_project, capsys):
 def test_brain_activate_llm_none_shows_freeze(tmp_project, capsys):
     """When LLM returns None, should print Brain Freeze and not crash."""
     from gabbe.brain import activate_brain
+
     with patch("gabbe.brain.call_llm", return_value=None):
         activate_brain()
     out = capsys.readouterr().out

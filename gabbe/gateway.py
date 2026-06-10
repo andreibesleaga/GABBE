@@ -1,26 +1,31 @@
 # SPDX-License-Identifier: Apache-2.0
-import time
 import logging
+import time
 from collections import deque
 from dataclasses import dataclass
-from typing import Callable, Dict, Any
+from typing import Any, Callable, Dict
 
 try:
     import jsonschema  # type: ignore
+
     HAS_JSONSCHEMA = True
 except ImportError:
     HAS_JSONSCHEMA = False
 
 logger = logging.getLogger("gabbe.gateway")
 
+
 class ToolNotFound(Exception):
     pass
+
 
 class PolicyDenied(Exception):
     pass
 
+
 class CircuitOpen(Exception):
     pass
+
 
 @dataclass
 class ToolDefinition:
@@ -31,6 +36,7 @@ class ToolDefinition:
     allowed_roles: set
     rate_limit_per_min: int = 60
     circuit_breaker_threshold: int = 3
+
 
 class ToolGateway:
     def __init__(self):
@@ -47,14 +53,14 @@ class ToolGateway:
         tool = self.registry[name]
         now = time.monotonic()
         q = self._call_times[name]
-        
+
         # Remove timestamps older than 60s
         while q and now - q[0] > 60:
             q.popleft()
-            
+
         if len(q) >= tool.rate_limit_per_min:
             raise RateLimitExceeded(f"Rate limit exceeded for tool {name}")
-            
+
         q.append(now)
 
     def _check_circuit_breaker(self, name: str):
@@ -63,17 +69,21 @@ class ToolGateway:
             raise CircuitOpen(f"Circuit open for tool {name} due to consecutive failures.")
 
     def execute(self, name: str, arguments: dict, role: str, run_context) -> Any:
-        span_ctx = run_context.tracer.start_span("tool_call", name, {"arguments": arguments, "role": role})
+        span_ctx = run_context.tracer.start_span(
+            "tool_call", name, {"arguments": arguments, "role": role}
+        )
 
         try:
             if name not in self.registry:
                 raise ToolNotFound(f"Tool {name} is not registered.")
-                
+
             tool_def = self.registry[name]
-            
+
             # Policy Check
             if run_context.policy:
-                policy_res = run_context.policy.evaluate({"tool": name, "arguments": arguments, "role": role})
+                policy_res = run_context.policy.evaluate(
+                    {"tool": name, "arguments": arguments, "role": role}
+                )
                 if not policy_res.allowed:
                     raise PolicyDenied(f"Policy denied: {policy_res.reason}")
 
@@ -94,20 +104,21 @@ class ToolGateway:
 
             # Execute
             result = tool_def.handler(**arguments)
-            
+
             # Success => reset circuit breaker
             self._failure_counts[name] = 0
-            
+
             run_context.tracer.end_span(span_ctx, output_data={"result": result}, status="ok")
             return result
 
         except Exception as e:
             if name in self._failure_counts:
                 self._failure_counts[name] += 1
-            
+
             # Re-raise standard workflow exceptions to be caught by brain loop
             run_context.tracer.end_span(span_ctx, output_data={"error": str(e)}, status="error")
             raise
+
 
 class RateLimitExceeded(Exception):
     pass

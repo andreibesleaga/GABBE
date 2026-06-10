@@ -56,6 +56,24 @@ jobs:
     - name: Run tests
       run: pytest gabbe/tests/ scripts/tests/ -v
 
+  lint:
+    name: Lint & type-check (ruff, black, mypy)
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+        cache: pip
+    - name: Install
+      run: pip install -e ".[dev]"
+    - name: ruff
+      run: ruff check gabbe scripts agents/scripts
+    - name: black --check
+      run: black --check gabbe scripts agents/scripts
+    - name: mypy
+      run: mypy gabbe
+
   gates:
     name: Backward-compatibility gates
     runs-on: ubuntu-latest

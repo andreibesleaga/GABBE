@@ -1,19 +1,20 @@
 # SPDX-License-Identifier: Apache-2.0
 import logging
 import sqlite3
+
 from .config import (
-    Colors,
     PROJECT_ROOT,
     REQUIRED_FILES,
-    TASK_STATUS_TODO,
-    TASK_STATUS_IN_PROGRESS,
     TASK_STATUS_DONE,
+    TASK_STATUS_IN_PROGRESS,
+    TASK_STATUS_TODO,
+    Colors,
 )
-from .database import get_db
-from .llm import call_llm
 from .context import RunContext
-from .gateway import ToolDefinition
+from .database import get_db
 from .escalation import EscalationTrigger
+from .gateway import ToolDefinition
+from .llm import call_llm
 
 logger = logging.getLogger("gabbe.brain")
 
@@ -58,7 +59,9 @@ def activate_brain(run_context=None):
     """Run the Active Inference Loop with Real LLM using MVA Platform Rules."""
     print(f"{Colors.HEADER}🧠 Brain Mode: Active Inference Loop{Colors.ENDC}")
 
-    ctx = run_context or RunContext.from_config(command="brain activate", initiator="cli", agent_persona="brain-mode")
+    ctx = run_context or RunContext.from_config(
+        command="brain activate", initiator="cli", agent_persona="brain-mode"
+    )
 
     with ctx:
         # 1. Observation (Get State from DB)
@@ -77,7 +80,9 @@ def activate_brain(run_context=None):
         done = stats.get(TASK_STATUS_DONE, 0)
         total = todo + in_progress + done
 
-        state_desc = f"Project State: {todo} TODO, {in_progress} IN_PROGRESS, {done} DONE (Total: {total})."
+        state_desc = (
+            f"Project State: {todo} TODO, {in_progress} IN_PROGRESS, {done} DONE (Total: {total})."
+        )
         print(f"  {Colors.BLUE}Observation:{Colors.ENDC} {state_desc}")
         logger.info("Brain Observation: %s", state_desc)
 
@@ -105,15 +110,22 @@ def activate_brain(run_context=None):
         try:
             # Register the call_llm tool dynamically for the execution loop
             if "call_llm" not in ctx.gateway.registry:
-                ctx.gateway.register(ToolDefinition(
-                    name="call_llm", description="Call LLM", parameters={},
-                    handler=lambda p, s: call_llm(p, s), allowed_roles={"brain-mode"}
-                ))
+                ctx.gateway.register(
+                    ToolDefinition(
+                        name="call_llm",
+                        description="Call LLM",
+                        parameters={},
+                        handler=lambda p, s: call_llm(p, s),
+                        allowed_roles={"brain-mode"},
+                    )
+                )
 
             # Tick the hardstop before LLM calls conceptually
             ctx.hard_stop.tick()
 
-            action = ctx.gateway.execute("call_llm", {"p": prompt, "s": system_prompt}, "brain-mode", ctx)
+            action = ctx.gateway.execute(
+                "call_llm", {"p": prompt, "s": system_prompt}, "brain-mode", ctx
+            )
 
             if action:
                 print(f"  {Colors.GREEN}Selected Action:{Colors.ENDC} {action}")
@@ -127,19 +139,20 @@ def activate_brain(run_context=None):
 
         except Exception as e:
             from .escalation import EscalationPaused
+
             # EscalationPaused means a human pause was already recorded — let it propagate
             # rather than triggering a second escalation call.
             if isinstance(e, EscalationPaused):
                 raise
-            ctx.escalation.escalate(trigger=EscalationTrigger.REPEATED_TOOL_FAILURE, context_dict={"error": str(e)})
+            ctx.escalation.escalate(
+                trigger=EscalationTrigger.REPEATED_TOOL_FAILURE, context_dict={"error": str(e)}
+            )
             print(f"  {Colors.FAIL}Execution Interrupted by Platform Controls: {e}{Colors.ENDC}")
 
 
 def evolve_prompts(skill_name):
     """Evolutionary Prompt Optimization (EPO) with Real LLM."""
-    print(
-        f"{Colors.HEADER}🧬 Evolutionary Prompt Optimization: {skill_name}{Colors.ENDC}"
-    )
+    print(f"{Colors.HEADER}🧬 Evolutionary Prompt Optimization: {skill_name}{Colors.ENDC}")
     conn = get_db()
     try:
         c = conn.cursor()
@@ -156,9 +169,7 @@ def evolve_prompts(skill_name):
         if best_gene:
             current_prompt = best_gene["prompt_content"]
             generation = best_gene["generation"]
-            print(
-                f"  Current Best: Gen {generation} (Success: {best_gene['success_rate']})"
-            )
+            print(f"  Current Best: Gen {generation} (Success: {best_gene['success_rate']})")
         else:
             print(f"  Initializing Gene Pool for {skill_name}...")
             c.execute(
@@ -169,7 +180,9 @@ def evolve_prompts(skill_name):
 
         # 2. Mutation via LLM
         print(f"  {Colors.CYAN}Mutating via LLM...{Colors.ENDC}")
-        system_prompt = "You are an Expert Prompt Engineer. Optimize the given prompt for an AI Coding Agent."
+        system_prompt = (
+            "You are an Expert Prompt Engineer. Optimize the given prompt for an AI Coding Agent."
+        )
         mutation_request = f"""
         Current Prompt: "{current_prompt}"
 
@@ -226,14 +239,10 @@ def run_healer():
     # 2. Check required project files (defined centrally in config.py)
     for path in REQUIRED_FILES:
         if path.exists():
-            print(
-                f"  {Colors.GREEN}✓ {path.relative_to(PROJECT_ROOT)}: Present{Colors.ENDC}"
-            )
+            print(f"  {Colors.GREEN}✓ {path.relative_to(PROJECT_ROOT)}: Present{Colors.ENDC}")
         else:
             issues.append(f"Missing file: {path.relative_to(PROJECT_ROOT)}")
-            print(
-                f"  {Colors.FAIL}✗ {path.relative_to(PROJECT_ROOT)}: Missing{Colors.ENDC}"
-            )
+            print(f"  {Colors.FAIL}✗ {path.relative_to(PROJECT_ROOT)}: Missing{Colors.ENDC}")
 
     # 3. Summary
     if issues:

@@ -1,10 +1,11 @@
 # SPDX-License-Identifier: Apache-2.0
-import os
-import sys
 import json
-import shlex
 import logging
+import os
+import shlex
 import subprocess
+import sys
+
 from .context import RunContext
 from .gateway import ToolDefinition
 
@@ -51,20 +52,35 @@ def run_command_handler(command: str):
     if not _insecure_mode():
         allowed = _allowed_commands()
         if not allowed:
-            logger.warning("MCP command blocked: no allowlist configured (set "
-                           "GABBE_MCP_ALLOWED_COMMANDS or GABBE_MCP_INSECURE=1)")
-            return {"stdout": "", "stderr": "No command allowlist configured; all commands "
-                    "blocked. Set GABBE_MCP_ALLOWED_COMMANDS.", "returncode": 126}
+            logger.warning(
+                "MCP command blocked: no allowlist configured (set "
+                "GABBE_MCP_ALLOWED_COMMANDS or GABBE_MCP_INSECURE=1)"
+            )
+            return {
+                "stdout": "",
+                "stderr": "No command allowlist configured; all commands "
+                "blocked. Set GABBE_MCP_ALLOWED_COMMANDS.",
+                "returncode": 126,
+            }
         executable = tokens[0]
         if not any(executable == a or executable.startswith(a + "/") for a in allowed):
             logger.warning("MCP command blocked by allowlist: %s", executable)
-            return {"stdout": "", "stderr": f"Command '{executable}' not in allowed list", "returncode": 126}
+            return {
+                "stdout": "",
+                "stderr": f"Command '{executable}' not in allowed list",
+                "returncode": 126,
+            }
     try:
-        result = subprocess.run(tokens, shell=False, capture_output=True,
-                                text=True, timeout=_command_timeout())
+        result = subprocess.run(
+            tokens, shell=False, capture_output=True, text=True, timeout=_command_timeout()
+        )
     except subprocess.TimeoutExpired:
         logger.warning("MCP command timed out after %ss: %s", _command_timeout(), tokens[0])
-        return {"stdout": "", "stderr": f"Command timed out after {_command_timeout()}s", "returncode": 124}
+        return {
+            "stdout": "",
+            "stderr": f"Command timed out after {_command_timeout()}s",
+            "returncode": 124,
+        }
     return {"stdout": result.stdout, "stderr": result.stderr, "returncode": result.returncode}
 
 
@@ -79,21 +95,31 @@ def serve():
     _authenticated = insecure
 
     if insecure:
-        logger.warning("GABBE MCP server running in INSECURE mode "
-                       "(no auth, all commands allowed). Trusted hosts only.")
+        logger.warning(
+            "GABBE MCP server running in INSECURE mode "
+            "(no auth, all commands allowed). Trusted hosts only."
+        )
     elif not token and not _allowed_commands():
-        logger.warning("GABBE MCP server is fail-closed: set GABBE_MCP_TOKEN and "
-                       "GABBE_MCP_ALLOWED_COMMANDS to enable tool calls, or "
-                       "GABBE_MCP_INSECURE=1 to restore legacy permissive behavior.")
+        logger.warning(
+            "GABBE MCP server is fail-closed: set GABBE_MCP_TOKEN and "
+            "GABBE_MCP_ALLOWED_COMMANDS to enable tool calls, or "
+            "GABBE_MCP_INSECURE=1 to restore legacy permissive behavior."
+        )
 
     with RunContext(command="serve-mcp", initiator="mcp", agent_persona="external_agent") as ctx:
-        ctx.gateway.register(ToolDefinition(
-            name="run_command",
-            description="Run a shell command on the host.",
-            parameters={"type": "object", "properties": {"command": {"type": "string"}}, "required": ["command"]},
-            handler=run_command_handler,
-            allowed_roles={"external_agent"}
-        ))
+        ctx.gateway.register(
+            ToolDefinition(
+                name="run_command",
+                description="Run a shell command on the host.",
+                parameters={
+                    "type": "object",
+                    "properties": {"command": {"type": "string"}},
+                    "required": ["command"],
+                },
+                handler=run_command_handler,
+                allowed_roles={"external_agent"},
+            )
+        )
 
         for line in sys.stdin:
             line = line.strip()
@@ -109,8 +135,11 @@ def serve():
                     if token:
                         provided = (req.get("params") or {}).get("token", "")
                         if provided != token:
-                            res = {"jsonrpc": "2.0", "id": req_id,
-                                   "error": {"code": -32000, "message": "Unauthorized"}}
+                            res = {
+                                "jsonrpc": "2.0",
+                                "id": req_id,
+                                "error": {"code": -32000, "message": "Unauthorized"},
+                            }
                             print(json.dumps(res), flush=True)
                             continue
                         _authenticated = True
@@ -120,49 +149,61 @@ def serve():
                         "result": {
                             "protocolVersion": MCP_PROTOCOL_VERSION,
                             "capabilities": {"tools": {}},
-                            "serverInfo": {"name": "gabbe-mcp", "version": "1.0.0"}
-                        }
+                            "serverInfo": {"name": "gabbe-mcp", "version": "1.0.0"},
+                        },
                     }
                 elif method == "notifications/initialized":
                     continue  # No response needed
                 elif not _authenticated:
-                    res = {"jsonrpc": "2.0", "id": req_id,
-                           "error": {"code": -32000, "message": "Unauthorized"}}
+                    res = {
+                        "jsonrpc": "2.0",
+                        "id": req_id,
+                        "error": {"code": -32000, "message": "Unauthorized"},
+                    }
                 elif method == "tools/list":
                     res = {
                         "jsonrpc": "2.0",
                         "id": req_id,
                         "result": {
-                            "tools": [{
-                                "name": "run_command",
-                                "description": "Run a shell command",
-                                "inputSchema": {
-                                    "type": "object",
-                                    "properties": {"command": {"type": "string"}},
-                                    "required": ["command"]
+                            "tools": [
+                                {
+                                    "name": "run_command",
+                                    "description": "Run a shell command",
+                                    "inputSchema": {
+                                        "type": "object",
+                                        "properties": {"command": {"type": "string"}},
+                                        "required": ["command"],
+                                    },
                                 }
-                            }]
-                        }
+                            ]
+                        },
                     }
                 elif method == "tools/call":
                     params = req.get("params", {})
                     name = params.get("name")
                     args = params.get("arguments", {})
                     try:
-                        tool_res = ctx.gateway.execute(name, args, role="external_agent", run_context=ctx)
+                        tool_res = ctx.gateway.execute(
+                            name, args, role="external_agent", run_context=ctx
+                        )
                         res = {
                             "jsonrpc": "2.0",
                             "id": req_id,
-                            "result": {
-                                "content": [{"type": "text", "text": json.dumps(tool_res)}]
-                            }
+                            "result": {"content": [{"type": "text", "text": json.dumps(tool_res)}]},
                         }
                     except Exception as e:
                         logger.error("MCP tool execution error: %s", e)
-                        res = {"jsonrpc": "2.0", "id": req_id,
-                               "error": {"code": -32603, "message": "Internal tool execution error"}}
+                        res = {
+                            "jsonrpc": "2.0",
+                            "id": req_id,
+                            "error": {"code": -32603, "message": "Internal tool execution error"},
+                        }
                 else:
-                    res = {"jsonrpc": "2.0", "id": req_id, "error": {"code": -32601, "message": "Method not found"}}
+                    res = {
+                        "jsonrpc": "2.0",
+                        "id": req_id,
+                        "error": {"code": -32601, "message": "Method not found"},
+                    }
 
                 print(json.dumps(res), flush=True)
             except Exception as e:

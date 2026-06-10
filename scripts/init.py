@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
-import os
-import sys
-import shutil
 import json
+import os
+import shutil
+import sys
 from pathlib import Path
 
 # --- Configuration ---
@@ -142,19 +142,19 @@ def ask_multiselect(question, options):
 def safe_merge_directory(src_root, dst_root, is_kit_root=False):
     PRESERVE_FILES = {"AGENTS.md", "CONSTITUTION.md", "TASKS.md", "policies.yml", "config.json"}
     notified_preservations = set()
-    
+
     for src_dir, dirs, files in os.walk(src_root):
         rel_path = os.path.relpath(src_dir, src_root)
-        dst_dir = Path(dst_root) / (rel_path if rel_path != '.' else '')
-        
+        dst_dir = Path(dst_root) / (rel_path if rel_path != "." else "")
+
         dst_dir.mkdir(parents=True, exist_ok=True)
         in_memory = "memory" in Path(rel_path).parts
         in_project = "project" in Path(rel_path).parts
-        
+
         for file_ in files:
             src_file = Path(src_dir) / file_
             dst_file = dst_dir / file_
-            
+
             preserve = False
             # Honor the preserve-set unconditionally. Previously this only ran
             # when is_kit_root=True, so the symlink-fallback path (is_kit_root
@@ -169,7 +169,7 @@ def safe_merge_directory(src_root, dst_root, is_kit_root=False):
                     preserve = True
                 elif file_.startswith("PROJECT") and file_.endswith(".md"):
                     preserve = True
-                    
+
             if preserve:
                 log_path = str(dst_file.relative_to(dst_root))
                 if in_memory:
@@ -177,16 +177,19 @@ def safe_merge_directory(src_root, dst_root, is_kit_root=False):
                 elif in_project:
                     log_path = "project/*"
                 if log_path not in notified_preservations:
-                    print(f"  {YELLOW}→ Preserved user file(s): {log_path} (check kit templates to update manually){NC}")
+                    print(
+                        f"  {YELLOW}→ Preserved user file(s): {log_path} (check kit templates to update manually){NC}"
+                    )
                     notified_preservations.add(log_path)
                 continue
-                
+
             if dst_file.exists():
                 try:
                     dst_file.unlink()
                 except Exception:
                     pass
             shutil.copy2(src_file, dst_file)
+
 
 def create_symlink(source, target):
     """Creates a symlink from target to source, backing up if exists."""
@@ -199,9 +202,7 @@ def create_symlink(source, target):
             )
             shutil.move(str(target), str(target) + ".bak")
         else:
-            print(
-                f"  {YELLOW}! Backing up existing file {target.name} to {target.name}.bak{NC}"
-            )
+            print(f"  {YELLOW}! Backing up existing file {target.name} to {target.name}.bak{NC}")
             target.rename(Path(str(target) + ".bak"))
 
     # Ensure parent dir exists
@@ -246,9 +247,7 @@ def ensure_yaml_frontmatter(content, filename):
                 if isinstance(data, dict):
                     return data, content
     except ImportError:
-        print(
-            f"{YELLOW}Warning: PyYAML not installed. Falling back to simple parsing.{NC}"
-        )
+        print(f"{YELLOW}Warning: PyYAML not installed. Falling back to simple parsing.{NC}")
         # Fallback to simple parser if PyYAML is missing (bootstrapping edge case)
         if content.startswith("---"):
             end_yaml = content.find("---", 3)
@@ -320,15 +319,42 @@ def setup_skills_for_platform(platform, agents_dir, target_dir):
 # --- Main Logic ---
 
 
+def run_bench():
+    """R13: time a full skill-catalogue emit per platform (Pillar 8 regression
+    gate). Non-interactive; prints a JSON report and exits. Invoked with
+    `python scripts/init.py --bench`."""
+    import json as _json
+    import tempfile
+    import time
+
+    platforms = {
+        "cursor": "Cursor",
+        "copilot": "GitHub Copilot",
+        "claude": "Claude Code",
+    }
+    results = {}
+    skill_count = len(list((SOURCE_AGENTS_DIR / "skills").rglob("*.skill.md")))
+    for key, platform in platforms.items():
+        with tempfile.TemporaryDirectory(prefix=f"gabbe-bench-{key}-") as tmp:
+            target = Path(tmp) / "out"
+            t0 = time.perf_counter()
+            setup_skills_for_platform(platform, SOURCE_AGENTS_DIR, target)
+            results[key] = round(time.perf_counter() - t0, 4)
+    report = {"skill_count": skill_count, "emit_seconds": results}
+    print(_json.dumps(report, indent=2))
+    return report
+
+
 def main():
     global PROJECT_ROOT
+    if "--bench" in sys.argv:
+        run_bench()
+        return
     if not SOURCE_AGENTS_DIR.exists():
         if (KIT_SOURCE / "AGENTS.md").exists():
             pass
         else:
-            print(
-                f"{RED}Error: Could not find source agents directory at {SOURCE_AGENTS_DIR}{NC}"
-            )
+            print(f"{RED}Error: Could not find source agents directory at {SOURCE_AGENTS_DIR}{NC}")
             sys.exit(1)
 
     # Validate required subdirectories exist before proceeding
@@ -365,7 +391,7 @@ def main():
     else:
         path_str = ask("Enter absolute path")
         user_path = Path(path_str).resolve()
-        
+
         if user_path.name == "agents":
             target_agents_dir = user_path
             PROJECT_ROOT = user_path.parent
@@ -377,7 +403,9 @@ def main():
     IS_UPDATE = False
     if target_agents_dir.exists():
         if target_agents_dir.resolve() == SOURCE_AGENTS_DIR.resolve():
-            print(f"  {BLUE}→ Target is the same as source directory ({target_agents_dir}), skipping copy.{NC}")
+            print(
+                f"  {BLUE}→ Target is the same as source directory ({target_agents_dir}), skipping copy.{NC}"
+            )
             IS_UPDATE = True
         else:
             print(f"\n{YELLOW}! Directory {target_agents_dir} already exists.{NC}")
@@ -477,7 +505,9 @@ def main():
             )
             if problem_statement.strip():
                 break
-            print(f"{RED}⚠ Problem statement cannot be empty. Please describe the problem this system solves.{NC}")
+            print(
+                f"{RED}⚠ Problem statement cannot be empty. Please describe the problem this system solves.{NC}"
+            )
 
     # --- Analytics Check ---
     enable_analytics = False
@@ -492,10 +522,7 @@ def main():
 
     # --- Meta-Evolution Check ---
     enable_meta = False
-    if (
-        ask("Enable Self-Evolving Capabilities (Meta-Optimization)? (y/n)", "y").lower()
-        == "y"
-    ):
+    if ask("Enable Self-Evolving Capabilities (Meta-Optimization)? (y/n)", "y").lower() == "y":
         enable_meta = True  # noqa: F841
 
     # --- GABBE CLI Integration ---
@@ -513,10 +540,13 @@ def main():
         == "y"
     ):
         enable_gabbe_cli = True
-        mode_idx = select_index("CLI Integration Mode", [
-            "Manual Only — You run gabbe commands yourself when needed",
-            "MCP Enforced — Agents use gabbe exclusively through the MCP server",
-        ])
+        mode_idx = select_index(
+            "CLI Integration Mode",
+            [
+                "Manual Only — You run gabbe commands yourself when needed",
+                "MCP Enforced — Agents use gabbe exclusively through the MCP server",
+            ],
+        )
         gabbe_cli_mode = ["manual", "mcp"][mode_idx]
 
     # --- Step 3: Gap Analysis ---
@@ -545,10 +575,12 @@ def main():
 
     target_agents_md = AGENTS_DIR / "AGENTS.md"
     template_path = AGENTS_DIR / "templates/coordination/AGENTS_TEMPLATE.md"
-    
+
     skip_step_4 = False
     if IS_UPDATE and target_agents_md.exists():
-        print(f"  {BLUE}→ AGENTS.md already exists. Skipping auto-generation to preserve user modifications.{NC}")
+        print(
+            f"  {BLUE}→ AGENTS.md already exists. Skipping auto-generation to preserve user modifications.{NC}"
+        )
         print(f"  {BLUE}→ Check {template_path.name} for any new additions.{NC}")
         skip_step_4 = True
 
@@ -561,9 +593,7 @@ def main():
         content = content.replace("{{ language }}", language)
         content = content.replace("{{ framework }}", framework)
         content = content.replace("{{ runtime }}", "Latest")
-        content = content.replace(
-            "{{ database }}", ", ".join(databases) if databases else "None"
-        )
+        content = content.replace("{{ database }}", ", ".join(databases) if databases else "None")
 
         # Package Manager
         pm = "npm"
@@ -637,8 +667,8 @@ def main():
         if not enable_gabbe_cli:
             # Strip the entire CLI section
             if cli_start in content and cli_end in content:
-                before = content[:content.find(cli_start)]
-                after = content[content.find(cli_end) + len(cli_end):]
+                before = content[: content.find(cli_start)]
+                after = content[content.find(cli_end) + len(cli_end) :]
                 content = before + after
                 print(f"  {BLUE}→ GABBE CLI section removed (disabled){NC}")
         else:
@@ -680,9 +710,7 @@ def main():
                         "All new code must adhere to modern patterns. Legacy code touched must be refactored to >99% coverage (Boy Scout Rule).\n"
                     )
                 if compliance:
-                    f.write(
-                        f"\n### Article IX. Regulatory Compliance ({', '.join(compliance)})\n"
-                    )
+                    f.write(f"\n### Article IX. Regulatory Compliance ({', '.join(compliance)})\n")
                     f.write(
                         "No PII shall be logged. All data at rest must be encrypted. Security audit is mandatory before Release.\n"
                     )
@@ -699,9 +727,7 @@ def main():
         (loki_mem / "metrics").mkdir(parents=True, exist_ok=True)
         print(f"  {GREEN}✓ Initialized Analytics Directory{NC}")
 
-        (loki_mem / "PROJECT_STATE.md").write_text(
-            "# PROJECT_STATE.md\n\nPhase: S00_INITIALIZED\n"
-        )
+        (loki_mem / "PROJECT_STATE.md").write_text("# PROJECT_STATE.md\n\nPhase: S00_INITIALIZED\n")
         print(f"  {GREEN}✓ Initialized Loki Memory{NC}")
 
     _is_windows = sys.platform == "win32"
@@ -716,9 +742,7 @@ def main():
             setup_dest.chmod(0o755)
             print(f"  {GREEN}✓ Installed setup-context.sh{NC}")
         else:
-            print(
-                f"  {YELLOW}! Could not find {setup_src}, skipping setup-context.sh install{NC}"
-            )
+            print(f"  {YELLOW}! Could not find {setup_src}, skipping setup-context.sh install{NC}")
 
     # Copy setup-context.ps1 (Windows)
     if _is_windows:
@@ -767,7 +791,7 @@ def main():
         cursor_rules_dir = cursor_dir / "rules"
         create_symlink(agents_md_src, PROJECT_ROOT / ".cursorrules")
         setup_skills_for_platform("Cursor", AGENTS_DIR, cursor_rules_dir)
-        
+
     if "Windsurf" in agents:
         create_symlink(agents_md_src, PROJECT_ROOT / ".windsurfrules")
         windsurf_dir = PROJECT_ROOT / ".windsurf"
@@ -811,9 +835,7 @@ def main():
             "gabbe-schema-version": 1,
             "notes": "Managed by init.py",
         }
-        (gemini_dir / "settings.json").write_text(
-            json.dumps(settings_content, indent=2)
-        )
+        (gemini_dir / "settings.json").write_text(json.dumps(settings_content, indent=2))
         # Gemini CLI natively reads a GEMINI.md context file; point it at AGENTS.md.
         create_symlink(agents_md_src, PROJECT_ROOT / "GEMINI.md")
         print(f"  {GREEN}✓ Wired .gemini/settings.json + GEMINI.md{NC}")

@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 import sqlite3
+
 from .config import DB_PATH, GABBE_DIR, Colors
 
 # Increment this whenever the schema changes.
@@ -55,9 +56,7 @@ def _migrate(conn):
 
     if current < 2:
         # v2: UNIQUE index on tasks.title; IF NOT EXISTS makes this idempotent
-        c.execute(
-            "CREATE UNIQUE INDEX IF NOT EXISTS idx_tasks_title ON tasks(title)"
-        )
+        c.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_tasks_title ON tasks(title)")
 
     if current < 3:
         # v3: MVA Platform Modules schema additions

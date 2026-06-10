@@ -6,6 +6,7 @@ COLUMNS=80. Any diff means the externally observable CLI contract changed;
 additive flags require a sanctioned baseline update recorded in the audit
 worklog.
 """
+
 import os
 import subprocess
 import sys

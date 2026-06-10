@@ -1,12 +1,16 @@
 # SPDX-License-Identifier: Apache-2.0
 """Unit tests for gabbe.replay."""
+
 import json
+
 from gabbe.replay import CheckpointStore, ReplayRunner
 
 
 def test_save_and_load(tmp_project, db_conn):
     store = CheckpointStore(db_conn=db_conn)
-    cp_id = store.save("run-r1", step=0, node_name="start", state_snapshot={"x": 1}, policy_version="v1")
+    cp_id = store.save(
+        "run-r1", step=0, node_name="start", state_snapshot={"x": 1}, policy_version="v1"
+    )
     assert cp_id is not None
 
     loaded = store.load(cp_id)
@@ -110,22 +114,25 @@ def test_from_checkpoint_factory(tmp_project, db_conn):
     """RunContext.from_checkpoint should reconstruct a context with budget from the original run."""
     # Insert a run with a config snapshot
     import uuid
+
     from gabbe.context import RunContext
 
     run_id = str(uuid.uuid4())
     config_snap = {"budget": {"max_tokens": 999, "max_tool_calls": 7, "max_cost_usd": 0.5}}
     db_conn.execute(
         "INSERT INTO runs (id, command, status, config_snapshot) VALUES (?, ?, ?, ?)",
-        (run_id, "test", "completed", json.dumps(config_snap))
+        (run_id, "test", "completed", json.dumps(config_snap)),
     )
     # Insert a checkpoint for that run
     db_conn.execute(
         "INSERT INTO checkpoints (run_id, step, node_name, state_snapshot, policy_version) VALUES (?, ?, ?, ?, ?)",
-        (run_id, 0, "observe", json.dumps({"tasks": 1}), "v1")
+        (run_id, 0, "observe", json.dumps({"tasks": 1}), "v1"),
     )
     db_conn.commit()
 
-    cp_id = db_conn.execute("SELECT id FROM checkpoints WHERE run_id = ?", (run_id,)).fetchone()["id"]
+    cp_id = db_conn.execute("SELECT id FROM checkpoints WHERE run_id = ?", (run_id,)).fetchone()[
+        "id"
+    ]
 
     ctx = RunContext.from_checkpoint(cp_id)
     assert ctx.budget.max_tokens == 999

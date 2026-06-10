@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 import json
-from .config import Colors, ROUTE_COMPLEXITY_THRESHOLD, PII_PATTERNS
+
+from .config import PII_PATTERNS, ROUTE_COMPLEXITY_THRESHOLD, Colors
 from .llm import call_llm
 
 
@@ -27,7 +28,9 @@ def calculate_complexity(prompt):
     except Exception as e:
         # Fallback heuristic if LLM fails or returns invalid JSON
         if isinstance(e, json.JSONDecodeError):
-            print(f"  {Colors.WARNING}LLM returned invalid JSON — using fallback heuristic: {e}{Colors.ENDC}")
+            print(
+                f"  {Colors.WARNING}LLM returned invalid JSON — using fallback heuristic: {e}{Colors.ENDC}"
+            )
         else:
             print(f"  {Colors.WARNING}LLM Analysis Failed: {e}{Colors.ENDC}")
         score = 0

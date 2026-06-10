@@ -439,6 +439,15 @@ agents/
 
 ## 🧠 Brain Mode (Meta-Cognitive Layer)
 
+> [!NOTE]
+> **Experimental.** Brain Mode, Loki Mode, Active Inference, Evolutionary Prompt
+> Optimization, the self-healing loop, and forecasting are experimental research
+> runtimes. They are gated behind explicit `gabbe brain …` subcommands (never on
+> by default), covered by the test suite, and deterministically replayable
+> (`gabbe replay`). See [ADR-0002](docs/adr/0002-brain-active-inference-runtime.md)
+> for the design rationale and [docs/VERIFICATION_GUIDE.md](docs/VERIFICATION_GUIDE.md)
+> for how to reproduce each one. Treat outputs as advisory, not production guarantees.
+
 Sits **above** Loki. Decides *how* to execute, not just *what* to execute.
 
 | Feature | Description |

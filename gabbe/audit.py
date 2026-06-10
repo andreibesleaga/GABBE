@@ -1,15 +1,17 @@
 # SPDX-License-Identifier: Apache-2.0
 from __future__ import annotations
+
 import json
 import logging
 import re
 import sqlite3
 import time
 import uuid
-from functools import wraps
 from datetime import datetime, timezone
-from .database import get_db
+from functools import wraps
+
 from .config import GABBE_DIR, GABBE_OTEL_ENABLED
+from .database import get_db
 
 # Set up local text logger
 logger = logging.getLogger("gabbe.audit")
@@ -18,16 +20,17 @@ logger = logging.getLogger("gabbe.audit")
 # SSN/credit-card/credential-assignments) — common bearer/API-key token shapes.
 _SECRET_PATTERNS = [
     re.compile(r"(?i)bearer\s+[A-Za-z0-9._\-]+"),
-    re.compile(r"\bsk-[A-Za-z0-9_\-]{16,}\b"),          # OpenAI-style keys
-    re.compile(r"\bsk-or-v1-[A-Za-z0-9]{16,}\b"),       # OpenRouter keys
-    re.compile(r"\bgh[pousr]_[A-Za-z0-9]{16,}\b"),      # GitHub tokens
-    re.compile(r"\bAKIA[0-9A-Z]{16}\b"),                # AWS access key id
+    re.compile(r"\bsk-[A-Za-z0-9_\-]{16,}\b"),  # OpenAI-style keys
+    re.compile(r"\bsk-or-v1-[A-Za-z0-9]{16,}\b"),  # OpenRouter keys
+    re.compile(r"\bgh[pousr]_[A-Za-z0-9]{16,}\b"),  # GitHub tokens
+    re.compile(r"\bAKIA[0-9A-Z]{16}\b"),  # AWS access key id
 ]
 _REDACTION = "[REDACTED]"
 
 
 def _redact_text(value):
     from .config import PII_PATTERNS
+
     for pat in list(PII_PATTERNS) + _SECRET_PATTERNS:
         value = pat.sub(_REDACTION, value)
     return value
@@ -44,10 +47,12 @@ def _redact(obj):
         return [_redact(v) for v in obj]
     return obj
 
+
 if GABBE_OTEL_ENABLED:
     try:
         from opentelemetry import trace  # type: ignore
         from opentelemetry.trace import Status, StatusCode  # type: ignore
+
         otel_tracer = trace.get_tracer("gabbe.tracer")
     except ImportError:
         otel_tracer = None
@@ -82,7 +87,9 @@ class AuditTracer:
         except Exception as e:
             logger.error(f"Failed to write JSONL log: {e}")
 
-    def start_span(self, event_type: str, node_name: str, input_data: dict, parent_span_id: str | None = None):
+    def start_span(
+        self, event_type: str, node_name: str, input_data: dict, parent_span_id: str | None = None
+    ):
         span_id = uuid.uuid4().hex[:16]
         start_time = time.monotonic()
         # Capture wall-clock start time so the DB timestamp reflects when the span began.
@@ -98,19 +105,34 @@ class AuditTracer:
             db_otel_span.set_attribute("gabbe.span_id", span_id)
             db_otel_span.set_attribute("gabbe.input", json.dumps(input_data))
 
-        return {"span_id": span_id, "start_time": start_time, "start_wall_time": start_wall_time,
-                "event_type": event_type, "node_name": node_name, "input_data": input_data,
-                "parent_span_id": parent_span_id, "_otel_span": db_otel_span}
+        return {
+            "span_id": span_id,
+            "start_time": start_time,
+            "start_wall_time": start_wall_time,
+            "event_type": event_type,
+            "node_name": node_name,
+            "input_data": input_data,
+            "parent_span_id": parent_span_id,
+            "_otel_span": db_otel_span,
+        }
 
-    def end_span(self, span_ctx: dict, output_data: dict | None = None, reasoning_content: str | None = None, 
-                 model_name: str | None = None, token_usage: dict | None = None, cost_usd: float = 0.0, 
-                 status: str = "ok", metadata: dict | None = None):
-        
+    def end_span(
+        self,
+        span_ctx: dict,
+        output_data: dict | None = None,
+        reasoning_content: str | None = None,
+        model_name: str | None = None,
+        token_usage: dict | None = None,
+        cost_usd: float = 0.0,
+        status: str = "ok",
+        metadata: dict | None = None,
+    ):
+
         duration_ms = (time.monotonic() - span_ctx["start_time"]) * 1000
         # Use the wall-clock time captured at span start so the DB timestamp reflects
         # when the operation began, not when it was recorded.
         timestamp = span_ctx.get("start_wall_time", datetime.now(timezone.utc)).isoformat()
-        
+
         token_usage = token_usage or {}
         p_tokens = token_usage.get("prompt_tokens", 0)
         c_tokens = token_usage.get("completion_tokens", 0)
@@ -120,23 +142,36 @@ class AuditTracer:
         # 1. SQLite Write
         try:
             cursor = self.db_conn.cursor()
-            cursor.execute("""
+            cursor.execute(
+                """
                 INSERT INTO audit_spans 
                 (run_id, span_id, parent_span_id, timestamp, event_type, node_name, 
                  input_data, output_data, reasoning_content, model_name, 
                  prompt_tokens, completion_tokens, reasoning_tokens, cache_hit_tokens, 
                  cost_usd, duration_ms, status, metadata)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """, (
-                self.run_id, span_ctx["span_id"], span_ctx["parent_span_id"], timestamp, 
-                span_ctx["event_type"], span_ctx["node_name"],
-                json.dumps(span_ctx["input_data"]) if span_ctx["input_data"] else None,
-                json.dumps(output_data) if output_data else None,
-                reasoning_content, model_name,
-                p_tokens, c_tokens, r_tokens, ch_tokens,
-                cost_usd, duration_ms, status, 
-                json.dumps(metadata) if metadata else None
-            ))
+            """,
+                (
+                    self.run_id,
+                    span_ctx["span_id"],
+                    span_ctx["parent_span_id"],
+                    timestamp,
+                    span_ctx["event_type"],
+                    span_ctx["node_name"],
+                    json.dumps(span_ctx["input_data"]) if span_ctx["input_data"] else None,
+                    json.dumps(output_data) if output_data else None,
+                    reasoning_content,
+                    model_name,
+                    p_tokens,
+                    c_tokens,
+                    r_tokens,
+                    ch_tokens,
+                    cost_usd,
+                    duration_ms,
+                    status,
+                    json.dumps(metadata) if metadata else None,
+                ),
+            )
             self.db_conn.commit()
         except sqlite3.Error as e:
             logger.error(f"Failed to record audit span to DB: {e}")
@@ -157,15 +192,17 @@ class AuditTracer:
                 "cost_usd": cost_usd,
                 "prompt_tokens": p_tokens,
                 "completion_tokens": c_tokens,
-                "reasoning_tokens": r_tokens
+                "reasoning_tokens": r_tokens,
             },
             "status": status,
-            "metadata": metadata
+            "metadata": metadata,
         }
         self._log_jsonl(record)
-        
+
         # 3. Simple Text Log
-        logger.info(f"[{span_ctx['event_type']}] {span_ctx['node_name']} completed in {duration_ms:.2f}ms with status {status}. Cost: ${cost_usd:.6f}")
+        logger.info(
+            f"[{span_ctx['event_type']}] {span_ctx['node_name']} completed in {duration_ms:.2f}ms with status {status}. Cost: ${cost_usd:.6f}"
+        )
 
         # 4. OTel Complete
         if span_ctx.get("_otel_span"):
@@ -175,18 +212,25 @@ class AuditTracer:
             otel_span.set_attribute("gabbe.output", json.dumps(output_data))
             otel_span.set_attribute("gabbe.cost_usd", cost_usd)
             otel_span.end()
-            
+
     def snapshot_budget(self, step: int, budget):
         try:
             cursor = self.db_conn.cursor()
-            cursor.execute("""
+            cursor.execute(
+                """
                 INSERT INTO budget_snapshots
                 (run_id, step, tokens_used, tool_calls_used, wall_time_sec, iterations)
                 VALUES (?, ?, ?, ?, ?, ?)
-            """, (
-                self.run_id, step, budget.tokens_used, budget.tool_calls_used,
-                budget.snapshot()["wall_time_sec"], budget.iterations
-            ))
+            """,
+                (
+                    self.run_id,
+                    step,
+                    budget.tokens_used,
+                    budget.tool_calls_used,
+                    budget.snapshot()["wall_time_sec"],
+                    budget.iterations,
+                ),
+            )
             self.db_conn.commit()
         except sqlite3.Error as e:
             logger.error(f"Failed to snapshot budget: {e}")
@@ -195,9 +239,12 @@ class AuditTracer:
         """Return all audit spans for a run as a list of dicts, ordered by timestamp."""
         try:
             cursor = self.db_conn.cursor()
-            cursor.execute("""
+            cursor.execute(
+                """
                 SELECT * FROM audit_spans WHERE run_id = ? ORDER BY id ASC
-            """, (run_id,))
+            """,
+                (run_id,),
+            )
             rows = cursor.fetchall()
             return [dict(row) for row in rows]
         except sqlite3.Error as e:
@@ -211,6 +258,7 @@ class AuditTracer:
 
 def traced(event_type: str, node_name: str | None = None):
     """Decorator that wraps a function in an audit span if run_context is passed as kwarg."""
+
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
@@ -229,8 +277,12 @@ def traced(event_type: str, node_name: str | None = None):
                     run_context.tracer.end_span(span, output_data={"ok": True}, status="ok")
                     return result
                 except Exception as exc:
-                    run_context.tracer.end_span(span, output_data={"error": str(exc)}, status="error")
+                    run_context.tracer.end_span(
+                        span, output_data={"error": str(exc)}, status="error"
+                    )
                     raise
             return func(*args, **kwargs)
+
         return wrapper
+
     return decorator

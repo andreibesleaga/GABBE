@@ -11,6 +11,7 @@ Usage:
     python scripts/gates/dump_api.py            # print to stdout
     python scripts/gates/dump_api.py --write    # overwrite the baseline
 """
+
 import importlib
 import inspect
 import json

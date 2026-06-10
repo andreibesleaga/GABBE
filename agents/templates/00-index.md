@@ -114,6 +114,7 @@
 | Bug Report | `core/BUG_REPORT_TEMPLATE.md` | Structured bug reporting |
 | System Analysis | `core/SYSTEM_ANALYSIS_TEMPLATE.md` | Root cause/System dynamics |
 | MCP Config | `core/MCP_CONFIG_TEMPLATE.json` | Tool/MCP whitelisting |
+| Whiteboard Design | `core/WHITEBOARD_DESIGN_TEMPLATE.md` | Freeform whiteboard/visual design capture |
 
 ### 9. Neuro-Architecture (`brain/`)
 | Template | File | Purpose |

@@ -6,7 +6,7 @@
 
 ---
 
-> **Total Guides**: 48
+> **Total Guides**: 70
 > *Registry categorized by domain.*
 
 ## Guides Registry
@@ -22,6 +22,8 @@
 | Beyond LLMs | `ai/beyond-llms.md` | Advanced AI paradigms beyond text gen |
 | Multi-Agent | `ai/multi-agent-systems.md` | Orchestrating swarms and agent topologies |
 | Self-Healing | `ai/self-healing-summary.md` | Overview of system self-healing loops |
+| Agent-Only Cognition | `ai/agent-only-cognition.md` | Cognition patterns for agent-only systems |
+| Agent-Only Swarms | `ai/agent-only-swarms.md` | Swarm topologies without humans in the loop |
 | Visual Integration | `ai/visual-mcp-integration.md` | Guide on Mermaid vs Canvas tools |
 
 ### 1b. Processes (`processes/`)
@@ -60,6 +62,7 @@
 | Go (Golang) | `languages/go-lang.md` | Go standard project layouts |
 | Java | `languages/java.md` | Maven/Gradle Spring standard |
 | JS/TS & Node.js | `languages/js-ts-nodejs.md` | Clean Architecture in TS |
+| Node.js Advanced | `languages/nodejs-advanced.md` | Node internals, libuv, Fastify, perf |
 | PHP / Laravel | `languages/php-laravel.md` | DDD + Actions in Laravel |
 | Python / FastAPI| `languages/python-fastapi-ai.md` | AI-first FastAPI architecture |
 | Rust | `languages/rust.md` | Safe, concurrent systems |
@@ -72,6 +75,8 @@
 | Prod Health | `ops/production-health.md` | Observability and alerting |
 | Troubleshooting | `ops/troubleshooting-guide.md` | Standard operating procedures for incidents |
 | Cost Opt. | `ops/cost-optimization.md` | FinOps & Resource reduction |
+| Dev Workflow | `ops/dev-workflow.md` | Git/GitHub ops + Diátaxis docs |
+| GABBE CLI Workflows | `ops/gabbe-cli-workflows.md` | Using the gabbe CLI platform controls |
 
 
 ### 6. Implementation Patterns (`patterns/`)
@@ -86,6 +91,8 @@
 | Time Complexity | `patterns/time-complexity-analysis.md` | Big-O detection and remediation |
 
 ### 7. Product Planning (`planning/`)
+| Green Software | `product/green-software.md` | Sustainable/green software engineering |
+| Sustainability Checks | `product/sustainability-checks.md` | ESG / carbon-intensity review checklist |
 | Guide | File | Purpose |
 |---|---|---|
 | Product Reqs. | `planning/product-requirements.md` | EARS syntax and req. engineering |

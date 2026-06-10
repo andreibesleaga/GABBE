@@ -1,0 +1,7 @@
+usage: main.py route [-h] prompt
+
+positional arguments:
+  prompt      The prompt to analyze
+
+options:
+  -h, --help  show this help message and exit

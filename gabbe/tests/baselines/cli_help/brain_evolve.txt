@@ -1,0 +1,5 @@
+usage: main.py brain evolve [-h] --skill SKILL
+
+options:
+  -h, --help     show this help message and exit
+  --skill SKILL  Skill to optimize

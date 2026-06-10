@@ -1,0 +1,4 @@
+usage: main.py verify [-h]
+
+options:
+  -h, --help  show this help message and exit

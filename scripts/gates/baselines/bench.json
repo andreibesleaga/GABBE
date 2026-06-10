@@ -1,0 +1,14 @@
+{
+  "machine": "Linux-6.6.114.1-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+  "python": "3.12.3",
+  "median_seconds": {
+    "emit_claude": 0.7758,
+    "emit_cursor": 0.7415,
+    "emit_copilot": 1.0088,
+    "emit_gemini": 0.433,
+    "emit_codex": 0.4204,
+    "db_init": 0.1011,
+    "sync_50tasks": 0.1055,
+    "verify": 0.1029
+  }
+}

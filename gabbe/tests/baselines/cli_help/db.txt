@@ -1,0 +1,5 @@
+usage: main.py db [-h] [--init]
+
+options:
+  -h, --help  show this help message and exit
+  --init      Initialize the database schema

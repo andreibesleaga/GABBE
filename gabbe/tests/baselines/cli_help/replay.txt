@@ -1,0 +1,8 @@
+usage: main.py replay [-h] [--from-step N] run_id
+
+positional arguments:
+  run_id         Run ID to replay
+
+options:
+  -h, --help     show this help message and exit
+  --from-step N  Start replay from step N

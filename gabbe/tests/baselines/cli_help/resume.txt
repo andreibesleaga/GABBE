@@ -1,0 +1,7 @@
+usage: main.py resume [-h] run_id
+
+positional arguments:
+  run_id      Run ID to resume
+
+options:
+  -h, --help  show this help message and exit

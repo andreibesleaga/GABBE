@@ -1,0 +1,11 @@
+{
+  "name": "accessibility",
+  "description": "WCAG 2.2 compliance audit \u2014 keyboard navigation, screen reader testing, ARIA, color contrast",
+  "version": "1.0.0",
+  "slashCommands": [
+    {
+      "name": "accessibility",
+      "description": "WCAG 2.2 compliance audit \u2014 keyboard navigation, screen reader testing, ARIA, color contrast"
+    }
+  ]
+}

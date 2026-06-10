@@ -1,0 +1,11 @@
+{
+  "name": "a2ui-protocols",
+  "description": "Design and enforce Agent-to-UI communication protocols",
+  "version": "1.0.0",
+  "slashCommands": [
+    {
+      "name": "a2ui-protocols",
+      "description": "Design and enforce Agent-to-UI communication protocols"
+    }
+  ]
+}

@@ -1,0 +1,70 @@
+[0;34m============================================================[0m
+[0;34m🤖  Agentic Engineering Kit - Setup & Install Wizard v2.2[0m
+[0;34m============================================================[0m
+This script will:
+  1. Install the Kit (Locally or Globally)
+  2. Configure Project Identity, Stack, & Type (Legacy/Enterprise)
+  3. Wire up AI tools & MCPs
+  4. Generate a 'Research Mission' for your AI
+
+[1;33mPart 1: Installation[0m
+Where should the Agent Kit be installed?
+  [0;32m✓ Kit installed to <PROJECT_ROOT>/agents[0m
+
+[1;33mPart 2: Project Context[0m
+
+[1;33mPart 3: Technology Stack[0m
+
+[1;33mPart 3.1: Dynamic Agent Capabilities[0m
+
+[1;33mPart 3.2: GABBE CLI Platform Controls[0m
+The GABBE CLI provides optional budget enforcement, audit trails,
+replay, escalation, and cost routing for agent runs.
+It can be used manually or enforced through the MCP server.
+
+[1;33mPart 4: Configuring Installed Kit[0m
+  [0;34m→ GABBE CLI section removed (disabled)[0m
+  [0;32m✓ Configured <PROJECT_ROOT>/agents/AGENTS.md[0m
+
+[1;33mPart 5: Wiring Agent Context[0m
+  [0;32m✓ Installed setup-context.sh[0m
+  [0;32m✓ Wired .gemini/settings.json[0m
+
+[1;33mPart 6: Agent Mission Generation[0m
+------------------------------------------------------------
+
+I have initialized the GABBE Agentic Engineering Kit for this project.
+Here is your mission to finalize the setup:
+
+0. Agent instructions
+    - Read AGENTS.md and CONSTITUTION.md for more information on this agentic system.
+    - Make sure that the project state, audit, gates, human-in-the-loop, and workflows, are always taken into account.
+    - Read agents/guides/ skills/ templates/ for any relevant information discovered during research and added by you or other agents.
+
+1.  **Analyze the Gap**: We are using Python and FastAPI.
+    -   Missing Skills: fastapi-best-practices.
+    -   Project Type: Greenfield (New).
+    -   Compliance: None.
+
+2.  **MCP Configuration**:
+    -   Review `agents/templates/core/MCP_CONFIG_TEMPLATE.json`.
+    -   Install "Context-7 MCP" (Essential for docs).
+    -   If we are using Postgres, install "PostgreSQL MCP".
+
+3.  **Research & Create (Deep Context Mode)**:
+    -   **Standards Check**: Research SWEBOK/ISO/IEEE standards relevant to a Greenfield (New) project in Python.
+    -   **Gap Analysis**: Compare the installed skills against the specific needs of FastAPI in 2026.
+    -   **Generate**: Create key missing skills. Example: `agents/skills/fastapi-best-practices.skill.md`.
+    -   **Architectural Pattern**: Identify the best pattern (e.g., Clean Arch, Hexagonal, Vertical Slice) for this stack and document it in `AGENTS.md`.
+
+5.  **Mandatory Guardrails**:
+    -   **Ethics**: Run `ai-ethics-compliance` skill on the initial specs.
+    -   **Safety**: Install `ai-safety-guardrails` hooks.
+
+6.  **Verify**:
+    -   Run `integrity-check` skill to ensure all symlinks and configs are valid.
+
+------------------------------------------------------------
+
+[0;32m✓ Mission saved to SETUP_MISSION.md[0m
+[0;34mSetup Complete! The kit is installed at: <PROJECT_ROOT>/agents[0m

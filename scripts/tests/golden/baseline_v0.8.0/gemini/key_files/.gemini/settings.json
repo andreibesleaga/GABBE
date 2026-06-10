@@ -1,0 +1,5 @@
+{
+  "agent_instructions_file": "agents/AGENTS.md",
+  "skills_directory": "agents/skills",
+  "notes": "Managed by init.py"
+}

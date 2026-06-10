@@ -7,6 +7,7 @@
         "end_span": "(self, span_ctx: 'dict', output_data: 'dict | None' = None, reasoning_content: 'str | None' = None, model_name: 'str | None' = None, token_usage: 'dict | None' = None, cost_usd: 'float' = 0.0, status: 'str' = 'ok', metadata: 'dict | None' = None)",
         "export_json": "(self, run_id: 'str') -> 'str'",
         "get_run_trace": "(self, run_id: 'str') -> 'list'",
+        "record_genai_usage": "(self, run_id: 'str', model: 'str | None', usage_dict: 'dict | None', system: 'str | None' = None, operation: 'str | None' = None, response_model: 'str | None' = None, span: 'object | None' = None, prompt: 'str | None' = None, completion: 'str | None' = None) -> 'dict'",
         "snapshot_budget": "(self, step: 'int', budget)",
         "start_span": "(self, event_type: 'str', node_name: 'str', input_data: 'dict', parent_span_id: 'str | None' = None)"
       }
@@ -14,8 +15,55 @@
     "GABBE_OTEL_ENABLED": {
       "kind": "bool"
     },
+    "GEN_AI_ATTRIBUTES": {
+      "kind": "dict"
+    },
+    "GEN_AI_COMPLETION": {
+      "kind": "str"
+    },
+    "GEN_AI_DEFAULT_SYSTEM": {
+      "kind": "str"
+    },
+    "GEN_AI_OPERATION_NAME": {
+      "kind": "str"
+    },
+    "GEN_AI_PROMPT": {
+      "kind": "str"
+    },
+    "GEN_AI_REQUEST_MODEL": {
+      "kind": "str"
+    },
+    "GEN_AI_RESPONSE_MODEL": {
+      "kind": "str"
+    },
+    "GEN_AI_SYSTEM": {
+      "kind": "str"
+    },
+    "GEN_AI_USAGE_CACHED_INPUT_TOKENS": {
+      "kind": "str"
+    },
+    "GEN_AI_USAGE_INPUT_TOKENS": {
+      "kind": "str"
+    },
+    "GEN_AI_USAGE_OUTPUT_TOKENS": {
+      "kind": "str"
+    },
+    "GEN_AI_USAGE_REASONING_TOKENS": {
+      "kind": "str"
+    },
+    "GEN_AI_USAGE_TOTAL_TOKENS": {
+      "kind": "str"
+    },
+    "genai_usage_attributes": {
+      "kind": "function",
+      "signature": "(model: 'str | None', usage_dict: 'dict | None', system: 'str | None' = None, operation: 'str | None' = None, response_model: 'str | None' = None) -> 'dict'"
+    },
     "otel_tracer": {
       "kind": "NoneType"
+    },
+    "should_capture_content": {
+      "kind": "function",
+      "signature": "() -> 'bool'"
     },
     "traced": {
       "kind": "function",
@@ -53,11 +101,13 @@
       "kind": "class",
       "methods": {
         "__init__": "(self, max_tokens: int = 100000, max_tool_calls: int = 50, max_wall_seconds: int = 300, max_iterations: int = 25, max_cost_usd: float = 5.0, tokens_used: int = 0, tool_calls_used: int = 0, iterations: int = 0, cost_usd: float = 0.0, _start_time: float = <factory>, _cached_prices: dict = <factory>) -> None",
+        "can_afford": "(self, estimated_tokens: int = 0, estimated_cost_usd: float = 0.0) -> bool",
         "check": "(self)",
         "record_iteration": "(self)",
         "record_llm_usage": "(self, model_id: str, usage_dict: dict)",
         "record_tool_call": "(self)",
         "remaining": "(self) -> dict",
+        "reserve": "(self, estimated_tokens: int = 0, estimated_cost_usd: float = 0.0) -> bool",
         "snapshot": "(self) -> dict"
       }
     },
@@ -111,6 +161,9 @@
     "GABBE_API_URL": {
       "kind": "str"
     },
+    "GABBE_AUTONOMY": {
+      "kind": "str"
+    },
     "GABBE_ESCALATION_MODE": {
       "kind": "str"
     },
@@ -140,6 +193,9 @@
     },
     "GABBE_OTEL_ENABLED": {
       "kind": "bool"
+    },
+    "GABBE_PROJECT_CONFIG": {
+      "kind": "dict"
     },
     "LLM_MAX_RETRIES": {
       "kind": "int"

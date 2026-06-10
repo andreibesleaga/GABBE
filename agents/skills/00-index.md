@@ -208,6 +208,8 @@ ln -sf /path/to/agents/skills/*/*.skill.md ~/.agent/skills/
 | Protocol | `coordination/agent-protocol.skill.md` | a2a | Message schema |
 | Consensus | `coordination/swarm-consensus.skill.md` | vote | Distributed consensus |
 | Meta Opt | `coordination/meta-optimize.skill.md` | improve skill | Self-improvement |
+| Persona Selector | `coordination/persona-selector.skill.md` | best persona, delegate, route task | Dynamic persona selection + delegation + voting (cost-gated) |
+| Self Optimize | `coordination/self-optimize.skill.md` | optimize for project, autonomy level | Tune selection to project for quality+cost; autonomy levels |
 | Meta Prompt | `coordination/meta-prompting.skill.md` | system prompt | Prompt engineering |
 | Patterns | `coordination/agentic-patterns.skill.md` | react, plan | Agent patterns |
 | Linter | `coordination/agentic-linter.skill.md` | boundary | Interaction validity |
@@ -215,6 +217,13 @@ ln -sf /path/to/agents/skills/*/*.skill.md ~/.agent/skills/
 ### 8. Core System (`core/`)
 | Skill | File | Triggers | Purpose |
 |---|---|---|---|
+| Preflight | `core/preflight.skill.md` | preflight, session start, orient | First action: auto-check + load summaries + cost + clarify |
+| Clarify | `core/clarify.skill.md` | clarify, ambiguous, what to ask | Uncertainty-aware clarifying questions, every step |
+| Update Scan | `core/update-scan.skill.md` | check for updates, new tools, self-evolve | Discover + adopt best skills/tools/MCPs/models (gated) |
+| State Preserve | `core/state-preserve.skill.md` | save state, checkpoint, dont lose progress | Continuous + pre-cutoff state save for lossless resume |
+| State Portability | `core/state-portability.skill.md` | hydrate, dehydrate, switch agent | Portable state export/import across any agent/LLM |
+| Skills Registry | `core/skills-registry.skill.md` | skills registry, import skill, publish skill, agent garden | Import/publish skills to/from universal registries (validated) |
+| Final Review | `core/final-review.skill.md` | final review, expert review, anything missing, make it better | Expert end-of-work review: catch gaps + propose optimizations |
 | Research | `core/research.skill.md` | research, find | Deep research |
 | Gap Analysis | `core/knowledge-gap.skill.md` | unknown | Identify unknowns |
 | Self Heal | `core/self-heal.skill.md` | fix error | Auto-recovery |

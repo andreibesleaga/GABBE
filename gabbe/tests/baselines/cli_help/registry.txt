@@ -1,0 +1,9 @@
+usage: main.py registry [-h] {publish,add} ...
+
+positional arguments:
+  {publish,add}
+    publish      Export skills as a publish-ready bundle
+    add          Import a skill/bundle (validated, namespaced)
+
+options:
+  -h, --help     show this help message and exit

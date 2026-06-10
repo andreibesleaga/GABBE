@@ -135,6 +135,32 @@ Agents must continuously design and execute solutions focusing on minimizing tok
 
 Apply the four cost levers (see `agents/guides/ops/cost-optimization.md` → *LLM & Agentic Cost Control*): (1) **prompt caching** — keep stable context first/byte-identical so the provider serves the cached prefix cheaply; (2) **context budgeting** — load the minimum skills/guides, prefer `context_cost: low` and only pull `high` when needed; (3) **model tiering** — route simple work to the cheapest reliable model (`gabbe route`), reserve SOTA for hard/critical tasks; (4) **batching** — run non-interactive bulk work via batch APIs (−50%). These optimizations must **never** weaken the quality gates, the 10-gate SDLC, or human-in-the-loop escalation.
 
+**CRITICAL MANDATE: Spec-Driven Development (first-class)**
+Work flows **spec → evals → test → code**, never code-first. Before implementing any non-trivial feature, ensure a spec exists: capture requirements in **EARS** syntax (`WHEN [event] THE SYSTEM SHALL [response]`), record them (`product/req-elicitation.skill`, `product/spec-writer.skill`, `templates/SPEC_TEMPLATE.md`, `guides/planning/product-requirements.md`), and maintain a **golden thread** of traceability: every requirement → a spec item → a test → code → an audit entry. No requirement without a test (Article I). If no spec exists for a task, write/clarify it first (`clarify.skill`) — ambiguity is resolved in the spec, not in the code.
+
+**CRITICAL MANDATE: Human–Agent Collaboration (Manager, not Operator)**
+The human (developer / engineer / architect) is a **manager, not an operator**: delegate the objective, observe progress, intervene on exceptions. Keep the human able to answer three questions at all times — **Purpose** ("what is this for?" — bound scope + non-goals via the spec), **Transparency** ("how is it working?" — legible reasoning/tools/cost via observability), **Control** ("how do I steer it?" — pause/correct/approve via HITL gates). Prefer an asynchronous, observable surface (memory + audit trace + the task/gate board) over pretending a long task is instant. A change is "done" only when all three hold (see `guides/principles/human-agent-collaboration.md`).
+
+**CRITICAL MANDATE: Observability by Default (first-class)**
+Every run, decision, model call, and tool call must be **observable** — never a black box. Emit a decision/span trace with token usage and **cost attribution** per step (`core/audit-trail.skill`, `core/agent-analytics.skill`; the optional `gabbe audit`/`runs` CLI). Tag model/tool spans with the **OpenTelemetry GenAI semantic conventions** (`gen_ai.usage.*`, model, operation) and a decision-span hierarchy (root → plan → discover → execute → retrieve). Redact prompt/response content by default (privacy — Article IV); record references, not secrets. Observability must hold even without the CLI: the Markdown memory (`AUDIT_LOG.md`, decision log) is the authoritative trace.
+
+### Step 0 — Preflight & Clarify (before anything else)
+```
+Run preflight.skill as the FIRST action of every session and every major task:
+  1. Auto-checks: integrity-check (fast) → confirm memory + working tree are coherent.
+  2. Load index SUMMARIES (not bodies): agents/{skills,guides,templates,personas}/00-index.md
+     → know what capabilities exist before choosing generically.
+  3. Load memory headers with decay-aware priming (PROJECT_STATE, CONTINUITY, latest snapshot).
+  4. Surface cost posture: GABBE_AUTONOMY (ask|auto|hybrid, default hybrid) + remaining budget.
+  5. Recommend the OPTIMAL set for the task (skills/guides/persona/MCP), ranked by
+     relevance × (1/context_cost); pick a reasoning pattern proportionate to task + budget.
+  6. Flag new/changed capabilities since last preflight (defer adoption to update-scan.skill).
+  7. End by invoking clarify.skill → ask the focused batch of clarifying questions
+     (and "questions you should ask me") before proceeding.
+Do not begin implementation until blocking questions are answered, unless the autonomy
+posture is `auto` AND the task is cheap AND reversible.
+```
+
 ### Step 1 — Load Context (every session start)
 ```
 1. Read this AGENTS.md completely
@@ -187,8 +213,14 @@ Improve code quality while keeping all tests green.
 ```
 Write entry to agents/memory/AUDIT_LOG.md
 Update task status in project/TASKS.md to DONE
+Refresh agents/memory/RESUME_POINTER.md (state-preserve.skill) — keep the
+  "next action" current so any future session resumes losslessly
 <!-- OPTIONAL: High-Level Orchestration -> E.g. sdlc-checkpoint.skill -> mark phase done -->
 ```
+
+> **State preservation is continuous, not just at Step 7.** Per `state-preserve.skill`
+> and §13, save incrementally after every meaningful step and flush a full snapshot
+> before budget/time runs out — assume a cutoff can happen at any moment.
 
 ---
 
@@ -311,6 +343,35 @@ After 5 failed attempts, agent MUST:
 
 ```
 
+### Self-Evolving Policy (within cost + permission bounds)
+The system may keep itself current and improve over time — discovering new/better
+skills, tools, MCP servers, and models and adopting the best per scenario — but
+only inside hard bounds. Use `update-scan.skill` for the discovery loop.
+
+```
+ALLOWED (gated by GABBE_AUTONOMY + budget):
+  - Adopt a cheaper/better model or tool for a task when reversible and validated
+  - Import a vetted external skill (validate_skills + slug/egress scan first)
+  - Refine a prompt/persona from SUCCESSFUL trajectories only (A2-style)
+
+ALWAYS REQUIRES HUMAN APPROVAL (even under GABBE_AUTONOMY=auto):
+  - Anything expensive, SOTA-model, or irreversible
+  - Pulling in externally-sourced code that runs (supply-chain surface)
+  - Any change to protected files (see below)
+
+GUARDRAILS:
+  - Misaligned-replay guard: NEVER feed failed/known-bad trajectories into the
+    evolution pool — the system must not amplify its own mistakes.
+  - Protected files: never edit build/IaC/CI/dependency manifests
+    (package.json, pyproject.toml, lockfiles, Dockerfiles, workflow YAML)
+    unless the failure is specifically dependency/build-related and within the
+    self-heal allowlist above. Otherwise escalate.
+  - Policy-as-code self-enforcement: when no external compliance proxy is
+    present, the agent self-enforces these rules and logs every adoption,
+    recommendation, and rejection to AUDIT_LOG.md (auditable + reversible).
+  - Prefer canary/shadow adoption with easy rollback; version evolved components.
+```
+
 ---
 
 ## 9. Human-in-the-Loop Triggers
@@ -327,10 +388,20 @@ ALWAYS pause and ask:
   - Architectural change (new service, new database, library switch)
   - Any discovered vulnerability that requires feature disablement
   - "I've tried 5 times and cannot fix this" (see Self-Healing Policy)
+  - Any expensive / SOTA-model / irreversible action — even under GABBE_AUTONOMY=auto
+  - Adopting a new tool, model, or externally-sourced skill (see update-scan / skills-registry)
   - [PLACEHOLDER: add project-specific escalation triggers]
 
 <!-- OPTIONAL: Escalation Format -> Detail issue, options considered, and recommendation -->
 ```
+
+**Clarify at every major step (not just at session start).** Per `clarify.skill`, the agent
+estimates its own uncertainty before each major step and asks a focused batch of clarifying
+questions (≈3–6, highest-impact first) whenever interpretation is ambiguous, a decision input is
+missing, retrieval/verification failed, or the action is expensive/irreversible. The amount of
+questioning scales with the `GABBE_AUTONOMY` posture (ask → clarify freely; hybrid → clarify on
+real ambiguity; auto → silent for cheap/reversible work but always pause for the cases above).
+Record assumed defaults in `agents/memory/AUDIT_LOG.md` so silence is informed, not a guess.
 
 ---
 
@@ -357,11 +428,31 @@ ALWAYS pause and ask:
 - Skills: Reference skills/ directory files in comments or conversation
 ```
 
-### Antigravity / Gemini CLI
+### Gemini CLI
 ```
-- Context: This AGENTS.md is symlinked to .gemini/settings.json (instructions field)
+- Context: This AGENTS.md is symlinked to .gemini/settings.json (instructions field) + GEMINI.md
 - Skills: Symlinked to .agent/skills/ -- invoke by trigger keywords
 - MCP: Configure .gemini/mcp_config.json using templates/MCP_CONFIG_TEMPLATE.json
+```
+
+### Google Antigravity
+```
+- Context: Reads the root AGENTS.md (priority AGENTS.md → GEMINI.md → defaults, v1.20.3+)
+- Skills: Emitted to .agents/skills/<slug>/SKILL.md (agentskills.io standard)
+- Models: Picks up CLAUDE.md when running a Claude model — same project context
+```
+
+### OpenCode (local-first)
+```
+- Context: Reads the root AGENTS.md + an opencode.json `instructions` array
+- Skills: Emitted to .agents/skills/<slug>/SKILL.md (agentskills.io standard)
+```
+
+### Zed / Continue / Roo Code / Kilo Code
+```
+- Context: Read the root AGENTS.md (agents.md standard); Zed also via .rules,
+  Continue via .continue/rules/, Roo via .roo/rules/, Kilo via .kilocode/rules/
+- Skills: Reference agents/skills/ directly, or the universal .agents/skills/ tree
 ```
 
 ---
@@ -420,6 +511,32 @@ START of session:
   5. If resuming: use session-resume.skill for full recovery
   6. Run integrity-check.skill before starting new work on existing code
 
+CONTINUOUSLY (never lose progress — assume you may be cut off at any moment):
+  Use state-preserve.skill. An agent can be stopped without warning — tokens
+  exhausted, turn/time limit reached, network drop, crash — usually with NO
+  chance for a graceful shutdown. So state must be saved INCREMENTALLY, not
+  only at session end:
+  1. After each meaningful step: refresh agents/memory/RESUME_POINTER.md
+     (current task, last completed step, the precise NEXT ACTION, open
+     questions) and append the outcome to agents/memory/AUDIT_LOG.md.
+  2. Pre-exhaustion flush: when budget/tokens are low or wall-time/turns near
+     the cap — or before any long/irreversible action — write a FULL snapshot
+     FIRST (RESUME_POINTER first, then snapshot/PROJECT_STATE/CONTINUITY).
+     Never spend your last tokens on work whose result you cannot persist.
+  3. At all times the on-disk Markdown memory must be enough for a fresh agent
+     to resume losslessly via session-resume.skill. The optional gabbe CLI
+     (runs/replay/resume) augments this but the Markdown files are authoritative.
+
+PORTABLE (switch coding agent or LLM anytime — state-portability.skill):
+  State is agent-agnostic. To move work to a different agent/LLM and continue
+  as before, DEHYDRATE (export STATE_HANDOFF.md + a lossless bundle of
+  agents/memory + project/TASKS.md + gabbe.config.json + instructions) and
+  HYDRATE it in the destination agent, then run session-resume + preflight.
+  Memory + instructions + state are a fully compatible export/import; the
+  single STATE_HANDOFF.md is enough even for a filesystem-less LLM chat.
+  Helpers: agents/scripts/state_export.sh and state_import.sh. Never export
+  secrets; merge on import (never clobber newer local state without asking).
+
 END of session:
   1. Update project/TASKS.md with current status of all in-progress tasks
   2. Write session summary to agents/memory/episodic/ (DECISION_LOG_TEMPLATE.md)
@@ -427,7 +544,7 @@ END of session:
   4. Write all decisions/outcomes to agents/memory/AUDIT_LOG.md
   5. Update agents/memory/CONTINUITY.md with lessons learned
   6. Create SDLC checkpoint if a phase was completed
-  7. If stopping mid-task: note exactly where you stopped and why
+  7. If stopping mid-task: note exactly where you stopped and why (RESUME_POINTER)
 ```
 
 ---
@@ -439,6 +556,16 @@ END of session:
 
 <!-- OPTIONAL: Examples -> e.g. "API consumed by mobile, 30-day deprecation", "no hardcoded i18n strings" -->
 ```
+
+### Per-project policy: `project/gabbe.config.json` (optional)
+A runtime-agnostic policy file the agent reads to tune itself to this project —
+autonomy posture, budgets, model tiers, enabled MCPs, skill registries, and
+protected files. Copy `docs/gabbe.config.example.json` to
+`project/gabbe.config.json` and edit. The agent
+applies it via `coordination/self-optimize.skill`; the optional `gabbe` CLI
+surfaces it via `gabbe/config.py` (`GABBE_AUTONOMY`, `GABBE_PROJECT_CONFIG`).
+Precedence for autonomy: env `GABBE_AUTONOMY` > config `autonomy` > `hybrid`.
+See `docs/SCHEMA.md` → *Project policy config*.
 
 ---
 

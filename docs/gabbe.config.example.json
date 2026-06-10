@@ -1,0 +1,9 @@
+{
+  "$comment": "Copy to project/gabbe.config.json to set per-project policy. All keys optional. See docs/SCHEMA.md → Project policy config.",
+  "autonomy": "hybrid",
+  "budgets": { "max_cost_usd": 5.0, "max_tokens_per_run": 100000 },
+  "model_tiers": { "cheap": "gpt-4o-mini", "default": "gpt-4o", "sota": "claude-opus-4-8" },
+  "enabled_mcps": ["context7", "filesystem"],
+  "registries": ["https://skills.sh", "google/skills"],
+  "protected_files": ["pyproject.toml", "package.json", "*.lock", "Dockerfile", ".github/**"]
+}

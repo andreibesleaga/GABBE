@@ -92,6 +92,21 @@ def main():
     resume_parser = subparsers.add_parser("resume", help="Resume a paused/escalated run")
     resume_parser.add_argument("run_id", help="Run ID to resume")
 
+    # --- COMMAND: registry ---
+    registry_parser = subparsers.add_parser(
+        "registry", help="Publish/import skills to/from universal registries"
+    )
+    registry_sub = registry_parser.add_subparsers(dest="registry_command")
+    rpub = registry_sub.add_parser("publish", help="Export skills as a publish-ready bundle")
+    rpub.add_argument("--out", default="dist/registry", help="Output bundle directory")
+    radd = registry_sub.add_parser("add", help="Import a skill/bundle (validated, namespaced)")
+    radd.add_argument("source", help="Local path, .tar.gz, or http(s) URL")
+    radd.add_argument("--namespace", default="ext", help="Land under agents/skills/<namespace>/")
+    radd.add_argument("--apply", action="store_true", help="Write imports (default: dry run)")
+
+    # --- COMMAND: setup ---
+    subparsers.add_parser("setup", help="Run the interactive install wizard (wire agents + skills)")
+
     # Parse arguments
     args = parser.parse_args()
 
@@ -245,6 +260,45 @@ def main():
                         print(f"  Marked as {status}.")
             finally:
                 conn.close()
+
+        elif args.command == "registry":
+            import subprocess
+            from pathlib import Path
+
+            scripts_dir = Path(__file__).resolve().parent.parent / "scripts"
+
+            def _run_script(name, extra):
+                script = scripts_dir / name
+                if not script.exists():
+                    print(
+                        f"{Colors.WARNING}{name} not found (packaged install): run from a "
+                        f"GABBE repo checkout to use registry commands.{Colors.ENDC}"
+                    )
+                    return
+                subprocess.run([sys.executable, str(script), *extra], check=False)
+
+            if args.registry_command == "publish":
+                _run_script("registry_export.py", ["--out", args.out])
+            elif args.registry_command == "add":
+                extra = [args.source, "--namespace", args.namespace]
+                if args.apply:
+                    extra.append("--apply")
+                _run_script("registry_import.py", extra)
+            else:
+                registry_parser.print_help()
+
+        elif args.command == "setup":
+            import subprocess
+            from pathlib import Path
+
+            init_script = Path(__file__).resolve().parent.parent / "scripts" / "init.py"
+            if init_script.exists():
+                subprocess.run([sys.executable, str(init_script)], check=False)
+            else:
+                print(
+                    f"{Colors.WARNING}Install wizard not found (packaged install): "
+                    f"use 'npx gabbe init' or the repo's scripts/init.py.{Colors.ENDC}"
+                )
 
         else:
             parser.print_help()

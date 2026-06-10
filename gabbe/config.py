@@ -150,6 +150,46 @@ GABBE_POLICY_FILE = PROJECT_ROOT / os.environ.get("GABBE_POLICY_FILE", "project/
 GABBE_ESCALATION_MODE = os.environ.get("GABBE_ESCALATION_MODE", "cli")  # cli, file, silent
 GABBE_OTEL_ENABLED = os.environ.get("GABBE_OTEL_ENABLED", "false").lower() == "true"
 
+
+# Per-project policy the agent + CLI read (runtime-agnostic). project/gabbe.config.json
+# may set: autonomy posture, budgets, preferred model tiers, enabled MCPs, registries.
+# Loaded best-effort; a malformed file warns and falls back to defaults (never raises).
+def _load_project_config(path):
+    if not path.exists():
+        return {}
+    try:
+        import json
+
+        with open(path, "r") as f:
+            data = json.load(f)
+        return data if isinstance(data, dict) else {}
+    except Exception as e:  # noqa: BLE001 - config is optional; surface but don't crash
+        warnings.warn(f"Failed to load project config {path}: {e}")
+        return {}
+
+
+GABBE_PROJECT_CONFIG_FILE = GABBE_DIR / "gabbe.config.json"
+GABBE_PROJECT_CONFIG = _load_project_config(GABBE_PROJECT_CONFIG_FILE)
+
+
+def _resolve_autonomy():
+    """Autonomy posture precedence: env > project config > default 'hybrid'.
+
+    Valid values: ask | auto | hybrid. Invalid values warn and fall back to hybrid.
+    """
+    valid = {"ask", "auto", "hybrid"}
+    raw = os.environ.get("GABBE_AUTONOMY") or GABBE_PROJECT_CONFIG.get("autonomy") or "hybrid"
+    raw = str(raw).strip().lower()
+    if raw not in valid:
+        logger.warning("Invalid GABBE_AUTONOMY=%r; using 'hybrid'", raw)
+        return "hybrid"
+    return raw
+
+
+# ask = always clarify; auto = act when cheap+reversible (still ask for expensive/SOTA/
+# irreversible); hybrid (default) = auto-when-cheap, ask-when-expensive.
+GABBE_AUTONOMY = _resolve_autonomy()
+
 # Task status constants — single source of truth used across brain, sync, status
 TASK_STATUS_TODO = "TODO"
 TASK_STATUS_IN_PROGRESS = "IN_PROGRESS"

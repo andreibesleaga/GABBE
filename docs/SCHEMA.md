@@ -126,3 +126,39 @@ sha256 manifest, additive-only diff) and the gate runner
 `scripts/gates/run_gates.sh` (gate 4). The 0.9 changes marked **[0.9+]** above
 are additive: new directories/files alongside the existing ones, reviewed
 against the golden baseline.
+
+---
+
+## Project policy config: `project/gabbe.config.json` **[0.9+]**
+
+> **Direction:** this is an *input* GABBE reads (not an emitted artifact). It is
+> optional and runtime-agnostic — the Markdown agent reads it directly, and the
+> optional `gabbe` CLI surfaces it via `gabbe/config.py`.
+
+A per-project policy file letting a team set autonomy, budgets, model tiers,
+enabled MCPs, registries, and protected files **without** editing the kit. All
+keys are optional; each falls back to a safe default. Unknown keys are ignored.
+
+```json
+{
+  "autonomy": "hybrid",
+  "budgets": { "max_cost_usd": 5.0, "max_tokens_per_run": 100000 },
+  "model_tiers": { "cheap": "gpt-4o-mini", "default": "gpt-4o", "sota": "claude-opus-4-8" },
+  "enabled_mcps": ["context7", "filesystem"],
+  "registries": ["https://skills.sh", "google/skills"],
+  "protected_files": ["pyproject.toml", "package.json", "*.lock", "Dockerfile", ".github/**"]
+}
+```
+
+| Key | Type | Default | Meaning |
+|---|---|---|---|
+| `autonomy` | `"ask" \| "auto" \| "hybrid"` | `hybrid` | Autonomy posture. Env `GABBE_AUTONOMY` overrides this. |
+| `budgets` | object | CLI defaults | Per-run cost/token ceilings (advisory to the Markdown agent; enforced by the CLI budget when used). |
+| `model_tiers` | object | provider defaults | Named tiers for cheap/default/SOTA routing (`cost-benefit-router`, `persona-selector`). |
+| `enabled_mcps` | string[] | `[]` | MCP servers the agent may assume are available. |
+| `registries` | string[] | `[]` | Skill registries `update-scan`/`skills-registry` may publish to / import from. |
+| `protected_files` | string[] (globs) | build/IaC/CI/manifests | Files never auto-edited outside the dependency-specific self-heal allowlist. |
+
+**Precedence (autonomy):** environment `GABBE_AUTONOMY` > `gabbe.config.json` `autonomy` > default `hybrid`. Invalid values warn and fall back to `hybrid`.
+
+**Compatibility:** new optional keys may be added over time (additive). Consumers must ignore unknown keys. `gabbe/config.py` exposes `GABBE_AUTONOMY` (str) and `GABBE_PROJECT_CONFIG` (dict) as additive module globals.

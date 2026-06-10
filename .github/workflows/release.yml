@@ -9,6 +9,26 @@ permissions:
   contents: write
 
 jobs:
+  # --- Detect which publish tokens are present. The `secrets` context cannot
+  # be used in a job-level `if:`, so we read it inside a step here and expose
+  # booleans that downstream publish jobs gate on via `needs`. This keeps the
+  # workflow green when the tokens are absent. ---
+  secret-gate:
+    name: Detect publish secrets
+    runs-on: ubuntu-latest
+    outputs:
+      has_pypi: ${{ steps.check.outputs.has_pypi }}
+      has_npm: ${{ steps.check.outputs.has_npm }}
+    steps:
+      - id: check
+        env:
+          PYPI_API_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          if [ -n "$PYPI_API_TOKEN" ]; then echo "has_pypi=true" >> "$GITHUB_OUTPUT"; else echo "has_pypi=false" >> "$GITHUB_OUTPUT"; fi
+          if [ -n "$NPM_TOKEN" ]; then echo "has_npm=true" >> "$GITHUB_OUTPUT"; else echo "has_npm=false" >> "$GITHUB_OUTPUT"; fi
+
+  # --- Existing job: build sdist+wheel, generate a CycloneDX SBOM, attach. ---
   sbom-and-build:
     name: Build + CycloneDX SBOM
     runs-on: ubuntu-latest
@@ -36,3 +56,79 @@ jobs:
           files: |
             dist/*
             sbom.json
+
+  # --- Build the npm package tarball and a standalone kit tarball. ---
+  build-npm-and-kit:
+    name: Build npm + kit tarballs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Smoke-test the Node installer
+        run: node bin/install.js --help
+
+      - name: npm pack (creates gabbe-<version>.tgz)
+        run: npm pack
+
+      - name: Build standalone kit tarball
+        run: |
+          mkdir -p dist
+          tar -czf "dist/gabbe-kit.tar.gz" agents docs scripts/init.py install.sh install.ps1 bin/install.js package.json README.md LICENSE LICENSE-CODE
+
+      - name: Attach npm + kit tarballs to release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            ./*.tgz
+            dist/gabbe-kit.tar.gz
+
+  # --- Publish to PyPI ONLY when PYPI_API_TOKEN is configured (gated on the
+  # secret-gate job's output, since `secrets` cannot be used in `if:`). ---
+  publish-pypi:
+    name: Publish to PyPI
+    needs: [secret-gate, sbom-and-build]
+    runs-on: ubuntu-latest
+    if: needs.secret-gate.outputs.has_pypi == 'true'
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Install build + twine
+        run: pip install build twine
+
+      - name: Build sdist + wheel
+        run: python -m build
+
+      - name: Publish to PyPI
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
+        run: twine upload --non-interactive dist/*
+
+  # --- Publish to npm ONLY when NPM_TOKEN is configured (gated on the
+  # secret-gate job's output, since `secrets` cannot be used in `if:`). ---
+  publish-npm:
+    name: Publish to npm
+    needs: [secret-gate, build-npm-and-kit]
+    runs-on: ubuntu-latest
+    if: needs.secret-gate.outputs.has_npm == 'true'
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Smoke-test the Node installer
+        run: node bin/install.js --help
+
+      - name: Publish to npm
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish --access public

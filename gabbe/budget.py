@@ -148,6 +148,32 @@ class Budget:
             "cost_usd": max(0.0, self.max_cost_usd - self.cost_usd),
         }
 
+    def can_afford(self, estimated_tokens: int = 0, estimated_cost_usd: float = 0.0) -> bool:
+        """Pre-step check: would this estimated spend stay within the remaining budget?
+
+        Non-mutating — actual consumption is still recorded post-hoc by
+        record_llm_usage. Use this BEFORE a model/tool/subagent step to decide
+        whether the cheap path is viable. Returns False as a *constraint signal*
+        (pick a cheaper path / escalate) rather than raising.
+        """
+        rem = self.remaining()
+        if estimated_tokens and estimated_tokens > rem["tokens"]:
+            return False
+        if estimated_cost_usd and estimated_cost_usd > rem["cost_usd"]:
+            return False
+        return True
+
+    def reserve(self, estimated_tokens: int = 0, estimated_cost_usd: float = 0.0) -> bool:
+        """Reserve budget for a step before executing it (financial middleware).
+
+        Estimate the worst-case cost of the next step and check it against the
+        remaining budget. Returns True if the step fits and may proceed; False if
+        it would exceed budget (the caller should choose a cheaper path or
+        escalate to a human). Does not consume budget — reconciliation happens via
+        record_llm_usage after the step actually runs.
+        """
+        return self.can_afford(estimated_tokens, estimated_cost_usd)
+
     @classmethod
     def from_config(cls):
         return cls()

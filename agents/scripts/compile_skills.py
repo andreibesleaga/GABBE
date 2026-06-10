@@ -188,9 +188,17 @@ def setup_skills_for_platform(platform, skills_src_dir, target_dir, project_root
             dest_file.write_text(final_content)
             count += 1
 
-        elif platform in ("VS Code", "GitHub Copilot", "Claude Code"):
+        elif platform in (
+            "VS Code",
+            "GitHub Copilot",
+            "Claude Code",
+            "Antigravity",
+            "OpenCode",
+            "Universal",
+        ):
             # Agent-skills open standard (agentskills.io), shared by Copilot,
-            # VS Code, and Claude Code: <target>/<slug>/SKILL.md as a real file
+            # VS Code, Claude Code, Antigravity (.agents/skills), OpenCode, and the
+            # universal .agents/skills tree: <target>/<slug>/SKILL.md as a real file
             # (not a symlink) with name+description frontmatter so the skill is
             # discoverable on every platform and portable across filesystems.
             skill_folder = target_dir / skill_slug
@@ -217,7 +225,16 @@ def main():
     parser.add_argument(
         "--platform",
         required=True,
-        choices=["Cursor", "VS Code", "GitHub Copilot", "Claude Code", "All"],
+        choices=[
+            "Cursor",
+            "VS Code",
+            "GitHub Copilot",
+            "Claude Code",
+            "Antigravity",
+            "OpenCode",
+            "Universal",
+            "All",
+        ],
         help="Target platform",
     )
     parser.add_argument(

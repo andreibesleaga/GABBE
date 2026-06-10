@@ -773,7 +773,13 @@ def main():
             "Cline",
             "Aider",
             "Devin / Cognition",
-            "Gemini / Antigravity",
+            "Gemini",
+            "Antigravity",
+            "OpenCode",
+            "Zed",
+            "Continue",
+            "Roo Code",
+            "Kilo Code",
             "OpenAI / Codex",
             "GitHub Copilot",
             "VS Code",
@@ -821,7 +827,9 @@ def main():
             aider_conf.write_text("read:\n  - agents/AGENTS.md\n  - agents/skills/\n")
             print(f"  {GREEN}✓ Wired .aider.conf.yml{NC}")
 
-    if "Gemini / Antigravity" in agents:
+    # "Gemini" is the split-out target; "Gemini / Antigravity" kept for backward
+    # compatibility with older saved selections and the emitter golden harness.
+    if "Gemini" in agents or "Gemini / Antigravity" in agents:
         gemini_dir = PROJECT_ROOT / ".gemini"
         gemini_dir.mkdir(exist_ok=True)
         try:
@@ -843,6 +851,51 @@ def main():
         # Gemini CLI natively reads a GEMINI.md context file; point it at AGENTS.md.
         create_symlink(agents_md_src, PROJECT_ROOT / "GEMINI.md")
         print(f"  {GREEN}✓ Wired .gemini/settings.json + GEMINI.md{NC}")
+
+    # Universal agentskills.io target: .agents/skills/<slug>/SKILL.md is read by
+    # Antigravity, OpenCode, GitHub Copilot CLI, ~/.agents/skills, and any
+    # agentskills.io-conformant tool — emitted once when any such agent is selected.
+    if "Antigravity" in agents:
+        # Antigravity (v1.20.3+) reads the root AGENTS.md (emitted below) and
+        # discovers skills at .agents/skills/<slug>/SKILL.md.
+        setup_skills_for_platform("Antigravity", AGENTS_DIR, PROJECT_ROOT / ".agents" / "skills")
+        print(f"  {GREEN}✓ Wired Antigravity (.agents/skills + root AGENTS.md){NC}")
+
+    if "OpenCode" in agents:
+        # OpenCode reads the root AGENTS.md and an opencode.json `instructions` array.
+        opencode_conf = PROJECT_ROOT / "opencode.json"
+        if not opencode_conf.exists():
+            opencode_conf.write_text(
+                json.dumps(
+                    {
+                        "$schema": "https://opencode.ai/config.json",
+                        "instructions": ["AGENTS.md", "agents/skills/"],
+                    },
+                    indent=2,
+                )
+                + "\n"
+            )
+        setup_skills_for_platform("OpenCode", AGENTS_DIR, PROJECT_ROOT / ".agents" / "skills")
+        print(f"  {GREEN}✓ Wired opencode.json + .agents/skills{NC}")
+
+    if "Zed" in agents:
+        # Zed reads the root AGENTS.md natively; also wire its `.rules` convention.
+        create_symlink(agents_md_src, PROJECT_ROOT / ".rules")
+
+    if "Continue" in agents:
+        cont_dir = PROJECT_ROOT / ".continue" / "rules"
+        cont_dir.mkdir(parents=True, exist_ok=True)
+        create_symlink(agents_md_src, cont_dir / "agents.md")
+
+    if "Roo Code" in agents:
+        roo_dir = PROJECT_ROOT / ".roo" / "rules"
+        roo_dir.mkdir(parents=True, exist_ok=True)
+        create_symlink(agents_md_src, roo_dir / "agents.md")
+
+    if "Kilo Code" in agents:
+        kilo_dir = PROJECT_ROOT / ".kilocode" / "rules"
+        kilo_dir.mkdir(parents=True, exist_ok=True)
+        create_symlink(agents_md_src, kilo_dir / "agents.md")
 
     if "OpenAI / Codex" in agents:
         codex_dir = PROJECT_ROOT / ".codex"

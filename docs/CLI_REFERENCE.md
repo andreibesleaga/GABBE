@@ -405,6 +405,40 @@ Lists all pending escalations for the run, prompts for approve/reject per item, 
 
 ---
 
+### `gabbe registry publish [--out DIR]`
+
+Export the kit's skills as a publish-ready, agentskills.io-standard bundle
+(`<slug>/SKILL.md` tree + `manifest.json` + an A2A-style `agent-card.json`) for
+universal skill registries. The maintainer performs the actual publish.
+
+```bash
+gabbe registry publish --out dist/registry
+```
+
+### `gabbe registry add <source> [--namespace NS] [--apply]`
+
+Import an external skill/bundle (local path, `.tar.gz`, or `http(s)` URL) into
+`agents/skills/<namespace>/`. Every candidate is validated (real-YAML frontmatter
++ safe-slug + path-traversal + egress/secret/executable-payload scan) and landed
+namespaced for review. Dry-run by default; pass `--apply` to write.
+
+```bash
+gabbe registry add ./bundle --namespace ext            # dry run
+gabbe registry add https://example/skill.skill.md --apply
+```
+
+### `gabbe setup`
+
+Run the interactive install wizard (`scripts/init.py`) to wire the kit into your
+coding agents. (For a Python-independent install, use `npx gabbe init` or
+`curl -fsSL .../install.sh | sh`.)
+
+```bash
+gabbe setup
+```
+
+---
+
 ## Troubleshooting
 
 **`EnvironmentError: GABBE_API_KEY is not set`**

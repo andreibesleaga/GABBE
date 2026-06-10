@@ -1,0 +1,48 @@
+{
+  "name": "gabbe",
+  "version": "0.9.0",
+  "description": "GABBE - Generative Architectural Brain Base Engine. A Markdown agentic engineering kit installer (Python-independent). Wires AGENTS.md, skills, and per-agent rule files into any project.",
+  "keywords": [
+    "agentic",
+    "ai",
+    "engineering",
+    "cli",
+    "llm",
+    "agents",
+    "skills",
+    "claude",
+    "cursor",
+    "copilot"
+  ],
+  "homepage": "https://github.com/andreibesleaga/GABBE#readme",
+  "bugs": {
+    "url": "https://github.com/andreibesleaga/GABBE/issues"
+  },
+  "license": "Apache-2.0",
+  "author": "Andrei Nicolae Besleaga",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/andreibesleaga/GABBE.git"
+  },
+  "type": "commonjs",
+  "bin": {
+    "gabbe": "bin/install.js"
+  },
+  "scripts": {
+    "test": "node bin/install.js --help"
+  },
+  "files": [
+    "bin/",
+    "agents/",
+    "docs/",
+    "scripts/init.py",
+    "install.sh",
+    "install.ps1",
+    "README.md",
+    "LICENSE",
+    "LICENSE-CODE"
+  ],
+  "engines": {
+    "node": ">=16"
+  }
+}

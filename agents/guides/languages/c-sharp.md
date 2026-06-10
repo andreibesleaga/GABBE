@@ -1,55 +1,66 @@
 # C# / .NET Project Guide
 
-> **Status:** Placeholder / Basic Guide
-> **Version:** 1.0
+> **Audience:** agents writing or reviewing C#/.NET services. **Scope:** current
+> stack, idioms, structure, testing, performance, and pitfalls for 2026.
+> Versions verified 2026-06-10 (see sources at the end).
 
-## Recommended Stack (2026)
+## Recommended stack (2026)
 
--   **Runtime:** .NET 10 (LTS)
--   **Build Tool:** dotnet CLI / MSBuild
--   **Web Framework:** ASP.NET Core (Minimal APIs)
--   **ORM:** Entity Framework Core
--   **Testing:** xUnit + FluentAssertions
--   **Linting:** Roslyn Analyzers, editorconfig
+- **Runtime:** **.NET 10 (LTS)** — released 2025-11, supported through Nov 2028.
+  Target `net10.0`; nullable reference types and implicit usings **on**.
+- **Build:** `dotnet` CLI / MSBuild; `Directory.Build.props` for shared settings;
+  Central Package Management (`Directory.Packages.props`) for version pinning.
+- **Web:** ASP.NET Core **Minimal APIs** for services; MVC/Razor/Blazor where a
+  UI or controller surface is warranted.
+- **Data:** EF Core (LINQ + migrations) or Dapper for hot paths.
+- **Testing:** xUnit + FluentAssertions + NSubstitute/Moq; **Testcontainers** for
+  integration; `WebApplicationFactory` for in-process API tests.
+- **Quality:** nullable enabled, `TreatWarningsAsErrors`, Roslyn analyzers +
+  `dotnet format`; EditorConfig for style.
 
-## Standard Commands
+## Idioms (current C#)
 
-```bash
-# Install / Restore
-dotnet restore
+- **Records** and `record struct` for value/DTO types; `required` members +
+  primary constructors to enforce construction invariants.
+- **Pattern matching** (`switch` expressions, list/property patterns) over
+  type-checking chains; `is not null`.
+- `async`/`await` end-to-end — never `.Result`/`.Wait()` (deadlocks);
+  `CancellationToken` flows through every async boundary; `IAsyncEnumerable<T>`
+  for streaming.
+- `System.Text.Json` (source-generated `JsonSerializerContext` for AOT/perf).
+- Prefer `Span<T>`/`Memory<T>` and pooled buffers on allocation-sensitive paths.
 
-# Test
-dotnet test
+## Project structure (Clean Architecture)
 
-# Run
-dotnet run
-
-# Format
-dotnet format
-```
-
-## Architecture Patterns
-
--   **Vertical Slice Architecture** is highly recommended for .NET Core applications.
--   **Clean Architecture** is also common but avoid over-abstraction.
--   **MediatR**: Often used to decouple Requests from Handlers.
-
-## Standard Directory Structure
 ```
 src/
-  Core/           # Domain Entities, Interfaces
-  Application/    # Use cases, MediatR Handlers
-  Infrastructure/ # EF Core, External APIs
-  Web/            # ASP.NET APIs, Minimal API Endpoints
-tests/
-  UnitTests/      # xUnit tests with FluentAssertions
-  Integration/    # Testcontainers
+  Domain/          entities, value objects, domain events (no dependencies)
+  Application/     use-cases, ports/interfaces, validation
+  Infrastructure/  EF Core, external clients, implementations of ports
+  Api/             Minimal API endpoints, DI composition root
+tests/             Unit (fast) + Integration (Testcontainers)
 ```
 
-## AI Agent Rules for C# / .NET
-1. **Always use Minimal APIs** for new endpoints unless requested otherwise.
-2. **Entity Framework Core**: prefer Code-First approach. Use `IEntityTypeConfiguration` for fluent API configuration instead of data annotations.
-3. **Dependency Injection**: Always use `IServiceCollection` extension methods per layer (e.g., `AddInfrastructure()`).
-4. **Asynchronous Code**: Always use `async/await` down to the data access layer. Append `Async` to method names.
-5. **Testing**: Use `xUnit` and `Moq`/`NSubstitute`. Follow AAA (Arrange, Act, Assert) pattern.
-6. **Exception Handling**: Use `GlobalExceptionHandler` middleware rather than try-catch blocks in controllers.
+Dependencies point inward; the API project is the composition root.
+
+## Performance & ops
+
+- **Native AOT** for fast cold start / small footprint (CLIs, serverless,
+  high-density services) — validate trimming and that reflection-heavy libs are
+  AOT-compatible.
+- Use the built-in DI, `IOptions<T>` for config, `ILogger<T>` structured logging,
+  and **OpenTelemetry** (`System.Diagnostics.Activity`) for traces/metrics.
+- Health checks via `Microsoft.Extensions.Diagnostics.HealthChecks`.
+
+## Common pitfalls
+
+- Sync-over-async (`.Result`) and missing `ConfigureAwait` in libraries.
+- Capturing `DbContext` across threads (it is **not** thread-safe) or leaking it
+  beyond a scoped lifetime.
+- Ignoring nullable warnings; over-using exceptions for control flow.
+- N+1 from lazy loading; forgetting `AsNoTracking()` on read-only queries.
+
+## Sources (verified 2026-06-10)
+- What's new in .NET 10: <https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-10/overview>
+- .NET support policy (LTS = 3 years): <https://dotnet.microsoft.com/en-us/platform/support/policy/dotnet-core>
+- Native AOT: <https://learn.microsoft.com/en-us/dotnet/core/deploying/native-aot/>

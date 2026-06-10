@@ -133,6 +133,8 @@ Additionally, agents must explicitly evaluate whether any **MCP (Model Context P
 **CRITICAL MANDATE: Default Cost & Budget Optimization**
 Agents must continuously design and execute solutions focusing on minimizing token load, context size, and api costs by default. Do not use complex swarms or expensive remote SOTA models for simple changes. If a task necessitates an expensive strategy, complex reasoning traces, or high-cost MCP tools, agents **must always ask the human user for explicit approval** before deploying that approach, providing a brief explanation for the cost-to-benefit ratio.
 
+Apply the four cost levers (see `agents/guides/ops/cost-optimization.md` → *LLM & Agentic Cost Control*): (1) **prompt caching** — keep stable context first/byte-identical so the provider serves the cached prefix cheaply; (2) **context budgeting** — load the minimum skills/guides, prefer `context_cost: low` and only pull `high` when needed; (3) **model tiering** — route simple work to the cheapest reliable model (`gabbe route`), reserve SOTA for hard/critical tasks; (4) **batching** — run non-interactive bulk work via batch APIs (−50%). These optimizations must **never** weaken the quality gates, the 10-gate SDLC, or human-in-the-loop escalation.
+
 ### Step 1 — Load Context (every session start)
 ```
 1. Read this AGENTS.md completely

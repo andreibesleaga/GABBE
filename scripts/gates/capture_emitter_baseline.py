@@ -114,12 +114,22 @@ def normalize(path_str, project_dir):
     return path_str.replace(str(project_dir), "<PROJECT_ROOT>").replace(str(KIT_ROOT), "<KIT>")
 
 
+# agents/memory/ is gitignored per-user runtime state, so its contents differ
+# between a developer checkout and a clean CI clone — never manifest it.
+_MANIFEST_EXCLUDE_PREFIXES = ("agents/memory",)
+
+
 def build_manifest(project_dir):
     manifest = {}
     for root, dirs, files in os.walk(project_dir):
         # Bytecode caches are non-deterministic build cruft, not part of the
         # emitted contract — never manifest them.
         dirs[:] = sorted(d for d in dirs if d != "__pycache__")
+        rel_root = os.path.relpath(root, project_dir).replace(os.sep, "/")
+        if rel_root != "." and any(
+            rel_root == p or rel_root.startswith(p + "/") for p in _MANIFEST_EXCLUDE_PREFIXES
+        ):
+            continue
         # The agents/ kit copy is manifested but its 400+ source files are
         # summarized by hash only, like everything else.
         for name in sorted(files):

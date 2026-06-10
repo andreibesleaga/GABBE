@@ -387,51 +387,6 @@
     "size": 2813,
     "type": "file"
   },
-  "agents/memory/AUDIT_LOG.md": {
-    "sha256": "1d9a65cc4698988e2474b39e61d1580ed42adaded068426349958c7735a8102d",
-    "size": 1810,
-    "type": "file"
-  },
-  "agents/memory/CONTINUITY.md": {
-    "sha256": "8d4b45fe12b0f2468c5ec3fe7d401b7953f778ca149e3149b8efcb0ba11fe0a6",
-    "size": 1598,
-    "type": "file"
-  },
-  "agents/memory/CONTINUITY_TEMPLATE.md": {
-    "sha256": "5ad6eeb98a4bfe7de7c76b4376469d309d64557a7ed12d1094bbbe54556944ca",
-    "size": 832,
-    "type": "file"
-  },
-  "agents/memory/PROJECT_STATE.md": {
-    "sha256": "a34ff1e00a45dde58182c844365b484e64f2b84f843be9a8d0fca452f2798990",
-    "size": 3624,
-    "type": "file"
-  },
-  "agents/memory/PROJECT_STATE_TEMPLATE.md": {
-    "sha256": "0b271f6a18e96b736d23cd812df942dee95b373377692a8e6b1e3364569b5e37",
-    "size": 764,
-    "type": "file"
-  },
-  "agents/memory/episodic/DECISION_LOG_TEMPLATE.md": {
-    "sha256": "6092445bd615f465b488f7708dbc876c40e6215c43b32fee302a7ab7fd96d84f",
-    "size": 3231,
-    "type": "file"
-  },
-  "agents/memory/episodic/VOTING_LOG_TEMPLATE.md": {
-    "sha256": "f8d639245153556569071d38608d6c35d2d94214582f9b84ab8c75f64abc0789",
-    "size": 918,
-    "type": "file"
-  },
-  "agents/memory/semantic/PROJECT_KNOWLEDGE_TEMPLATE.md": {
-    "sha256": "a607b09189ae1dd4b84ad366bb89638c8201a057100cc7b727074f3a6ee3bf4e",
-    "size": 5751,
-    "type": "file"
-  },
-  "agents/memory/semantic/VECTOR_DB_CONFIG_TEMPLATE.json": {
-    "sha256": "6d8fa47c630efba48ac1e18f9f022dd27c982f5e6f8b5426760b942521fbee11",
-    "size": 1098,
-    "type": "file"
-  },
   "agents/personas/00-index.md": {
     "sha256": "319704cab41b0354b75d4c5fa1f89659df76862c136cc30342006e4153176c36",
     "size": 9466,

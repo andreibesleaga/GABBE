@@ -16,6 +16,16 @@ import pytest
 
 BASELINE_DIR = Path(__file__).parent / "baselines" / "cli_help"
 
+# argparse help formatting changes between Python versions (e.g. "optional
+# arguments:" -> "options:" in 3.10, usage reflow in 3.13), so byte-exact
+# comparison is only meaningful against the interpreter the baselines were
+# captured on. The CI "gates" job pins this version.
+BASELINE_PY = (3, 12)
+pytestmark = pytest.mark.skipif(
+    sys.version_info[:2] != BASELINE_PY,
+    reason=f"CLI --help byte-baselines captured on Python {BASELINE_PY[0]}.{BASELINE_PY[1]}",
+)
+
 COMMANDS = {
     "root": [],
     "init": ["init"],

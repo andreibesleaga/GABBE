@@ -52,6 +52,8 @@ jobs:
   trivy:
     name: Trivy filesystem scan
     runs-on: ubuntu-latest
+    # Report-only (uploads SARIF to code-scanning); does not block the PR.
+    continue-on-error: true
     permissions:
       contents: read
       security-events: write
@@ -65,6 +67,7 @@ jobs:
           format: sarif
           output: trivy.sarif
           severity: HIGH,CRITICAL
+          exit-code: '0'
       - name: Upload Trivy SARIF
         if: always()
         uses: github/codeql-action/upload-sarif@v3

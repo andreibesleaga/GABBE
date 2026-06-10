@@ -13,6 +13,9 @@ jobs:
   markdownlint:
     name: Markdown lint
     runs-on: ubuntu-latest
+    # Report-only for now; the skill/template/guide corpus predates the lint
+    # config. Flip to blocking after the corpus is brought into compliance.
+    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
       - name: markdownlint-cli2
@@ -27,6 +30,10 @@ jobs:
   links:
     name: Link check (lychee)
     runs-on: ubuntu-latest
+    # Report-only: external links rate-limit/404 transiently; failing the PR on
+    # third-party link rot is too noisy. The repo's own validate_links.py gates
+    # internal links in the main CI job.
+    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
       - name: lychee

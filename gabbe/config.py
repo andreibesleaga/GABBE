@@ -77,16 +77,26 @@ if GABBE_CONFIG_FILE.exists():
     except Exception as e:
         warnings.warn(f"Failed to load extra config from {GABBE_CONFIG_FILE}: {e}")
 
+
 # LLM Config
-env_file = PROJECT_ROOT / ".env"
-if env_file.exists():
+def _load_env_file(env_file):
+    """Load KEY=VALUE pairs from a .env file into os.environ (real env wins).
+
+    Wrapped in a function so loop variables do not leak into the module's
+    public namespace (which would otherwise vary with whether a .env exists).
+    """
+    if not env_file.exists():
+        return
     with open(env_file, "r") as f:
-        for line in f:
-            line = line.strip()
-            if line and not line.startswith("#"):
-                key, sep, val = line.partition("=")
+        for raw in f:
+            stripped = raw.strip()
+            if stripped and not stripped.startswith("#"):
+                k, sep, v = stripped.partition("=")
                 if sep:
-                    os.environ.setdefault(key.strip(), val.strip().strip("'\""))
+                    os.environ.setdefault(k.strip(), v.strip().strip("'\""))
+
+
+_load_env_file(PROJECT_ROOT / ".env")
 
 GABBE_API_URL = os.environ.get("GABBE_API_URL", "https://api.openai.com/v1/chat/completions")
 GABBE_API_KEY = os.environ.get("GABBE_API_KEY")

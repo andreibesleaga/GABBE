@@ -159,18 +159,6 @@
     },
     "TASK_STATUS_TODO": {
       "kind": "str"
-    },
-    "key": {
-      "kind": "str"
-    },
-    "line": {
-      "kind": "str"
-    },
-    "sep": {
-      "kind": "str"
-    },
-    "val": {
-      "kind": "str"
     }
   },
   "gabbe.context": {

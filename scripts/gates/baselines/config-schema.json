@@ -32,11 +32,5 @@
   "TASK_STATUS_IN_PROGRESS": "str",
   "TASK_STATUS_TODO": "str",
   "annotations": "_Feature",
-  "env_file": "PosixPath",
-  "f": "TextIOWrapper",
-  "key": "str",
-  "line": "str",
-  "logger": "Logger",
-  "sep": "str",
-  "val": "str"
+  "logger": "Logger"
 }

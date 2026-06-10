@@ -704,13 +704,15 @@ def main():
         if const_path.exists():
             with open(const_path, "a") as f:
                 f.write("\n\n## Project-Specific Articles (Auto-Generated)\n")
+                # Number project-specific articles after the universal set
+                # (I–XI) to avoid colliding with Articles VIII/IX/X.
                 if "Legacy Modernization" in project_type:
-                    f.write("\n### Article VIII. The Modernization Mandate\n")
+                    f.write("\n### Article XII. The Modernization Mandate\n")
                     f.write(
                         "All new code must adhere to modern patterns. Legacy code touched must be refactored to >99% coverage (Boy Scout Rule).\n"
                     )
                 if compliance:
-                    f.write(f"\n### Article IX. Regulatory Compliance ({', '.join(compliance)})\n")
+                    f.write(f"\n### Article XIII. Regulatory Compliance ({', '.join(compliance)})\n")
                     f.write(
                         "No PII shall be logged. All data at rest must be encrypted. Security audit is mandatory before Release.\n"
                     )

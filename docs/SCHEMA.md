@@ -8,8 +8,10 @@ These emitted files — not the Python API — are GABBE's real public surface. 
 project that ran `init.py` consumes these bytes directly, so they evolve under a
 strict **additive-only** policy (see *Compatibility policy* below).
 
-> This document describes the format as of GABBE **0.8.x**. Changes introduced
-> in 0.9 (the agent-skills standard alignment) are marked **[0.9+]**.
+> This document describes the emitted format. Items marked **[0.9+]** are the
+> agent-skills standard alignment shipped in 0.9 (Claude `<name>/SKILL.md`
+> directories, Cursor agent-requested rules, `GEMINI.md`, root `AGENTS.md`,
+> and the `gabbe-schema-version` key).
 
 ## Source format: `agents/skills/**/*.skill.md`
 

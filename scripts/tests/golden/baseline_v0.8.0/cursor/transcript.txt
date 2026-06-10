@@ -32,6 +32,8 @@ It can be used manually or enforced through the MCP server.
 
 [0;34m→ Setting up skills used by Cursor...[0m
   [0;32m✓ Processed skills for Cursor[0m
+  [0;32m✓ Linked AGENTS.md -> agents/AGENTS.md[0m
+  [0;32m✓ Wired root AGENTS.md (agents.md standard)[0m
 
 [1;33mPart 6: Agent Mission Generation[0m
 ------------------------------------------------------------

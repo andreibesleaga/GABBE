@@ -3,6 +3,10 @@
     "target": "../agents/AGENTS.md",
     "type": "symlink"
   },
+  "AGENTS.md": {
+    "target": "agents/AGENTS.md",
+    "type": "symlink"
+  },
   "SETUP_MISSION.md": {
     "sha256": "0d4ddf4b467b8382fcd0c78f73f2b430de860963889d20f81a5f0916e05cc8a4",
     "size": 1647,
@@ -598,64 +602,14 @@
     "size": 2711,
     "type": "file"
   },
-  "agents/scripts/__pycache__/check_skills_docs.cpython-312.pyc": {
-    "sha256": "b12a4ba10108d5d2c9ce7b7d134d50d388729f32da58d81832de3559327c007c",
-    "size": 5020,
-    "type": "file"
-  },
-  "agents/scripts/__pycache__/compile_skills.cpython-312.pyc": {
-    "sha256": "ff51057d8593af983ac0206aa2e7f29f3b5eabe1188588b313199244e4563c3a",
-    "size": 8604,
-    "type": "file"
-  },
-  "agents/scripts/__pycache__/comprehensive_checker.cpython-312.pyc": {
-    "sha256": "2895cca46d794cf6c8b774a265046e97e943858e987373af954bb40b70c762bb",
-    "size": 8348,
-    "type": "file"
-  },
-  "agents/scripts/__pycache__/validate_integrity.cpython-312.pyc": {
-    "sha256": "502e23dc84ff74dedf2df3b741daf14e3825a9f884a73a4165f3df1a6248d621",
-    "size": 3520,
-    "type": "file"
-  },
-  "agents/scripts/__pycache__/validate_links.cpython-312.pyc": {
-    "sha256": "50b2e8007208994fb4c8bdc728c2321f90b3b40b34ca1fa28b71fdb91af21786",
-    "size": 2962,
-    "type": "file"
-  },
-  "agents/scripts/__pycache__/validate_skills.cpython-312.pyc": {
-    "sha256": "14e3af31fffdabc9c533b772762ede626f911c3fb8b76800fee9904fd1c96e6f",
-    "size": 2559,
-    "type": "file"
-  },
-  "agents/scripts/__pycache__/verify_e2e_init_flows.cpython-312.pyc": {
-    "sha256": "babb64f23730fcdce2af41fffe7ac4411d1a0d115f11d04f3f094656f10a548b",
-    "size": 9731,
-    "type": "file"
-  },
-  "agents/scripts/__pycache__/verify_setup_simulation.cpython-312.pyc": {
-    "sha256": "445b17abac48ac758e9c8d113c06d349d1aa62833d8cb52720fade1334f6b1bb",
-    "size": 4798,
-    "type": "file"
-  },
-  "agents/scripts/__pycache__/verify_triggers_and_mcps.cpython-312.pyc": {
-    "sha256": "eb45f712f9e742236089160dddce443dc39d64019a9bebc0339fce884f53124b",
-    "size": 6596,
-    "type": "file"
-  },
-  "agents/scripts/__pycache__/verify_use_cases.cpython-312.pyc": {
-    "sha256": "f8178fe8e27ce9e3aa94503caed586b42141b49fd17f710b01901f2131862cce",
-    "size": 25625,
-    "type": "file"
-  },
   "agents/scripts/check_skills_docs.py": {
     "sha256": "6f9d37e083e54e8f81bf427cca6204d865068a9bd03edd94557ad3c42cb4633d",
     "size": 4786,
     "type": "file"
   },
   "agents/scripts/compile_skills.py": {
-    "sha256": "10f5a573eaa219911da8877832a7a761b6e15f05ea9cbcc6ed2e00ec226dcf11",
-    "size": 7198,
+    "sha256": "e3422c2da588545ab9d696012151a648ac7c42f78bc0072e6305f5e1e9cc7c0f",
+    "size": 9248,
     "type": "file"
   },
   "agents/scripts/comprehensive_checker.py": {
@@ -684,8 +638,8 @@
     "type": "file"
   },
   "agents/scripts/validate_links.py": {
-    "sha256": "9f7ede12ad7c9f393bb883b1d47b791bd68af8a07327c4dba5b28ced47dda0b9",
-    "size": 2521,
+    "sha256": "322eff13a16c19bc10c135a64b4abd57d211d4250702bdf03811ac0889939d2f",
+    "size": 2754,
     "type": "file"
   },
   "agents/scripts/validate_skills.py": {
@@ -961,21 +915,6 @@
   "agents/skills/brain/neuroscience-foundations.skill.md": {
     "sha256": "2a972cedc9e318b96dd48030f2d045c45c203b8363fc943a8c7860bb24dc93d0",
     "size": 5641,
-    "type": "file"
-  },
-  "agents/skills/brain/scripts/__pycache__/active_inference_loop.cpython-312.pyc": {
-    "sha256": "7463ef1cebfa9af99a49cf516dbbe09d0b40028db5aad6538664f34d475ffc21",
-    "size": 3633,
-    "type": "file"
-  },
-  "agents/skills/brain/scripts/__pycache__/cognition_test.cpython-312.pyc": {
-    "sha256": "fb38440f8b7ee45f7bd41ed23239f433fd8a59ef5712904ddb1bd18ef4927cc6",
-    "size": 3273,
-    "type": "file"
-  },
-  "agents/skills/brain/scripts/__pycache__/global_workspace.cpython-312.pyc": {
-    "sha256": "61f13e6819a6293679d9c7636447264291597608e9b6ab660b56698bde1e7e7c",
-    "size": 4621,
     "type": "file"
   },
   "agents/skills/brain/scripts/active_inference_loop.py": {

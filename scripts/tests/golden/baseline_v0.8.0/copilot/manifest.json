@@ -4,1534 +4,1708 @@
     "type": "symlink"
   },
   ".github/skills/a2ui-protocols/SKILL.md": {
-    "target": "../../../agents/skills/ai/a2ui-protocols.skill.md",
-    "type": "symlink"
+    "sha256": "41c9026d7a6e329d529b42e1c4a911b1f0464cf958301ae98b037cca5e6f380d",
+    "size": 1612,
+    "type": "file"
   },
   ".github/skills/a2ui-protocols/config.json": {
-    "sha256": "d2ab4641688726cd6117d8687ffb77d7c6fcdfcb2ea2999a32bba0c6d94495ee",
-    "size": 275,
+    "sha256": "aceea59b2af33c277bbe46134f66a274457f317932ad7612d895dd6920fcbf85",
+    "size": 304,
     "type": "file"
   },
   ".github/skills/access-control/SKILL.md": {
-    "target": "../../../agents/skills/security/access-control.skill.md",
-    "type": "symlink"
+    "sha256": "1d1ae25a56bb37a464391a6cedd5182701005f276402aca4078433223e0da004",
+    "size": 3289,
+    "type": "file"
   },
   ".github/skills/access-control/config.json": {
-    "sha256": "c7a6d8943c3f37450ad4fe9514a673588fc95262b6ba184bc67fb8a98be23503",
-    "size": 317,
+    "sha256": "f5afb7a98b29a8c873d6a5a1ef3ad00fe1b5504e4bf148609c43b808c574a037",
+    "size": 346,
     "type": "file"
   },
   ".github/skills/accessibility/SKILL.md": {
-    "target": "../../../agents/skills/product/accessibility.skill.md",
-    "type": "symlink"
+    "sha256": "c5a162165f01b589598a36035a7efe88b83644edc33822a9cde77a392f30d391",
+    "size": 6899,
+    "type": "file"
   },
   ".github/skills/accessibility/config.json": {
-    "sha256": "ae49073251b2cce97a6c876336747fba6750e69e7b1fed1521ff45743634c028",
-    "size": 359,
+    "sha256": "f1f6f26cfc6f59953df19fd980e6b36f711e9cc6e06c6caac33d0d2c93a1ae75",
+    "size": 388,
     "type": "file"
   },
   ".github/skills/active-inference/SKILL.md": {
-    "target": "../../../agents/skills/brain/active-inference.skill.md",
-    "type": "symlink"
+    "sha256": "4ccd489492c1bcfd197d7af1199cc1910e7afe1059a410c4e34cbf0065d59a04",
+    "size": 4977,
+    "type": "file"
   },
   ".github/skills/active-inference/config.json": {
-    "sha256": "ee525fa830ec313e099e7baa7e8b406addafee5f9225f4ec0183d300fffe8494",
-    "size": 297,
+    "sha256": "d12a38f19ffa67fe494aa728570bdef7711ce77436b98d1c2c764fcde2734e9c",
+    "size": 326,
     "type": "file"
   },
   ".github/skills/actor-agent-frameworks/SKILL.md": {
-    "target": "../../../agents/skills/ai/actor-agent-frameworks.skill.md",
-    "type": "symlink"
+    "sha256": "d91ba2201f3037bc5d2ad929a75f16464b01fe5b95ce6228c0cccad2597af202",
+    "size": 1727,
+    "type": "file"
   },
   ".github/skills/actor-agent-frameworks/config.json": {
-    "sha256": "bc5fc3497bdad920fe4cb240010c06ca5b0397b191f7c702ab743b1bb4933cdf",
-    "size": 311,
+    "sha256": "ca369fb224aa902c28f1557ef1092e1d1d1b9070b2b7b11901378b108b531423",
+    "size": 340,
     "type": "file"
   },
   ".github/skills/adaptive-architecture/SKILL.md": {
-    "target": "../../../agents/skills/architecture/adaptive-architecture.skill.md",
-    "type": "symlink"
+    "sha256": "d083ff8d5059ed78787ef063cb13767b7223a012533fd02eb81cf2ca5f976bc1",
+    "size": 3817,
+    "type": "file"
   },
   ".github/skills/adaptive-architecture/config.json": {
-    "sha256": "e66d64c36ad9d36053ef8ac2307e2fdf541a2d340576563200c2ea189bee696d",
-    "size": 323,
+    "sha256": "7124e4679aa70a1f4364565a9e71b27ce1af8eed54c04a0788ee312c31807961",
+    "size": 352,
     "type": "file"
   },
   ".github/skills/adr-writer/SKILL.md": {
-    "target": "../../../agents/skills/product/adr-writer.skill.md",
-    "type": "symlink"
+    "sha256": "31b5ca9ae4f775e2de718d4a798bb797615e4c869db6382af1f37315c7cfc101",
+    "size": 5152,
+    "type": "file"
   },
   ".github/skills/adr-writer/config.json": {
-    "sha256": "c2377efbce9a90b35270c8e132e5cd75430c48d13e2b8503f6e16a63eb7cd931",
-    "size": 307,
+    "sha256": "a79d200197ec9187b1c2f5f7b4cb78e40b9287b0ab05b09adee7283fffbf4c0c",
+    "size": 336,
     "type": "file"
   },
   ".github/skills/agent-analytics/SKILL.md": {
-    "target": "../../../agents/skills/core/agent-analytics.skill.md",
-    "type": "symlink"
+    "sha256": "237a953a143c8c8796ce9abeb32d58d27a3404f99a0e3737918d8005601a9833",
+    "size": 2805,
+    "type": "file"
   },
   ".github/skills/agent-analytics/config.json": {
-    "sha256": "139fd48a00d52572b992e24dd6d152dcdc4e2a7726d4391cbd1abded0c69c8af",
-    "size": 219,
+    "sha256": "5708461970ba38fbbeb80b60151bfcc8f275b11292082e1365227412b55ae479",
+    "size": 248,
     "type": "file"
   },
   ".github/skills/agent-communication/SKILL.md": {
-    "target": "../../../agents/skills/ai/agent-communication.skill.md",
-    "type": "symlink"
+    "sha256": "95b142e9e05c6e7d2511870c80f41c6e3957e88325d3f1d3b8abe879544b0b3a",
+    "size": 2914,
+    "type": "file"
   },
   ".github/skills/agent-communication/config.json": {
-    "sha256": "0b26b715feddd565988578a49d95a3f208d0933b03524093158c492c2f497ca3",
-    "size": 313,
+    "sha256": "03efa9d8e388da62e7ea199386b6c17e000bdb96de692ed43dc14f4dcf2f8a0c",
+    "size": 342,
     "type": "file"
   },
   ".github/skills/agent-interop/SKILL.md": {
-    "target": "../../../agents/skills/coordination/agent-interop.skill.md",
-    "type": "symlink"
+    "sha256": "ba3b29f229ba965bddc2cdef18a369a4b8b931067a70c2fa69956f3e160ceba4",
+    "size": 3583,
+    "type": "file"
   },
   ".github/skills/agent-interop/config.json": {
-    "sha256": "6d61ad93fb70bbd9b4257c41923d254c6430c8ba3118d3c2a2d8a500c0c3d08d",
-    "size": 211,
+    "sha256": "ef0f719361e35d7f76adef68beec67f6795a28dd7bbebf120c3f52e9037b7e77",
+    "size": 240,
     "type": "file"
   },
   ".github/skills/agent-protocol/SKILL.md": {
-    "target": "../../../agents/skills/coordination/agent-protocol.skill.md",
-    "type": "symlink"
+    "sha256": "58604da9966083b70e3dbb40276832262473213d07e1447abebb964d01023276",
+    "size": 3205,
+    "type": "file"
   },
   ".github/skills/agent-protocol/config.json": {
-    "sha256": "cd340ef8c55b99aefafbca9f3113fbc83c392ae41942bdc2f18edea77d50cebc",
-    "size": 319,
+    "sha256": "cf00ee5c3874110e5f16bf968864f4b21956232ea84980d07770eb2243d4a19a",
+    "size": 348,
     "type": "file"
   },
   ".github/skills/agent-ui/SKILL.md": {
-    "target": "../../../agents/skills/ai/agent-ui.skill.md",
-    "type": "symlink"
+    "sha256": "75afe724c4f3f0e9e79646c70643fcb36802b554e99961dc3883ec26c15fc194",
+    "size": 1709,
+    "type": "file"
   },
   ".github/skills/agent-ui/config.json": {
-    "sha256": "6c73fc70c0b91334b23228088ed346efbe8f2bf5ea987e1898fd4fa3b8db66af",
-    "size": 277,
+    "sha256": "85e50c4924843b47384e8f7f516db2e94f352881dca166c4c8da93f45f8ce345",
+    "size": 306,
     "type": "file"
   },
   ".github/skills/agentic-linter/SKILL.md": {
-    "target": "../../../agents/skills/coordination/agentic-linter.skill.md",
-    "type": "symlink"
+    "sha256": "1bbd6053466cdcfb929d36cef7a8bf6abc5fa1f346663016e893482b8532eb72",
+    "size": 5630,
+    "type": "file"
   },
   ".github/skills/agentic-linter/config.json": {
-    "sha256": "47aa8932a37f24f5b642231b5e0d6073d7ad658a95b26aff9e66898b710bb5be",
-    "size": 363,
+    "sha256": "34d8c82ef7377b5017b9eb44dd821f998f0e3d4f590770ef428582c9359b41e3",
+    "size": 392,
     "type": "file"
   },
   ".github/skills/agentic-patterns/SKILL.md": {
-    "target": "../../../agents/skills/coordination/agentic-patterns.skill.md",
-    "type": "symlink"
+    "sha256": "eeaddfa79678f5f115ef6dd061ef2d144e3a40e71199d5f2e530e74c0ba80b86",
+    "size": 3760,
+    "type": "file"
   },
   ".github/skills/agentic-patterns/config.json": {
-    "sha256": "d8fbe884df37279c498880351f3d3a1e519c9bc3eb46439e90e946b2a764eb8f",
-    "size": 329,
+    "sha256": "77f3557d2d282e66c601676c447da85891d2af877a62df022bd93786b5a08616",
+    "size": 358,
     "type": "file"
   },
   ".github/skills/ai-ethics-compliance/SKILL.md": {
-    "target": "../../../agents/skills/security/ai-ethics-compliance.skill.md",
-    "type": "symlink"
+    "sha256": "700e4cafc15c9c8f7b99f81db9e0eb4705b4bafa4eb3b38f9039e4db1bbce136",
+    "size": 3510,
+    "type": "file"
   },
   ".github/skills/ai-ethics-compliance/config.json": {
-    "sha256": "03ecbcff93366fa3c358643490aadcea311eb096a0fa012a2705586250e55f82",
-    "size": 315,
+    "sha256": "b190d50ecd0c3281ab01c9130e4541ce984a33dd6d8bb61677a1d2854affe8e8",
+    "size": 344,
     "type": "file"
   },
   ".github/skills/ai-safety-guardrails/SKILL.md": {
-    "target": "../../../agents/skills/security/ai-safety-guardrails.skill.md",
-    "type": "symlink"
+    "sha256": "80dedae3c1a7f142aa7c872a39340c4224ca360221a038982fb10790ca97e039",
+    "size": 3540,
+    "type": "file"
   },
   ".github/skills/ai-safety-guardrails/config.json": {
-    "sha256": "9047f701db944913e128d3daba1f35571a5c6b40fd38e8066f466acae3637c4e",
-    "size": 355,
+    "sha256": "3ad536116a872b73c26157d50ab1602e272c4c02c77733b227a0039c0eb8f900",
+    "size": 384,
     "type": "file"
   },
   ".github/skills/api-design/SKILL.md": {
-    "target": "../../../agents/skills/architecture/api-design.skill.md",
-    "type": "symlink"
+    "sha256": "9753af745314a6b060b4193abb8c6e393e43532d8249825329dc4f3d2ef7c6cb",
+    "size": 4857,
+    "type": "file"
   },
   ".github/skills/api-design/config.json": {
-    "sha256": "1b4c93277595494fdfcfba82c9789612fc3e979b3512a95d3cc45e21f1e2eea6",
-    "size": 329,
+    "sha256": "a6a93f00e10f108b1bd176ec70ce862f6b694f64862cfdf881fb2cc506f20b00",
+    "size": 358,
     "type": "file"
   },
   ".github/skills/api-security/SKILL.md": {
-    "target": "../../../agents/skills/security/api-security.skill.md",
-    "type": "symlink"
+    "sha256": "e5cc19f505b5edf8da52a2a625bc3ad46ea2ba56f989f7f2ebc44a01245f866f",
+    "size": 1983,
+    "type": "file"
   },
   ".github/skills/api-security/config.json": {
-    "sha256": "3755a84707a85c73af75eae62ad00049835526cf325ab121dfd6c2b3c110e276",
-    "size": 271,
+    "sha256": "ccf6d6e570709451813a7b40d76b50a89ab7e9b121c84773054a11f9cf4eecff",
+    "size": 300,
     "type": "file"
   },
   ".github/skills/api-standards/SKILL.md": {
-    "target": "../../../agents/skills/architecture/api-standards.skill.md",
-    "type": "symlink"
+    "sha256": "fbb8fc32f34d502d410e5be23962bd09b0d90e87420be3c93a2ca91f648e37b2",
+    "size": 1777,
+    "type": "file"
   },
   ".github/skills/api-standards/config.json": {
-    "sha256": "5780e3b6ba8ea7f589376742ca110f5d2cfc82eff0c2f25b953d945629c987d0",
-    "size": 277,
+    "sha256": "294b64b83f8de691b89dae3b7410f34eea1bf73b6eb0cfd1bcbbb590de1bd0cd",
+    "size": 306,
     "type": "file"
   },
   ".github/skills/arch-debt/SKILL.md": {
-    "target": "../../../agents/skills/architecture/arch-debt.skill.md",
-    "type": "symlink"
+    "sha256": "c2d5a61231bbc0d532f8bc1e9bea7756d13697bc11aaece6648b4fe10c82a02c",
+    "size": 8394,
+    "type": "file"
   },
   ".github/skills/arch-debt/config.json": {
-    "sha256": "7c6fd841255ca4c02047cf3d8ce2767e7ab694fc7ed8f6e0a5349cb39fbe874d",
-    "size": 421,
+    "sha256": "f95a9bf4038a0af64f2311312e69f010dc9eeca07fe8f82cb01ce22b174bab2b",
+    "size": 450,
     "type": "file"
   },
   ".github/skills/arch-design/SKILL.md": {
-    "target": "../../../agents/skills/architecture/arch-design.skill.md",
-    "type": "symlink"
+    "sha256": "a5fc8350b0034383f36314d35bcd1e6122926b5aff6a5e8c7381b3946bca9554",
+    "size": 13022,
+    "type": "file"
   },
   ".github/skills/arch-design/config.json": {
-    "sha256": "965d7384d20cfe8ee7a2543dd9a122758d2fb0b2b550497dc290f041fafeca7f",
-    "size": 669,
+    "sha256": "8bccb1a133dc4f41e52bcb52b3c99398a793d8c2f8defe8250772a398b76e7e1",
+    "size": 698,
     "type": "file"
   },
   ".github/skills/arch-patterns/SKILL.md": {
-    "target": "../../../agents/skills/architecture/arch-patterns.skill.md",
-    "type": "symlink"
+    "sha256": "592023aebba5b798d9a1271bf0b8d03c6a3167c91b1e014711cf6e6a71a4f44b",
+    "size": 4059,
+    "type": "file"
   },
   ".github/skills/arch-patterns/config.json": {
-    "sha256": "6c6864f24439528aad911634f6b07e7f627d552e8edad63d5e38218a47ac22eb",
-    "size": 393,
+    "sha256": "20c5fd06394651a2f87bd3bcb454f96a8e91c29402daa2ad7c0a66911f54a751",
+    "size": 422,
     "type": "file"
   },
   ".github/skills/arch-review/SKILL.md": {
-    "target": "../../../agents/skills/architecture/arch-review.skill.md",
-    "type": "symlink"
+    "sha256": "67730a2a7d006298074d63c1dddbb0b6282eb00d9fc0ea2f5f91cf4caa3c2c0c",
+    "size": 12496,
+    "type": "file"
   },
   ".github/skills/arch-review/config.json": {
-    "sha256": "a57e42c7cb8c81889f64552e23dccb8915f12570133503f71e17d5e779fcb3f0",
-    "size": 715,
+    "sha256": "82e83053b4aa3092c6e28bb08934b42c74594cb1bf6ffe2b4026db296ab147db",
+    "size": 744,
     "type": "file"
   },
   ".github/skills/architecture-governance/SKILL.md": {
-    "target": "../../../agents/skills/architecture/architecture-governance.skill.md",
-    "type": "symlink"
+    "sha256": "6275b03c44ac23d7e4837c5086820a60ba5429a183f8ac71a68c9904549d88ea",
+    "size": 3664,
+    "type": "file"
   },
   ".github/skills/architecture-governance/config.json": {
-    "sha256": "211506759e7417cb999fdda7dca1dd6291e7c54474541362896358c7c45a6eed",
-    "size": 325,
+    "sha256": "6770543316a01c1fe8b064e4404e78fe903af813bc3b9d6a73e31bb07eaeda55",
+    "size": 354,
     "type": "file"
   },
   ".github/skills/artisan-commands/SKILL.md": {
-    "target": "../../../agents/skills/coding/artisan-commands.skill.md",
-    "type": "symlink"
+    "sha256": "b4ffa548729174c406a120dbac87884772d618ff088affc4bb9a5f885fd588ed",
+    "size": 3811,
+    "type": "file"
   },
   ".github/skills/artisan-commands/config.json": {
-    "sha256": "eba259333726a02c7a884d02486e6e7a34bc47687a17d3d54ab5c8791b1210bf",
-    "size": 249,
+    "sha256": "3b38468bbd899f7c9d845224562f7f58cd51d2a9e41997a84adee5f88025190e",
+    "size": 278,
     "type": "file"
   },
   ".github/skills/audit-trail/SKILL.md": {
-    "target": "../../../agents/skills/core/audit-trail.skill.md",
-    "type": "symlink"
+    "sha256": "01a1b753ad990e8cd5bbfc3539ed306f1f0c4d7e3eea9e7ea7daadb7340b6240",
+    "size": 6267,
+    "type": "file"
   },
   ".github/skills/audit-trail/config.json": {
-    "sha256": "65f83b7e5c3fc970d00cfa949dbd3e40d5ca481543bbe8f644dd439e9fc6ee95",
-    "size": 335,
+    "sha256": "cc81b671b5cddc8aaa89b20e72596c09f1845ac81ebe5f54d77bd2c15d8cb137",
+    "size": 364,
     "type": "file"
   },
   ".github/skills/autonomous-swarm-patterns/SKILL.md": {
-    "target": "../../../agents/skills/ai/autonomous-swarm-patterns.skill.md",
-    "type": "symlink"
+    "sha256": "ec5c61f83ffabff55245c12ca423e71a258c951ee5fcdb9cb6a0635270d7a4b6",
+    "size": 1976,
+    "type": "file"
   },
   ".github/skills/autonomous-swarm-patterns/config.json": {
-    "sha256": "11ff29805f927222fc8db04e0795a7eafcb7151d02ba51f7e976a45310993ded",
-    "size": 301,
+    "sha256": "42bd5065052c079c6769d3325b629a306f1eb9ae11e6a1bae725a65ca3106c90",
+    "size": 330,
     "type": "file"
   },
   ".github/skills/backup-recovery/SKILL.md": {
-    "target": "../../../agents/skills/security/backup-recovery.skill.md",
-    "type": "symlink"
+    "sha256": "d2077131671136d01f3600a517b52212dfd1f6c3ba2d0cf620deb36936abb898",
+    "size": 3635,
+    "type": "file"
   },
   ".github/skills/backup-recovery/config.json": {
-    "sha256": "409d9f95fd59f2d78a84e1c7d80106ad302c43097f8d6275ba5acf78317e1104",
-    "size": 289,
+    "sha256": "bd66cd4a80253576351c698ef3dee8ec48e6efa0b59868efa6fc40c973f8d90d",
+    "size": 318,
     "type": "file"
   },
   ".github/skills/beyond-llms/SKILL.md": {
-    "target": "../../../agents/skills/ai/beyond-llms.skill.md",
-    "type": "symlink"
+    "sha256": "8ef28e848d3ec45ab26d187d39d637acf78eff1bf6daefb09c81c5a4194bd7e9",
+    "size": 1838,
+    "type": "file"
   },
   ".github/skills/beyond-llms/config.json": {
-    "sha256": "f9711319104b8ec11d3239ff25b082d0b6f75bb6e274eab52959dc831eb32abe",
-    "size": 293,
+    "sha256": "bf6b088fa5bd3a5885f60cf30aaaca17abe7a46472cce1277d24d2c86daa5baf",
+    "size": 322,
     "type": "file"
   },
   ".github/skills/blockchain-dlt/SKILL.md": {
-    "target": "../../../agents/skills/architecture/blockchain-dlt.skill.md",
-    "type": "symlink"
+    "sha256": "3e50eaa00d3d48bde82fed067d2be713aa209f5c921b57a08c16c0bdf79d5f32",
+    "size": 1992,
+    "type": "file"
   },
   ".github/skills/blockchain-dlt/config.json": {
-    "sha256": "37f20584022f6366271fa85bd90f174ef4ae3738e65c4b6e9330554b865fda49",
-    "size": 321,
+    "sha256": "a159d4217b31e76fa4b2af325ad55c1493c2e87f233e2d556caae83fdb5184d5",
+    "size": 350,
     "type": "file"
   },
   ".github/skills/brain-mode/SKILL.md": {
-    "target": "../../../agents/skills/brain/brain-mode.skill.md",
-    "type": "symlink"
+    "sha256": "44d3309d62815fdf849e8f22565db3a8978d9fb1aa398558519d94eb64b00f77",
+    "size": 8134,
+    "type": "file"
   },
   ".github/skills/brain-mode/config.json": {
-    "sha256": "f53d9bad070808e64a962246d58c90d55cd79e5d2a76bf45829c9843cd1b2405",
-    "size": 547,
+    "sha256": "2dc7430f074546e1f9d97f58a9baaa41f83065620535388dc8a523590d8bb268",
+    "size": 576,
     "type": "file"
   },
   ".github/skills/browser-tdd/SKILL.md": {
-    "target": "../../../agents/skills/coding/browser-tdd.skill.md",
-    "type": "symlink"
+    "sha256": "446c7cc2457de5d4234cebe58db1fe000d4da0d3b799ce74a11dae8231349968",
+    "size": 7226,
+    "type": "file"
   },
   ".github/skills/browser-tdd/config.json": {
-    "sha256": "f6dd245f5860195780999a06822294e7f42ce9ae612db093a84b4a2093d7e4d9",
-    "size": 403,
+    "sha256": "5b53f9223de85ea3ac6bd4fe9ff71061ea29e8b880fd78fb11df23ec1edf7bda",
+    "size": 432,
     "type": "file"
   },
   ".github/skills/business-case/SKILL.md": {
-    "target": "../../../agents/skills/product/business-case.skill.md",
-    "type": "symlink"
+    "sha256": "c3c874ff5cc13f7c53f789850b612c76cf9df87c59af7b7c9192575ca96b91aa",
+    "size": 4254,
+    "type": "file"
   },
   ".github/skills/business-case/config.json": {
-    "sha256": "bb2b630debaccb32119c40b02fd1981d33a8821ae788ee6cb15bc863dc393095",
-    "size": 367,
+    "sha256": "9dcc781bbc4db30de17ad16478ea5d49729fa4db10ab8063e02e693ef39bae35",
+    "size": 396,
     "type": "file"
   },
   ".github/skills/caching-strategy/SKILL.md": {
-    "target": "../../../agents/skills/ops/caching-strategy.skill.md",
-    "type": "symlink"
+    "sha256": "754505fe107304727180e15227a7ee737263e53e345242da24caeee77e7352dd",
+    "size": 3974,
+    "type": "file"
   },
   ".github/skills/caching-strategy/config.json": {
-    "sha256": "fefd2a12c3ce4ad3506f6029c6d9cacb540a8655f8ce3fa2d85ba36c6d364f2b",
-    "size": 297,
+    "sha256": "a2cd5ecd19df3e36a09a76c8c808c3c90146bcc0269cbd3727baac6ecb8765ac",
+    "size": 326,
     "type": "file"
   },
   ".github/skills/capacity-planning/SKILL.md": {
-    "target": "../../../agents/skills/ops/capacity-planning.skill.md",
-    "type": "symlink"
+    "sha256": "184707880c62f9dad3d3409d667952d1aa6c1e654fad5498085b66f9c8f9b018",
+    "size": 3704,
+    "type": "file"
   },
   ".github/skills/capacity-planning/config.json": {
-    "sha256": "90087d62840baaa8dd991cd319f693e5036650d45d1ce0a42b6ed4c7a534f32d",
-    "size": 325,
+    "sha256": "2d6f484d3996e9e8ad46c9a613fcfe432e812636f14388a28d50a040cb564abd",
+    "size": 354,
     "type": "file"
   },
   ".github/skills/ci-autofix/SKILL.md": {
-    "target": "../../../agents/skills/coding/ci-autofix.skill.md",
-    "type": "symlink"
+    "sha256": "e9e431e9727865047865248032af7f1fdd6b63b244c9d76250a84dc76e213382",
+    "size": 4362,
+    "type": "file"
   },
   ".github/skills/ci-autofix/config.json": {
-    "sha256": "c52a3c5109b3ca53055038c1fb98e7f38df5a9eecb4b160adc1a54d252b940a5",
-    "size": 525,
+    "sha256": "1818f923afed797a5d46c53ac2b786502ae83e8a06fdb9e22f07069cf7fc8664",
+    "size": 554,
     "type": "file"
   },
   ".github/skills/clean-coder/SKILL.md": {
-    "target": "../../../agents/skills/coding/clean-coder.skill.md",
-    "type": "symlink"
+    "sha256": "c4d3196b592c1021740c8fbd24ea0c1eb56309d9e376f7901bb23cb4702a719d",
+    "size": 4588,
+    "type": "file"
   },
   ".github/skills/clean-coder/config.json": {
-    "sha256": "bbd8e858a2e74844417dc1ca809186c771a4cb650a6f455c5b5d14a86dfd1bff",
-    "size": 329,
+    "sha256": "fe3a9fe39acd18affb7d7fb8ac31ce30b78a64a3ecaebc0db3955fbfc96bd659",
+    "size": 358,
     "type": "file"
   },
   ".github/skills/cloud-deploy/SKILL.md": {
-    "target": "../../../agents/skills/ops/cloud-deploy.skill.md",
-    "type": "symlink"
+    "sha256": "a962688905b89a0813b8d62baaf806fe7f286dfa0a2d31a67013486074665fbb",
+    "size": 3261,
+    "type": "file"
   },
   ".github/skills/cloud-deploy/config.json": {
-    "sha256": "48da00d20b24596f7dc2c49909f8175922988ad7d55efeb12a54606b44138e97",
-    "size": 301,
+    "sha256": "834242d15b2008b3ff10288610e41e96d8bab1d1f78a809693984a5244f4504d",
+    "size": 330,
     "type": "file"
   },
   ".github/skills/code-review/SKILL.md": {
-    "target": "../../../agents/skills/coding/code-review.skill.md",
-    "type": "symlink"
+    "sha256": "9334414725d790618223b69b7a55cd04af7de4adf86d23590e7f78647e2e1345",
+    "size": 6233,
+    "type": "file"
   },
   ".github/skills/code-review/config.json": {
-    "sha256": "7f0feda2c405017fe7b6ef40a38bb6caadeada6a546f175f97a781872daedbcb",
-    "size": 317,
+    "sha256": "954dc9829ef1a2753b855fea30bae540b2041e0295609f8cabf721789a4b0a75",
+    "size": 346,
     "type": "file"
   },
   ".github/skills/cognitive-architectures/SKILL.md": {
-    "target": "../../../agents/skills/brain/cognitive-architectures.skill.md",
-    "type": "symlink"
+    "sha256": "3567ea21134400696eaa816349a2788dddcc760f8c05dc20a8e3bf9c65a102ab",
+    "size": 6066,
+    "type": "file"
   },
   ".github/skills/cognitive-architectures/config.json": {
-    "sha256": "a77284743c52b1593da9631cb420ce1d1d633cd754a4fdf4e67e86fcc11c1905",
-    "size": 327,
+    "sha256": "dc73d346dd0a81e5feae3076d761e7c123b6b7320e4d66fb152cf6cde4b41ca8",
+    "size": 356,
     "type": "file"
   },
   ".github/skills/compatibility-design/SKILL.md": {
-    "target": "../../../agents/skills/architecture/compatibility-design.skill.md",
-    "type": "symlink"
+    "sha256": "57b8210f40fbb7c1a5a37477a53f87b5d8327799416b30ff918812be66b2def4",
+    "size": 3745,
+    "type": "file"
   },
   ".github/skills/compatibility-design/config.json": {
-    "sha256": "54553f9d1def03f116b3f011b85d290d299850a65a701b2a5b8b5db0e03b1600",
-    "size": 289,
+    "sha256": "896c8199e6d0bfa10cd97cb3b44ca4c9ede7069bccee04e2edf6218f3be2c4e9",
+    "size": 318,
     "type": "file"
   },
   ".github/skills/compliance-review/SKILL.md": {
-    "target": "../../../agents/skills/security/compliance-review.skill.md",
-    "type": "symlink"
+    "sha256": "68ab2c1260a2ce0f3d3e53081a77403707b0a8e29c582f0c5055704f2ae69ab0",
+    "size": 7766,
+    "type": "file"
   },
   ".github/skills/compliance-review/config.json": {
-    "sha256": "c5bd67aa091642866bf8c7e69a9abc1bcb21155235f76958b94f3e3c779dc89e",
-    "size": 387,
+    "sha256": "135160b45d225e10f2074007411588a352dbd34ee02160ed1488d48e5a95f52b",
+    "size": 416,
     "type": "file"
   },
   ".github/skills/consciousness-loop/SKILL.md": {
-    "target": "../../../agents/skills/brain/consciousness-loop.skill.md",
-    "type": "symlink"
+    "sha256": "0800332380b8c2eb64283037759c215981cccbff3d5495cd9a33b4be3890a67f",
+    "size": 4832,
+    "type": "file"
   },
   ".github/skills/consciousness-loop/config.json": {
-    "sha256": "50e31f9a24b5710942a1bc73a28e73f0575c2001e7e82a4e0cd0ea6eb3280f85",
-    "size": 313,
+    "sha256": "c561752fcc305b79f44a05a581fedab318c3f008417a6b1a6b82ea708fcb10c7",
+    "size": 342,
     "type": "file"
   },
   ".github/skills/cost-benefit-router/SKILL.md": {
-    "target": "../../../agents/skills/brain/cost-benefit-router.skill.md",
-    "type": "symlink"
+    "sha256": "99859bf22d01dd211dd956fb70c56e5a408f3fa5f7d51d0308ed6dbb05aab3ac",
+    "size": 4647,
+    "type": "file"
   },
   ".github/skills/cost-benefit-router/config.json": {
-    "sha256": "4e5cdbe12abb3869e75d6f190ebf4f294c6150031f32c524b0b7a0d87d3ead23",
-    "size": 433,
+    "sha256": "d2cae6a9b47cec6a8f0e381cdf07da24fba9b6ba3f1a944c46a14adc7e55429e",
+    "size": 462,
     "type": "file"
   },
   ".github/skills/cost-optimization/SKILL.md": {
-    "target": "../../../agents/skills/ops/cost-optimization.skill.md",
-    "type": "symlink"
+    "sha256": "7e6a4d1a5c9e5fb835aa2f34bc2322d804e85c73f1b48bc2f9a706d17afabfc1",
+    "size": 2420,
+    "type": "file"
   },
   ".github/skills/cost-optimization/config.json": {
-    "sha256": "0ad43d3fb539c62017988a3e610c94e9e7cafea1b296c1ec514aa08792d37b06",
-    "size": 263,
+    "sha256": "bd87352128933f4821991fe04dab2abba3ee27b88445928d00cbcfe86e26ed16",
+    "size": 292,
     "type": "file"
   },
   ".github/skills/critical-systems-arch/SKILL.md": {
-    "target": "../../../agents/skills/architecture/critical-systems-arch.skill.md",
-    "type": "symlink"
+    "sha256": "0c92d77bf96d19bca3b15dc5110dab7a9dd1a0339061e901fb9e43af2e5c72cb",
+    "size": 2041,
+    "type": "file"
   },
   ".github/skills/critical-systems-arch/config.json": {
-    "sha256": "2225f486dcd456dd2a48fb0f74e57afc7d9a2cc11ac3e8aba69ba7af9b09d006",
-    "size": 317,
+    "sha256": "0555990b6afe3e2f79e2c7f8efe41f171077544128890207d9805fa64dd9eeb3",
+    "size": 346,
     "type": "file"
   },
   ".github/skills/cryptography-standards/SKILL.md": {
-    "target": "../../../agents/skills/security/cryptography-standards.skill.md",
-    "type": "symlink"
+    "sha256": "7a59d03d112553c39427d94cf4dfd36b4bd7981eadf9a11ca3ec11df485a65df",
+    "size": 1963,
+    "type": "file"
   },
   ".github/skills/cryptography-standards/config.json": {
-    "sha256": "a31fc67d4df3db49df207f4a833f45ce3d685effbd90559bdacc66e84cebf550",
-    "size": 319,
+    "sha256": "c0022a22ef7c31a333cec6f369179859bdd1f2e3666f3ecba873270037791adf",
+    "size": 348,
     "type": "file"
   },
   ".github/skills/data-engineering/SKILL.md": {
-    "target": "../../../agents/skills/data/data-engineering.skill.md",
-    "type": "symlink"
+    "sha256": "963a17ea3021373c6b31f3c765ace7f6215ff3546d7b7dfb1f74a10b1a8cb942",
+    "size": 3047,
+    "type": "file"
   },
   ".github/skills/data-engineering/config.json": {
-    "sha256": "f3eb91168eb36b9ee3d75e66c56a618c156f48b7094ed7384896acd3637a00a5",
-    "size": 343,
+    "sha256": "22523a18e2bdf32d93aafc158e8895f46971c745181ac5f7cc62d5b2ebb506bb",
+    "size": 372,
     "type": "file"
   },
   ".github/skills/data-governance/SKILL.md": {
-    "target": "../../../agents/skills/data/data-governance.skill.md",
-    "type": "symlink"
+    "sha256": "41cc10ac65bd5f505f700b72ca8f6e440dd636d04c0cbbe74fc46d8d4888cc68",
+    "size": 2871,
+    "type": "file"
   },
   ".github/skills/data-governance/config.json": {
-    "sha256": "520d3a6a03f0649e29f2eae714d4d2cbf0d18c9c0037154b46a5bb6abfb2a726",
-    "size": 333,
+    "sha256": "2e886d0a213e5d7f327dd29f4b1a92398f72b19422cf79a15b72d11ff87ad092",
+    "size": 362,
     "type": "file"
   },
   ".github/skills/db-migration/SKILL.md": {
-    "target": "../../../agents/skills/data/db-migration.skill.md",
-    "type": "symlink"
+    "sha256": "9a00020ded495fafaa05703fc541c0d889bf9271268f1fa193dfc2d149281c35",
+    "size": 5943,
+    "type": "file"
   },
   ".github/skills/db-migration/config.json": {
-    "sha256": "8c0744dc751729ef57c7b5479ffbf0b4c958d939a2f4990eb4337a0a0462aa9f",
-    "size": 319,
+    "sha256": "a4992e651afd6c4670ccf95129b974c7a1cf0ca8166683999ba98f42d4c9b6b1",
+    "size": 348,
     "type": "file"
   },
   ".github/skills/debug/SKILL.md": {
-    "target": "../../../agents/skills/coding/debug.skill.md",
-    "type": "symlink"
+    "sha256": "a648f6799112721a9a9bd0ab2f21cf7f5237f51fd15eea77e19c6b3fa6e472d4",
+    "size": 6688,
+    "type": "file"
   },
   ".github/skills/debug/config.json": {
-    "sha256": "9cf53dd46d14a6448e952f4a8b1e3cd51d465d53c1462d9840db2c83146451ff",
-    "size": 317,
+    "sha256": "6a796daf78c3bf606288f6b7e1cd37d68acf54bdcadfc1f557ab30d5facb1452",
+    "size": 346,
     "type": "file"
   },
   ".github/skills/decompose/SKILL.md": {
-    "target": "../../../agents/skills/product/decompose.skill.md",
-    "type": "symlink"
+    "sha256": "6ecb61a2181484bc9c3b30a078e84ef34346856ef3f9d152420ae79204ad47a2",
+    "size": 4215,
+    "type": "file"
   },
   ".github/skills/decompose/config.json": {
-    "sha256": "335f0c33a53b43594768fca196dedf45eaf8199e85ab27275e08060796e4aab5",
-    "size": 429,
+    "sha256": "6ee11773d8af3b0af714cd1510ca6ceb4ecd314c78a4b52b39f05dd0f6506229",
+    "size": 458,
     "type": "file"
   },
   ".github/skills/dependency-security/SKILL.md": {
-    "target": "../../../agents/skills/security/dependency-security.skill.md",
-    "type": "symlink"
+    "sha256": "4a66a28a9a67a52571bea486637e94947be8daedeb28eb733ab628e5dcc901c1",
+    "size": 3523,
+    "type": "file"
   },
   ".github/skills/dependency-security/config.json": {
-    "sha256": "47d0d1c1079e1a5a7e6d0371c24c9c806bbe8ad507a4ed2c2fce3e680f5a04a6",
-    "size": 341,
+    "sha256": "f38fe698d165268f7a2235806ed4a22f4e6f5bdac8f7e397a759dda0d62c5636",
+    "size": 370,
     "type": "file"
   },
   ".github/skills/deployment/SKILL.md": {
-    "target": "../../../agents/skills/ops/deployment.skill.md",
-    "type": "symlink"
+    "sha256": "0b8570f4730c8a06b95cbce07d2e83c70d38d68b51e9c181a72edac1bccc55ec",
+    "size": 8050,
+    "type": "file"
   },
   ".github/skills/deployment/config.json": {
-    "sha256": "76c3548e7a7f458ebb63329b4440a688f9bc093bd03b69425561350d1cbc407d",
-    "size": 365,
+    "sha256": "02131053df8b7cbc71ea18a662360637f7ce694904762892ca4c54e049d94857",
+    "size": 394,
     "type": "file"
   },
   ".github/skills/design-patterns/SKILL.md": {
-    "target": "../../../agents/skills/architecture/design-patterns.skill.md",
-    "type": "symlink"
+    "sha256": "8015bb855777ecf542d78aa6b57113094d5389a3af8ec2fb59d60a4b73095790",
+    "size": 4421,
+    "type": "file"
   },
   ".github/skills/design-patterns/config.json": {
-    "sha256": "52dbbd57d19805fb32501469d3ae1ee24f7b7c12b7e7b83a78e4e1017662442e",
-    "size": 347,
+    "sha256": "8a91adca66c8c2402c8565a33e44b7b200adc52a1b851e69e97266cd7d8e7369",
+    "size": 376,
     "type": "file"
   },
   ".github/skills/design-thinking/SKILL.md": {
-    "target": "../../../agents/skills/product/design-thinking.skill.md",
-    "type": "symlink"
+    "sha256": "4a38ef7c726787550840b4f010dec3b327f44e8558407607ac24210b2130ae09",
+    "size": 4063,
+    "type": "file"
   },
   ".github/skills/design-thinking/config.json": {
-    "sha256": "096c04021a792c8241441dc356a3b5a1c7db0445fa5d92b473f91fd046a29771",
-    "size": 389,
+    "sha256": "b44a201843552fa43dfb53c355cff83ca468330a8cd181bc54fe2af87082270c",
+    "size": 418,
     "type": "file"
   },
   ".github/skills/dev-environments/SKILL.md": {
-    "target": "../../../agents/skills/ops/dev-environments.skill.md",
-    "type": "symlink"
+    "sha256": "708768991323c883796fda70f61c08bb81da67c188ea3ac4be78bdad81b0d595",
+    "size": 1964,
+    "type": "file"
   },
   ".github/skills/dev-environments/config.json": {
-    "sha256": "980001a2ae0959537cfc8762c7f81e90adf02e164896ef848d3ef16f5acf7571",
-    "size": 309,
+    "sha256": "1305f0728aed7f45944ee14d7dc243b6f037f3c0f3b520fed1d2a593397acd17",
+    "size": 338,
     "type": "file"
   },
   ".github/skills/dev-workflow/SKILL.md": {
-    "target": "../../../agents/skills/ops/dev-workflow.skill.md",
-    "type": "symlink"
+    "sha256": "a1a894e11fa26ff10b2d7c954799c683603d0e5ab0b0b2ec57dc2877a4d8ceaf",
+    "size": 1827,
+    "type": "file"
   },
   ".github/skills/dev-workflow/config.json": {
-    "sha256": "45e0846bdcc0aaa5d61e6b0322dc70db1f1d0a3d2b4fa038365c356eaa44d682",
-    "size": 339,
+    "sha256": "79034520efe55490d00ee60e7248ffda5bed9506ce675f08b71224738217da32",
+    "size": 368,
     "type": "file"
   },
   ".github/skills/diagramming/SKILL.md": {
-    "target": "../../../agents/skills/architecture/diagramming.skill.md",
-    "type": "symlink"
+    "sha256": "4bbab904ed4a8432311e80c115bab92aad90ec2529ac723e713e592b43864d8c",
+    "size": 14428,
+    "type": "file"
   },
   ".github/skills/diagramming/config.json": {
-    "sha256": "bdac226f979ce8f5463fce81b718be852fb898c62ba2cb40683f2568bc74a672",
-    "size": 203,
+    "sha256": "b83161a5960b96d1245bb5d4250fac6b215a6ded85bf8a66e53e968685383864",
+    "size": 232,
     "type": "file"
   },
   ".github/skills/docker-dev/SKILL.md": {
-    "target": "../../../agents/skills/ops/docker-dev.skill.md",
-    "type": "symlink"
+    "sha256": "accdd1ace0227c736c64c303507330bdc0432d6f858df0734c1a461c768817ac",
+    "size": 3204,
+    "type": "file"
   },
   ".github/skills/docker-dev/config.json": {
-    "sha256": "9da458c3eb1b519652e51551d093347e09390203bcd59aed34fe4017351ef263",
-    "size": 303,
+    "sha256": "27190d953f61e434b8fa622b6f0da30db38e2c77cf05772b273b59aaf2f4f960",
+    "size": 332,
     "type": "file"
   },
   ".github/skills/documentation/SKILL.md": {
-    "target": "../../../agents/skills/coding/documentation.skill.md",
-    "type": "symlink"
+    "sha256": "4a81cdef31d2ebf8a86bd50c322cbab44044a29e3e90654d07119f978b8514e0",
+    "size": 7502,
+    "type": "file"
   },
   ".github/skills/documentation/config.json": {
-    "sha256": "c14a6bc27dc4bfb2f1a7656f333ebbbf277e0ab81f364e5a203249ae7a4efe07",
-    "size": 329,
+    "sha256": "e4628b1c17028b6b48d775fa1c011fa31e7b565d840aef28a5174c9150f16ab9",
+    "size": 358,
     "type": "file"
   },
   ".github/skills/domain-model/SKILL.md": {
-    "target": "../../../agents/skills/architecture/domain-model.skill.md",
-    "type": "symlink"
+    "sha256": "2cee6a35a53ddf360880ce8b41042e302569b86b89b71fec5cb91fabe88ac7f5",
+    "size": 12544,
+    "type": "file"
   },
   ".github/skills/domain-model/config.json": {
-    "sha256": "0732702376f391d2c3080cab7f4d168476776c5365ede9b97357fefbcffef83e",
-    "size": 649,
+    "sha256": "deabc42371ea5141dc9f6074498a3e11aa4d4b553355c598e84372d69276b38b",
+    "size": 678,
     "type": "file"
   },
   ".github/skills/emerging-tech/SKILL.md": {
-    "target": "../../../agents/skills/core/emerging-tech.skill.md",
-    "type": "symlink"
+    "sha256": "8a23432e0c82c5b549f0d2b91c02f0404cdb865c42d46a666bbdbb14ec1186fa",
+    "size": 3260,
+    "type": "file"
   },
   ".github/skills/emerging-tech/config.json": {
-    "sha256": "db34d914847656618cc5828e484c7d921a446183c4d6303256c04779d7958db2",
-    "size": 325,
+    "sha256": "885307302ecab3fdac5f903178ed6d834de01b0d809c16f559f6d5b988947dc3",
+    "size": 354,
     "type": "file"
   },
   ".github/skills/engineering-standards/SKILL.md": {
-    "target": "../../../agents/skills/industry/engineering-standards.skill.md",
-    "type": "symlink"
+    "sha256": "ab4eaf3a8b0718e1b17658417407a81b2172a0bf8b9026bc9a3d74359b19330d",
+    "size": 2611,
+    "type": "file"
   },
   ".github/skills/engineering-standards/config.json": {
-    "sha256": "ff2e4bf3f76317c6eb131bbe25e1fc5571e2735113a5276d55a330c8e30166d4",
-    "size": 325,
+    "sha256": "e7d83ca3fe63841f3c31cbad8489eb0aa340bd2a352653c19726af7333044274",
+    "size": 354,
     "type": "file"
   },
   ".github/skills/enterprise-integration/SKILL.md": {
-    "target": "../../../agents/skills/ops/enterprise-integration.skill.md",
-    "type": "symlink"
+    "sha256": "7726557b786dac1f0e18af1780f1c983d52268afa42d781a32307a43b8cbac6f",
+    "size": 3238,
+    "type": "file"
   },
   ".github/skills/enterprise-integration/config.json": {
-    "sha256": "900e1b194b0db919a20f5287f5490ba43221e1ed7ba772304f271ed7f0b68ae9",
-    "size": 333,
+    "sha256": "d9eaca5dd0c6d399f9d5d5d5f5a09d5cbd573ce92c54f160a462f39c0a276b22",
+    "size": 362,
     "type": "file"
   },
   ".github/skills/enterprise-migration-scenario/SKILL.md": {
-    "target": "../../../agents/skills/architecture/enterprise-migration-scenario.skill.md",
-    "type": "symlink"
+    "sha256": "bc5a14eb7a285ad7c69ea49d64f9a1d67e36e640942ba3954975df909f5d4325",
+    "size": 2086,
+    "type": "file"
   },
   ".github/skills/enterprise-migration-scenario/config.json": {
-    "sha256": "69345cf9698dc597f2660b00207c53d44823bbad2f0e9ce3d1c74421f388cfae",
-    "size": 315,
+    "sha256": "1288a264bbb64b43056a2bc63c96359e3d94f9e31c3e23944b2ff08aa74c8056",
+    "size": 344,
     "type": "file"
   },
   ".github/skills/enterprise-patterns/SKILL.md": {
-    "target": "../../../agents/skills/architecture/enterprise-patterns.skill.md",
-    "type": "symlink"
+    "sha256": "983880b3b4345ff726bbe01a60019d2b9207037879b08cb533f67ee1ef5921e5",
+    "size": 1928,
+    "type": "file"
   },
   ".github/skills/enterprise-patterns/config.json": {
-    "sha256": "26b0635d2aae7360a1d517cb1f5165dcdf9405b3bc40b55b88bc52fe5bc5407f",
-    "size": 275,
+    "sha256": "8235d72b745dc1e6d4b14cdadf833eea965f5cea31ec47ae7f3735579305c26e",
+    "size": 304,
     "type": "file"
   },
   ".github/skills/episodic-consolidation/SKILL.md": {
-    "target": "../../../agents/skills/brain/episodic-consolidation.skill.md",
-    "type": "symlink"
+    "sha256": "39a652822cb0ae9826456cf9063bc8a165ba94161ed25abe98ea15d1043c2639",
+    "size": 3728,
+    "type": "file"
   },
   ".github/skills/episodic-consolidation/config.json": {
-    "sha256": "02cb9e556a00d5ff2212b12627773fea36b77fe0d25a8931cd3a978dff4a77f2",
-    "size": 309,
+    "sha256": "93d099a5ae861e6e3038e1fd8062b22eb4d92c14055d089f016cafbbfa7df6dd",
+    "size": 338,
     "type": "file"
   },
   ".github/skills/epistemology-knowledge/SKILL.md": {
-    "target": "../../../agents/skills/brain/epistemology-knowledge.skill.md",
-    "type": "symlink"
+    "sha256": "53236e9465b9f1b377d797ddaf65e7d8a9c34561e30110f3c8fdf485b46b403f",
+    "size": 5735,
+    "type": "file"
   },
   ".github/skills/epistemology-knowledge/config.json": {
-    "sha256": "3b749d9c78d5de354174a48816c65800f92f08e72936acfe59a68583ef484f3c",
-    "size": 349,
+    "sha256": "828e8a2ec1c8784b23f60278addb35494b14b4366553992389ebf618b4c5d5a7",
+    "size": 378,
     "type": "file"
   },
   ".github/skills/error-handling-strategy/SKILL.md": {
-    "target": "../../../agents/skills/architecture/error-handling-strategy.skill.md",
-    "type": "symlink"
+    "sha256": "4f8322ed4f1c261e423b0d27ef00d0fbf5a247747aa488ec397a715ebbc234f4",
+    "size": 3962,
+    "type": "file"
   },
   ".github/skills/error-handling-strategy/config.json": {
-    "sha256": "c71c4e2b12d23d35128ef49e07948672b32f02c381f7771f19a81f7a93f7eab2",
-    "size": 351,
+    "sha256": "62a7407ab8eb05fab414cb599ed7c8af9cf530f12beb8b843f0b88f39014e78f",
+    "size": 380,
     "type": "file"
   },
   ".github/skills/event-driven-architecture/SKILL.md": {
-    "target": "../../../agents/skills/architecture/event-driven-architecture.skill.md",
-    "type": "symlink"
+    "sha256": "30fc31c71a90a4897682eaf913da2f59d98a0351f611b5221c4300707f28f839",
+    "size": 1905,
+    "type": "file"
   },
   ".github/skills/event-driven-architecture/config.json": {
-    "sha256": "02d5fdd65f7c3aac437ebbca91fe96ae7973394277fc54a3c296de3fb64eb7df",
-    "size": 303,
+    "sha256": "e744d582b3931f3e74a62922a952211a20603f0400a435157bf8401fc600a40f",
+    "size": 332,
     "type": "file"
   },
   ".github/skills/event-governance/SKILL.md": {
-    "target": "../../../agents/skills/architecture/event-governance.skill.md",
-    "type": "symlink"
+    "sha256": "2635d6aa393e69dc538b9fd04287bd33221f70f6c205fac8c4940cd49b0238ed",
+    "size": 3499,
+    "type": "file"
   },
   ".github/skills/event-governance/config.json": {
-    "sha256": "d71dc75ec15cec5bb508cd0057dc82aac6c29200d19053f32540e82cc980b30a",
-    "size": 349,
+    "sha256": "bb1d748967ac994c246ce6cdc8c828b37ac941773ad1bc072755f4f162f58003",
+    "size": 378,
     "type": "file"
   },
   ".github/skills/excalidraw/SKILL.md": {
-    "target": "../../../agents/skills/coding/excalidraw.skill.md",
-    "type": "symlink"
+    "sha256": "46d18b25bdc3504141e77dd8f9fa2131dddda5ad4b5df3f2d281b69a501a20df",
+    "size": 3847,
+    "type": "file"
   },
   ".github/skills/excalidraw/config.json": {
-    "sha256": "05c7c73045a97be2568346ec7702c921f0df7c1f0fa6136489bd3366f293e6ff",
-    "size": 313,
+    "sha256": "bc049ea9a939d1f6264c2c64da9f90eb5fcfa2ee270ff7b2b4089b9c190c7ef5",
+    "size": 342,
     "type": "file"
   },
   ".github/skills/file-processing/SKILL.md": {
-    "target": "../../../agents/skills/coding/file-processing.skill.md",
-    "type": "symlink"
+    "sha256": "c8f1edbcb51a035b7435078ad224ea99e77c710a743e3feb70b2dabdbe1bf713",
+    "size": 4377,
+    "type": "file"
   },
   ".github/skills/file-processing/config.json": {
-    "sha256": "6d114327ada992fbe76c8fe38c06645f88a9f8e1f09fe60382a19b6425b2fc6c",
-    "size": 283,
+    "sha256": "7e45f6879c85bd9668590b964ad492d11f07b41784990dbd2c8c2c034033fd04",
+    "size": 312,
     "type": "file"
   },
   ".github/skills/git-workflow/SKILL.md": {
-    "target": "../../../agents/skills/coding/git-workflow.skill.md",
-    "type": "symlink"
+    "sha256": "c5975af4d67983cf28ea2bcdd1000cedc53ba989344ccfc990d57edcaee87b26",
+    "size": 7365,
+    "type": "file"
   },
   ".github/skills/git-workflow/config.json": {
-    "sha256": "6cd535dea189ab13be8b3f262d906ae4764d6c04d6f5f3600940f5593800dddc",
-    "size": 291,
+    "sha256": "c26eaeb608ba3c415811403c9a0f7ff3559c27a94961c3ba427de9d69a1d8972",
+    "size": 320,
     "type": "file"
   },
   ".github/skills/global-standards/SKILL.md": {
-    "target": "../../../agents/skills/industry/global-standards.skill.md",
-    "type": "symlink"
+    "sha256": "07b5df77d4916223a3c65823ca5486809a7b7c995c5a46cf462cb752a4feb43f",
+    "size": 2292,
+    "type": "file"
   },
   ".github/skills/global-standards/config.json": {
-    "sha256": "8c9502e4f33203b65c3b78bfcc0305597594c666ee15e652fbfb33518ce20e30",
-    "size": 317,
+    "sha256": "8e2818fe127f35321fa95eaaae87e8b514d222704dee91602d8b28ba8e746f98",
+    "size": 346,
     "type": "file"
   },
   ".github/skills/global-workspace/SKILL.md": {
-    "target": "../../../agents/skills/brain/global-workspace.skill.md",
-    "type": "symlink"
+    "sha256": "5f39262caad6227812b99ffa7b1ec2642c59691c4ab29ef9c2455e3e52ffd756",
+    "size": 5095,
+    "type": "file"
   },
   ".github/skills/global-workspace/config.json": {
-    "sha256": "b43c8b97f3335ea50c4151a80e3f4650cf41288ec174cfb0dc1421c06bd2c6f8",
-    "size": 333,
+    "sha256": "4ad814c09ecb7bb8382f2a849e3c321aaca36c4a81a5cc9b2706525e018eab0b",
+    "size": 362,
     "type": "file"
   },
   ".github/skills/graphql-schema/SKILL.md": {
-    "target": "../../../agents/skills/architecture/graphql-schema.skill.md",
-    "type": "symlink"
+    "sha256": "3e646872a80b197b925a73f6d6b71a41cd9141e0e3e53fba2d8828e54964568f",
+    "size": 3932,
+    "type": "file"
   },
   ".github/skills/graphql-schema/config.json": {
-    "sha256": "afe15b2d0558b172065a8ac5cbbdab5cbcb0f5cc2910172fb6552fb530889d67",
-    "size": 273,
+    "sha256": "959f62ecd0d3a84046f439fc4b4e7f010af3d50bbd500e2de14fff5843e8a175",
+    "size": 302,
     "type": "file"
   },
   ".github/skills/green-software/SKILL.md": {
-    "target": "../../../agents/skills/product/green-software.skill.md",
-    "type": "symlink"
+    "sha256": "038087c7ca323cf702b4ff3013652be49a3487f9289a5cc9aa51a7d77e4b88b8",
+    "size": 3320,
+    "type": "file"
   },
   ".github/skills/green-software/config.json": {
-    "sha256": "6af80d4233831eea236ef7e1d635c800661e11d1c22778235bccc09eef68a27c",
-    "size": 313,
+    "sha256": "27dc0f925153c3bb327e4700c44186f4835c86da6654a8799dfb9595fdf4c4e5",
+    "size": 342,
     "type": "file"
   },
   ".github/skills/hazard-analysis/SKILL.md": {
-    "target": "../../../agents/skills/security/hazard-analysis.skill.md",
-    "type": "symlink"
+    "sha256": "792cf9976562700bae1e2eabc735dbc15850034f978cc336b0816e77eb796600",
+    "size": 3511,
+    "type": "file"
   },
   ".github/skills/hazard-analysis/config.json": {
-    "sha256": "b5a4542f6c8fc971437c8a7252539015ba22b3f0cddd23250131c0d12f3dd621",
-    "size": 317,
+    "sha256": "f3b998deea50c15f101f362f28cd2fa1e0683d76e19933408c4a4621027ee6bf",
+    "size": 346,
     "type": "file"
   },
   ".github/skills/healthcare-fhir/SKILL.md": {
-    "target": "../../../agents/skills/industry/healthcare-fhir.skill.md",
-    "type": "symlink"
+    "sha256": "a1a8b0872e6acc3ea47e256880311ce849fe2da89e9c67f0c28729ccc636f5f2",
+    "size": 1981,
+    "type": "file"
   },
   ".github/skills/healthcare-fhir/config.json": {
-    "sha256": "a1b44b855ed884814b6a963aaec284900adb0f87eb73bd29589ad4395f4104ec",
-    "size": 295,
+    "sha256": "abba98eb2e924e907c3b1a68f75b89df97ae8c6d50a2ea5d558d88d6599773da",
+    "size": 324,
     "type": "file"
   },
   ".github/skills/incident-response/SKILL.md": {
-    "target": "../../../agents/skills/ops/incident-response.skill.md",
-    "type": "symlink"
+    "sha256": "f3490745b6d0e2f4703c549296e69214a6b187b7469fd89d63bc787ae8779815",
+    "size": 2685,
+    "type": "file"
   },
   ".github/skills/incident-response/config.json": {
-    "sha256": "6c2ed588719a16213a5b6633e4c84327149057450701d4b793b38411cb716525",
-    "size": 287,
+    "sha256": "c2d7c57a8eed40fea5ccdc375b7323130216a70a38585dc2843a0e2579ab9ff9",
+    "size": 316,
     "type": "file"
   },
   ".github/skills/industrial-iot/SKILL.md": {
-    "target": "../../../agents/skills/industry/industrial-iot.skill.md",
-    "type": "symlink"
+    "sha256": "9f554fe91312db4a694f2afd21004472339fb99c5034c9745ecb659166788a3c",
+    "size": 1981,
+    "type": "file"
   },
   ".github/skills/industrial-iot/config.json": {
-    "sha256": "f321ec5743784d2a65be1a41295a79b990069f133de40cdd7d3c5926f2f84bf3",
-    "size": 295,
+    "sha256": "9981aba7465b085397c156013090bba278ea8fec69b4ed1d77bbeb7aa7facccb",
+    "size": 324,
     "type": "file"
   },
   ".github/skills/infra-devops/SKILL.md": {
-    "target": "../../../agents/skills/ops/infra-devops.skill.md",
-    "type": "symlink"
+    "sha256": "0d1c69222b5254f5e9d4b4a09a1b9a87797ea9a257ededd6a1628b64fe13fb4a",
+    "size": 3278,
+    "type": "file"
   },
   ".github/skills/infra-devops/config.json": {
-    "sha256": "8be2cfe5e68f4b76617fc7e0a88ce9a046a28b27fc34fafdb238b3758b870b8c",
-    "size": 319,
+    "sha256": "d3a14ab6178002ea20177a33a040c44a28415dbab26de5c9d8cc87419d37ab10",
+    "size": 348,
     "type": "file"
   },
   ".github/skills/integrity-check/SKILL.md": {
-    "target": "../../../agents/skills/core/integrity-check.skill.md",
-    "type": "symlink"
+    "sha256": "d47bd08a7e78d77aa035ae28feadebcc2fbbb50385bb03b36a8dc913c237b443",
+    "size": 6723,
+    "type": "file"
   },
   ".github/skills/integrity-check/config.json": {
-    "sha256": "546236894cae495cdbb8ae707963ef552e60422d8c5913eee197f1e56c2faa99",
-    "size": 363,
+    "sha256": "241ffbd6f05c53399a7207ce71f69824e0d571e64c0e64e2f6d8a1f4843b3089",
+    "size": 392,
     "type": "file"
   },
   ".github/skills/k8s-dev/SKILL.md": {
-    "target": "../../../agents/skills/ops/k8s-dev.skill.md",
-    "type": "symlink"
+    "sha256": "99396559be682af5a58546609523d8ea0224e4156f1555aa468d332e6c54f301",
+    "size": 3281,
+    "type": "file"
   },
   ".github/skills/k8s-dev/config.json": {
-    "sha256": "c712b9cbf9240f77483de3b3a6898d94248b9166b07541cdcaa00cf95ce0ad3d",
-    "size": 311,
+    "sha256": "fcc3e94e230d70c57fbc8748e8ba56af1dd2dc2572dd9e849be8b737bc81fd7b",
+    "size": 340,
     "type": "file"
   },
   ".github/skills/knowledge-connectors/SKILL.md": {
-    "target": "../../../agents/skills/core/knowledge-connect.skill.md",
-    "type": "symlink"
+    "sha256": "e2338a10c5ac903b9d5c608f34b83538894538d94097c7d8f3f800701479b025",
+    "size": 4102,
+    "type": "file"
   },
   ".github/skills/knowledge-connectors/config.json": {
-    "sha256": "c06cd804ea64527c9086f337383911856412ca2e714fe37c4dc9ff83fbbc4d65",
-    "size": 317,
+    "sha256": "888b9d16e749660faf7313f0ff720aaae41ec2015773ff0f87472c3b7db0fceb",
+    "size": 346,
     "type": "file"
   },
   ".github/skills/knowledge-gap/SKILL.md": {
-    "target": "../../../agents/skills/core/knowledge-gap.skill.md",
-    "type": "symlink"
+    "sha256": "4f20d118647809abf248895c4448bd1029d7819ba59262430ea07a60f7f853e3",
+    "size": 5937,
+    "type": "file"
   },
   ".github/skills/knowledge-gap/config.json": {
-    "sha256": "27434d153cc1bf09158efb6ac401377fdcc3f3c52fc562596220fa98831e7089",
-    "size": 439,
+    "sha256": "55a72f13973e9ce0206c6f3a1ed70dc902df00ab336534dc7362589f5cf4047d",
+    "size": 468,
     "type": "file"
   },
   ".github/skills/learning-adaptation/SKILL.md": {
-    "target": "../../../agents/skills/brain/learning-adaptation.skill.md",
-    "type": "symlink"
+    "sha256": "b9a43ff32f5c4d8740d63de366f6039e5bb35d1887a508660345be47311e8810",
+    "size": 4598,
+    "type": "file"
   },
   ".github/skills/learning-adaptation/config.json": {
-    "sha256": "dda269bd2b7211ea02649afd389f56a3caf5878c6bfafbf6b2545ef77b2dcf75",
-    "size": 347,
+    "sha256": "7f2fa5080de0448f4fbe09818a02148bc454c515af23dd0671f4e1479946d15e",
+    "size": 376,
     "type": "file"
   },
   ".github/skills/legacy-modernization/SKILL.md": {
-    "target": "../../../agents/skills/architecture/legacy-modernization.skill.md",
-    "type": "symlink"
+    "sha256": "75a26c950c95127bef5511f360cbb36f8f7520bde5a5958c6110a7bc38347413",
+    "size": 4145,
+    "type": "file"
   },
   ".github/skills/legacy-modernization/config.json": {
-    "sha256": "22274ce8685cb21fae3fbaa36275544531ffa2bf5d849c967d5f33d7b3cd2ede",
-    "size": 331,
+    "sha256": "a847b1146ab287f5ccebc0b9137aab33d995a32623f596cd8c734d73dd7a2910",
+    "size": 360,
     "type": "file"
   },
   ".github/skills/legal-review/SKILL.md": {
-    "target": "../../../agents/skills/security/legal-review.skill.md",
-    "type": "symlink"
+    "sha256": "4336b7fae00a7675ff27b754c31de3ce48a845c3e975f43880857801cc312b5b",
+    "size": 3247,
+    "type": "file"
   },
   ".github/skills/legal-review/config.json": {
-    "sha256": "17d2de7240a268e7050951cef3c42b163e92135c7b1483a5373726db5d19404c",
-    "size": 207,
+    "sha256": "6b76f4d1ac6a280b820db9cb46cb387c34276cee990df360c44ca294a2bf3cc7",
+    "size": 236,
     "type": "file"
   },
   ".github/skills/log-analysis/SKILL.md": {
-    "target": "../../../agents/skills/security/log-analysis.skill.md",
-    "type": "symlink"
+    "sha256": "560fb48e68a92e081627bf36a8d34e1441b063bb5dc8a3d6812fadc07a79ac5a",
+    "size": 4014,
+    "type": "file"
   },
   ".github/skills/log-analysis/config.json": {
-    "sha256": "04c9eef3154ecf64bc0a575b181c0006c1c5d3968320d76df501d4994545ad8f",
-    "size": 315,
+    "sha256": "088b766c10f465e73504ab5a7ef45876dfca1d2466d3fbcff4bf38af7a00fdfc",
+    "size": 344,
     "type": "file"
   },
   ".github/skills/loki-mode/SKILL.md": {
-    "target": "../../../agents/skills/brain/loki-mode.skill.md",
-    "type": "symlink"
+    "sha256": "0a9c7620c2d9366f1fc9004505b5b3d7e9d1cddda2a625d009e4d4352ea5c4ad",
+    "size": 21168,
+    "type": "file"
   },
   ".github/skills/loki-mode/config.json": {
-    "sha256": "f67f0489f3def6fd9a820d0e61452eb9a094289de35dedac0482b55a32abbc49",
-    "size": 597,
+    "sha256": "7b23a2422d78a26fddca30da3b7445175f97614af8be96f07b40f3a687cc7e8f",
+    "size": 626,
     "type": "file"
   },
   ".github/skills/market-analysis/SKILL.md": {
-    "target": "../../../agents/skills/product/market-analysis.skill.md",
-    "type": "symlink"
+    "sha256": "981e21b2287be04863b962522966ef1e39f4e55360d12446494c993a4f6754fc",
+    "size": 3567,
+    "type": "file"
   },
   ".github/skills/market-analysis/config.json": {
-    "sha256": "c2cb1cef9801c759bbde9161067cbe98327e0d5c0656e654520d348b4280df51",
-    "size": 299,
+    "sha256": "f1bb8f6f8d706202ea3e7ec8442597d7a252d60bf73daaba50996a11ca450331",
+    "size": 328,
     "type": "file"
   },
   ".github/skills/memory-optimization/SKILL.md": {
-    "target": "../../../agents/skills/ops/memory-optimization.skill.md",
-    "type": "symlink"
+    "sha256": "357b91469b1aa4fbc40ac87e6b706ebf7c883b6b863d1b616ea1c5ee212127fd",
+    "size": 2944,
+    "type": "file"
   },
   ".github/skills/memory-optimization/config.json": {
-    "sha256": "4e91e3965b9129b3386eeced96069e9ad1511aecbb25223015de59965426154f",
-    "size": 327,
+    "sha256": "adeb65c653fbf57d0477a6ae54533554861de65316096ab46b280a06369a0f23",
+    "size": 356,
     "type": "file"
   },
   ".github/skills/meta-optimize/SKILL.md": {
-    "target": "../../../agents/skills/coordination/meta-optimize.skill.md",
-    "type": "symlink"
+    "sha256": "e9eafe563a2a2e0ffc0a9726764073ec8c6000630caf5ff2ebc818edb38c93a5",
+    "size": 3346,
+    "type": "file"
   },
   ".github/skills/meta-optimize/config.json": {
-    "sha256": "9859cd7d827dd7fca7df07a046ac3fe01f8a4b69d92d639466d7f0edf0a98331",
-    "size": 515,
+    "sha256": "7e987b60d0382278541c0bdef5b81fdf5c28fc561cc3e808b730b7eacd8524b6",
+    "size": 544,
     "type": "file"
   },
   ".github/skills/meta-prompting/SKILL.md": {
-    "target": "../../../agents/skills/coordination/meta-prompting.skill.md",
-    "type": "symlink"
+    "sha256": "6a40347ed075609fe7c70e07088338771466e37e3bae324f707e74d1d881764f",
+    "size": 2667,
+    "type": "file"
   },
   ".github/skills/meta-prompting/config.json": {
-    "sha256": "71b5bafb4397c1e54e04a9b44584132aa8b837faad6321cc075fcb87c9f1f64c",
-    "size": 327,
+    "sha256": "4797c63f415cd6596d1652890693e4ed573700974b4d24245c77be813252e46b",
+    "size": 356,
     "type": "file"
   },
   ".github/skills/microservices/SKILL.md": {
-    "target": "../../../agents/skills/architecture/microservices.skill.md",
-    "type": "symlink"
+    "sha256": "245d2c360ca1bbdd21602f92114963d2bedee3e19be3185677467839f03a821d",
+    "size": 1746,
+    "type": "file"
   },
   ".github/skills/microservices/config.json": {
-    "sha256": "c04e619f86ebdb5681316923e7dc297886fe965bff8c883503e267dce9767535",
-    "size": 259,
+    "sha256": "089cdd54d02e304fc3c817b0ef28f6918fede15c14832cbff273380c573b73a9",
+    "size": 288,
     "type": "file"
   },
   ".github/skills/middleware-design/SKILL.md": {
-    "target": "../../../agents/skills/architecture/middleware-design.skill.md",
-    "type": "symlink"
+    "sha256": "e14177805e5e1759fdb970921693bc0faa020196b7399678df617cd82d80844b",
+    "size": 4100,
+    "type": "file"
   },
   ".github/skills/middleware-design/config.json": {
-    "sha256": "4a78cd4eb5e6e84d386b961848b71adf30612d7b6d02810b03a9afd53db8ba64",
-    "size": 305,
+    "sha256": "973fbbc517adee74f4ecacb691da557d5215da9e1201ff50105976800a9c44fd",
+    "size": 334,
     "type": "file"
   },
   ".github/skills/mobile-dev/SKILL.md": {
-    "target": "../../../agents/skills/coding/mobile-dev.skill.md",
-    "type": "symlink"
+    "sha256": "85ab868cb20c6463366a216fc19edbf38c540addb14c2c14655ba2195adea562",
+    "size": 4141,
+    "type": "file"
   },
   ".github/skills/mobile-dev/config.json": {
-    "sha256": "1b8ba12a97592e0c814620e5a31831d8de921b783122aefc361f41cb5a0081b5",
-    "size": 277,
+    "sha256": "9c5962e958684de0e2bac1ae8705e2eb2091beeb1307124dfdae8e618aff8adc",
+    "size": 306,
     "type": "file"
   },
   ".github/skills/monolith/SKILL.md": {
-    "target": "../../../agents/skills/architecture/monolith.skill.md",
-    "type": "symlink"
+    "sha256": "aef6c8995041326cd1ac1a14240646eb13f794c2656932500bd6be7819eeb3aa",
+    "size": 1785,
+    "type": "file"
   },
   ".github/skills/monolith/config.json": {
-    "sha256": "0d019d77957b2ec635c1516fd38cff8b1c92bd3c4ab451fb83f321ec6f620df1",
-    "size": 289,
+    "sha256": "9402c15b40337c5df71c2fb6815c160a9124ec98b99c43d4adae5ee8bfa6ddde",
+    "size": 318,
     "type": "file"
   },
   ".github/skills/multi-agent-orch/SKILL.md": {
-    "target": "../../../agents/skills/coordination/multi-agent-orch.skill.md",
-    "type": "symlink"
+    "sha256": "2785c256a8c74f39cdc3a6bd2ef6908a9faa3cbe0314848d61678ca971a48dc6",
+    "size": 4336,
+    "type": "file"
   },
   ".github/skills/multi-agent-orch/config.json": {
-    "sha256": "baaaa973b75b35ead00a50300454ee84fc0dd90f2871d7c1c9e034d4336f5697",
-    "size": 339,
+    "sha256": "f14d694919bfdaadf321358d3d8e5bdf568ad3b649e29e9ae35ef5466c180952",
+    "size": 368,
     "type": "file"
   },
   ".github/skills/multi-agent-systems/SKILL.md": {
-    "target": "../../../agents/skills/ai/multi-agent-systems.skill.md",
-    "type": "symlink"
+    "sha256": "c86ae968a772d72ed4d2d4a396793e592c3e98b2430a9245b391d44fa107fb0d",
+    "size": 1792,
+    "type": "file"
   },
   ".github/skills/multi-agent-systems/config.json": {
-    "sha256": "07e873783c2e3022a2914c887e0db8c326a157d5f840bad52516452367bae964",
-    "size": 277,
+    "sha256": "d20f471e51bb4dfcb7a8bda29040fa665008c51240223ddc45872399c2d9b7c0",
+    "size": 306,
     "type": "file"
   },
   ".github/skills/network-security/SKILL.md": {
-    "target": "../../../agents/skills/security/network-security.skill.md",
-    "type": "symlink"
+    "sha256": "cc55adcd9a05558f63fe1ee0831b1f337164fb62082e81a11776cb6ed3591f43",
+    "size": 3936,
+    "type": "file"
   },
   ".github/skills/network-security/config.json": {
-    "sha256": "429874f72122f3333f748748f9154b668756de3e1a7d59833df7734f0afad22f",
-    "size": 293,
+    "sha256": "8a4143b64abddf6c01c18a0a0090e27730ee8ee5ea0a607ad6de27b8a8f4871d",
+    "size": 322,
     "type": "file"
   },
   ".github/skills/neuroscience-foundations/SKILL.md": {
-    "target": "../../../agents/skills/brain/neuroscience-foundations.skill.md",
-    "type": "symlink"
+    "sha256": "b1268c5d00ed436b1e9a8e6c8e0e1ca3d1296c36d44b4441ad72d964c789fe10",
+    "size": 5665,
+    "type": "file"
   },
   ".github/skills/neuroscience-foundations/config.json": {
-    "sha256": "5f70a9f3b905c7e857c949f65a19de5c7659e29dcf3e57b7c91fab07acf01253",
-    "size": 281,
+    "sha256": "0beb743e6ea003d8f59ca8d160c35f5c9a9381954695762177025184f3663c10",
+    "size": 310,
     "type": "file"
   },
   ".github/skills/nodejs-expert/SKILL.md": {
-    "target": "../../../agents/skills/coding/nodejs-expert.skill.md",
-    "type": "symlink"
+    "sha256": "bf0d0adbb74fe3ced25628cfc7c39f9f77ef669b249361c40daeb12b9f5906e9",
+    "size": 1524,
+    "type": "file"
   },
   ".github/skills/nodejs-expert/config.json": {
-    "sha256": "afcd0dd64f81ddd82eaccaf1df28d3d0213588cf97837519f27b48eafc3aa5b6",
-    "size": 329,
+    "sha256": "7f92d2db923a9542e063a7f0eb41ccb53aa668e143ce5dee3e527423d5b8be97",
+    "size": 358,
     "type": "file"
   },
   ".github/skills/performance-audit/SKILL.md": {
-    "target": "../../../agents/skills/ops/performance-audit.skill.md",
-    "type": "symlink"
+    "sha256": "186b27997b12d7a953993ffafdc801eb159e79b7e336bc15849cd2dfcd4cb79b",
+    "size": 7332,
+    "type": "file"
   },
   ".github/skills/performance-audit/config.json": {
-    "sha256": "a257091ab6aabc8521efb441c15e225a19af7187d5076ac623a374df2f898434",
-    "size": 345,
+    "sha256": "efa2c57d4d9554c259b847c408528eb18046708835454ceba9a52439bfeab1e3",
+    "size": 374,
     "type": "file"
   },
   ".github/skills/performance-optimization/SKILL.md": {
-    "target": "../../../agents/skills/ops/performance-optimization.skill.md",
-    "type": "symlink"
+    "sha256": "f57b1218ec1cb72d2094d61db6a71fe15eadf9296eec75a6a50c0d94f25d3568",
+    "size": 3245,
+    "type": "file"
   },
   ".github/skills/performance-optimization/config.json": {
-    "sha256": "2bed9282df7864278d4733852cb721a0f85fa7d7dcce07bba0c5c2c05fd6673f",
-    "size": 315,
+    "sha256": "1278ede5bb343c244bb04ba1d456b7360f7937453a18d63bd5f187d427eb5884",
+    "size": 344,
     "type": "file"
   },
   ".github/skills/performant-ai/SKILL.md": {
-    "target": "../../../agents/skills/coding/performant-ai.skill.md",
-    "type": "symlink"
+    "sha256": "612ec508d5d7edd8538e5849a8fa2cd0ac583c809598cca3f77ea7c3ff2d46e3",
+    "size": 3779,
+    "type": "file"
   },
   ".github/skills/performant-ai/config.json": {
-    "sha256": "dfc020ea45a9c7ae05a6dc953c95dcbe6b8313c3a6d0879a425d57bb2e22a241",
-    "size": 387,
+    "sha256": "c4b674b1905f78856aeb61f7cf949c6bcaed55702cebb151450c8617f8a32923",
+    "size": 416,
     "type": "file"
   },
   ".github/skills/performant-go/SKILL.md": {
-    "target": "../../../agents/skills/coding/performant-go.skill.md",
-    "type": "symlink"
+    "sha256": "e99865b376572bcdabc350531deb01b5723e2bad697a6e3638739cb2e53c16b6",
+    "size": 3747,
+    "type": "file"
   },
   ".github/skills/performant-go/config.json": {
-    "sha256": "4a49bb71ee85c534499c87be88bfe67316e5f4e8c5e93df9f8af0af937711d47",
-    "size": 347,
+    "sha256": "d159c5c21d502d84ea7d2e364a96e2316205a7c677d2774d6e87c14d3e3718f3",
+    "size": 376,
     "type": "file"
   },
   ".github/skills/performant-laravel/SKILL.md": {
-    "target": "../../../agents/skills/coding/performant-laravel.skill.md",
-    "type": "symlink"
+    "sha256": "e8c4e9ff17f1fd60cb942854690e91f3b0a54e8cce153e1459da741da9e0e48e",
+    "size": 4448,
+    "type": "file"
   },
   ".github/skills/performant-laravel/config.json": {
-    "sha256": "0a067c4c0315ba4820aef5a9085e914488b68028a29bc32b4737d0d7c7036180",
-    "size": 387,
+    "sha256": "f33b042265286aebe407293a944bcb869cb2da0c4940d3baff51bf3387726547",
+    "size": 416,
     "type": "file"
   },
   ".github/skills/performant-nodejs/SKILL.md": {
-    "target": "../../../agents/skills/coding/performant-nodejs.skill.md",
-    "type": "symlink"
+    "sha256": "479323daabe1e601b75da362342c9f7b319d53e1445d98ca3049c8b2dd3aaddb",
+    "size": 4263,
+    "type": "file"
   },
   ".github/skills/performant-nodejs/config.json": {
-    "sha256": "8ae7960a044bb6fda7e7f1a1db2e224f07f8aef859416aeefded04dc2518f66c",
-    "size": 403,
+    "sha256": "e2d0a785c17b082ca4c5561ae8b1d71150ee58556945b75ec7844c193c837449",
+    "size": 432,
     "type": "file"
   },
   ".github/skills/performant-python/SKILL.md": {
-    "target": "../../../agents/skills/coding/performant-python.skill.md",
-    "type": "symlink"
+    "sha256": "ce465548ac968abc5730ca318751bdcd121f505c956af5fa9ec8daad29de7105",
+    "size": 3679,
+    "type": "file"
   },
   ".github/skills/performant-python/config.json": {
-    "sha256": "f8f4267c138ced434a5d1099ae96f88be2649a7c5e633fdb18be92046f932fc0",
-    "size": 363,
+    "sha256": "b470de1ec4d3a34ecdd6bfe19d1f03f63df7041204af921a0d2d2f21c6a33e4d",
+    "size": 392,
     "type": "file"
   },
   ".github/skills/privacy-audit/SKILL.md": {
-    "target": "../../../agents/skills/security/privacy-audit.skill.md",
-    "type": "symlink"
+    "sha256": "7b552827b96c21f3757272cd882c20ea5fb3079491312a1538e61a4a4be21b9b",
+    "size": 7454,
+    "type": "file"
   },
   ".github/skills/privacy-audit/config.json": {
-    "sha256": "f2d06a0d054fd3b87798d2e133e98b40aa7cdd164cd9ee1ca9dbff00a2a4c9e4",
-    "size": 311,
+    "sha256": "ce95a267ffa37e52556f0fdd97d611b9d02bb4a13f253ec50d05504547d29e00",
+    "size": 340,
     "type": "file"
   },
   ".github/skills/privacy-data-protection/SKILL.md": {
-    "target": "../../../agents/skills/security/privacy-data-protection.skill.md",
-    "type": "symlink"
-  },
-  ".github/skills/privacy-data-protection/config.json": {
-    "sha256": "ccdf788e386adeb07e6dbaf862f034fb6f1a9e1a66c311951225ce17f9f3e021",
-    "size": 317,
+    "sha256": "3cc06f14fff55b56cdd5f79498f58d66cc36257660857d8430046f77b93776c3",
+    "size": 2019,
     "type": "file"
   },
-  ".github/skills/production-health-&-optimization/SKILL.md": {
-    "target": "../../../agents/skills/ops/production-health.skill.md",
-    "type": "symlink"
+  ".github/skills/privacy-data-protection/config.json": {
+    "sha256": "f499c11a01ad330747dd299e929c74cbc8d3de75f465aba64cd8d1d0532294bf",
+    "size": 346,
+    "type": "file"
   },
-  ".github/skills/production-health-&-optimization/config.json": {
-    "sha256": "f6c8768e003f1ba28aa1d6a9c494369dd34d75d631876f2dcadf81875ed0c7bb",
-    "size": 377,
+  ".github/skills/production-health-optimization/SKILL.md": {
+    "sha256": "3c48a5ee60e9f910714277f6d19a8826dd0d1d45f5872cfe26f931588c205591",
+    "size": 4164,
+    "type": "file"
+  },
+  ".github/skills/production-health-optimization/config.json": {
+    "sha256": "9d22403b7ec103b4bbd25849f33fccddf3e5302ee34c8849da5de2fed49bae9a",
+    "size": 402,
     "type": "file"
   },
   ".github/skills/production-verifier/SKILL.md": {
-    "target": "../../../agents/skills/ops/production-verifier.skill.md",
-    "type": "symlink"
+    "sha256": "0f50f7620563b0555caa89c97de929b78e50115603f8bf38badeef6ba0afb3b5",
+    "size": 2744,
+    "type": "file"
   },
   ".github/skills/production-verifier/config.json": {
-    "sha256": "6625868ade25eb422d87bd1db6481bbd6f7a8816c8b8f30a14be093bc0a75fd3",
-    "size": 349,
+    "sha256": "4ffd66e0fa4921a103cd148257c4044a475be3a13ed103f12b6c0569e8634e75",
+    "size": 378,
     "type": "file"
   },
   ".github/skills/queue-management/SKILL.md": {
-    "target": "../../../agents/skills/ops/queue-management.skill.md",
-    "type": "symlink"
+    "sha256": "232b0f80cdc5e6b980e98b68a29fd2b13efcd3d8f2ed6412c0dbd29f6a57a7cc",
+    "size": 3262,
+    "type": "file"
   },
   ".github/skills/queue-management/config.json": {
-    "sha256": "20d4d702391d5ffe7be0a15bdb5c0bee735b8b3159e37af38f240f6269ec7fe4",
-    "size": 317,
+    "sha256": "f7045de821b22a21f0157a349185484a160acead34405cd1ed19402cdefcdce7",
+    "size": 346,
     "type": "file"
   },
   ".github/skills/realtime-comm/SKILL.md": {
-    "target": "../../../agents/skills/architecture/realtime-comm.skill.md",
-    "type": "symlink"
+    "sha256": "d3886ae10c0b205454d9f069c842635ac1f9ed76929583733c865b81589a9d3a",
+    "size": 3914,
+    "type": "file"
   },
   ".github/skills/realtime-comm/config.json": {
-    "sha256": "dc1397edac86d2d0ab4ab2937c28d7312b8b126b174be6486e84bc9ce573c689",
-    "size": 295,
+    "sha256": "355d7bb3b2f2abfd6cef456a9d0837a834869aff8e644363dc31919c2f96ba4b",
+    "size": 324,
     "type": "file"
   },
   ".github/skills/refactor/SKILL.md": {
-    "target": "../../../agents/skills/coding/refactor.skill.md",
-    "type": "symlink"
+    "sha256": "886a28890e372eb549bf5eb333ab2fc30d7dd61df1c4869ad5fdccc64c50fee4",
+    "size": 6553,
+    "type": "file"
   },
   ".github/skills/refactor/config.json": {
-    "sha256": "ffcaffb27f1ae119a1a9badf04bcbbde361c56482613c13732b2b2772268b594",
-    "size": 327,
+    "sha256": "27fe863cc123f6a90e1cb547431e21833ff5d7e0cadb0ebb02e6e384b1a8c294",
+    "size": 356,
     "type": "file"
   },
   ".github/skills/release-management/SKILL.md": {
-    "target": "../../../agents/skills/ops/release-management.skill.md",
-    "type": "symlink"
+    "sha256": "e49053dca4c810d1698b64a80b87952a5a4762f4de8b71ee93c4a0618c9faab0",
+    "size": 2684,
+    "type": "file"
   },
   ".github/skills/release-management/config.json": {
-    "sha256": "e051b44017a450742e8aadf326ac1cc7541bfee906cdaa98137710964f96039f",
-    "size": 279,
+    "sha256": "d43fb219e9dce1e4c1dceb0987973457d925ef4041dc8849d8f4d24ef918c4bb",
+    "size": 308,
     "type": "file"
   },
   ".github/skills/release-validation/SKILL.md": {
-    "target": "../../../agents/skills/ops/release-validation.skill.md",
-    "type": "symlink"
+    "sha256": "c42d551c17706132965e863861ec09ee15f161ecd2e5e5f3498da3301b862d19",
+    "size": 2792,
+    "type": "file"
   },
   ".github/skills/release-validation/config.json": {
-    "sha256": "abe8ea5f1fba2d5f35a51822218fa3b936ccab53191a5596a2dfa2c9e8cb0c4b",
-    "size": 357,
+    "sha256": "85a2dd94261252a795d1115e78b6b45b74d83e40587c8493338bcb5c2db3b611",
+    "size": 386,
     "type": "file"
   },
   ".github/skills/reliability-engineering/SKILL.md": {
-    "target": "../../../agents/skills/security/reliability-engineering.skill.md",
-    "type": "symlink"
+    "sha256": "ddc50f31e990bf8955ffeac93ee00b6121655dc73f2464c7b83018033f8fd3f5",
+    "size": 3722,
+    "type": "file"
   },
   ".github/skills/reliability-engineering/config.json": {
-    "sha256": "e2417c2a7f8df73c13fdb8dd680cbda0c5d08dbf0aad590e65c7bb9cea8cd29f",
-    "size": 349,
+    "sha256": "83c8d60f00781eed2a9d5701d36bbd8741a8f6409deaf722506551ecd64380eb",
+    "size": 378,
     "type": "file"
   },
   ".github/skills/reliability-sre/SKILL.md": {
-    "target": "../../../agents/skills/ops/reliability-sre.skill.md",
-    "type": "symlink"
+    "sha256": "9925c9010b69a4925fa49c5b563f868129b1e60547cbc7acbdc7caf20427c2ef",
+    "size": 3221,
+    "type": "file"
   },
   ".github/skills/reliability-sre/config.json": {
-    "sha256": "693c57f7379d80498a6ef8403341522416c76cbeaba47875cea15198ee3cf8ce",
-    "size": 289,
+    "sha256": "6eab9f469544251eb1a4d246e2aa071e11ab2c11ef42c78b4bc57a0d8cbdf13d",
+    "size": 318,
     "type": "file"
   },
   ".github/skills/req-elicitation/SKILL.md": {
-    "target": "../../../agents/skills/product/req-elicitation.skill.md",
-    "type": "symlink"
+    "sha256": "85baa0eff7869944849cd0818dab97a85d6f5f459ddc7a771c525d3014ca194e",
+    "size": 11800,
+    "type": "file"
   },
   ".github/skills/req-elicitation/config.json": {
-    "sha256": "7df3b3a99915823a0a8f0810f52856e2b65f96a0c2d51d1a28301e00e4dcba10",
-    "size": 653,
+    "sha256": "702b371044b4ee031445b0070f9b96c4b0776159a2df0f65451c17fe5114bde3",
+    "size": 682,
     "type": "file"
   },
   ".github/skills/req-review/SKILL.md": {
-    "target": "../../../agents/skills/product/req-review.skill.md",
-    "type": "symlink"
+    "sha256": "aa722283bdc72598f1bba4b2b5d3ad27570a0b9887e8f7e61edc55136a0b54ba",
+    "size": 12121,
+    "type": "file"
   },
   ".github/skills/req-review/config.json": {
-    "sha256": "47e0386cbdfcf14b09188b0ab18891a667587e2f2cd259e36c73ca4a1a3345f7",
-    "size": 653,
+    "sha256": "fa26fe52765bd47e0dc9246cad2ced97cf9e6bf9f65ed2a280ebc54efe54f189",
+    "size": 682,
     "type": "file"
   },
   ".github/skills/research/SKILL.md": {
-    "target": "../../../agents/skills/core/research.skill.md",
-    "type": "symlink"
+    "sha256": "d3e481bfb30302c6635cec92ac9c4363aaa42d2d46f143ba15652a7bfaab20ab",
+    "size": 6054,
+    "type": "file"
   },
   ".github/skills/research/config.json": {
-    "sha256": "ce9094bae46ef2a5162094d29bdf3f1aa583e658ae62cc3bade8636d1d1e97c0",
-    "size": 395,
+    "sha256": "3cd410e4e4a58477916bb3a362b9d26335bd550f8edef6fb936805f2f036b22e",
+    "size": 424,
     "type": "file"
   },
   ".github/skills/safety-scan/SKILL.md": {
-    "target": "../../../agents/skills/security/safety-scan.skill.md",
-    "type": "symlink"
+    "sha256": "920b7f2e568e07889868f4fb3e18e4819f38e3b29e9bb4207a3633d2dbc9b51b",
+    "size": 3511,
+    "type": "file"
   },
   ".github/skills/safety-scan/config.json": {
-    "sha256": "34ae0bd51cb7285f9c7b885aadbebfc73a681dca5ac7a898cacbd13829a2294c",
-    "size": 451,
+    "sha256": "3911541259a776eacc87129f887f9dff065bbc283212d088d8b5fc44e68fd79e",
+    "size": 480,
     "type": "file"
   },
   ".github/skills/sdlc-checkpoint/SKILL.md": {
-    "target": "../../../agents/skills/core/sdlc-checkpoint.skill.md",
-    "type": "symlink"
+    "sha256": "9a5c8ff4d072a845e8c3dee4dcd6cdde6b1c800035527de0976d276bcc8e28e0",
+    "size": 6676,
+    "type": "file"
   },
   ".github/skills/sdlc-checkpoint/config.json": {
-    "sha256": "ff0d6d7a6bb16eb9423337164b7402db1875a0fd84287a661287c83d8339db4a",
-    "size": 341,
+    "sha256": "c8bfd2d5d2cb6f4fa5ec030f926acef7f4ae6be6d91e3165d20362f87fe43104",
+    "size": 370,
     "type": "file"
   },
   ".github/skills/secrets-management/SKILL.md": {
-    "target": "../../../agents/skills/security/secrets-management.skill.md",
-    "type": "symlink"
+    "sha256": "bb38b72a52385664615c17f1eff4d213d2700c278a76566dd47920175e5cd178",
+    "size": 3895,
+    "type": "file"
   },
   ".github/skills/secrets-management/config.json": {
-    "sha256": "2614efb5d44d41f37d367c853b8b9f3686e2395c6c2d22fccd5d55e067a9ef9d",
-    "size": 319,
+    "sha256": "7dad08ff44652735b616f9e8ca3eaf5b252e0a25ca6504e850c83f2090e98f41",
+    "size": 348,
     "type": "file"
   },
   ".github/skills/secure-architecture/SKILL.md": {
-    "target": "../../../agents/skills/security/secure-architecture.skill.md",
-    "type": "symlink"
+    "sha256": "4a8f77597e933db80f092d325351618a010858313bcd547d0ce15ce202a96e76",
+    "size": 2034,
+    "type": "file"
   },
   ".github/skills/secure-architecture/config.json": {
-    "sha256": "0a4ee80f58d88156d026899876961e8ef58a867f100077c9742e70ce5f96f1c6",
-    "size": 307,
+    "sha256": "574c2ca8884c0c9eb01bb7cd9676e22f121101fef3e4deb0b7f39ac71fa9da79",
+    "size": 336,
     "type": "file"
   },
   ".github/skills/secure-coding/SKILL.md": {
-    "target": "../../../agents/skills/coding/secure-coding.skill.md",
-    "type": "symlink"
+    "sha256": "a37038612232f303983c64598487028058a7b405a8e7b95763f4b0e326847e22",
+    "size": 4417,
+    "type": "file"
   },
   ".github/skills/secure-coding/config.json": {
-    "sha256": "efc783cc22e2f54a6d232de3fd5257f4bc67bcf7aa9ef6a83c8d21162cbf41e1",
-    "size": 339,
+    "sha256": "a18635ba3bd1dc1e4f0c1d27a0a0b98fd38aac0e9bdfba54367d4001209ac450",
+    "size": 368,
     "type": "file"
   },
   ".github/skills/security-audit/SKILL.md": {
-    "target": "../../../agents/skills/security/security-audit.skill.md",
-    "type": "symlink"
+    "sha256": "eeaff41f9a9a6c3613ea55a60a3571e07bbe42714d8be24a29901003dc9b3f3f",
+    "size": 8492,
+    "type": "file"
   },
   ".github/skills/security-audit/config.json": {
-    "sha256": "9c530e396dd3cc8615fe0b45b5369dab672b3fcfa47d8f50271a16035758028d",
-    "size": 379,
+    "sha256": "c07243cfc2fdd0e005acabfc851c066f918320c476cb16b86f577f46d5a3d1aa",
+    "size": 408,
     "type": "file"
   },
   ".github/skills/self-heal/SKILL.md": {
-    "target": "../../../agents/skills/core/self-heal.skill.md",
-    "type": "symlink"
+    "sha256": "c73d148a92e0733127d559b285af3ad9263c3ea4129956aaee5ac2a0ec2821f6",
+    "size": 6621,
+    "type": "file"
   },
   ".github/skills/self-heal/config.json": {
-    "sha256": "788499955e5fe4014d13940ac78bddf2f96125c9ad1c54a6758824f069446001",
-    "size": 341,
+    "sha256": "0230581180df2e4d1de04741f66430c3aebc4f4329dc28194053c34b4473b618",
+    "size": 370,
     "type": "file"
   },
   ".github/skills/self-improvement/SKILL.md": {
-    "target": "../../../agents/skills/brain/self-improvement.skill.md",
-    "type": "symlink"
+    "sha256": "19504fcfdac75e8318a8bbbb00bc0b969f824a312072534bd5be3ae09e1b2dc0",
+    "size": 4971,
+    "type": "file"
   },
   ".github/skills/self-improvement/config.json": {
-    "sha256": "3f843ae37a7b26eadf894abbf420d759e6660c6e8a60735ebe954bbac490325a",
-    "size": 337,
+    "sha256": "5508e95767af3967c268cad2ed6e177d2d91cee32d11322845726dd857b95db0",
+    "size": 366,
     "type": "file"
   },
   ".github/skills/semantic-web/SKILL.md": {
-    "target": "../../../agents/skills/data/semantic-web.skill.md",
-    "type": "symlink"
+    "sha256": "59073562940f8ac1151f26f263a2f6583698826a3fd20a6a46c975458f1c5abe",
+    "size": 1739,
+    "type": "file"
   },
   ".github/skills/semantic-web/config.json": {
-    "sha256": "018268810dc7edfa00735c366bcd0167484452a1dab91b2a27a98e85c9b2aad9",
-    "size": 301,
+    "sha256": "2cf4c17c1a62efa0aff3ccafade54effdcd740b5f61f8ea819a31b3109eb0aea",
+    "size": 330,
     "type": "file"
   },
   ".github/skills/sensory-motor/SKILL.md": {
-    "target": "../../../agents/skills/brain/sensory-motor.skill.md",
-    "type": "symlink"
+    "sha256": "4f2234eb1336c646f47c5d88ae22da2a67d2e60ffd0ba03f3c45c9486f7d81d5",
+    "size": 5322,
+    "type": "file"
   },
   ".github/skills/sensory-motor/config.json": {
-    "sha256": "4ac81aac3ba77e49e88166da358e83c368541c6d89f4d17dafca85e9f72695e4",
-    "size": 323,
+    "sha256": "fcf6f0ee09128d248fe24b0d59aaa691d63d7394c2a9d38cf26315f9d40c49a2",
+    "size": 352,
     "type": "file"
   },
   ".github/skills/sequential-thinking/SKILL.md": {
-    "target": "../../../agents/skills/brain/sequential-thinking.skill.md",
-    "type": "symlink"
+    "sha256": "5f833b6fd48e800ad503b5e9983950635aa8e2a242e00700019f75796be5734e",
+    "size": 3954,
+    "type": "file"
   },
   ".github/skills/sequential-thinking/config.json": {
-    "sha256": "29f07debdaa894c4f8879326870064a9cf0372e12544457a94c48a7b65fdcda1",
-    "size": 347,
+    "sha256": "462d2b798d178e564c1e72a789583686a147cb49ba5a95cf9782556f2896c9a8",
+    "size": 376,
     "type": "file"
   },
   ".github/skills/session-resume/SKILL.md": {
-    "target": "../../../agents/skills/core/session-resume.skill.md",
-    "type": "symlink"
+    "sha256": "be86bed22deb8b1945f3bf150a447f543d37212c32bec32e5b69132f343a7457",
+    "size": 6064,
+    "type": "file"
   },
   ".github/skills/session-resume/config.json": {
-    "sha256": "c8653d0b7fc0a23be8df350b61944377d20eebd3ea4dfdde9940a60d3ffbe4d8",
-    "size": 355,
+    "sha256": "719fc2cfdfe0795351583a218e8168625eb6002a8a546524fbdc64d6c266ffa1",
+    "size": 384,
     "type": "file"
   },
   ".github/skills/sketch-to-diagram/SKILL.md": {
-    "target": "../../../agents/skills/coding/sketch-to-diagram.skill.md",
-    "type": "symlink"
+    "sha256": "834063a21f8c641cdd944e8bd900d17fe1f14f5e6604739b84cf8f13fa8040ef",
+    "size": 5258,
+    "type": "file"
   },
   ".github/skills/sketch-to-diagram/config.json": {
-    "sha256": "41da03ac64b4c1bb42b110aa629833a7969a4da04bd9ee1a05d5a544fee6eb18",
-    "size": 399,
+    "sha256": "d387931fc893ada8b77610832fa23a1de16521f16379c01f83f49df3e8ec25b1",
+    "size": 428,
     "type": "file"
   },
   ".github/skills/spec-analyze/SKILL.md": {
-    "target": "../../../agents/skills/product/spec-analyze.skill.md",
-    "type": "symlink"
+    "sha256": "5af8bf28a3f5fd1572bfa01e472aa44c492e1340fbbd8dca4de09d4e3ac5ae48",
+    "size": 5351,
+    "type": "file"
   },
   ".github/skills/spec-analyze/config.json": {
-    "sha256": "f977ccba5803f6771adbb2fae95795f21529076ff1a467c71fe76da1a068aefd",
-    "size": 389,
+    "sha256": "60beaf6173eafc11dd5a01f42a91df7ab13282d8833337aba6531bcea4a3bf2d",
+    "size": 418,
     "type": "file"
   },
   ".github/skills/spec-writer/SKILL.md": {
-    "target": "../../../agents/skills/product/spec-writer.skill.md",
-    "type": "symlink"
+    "sha256": "c02975992335fe746ecb53fff48f1307e12115467cf834005e5fbf0ba8860915",
+    "size": 5917,
+    "type": "file"
   },
   ".github/skills/spec-writer/config.json": {
-    "sha256": "4c637ae562025527df027725f86294c31f49c14a0052ab24e61f631a48ca5178",
-    "size": 349,
+    "sha256": "582f0533c8f08750f11c0583dda029d80675d07ed2ea0c72f88a43e5c6a300ca",
+    "size": 378,
     "type": "file"
   },
   ".github/skills/sql-optimization/SKILL.md": {
-    "target": "../../../agents/skills/data/sql-optimization.skill.md",
-    "type": "symlink"
+    "sha256": "194e0b92cc815aedb20febb557147de14bf78b0e739bd5494b7ba8e332727f5f",
+    "size": 4215,
+    "type": "file"
   },
   ".github/skills/sql-optimization/config.json": {
-    "sha256": "3a3cfc6e66a6532050e40564af08261c8231b642a693c6ce9360cdf43f13c877",
-    "size": 293,
+    "sha256": "1f5b06b316b5a0299aeacb6351e2fb74b90c835c8851e4239120793f848ea752",
+    "size": 322,
     "type": "file"
   },
   ".github/skills/stakeholder-management/SKILL.md": {
-    "target": "../../../agents/skills/product/stakeholder-management.skill.md",
-    "type": "symlink"
+    "sha256": "ee0749b5746645675a7af1c604b0bfa239036266ee78c8bbbff0c57428559d03",
+    "size": 3629,
+    "type": "file"
   },
   ".github/skills/stakeholder-management/config.json": {
-    "sha256": "b24dffb4a17c1ad0d6c8799817fb39596d2fd96b08bb4308276c0afbbc7eaf60",
-    "size": 301,
+    "sha256": "0977a3e0b1cb8aa5d1647d61136f0124fb7b8be80b6984ddc617a4a645348c40",
+    "size": 330,
     "type": "file"
   },
   ".github/skills/state-management/SKILL.md": {
-    "target": "../../../agents/skills/architecture/state-management.skill.md",
-    "type": "symlink"
+    "sha256": "395fe5d36e317f51aafb37f3d14579844efa92822948075ccf2843c8491307d0",
+    "size": 4622,
+    "type": "file"
   },
   ".github/skills/state-management/config.json": {
-    "sha256": "a05fc0e6b380c8e6b9f6dfba973a6866966d996571c15036d861591025e30c0f",
-    "size": 279,
+    "sha256": "ce760766d39e277f995557bb018e6eaee8e8645b5932199f24a9320a9c094508",
+    "size": 308,
     "type": "file"
   },
   ".github/skills/sustainability-checks/SKILL.md": {
-    "target": "../../../agents/skills/product/sustainability-checks.skill.md",
-    "type": "symlink"
+    "sha256": "0eb605f367a85ec996712b212085cdebc5d1c5efa3dfb496733d39c89367965f",
+    "size": 2018,
+    "type": "file"
   },
   ".github/skills/sustainability-checks/config.json": {
-    "sha256": "ecca2c82ef5548cb713116d81cdf7d16c4f2e6868a8b2d8a11f0e088d6f4c487",
-    "size": 309,
+    "sha256": "a847bbbb76c260d09c9153e6cdb5763c523e636d43abdcd44d9a5bcda1a9af47",
+    "size": 338,
     "type": "file"
   },
   ".github/skills/swarm-consensus/SKILL.md": {
-    "target": "../../../agents/skills/coordination/swarm-consensus.skill.md",
-    "type": "symlink"
+    "sha256": "55079b2049c41d34321f769e2216990f774fbfc717c54c755b6901fbd6c76ee7",
+    "size": 2890,
+    "type": "file"
   },
   ".github/skills/swarm-consensus/config.json": {
-    "sha256": "43fd7ca3e66cfe97bfd4a74d80e51e21001d3629f1c6071fb315c53da0523468",
-    "size": 333,
+    "sha256": "5bc8b550ea3919dfd2ab8823964497ab36313d6a5669a237a0788d9b7169dbe7",
+    "size": 362,
     "type": "file"
   },
   ".github/skills/system-benchmark/SKILL.md": {
-    "target": "../../../agents/skills/ops/system-benchmark.skill.md",
-    "type": "symlink"
+    "sha256": "17392a9c6bb88e03cdf6a83b03595cb62529d9fb97943bc5d1794f3129e1f1e1",
+    "size": 3797,
+    "type": "file"
   },
   ".github/skills/system-benchmark/config.json": {
-    "sha256": "19fae5461fdf4037454582d171e3663a33ea1df39349e7ee23d6dae323cf8987",
-    "size": 303,
+    "sha256": "2037360cf291718173f86174bf981f302791d47081ac06b7760267edf48ee723",
+    "size": 332,
     "type": "file"
   },
   ".github/skills/system-lifecycle/SKILL.md": {
-    "target": "../../../agents/skills/core/system-lifecycle.skill.md",
-    "type": "symlink"
+    "sha256": "a8d63cb390bd79b6cc96af91e4c22d855a44dcb4b49af8178c65e59e7b88ee9e",
+    "size": 2978,
+    "type": "file"
   },
   ".github/skills/system-lifecycle/config.json": {
-    "sha256": "127d2a8c31a253b786fae3158e57919b1f9893f83d11db21b94fff2d0d201e49",
-    "size": 319,
+    "sha256": "4155f0d25dda08107a571515633ff06312a46f84fb7040b3caf57c3ba57c738b",
+    "size": 348,
     "type": "file"
   },
   ".github/skills/system-qualities/SKILL.md": {
-    "target": "../../../agents/skills/architecture/system-qualities.skill.md",
-    "type": "symlink"
+    "sha256": "19b0731e7f08d053114e15b68c11c4096226b6b62c19fc6ecddf512f6ad10fbf",
+    "size": 1821,
+    "type": "file"
   },
   ".github/skills/system-qualities/config.json": {
-    "sha256": "31a6967bbbbd01bb252b9bd07dae1c62544aa99dab9969b3d362a58a20051e17",
-    "size": 305,
+    "sha256": "a08f4372478e252c0ed13c5941564c46d4921145ff1ec3b77e3046b798faf29c",
+    "size": 334,
     "type": "file"
   },
   ".github/skills/system-scalability/SKILL.md": {
-    "target": "../../../agents/skills/architecture/system-scalability.skill.md",
-    "type": "symlink"
+    "sha256": "ee12fc3113238b55200810859e263a6489a949e7e01024336308c1d9f9fd6187",
+    "size": 2133,
+    "type": "file"
   },
   ".github/skills/system-scalability/config.json": {
-    "sha256": "6a354291e922a1cc230bd6c63032aec01dcd4af3eb1892d68a3b7a49f741483d",
-    "size": 283,
+    "sha256": "2e42ea0056844cb67f23dbe376f46b75c65487dcf16a9fb837d5b3061dcfbc84",
+    "size": 312,
     "type": "file"
   },
   ".github/skills/systems-architecture/SKILL.md": {
-    "target": "../../../agents/skills/architecture/systems-architecture.skill.md",
-    "type": "symlink"
+    "sha256": "bb56c56b07307bcce9cf5c17a26b21cd55634bd5251582abc29c1da3d994b39a",
+    "size": 1891,
+    "type": "file"
   },
   ".github/skills/systems-architecture/config.json": {
-    "sha256": "9758f70e0773a48128f2c8682fb4a17f8a8dafee2a6dbe8804e396d13622745f",
-    "size": 311,
+    "sha256": "2e4a66cd25daa40f68e81bc6080ebb349871d299db61da4158cc00307b783ea6",
+    "size": 340,
     "type": "file"
   },
   ".github/skills/systems-thinking/SKILL.md": {
-    "target": "../../../agents/skills/product/systems-thinking.skill.md",
-    "type": "symlink"
+    "sha256": "4bb51281786e3cc05bb2b23aa70c3377ef42ac86709db3f5e26032d2efa133ca",
+    "size": 3938,
+    "type": "file"
   },
   ".github/skills/systems-thinking/config.json": {
-    "sha256": "12eac62ca863dd67c5d327785a623300119b5edbd37af68e291d6f5d4119df1c",
-    "size": 381,
+    "sha256": "a710ff4acadce8c7b9d8322e80c891e6999138608983a31669dfa934de131a6c",
+    "size": 410,
     "type": "file"
   },
   ".github/skills/tdd-cycle/SKILL.md": {
-    "target": "../../../agents/skills/coding/tdd-cycle.skill.md",
-    "type": "symlink"
+    "sha256": "d53a666eec6cbc079d6dfe677ba25c5b30e16e7171bedb35a6b10500eed86882",
+    "size": 6238,
+    "type": "file"
   },
   ".github/skills/tdd-cycle/config.json": {
-    "sha256": "a4e7aad5873525c22ebeaa00157e66c5bc04fd484f5c3e2368109990aef5ad67",
-    "size": 283,
+    "sha256": "d8bd57adb38a53b9acef2c7839e5331dae87fda9a625c192a47354181a980963",
+    "size": 312,
     "type": "file"
   },
   ".github/skills/tech-debt/SKILL.md": {
-    "target": "../../../agents/skills/ops/tech-debt.skill.md",
-    "type": "symlink"
+    "sha256": "f37128c3c1aa1a203138eabeb4895098a3a1435f4ace5740f5fad459f5a624e9",
+    "size": 6100,
+    "type": "file"
   },
   ".github/skills/tech-debt/config.json": {
-    "sha256": "2cfd8f4e2ab34481cde18b9a7a261eb0216d9eae4b0f9a29f7c61ab4ba626898",
-    "size": 323,
+    "sha256": "67ce20d2c552b0c27543d528202394de5ba5b98a2990426f29800d39766686d1",
+    "size": 352,
     "type": "file"
   },
   ".github/skills/telecom-networks/SKILL.md": {
-    "target": "../../../agents/skills/industry/telecom-networks.skill.md",
-    "type": "symlink"
+    "sha256": "754690fb2e9412df29e7c99d5cb3b5266593c104edac33b427fc9b2d0819f9be",
+    "size": 2332,
+    "type": "file"
   },
   ".github/skills/telecom-networks/config.json": {
-    "sha256": "431c96e47bfa852512f7c6a27e3346b2187c6b0a571a7d65c7607f93a34c6980",
-    "size": 331,
+    "sha256": "8e6c29247d97bd478ff27ec75d3f9bc80877e236ae9721928652bc0331a423fc",
+    "size": 360,
     "type": "file"
   },
   ".github/skills/testing-strategy/SKILL.md": {
-    "target": "../../../agents/skills/coding/testing-strategy.skill.md",
-    "type": "symlink"
+    "sha256": "839890ce9e4322e57a0917efdcc7605ec7a1cdd3bf1fb6eec511d4bfb09b20e4",
+    "size": 4951,
+    "type": "file"
   },
   ".github/skills/testing-strategy/config.json": {
-    "sha256": "24c840776233bd5096732271996e6d75145618ef7b85eca6c83f06eca65ae6a1",
-    "size": 359,
+    "sha256": "a51db650c335026fe6499c0f12f2f005eff6a72cf2027f2178264530e8d98493",
+    "size": 388,
     "type": "file"
   },
   ".github/skills/threat-model/SKILL.md": {
-    "target": "../../../agents/skills/security/threat-model.skill.md",
-    "type": "symlink"
+    "sha256": "0333fe99e330efb8e0afba9e62436cd97deaa481ecf132e9e8c70ec28d136265",
+    "size": 7142,
+    "type": "file"
   },
   ".github/skills/threat-model/config.json": {
-    "sha256": "6a71e2ea4244b64c5511407be4dfa8bcb2f6f65c794df81d55d0a2d8a0cab271",
-    "size": 303,
+    "sha256": "98afb668cba698f063eb75369fa52430268d5b728f4b5698af891c765d69adf7",
+    "size": 332,
     "type": "file"
   },
   ".github/skills/time-complexity/SKILL.md": {
-    "target": "../../../agents/skills/coding/time-complexity.skill.md",
-    "type": "symlink"
+    "sha256": "3cf8ac0e209fd5e970e99d743a27cedc4bcd3ac2d1b9dad1c2eaa94d7eb4d615",
+    "size": 5368,
+    "type": "file"
   },
   ".github/skills/time-complexity/config.json": {
-    "sha256": "ab6578ad2fd81a15439033e165cfd02068e280b77d797e8f8921cd696f857075",
-    "size": 323,
+    "sha256": "f14d5a2d036291e089ee78a0df7b941d469733e215cc03aed588e3376cc42f3a",
+    "size": 352,
     "type": "file"
   },
   ".github/skills/tldraw-canvas/SKILL.md": {
-    "target": "../../../agents/skills/coding/tldraw-canvas.skill.md",
-    "type": "symlink"
+    "sha256": "ec4c284da8fa890a03dbdd0e40cb27034524908859ec31d91a69d3f079b8e42d",
+    "size": 4758,
+    "type": "file"
   },
   ".github/skills/tldraw-canvas/config.json": {
-    "sha256": "b008be30ae15b76604caef285081a23e7c2f2dbf0e74dfbff7dfca4064f3fafc",
-    "size": 353,
+    "sha256": "631832e9023b973d720fee31824d25b9029f09881c243dacfadda7196f264795",
+    "size": 382,
     "type": "file"
   },
   ".github/skills/tool-construction/SKILL.md": {
-    "target": "../../../agents/skills/coding/tool-construction.skill.md",
-    "type": "symlink"
+    "sha256": "7204f7f1c95246ad9c9251ce439afa97ea33192e2bfe4f368f9783d4de38e240",
+    "size": 4006,
+    "type": "file"
   },
   ".github/skills/tool-construction/config.json": {
-    "sha256": "8dfc8dca336aface2281a3655b6a3635ea495bfe668c21a758e0c1fe4425e6d9",
-    "size": 339,
+    "sha256": "f153b2ac52e5df4b8815297c00fa3507dd275ad4b193a748a91db54cc3e7343a",
+    "size": 368,
     "type": "file"
   },
   ".github/skills/traceability-audit/SKILL.md": {
-    "target": "../../../agents/skills/security/traceability-audit.skill.md",
-    "type": "symlink"
+    "sha256": "fc895b2ea59ddf776d7e002ceb883df7728d86060978c3c6ebe3c9265b061b6b",
+    "size": 3213,
+    "type": "file"
   },
   ".github/skills/traceability-audit/config.json": {
-    "sha256": "3ca729badf5d8136b4aada171f5f85aeac6080a28ed1212381d5fe044b464eb2",
-    "size": 341,
+    "sha256": "7c9737688c20bbbb6539534a7ac21cfffefef149792e3d23d12901bc1e1f256d",
+    "size": 370,
     "type": "file"
   },
   ".github/skills/troubleshooting-guide/SKILL.md": {
-    "target": "../../../agents/skills/ops/troubleshooting-guide.skill.md",
-    "type": "symlink"
+    "sha256": "6c21e76e9b13e50772f025acaa4eddfc55233e2b16d600e3f884446dff52d4e7",
+    "size": 2114,
+    "type": "file"
   },
   ".github/skills/troubleshooting-guide/config.json": {
-    "sha256": "2466947e0a202ef81fb838e71a44312761523cf6cf4386d6bcde89c2bafcaef6",
-    "size": 315,
+    "sha256": "98bf3f8900485ee2b7353b535dbace03c850df8941fa4fd53051e35652b8d98c",
+    "size": 344,
     "type": "file"
   },
   ".github/skills/ui-gen/SKILL.md": {
-    "target": "../../../agents/skills/coding/ui-gen.skill.md",
-    "type": "symlink"
+    "sha256": "16e76afce754a0f1eea35037c4a2aaa976d25e9462012cadf0bdf30d70e71b0a",
+    "size": 5244,
+    "type": "file"
   },
   ".github/skills/ui-gen/config.json": {
-    "sha256": "4a8a8efec659a0883e1ea77995509a35cd6fa21659065e6225c76584bb767090",
-    "size": 309,
+    "sha256": "9c684cec8765b52881808b5cc84f639b33e8fdbc1859ca234bd252171f4e4387",
+    "size": 338,
     "type": "file"
   },
   ".github/skills/user-story-mapping/SKILL.md": {
-    "target": "../../../agents/skills/product/user-story-mapping.skill.md",
-    "type": "symlink"
+    "sha256": "3afa79cb3a47b3b8e17069e4a651b2081c991bf80c2b3cbdcad2e9e9156d3cd1",
+    "size": 3417,
+    "type": "file"
   },
   ".github/skills/user-story-mapping/config.json": {
-    "sha256": "bc776f449781104c7a0cf9623c11a6a22fa14d3e9f9158200def680340c238fd",
-    "size": 305,
+    "sha256": "91c537b632b5d74ee3b29ee756a29adf9df9eb84701f290afde4ab282865e0bd",
+    "size": 334,
     "type": "file"
   },
   ".github/skills/vibe-coding/SKILL.md": {
-    "target": "../../../agents/skills/coding/vibe-coding.skill.md",
-    "type": "symlink"
+    "sha256": "c09077a97be5fbb270c2d8cfd68ef9e2f9708e958cfea132572a3d0fb7fa40e1",
+    "size": 5154,
+    "type": "file"
   },
   ".github/skills/vibe-coding/config.json": {
-    "sha256": "3f7a4b5e8d4cac5af803896e068b7d6fc07f6b92ed3a04cef1cfc255513862f9",
-    "size": 533,
+    "sha256": "2a17f7ddff1fd2d61d6472b8659cc187ecf77833fca4c48e8ff8f44d2607b6b7",
+    "size": 562,
     "type": "file"
   },
   ".github/skills/visual-design/SKILL.md": {
-    "target": "../../../agents/skills/coding/visual-design.skill.md",
-    "type": "symlink"
+    "sha256": "e7706f48de46851c9a1c8d5cdee2d212626c7dbe915c0d9d0d91ee49466786e1",
+    "size": 5529,
+    "type": "file"
   },
   ".github/skills/visual-design/config.json": {
-    "sha256": "ad34a9d75eba75c5b55cd2a9e80b064313cf807517902940b507ffba491e2edf",
-    "size": 211,
+    "sha256": "e91bfcf2e18deabfa22faf704d98943e37c11261e1726e798c95568985cdeb8b",
+    "size": 240,
     "type": "file"
   },
   ".github/skills/visual-specs/SKILL.md": {
-    "target": "../../../agents/skills/product/visual-specs.skill.md",
-    "type": "symlink"
+    "sha256": "a814da3701e6f5e581faaf845595a3b984e889f3d143bff39644cc2d298758db",
+    "size": 5401,
+    "type": "file"
   },
   ".github/skills/visual-specs/config.json": {
-    "sha256": "f210bd7fdcd21766a34f4f59faf1c008e7633182be145850940233fc3fd70567",
-    "size": 385,
+    "sha256": "34f4ea546508044bb3cdf81338768b2c97b850949b1a2f5a2b7386fc8d2093f9",
+    "size": 414,
     "type": "file"
   },
   ".github/skills/visual-whiteboarding/SKILL.md": {
-    "target": "../../../agents/skills/architecture/visual-whiteboarding.skill.md",
-    "type": "symlink"
+    "sha256": "4950876626a998f81dd54f861800f91755c82b9a782d1546a3e26eb575771b8d",
+    "size": 2538,
+    "type": "file"
   },
   ".github/skills/visual-whiteboarding/config.json": {
-    "sha256": "0195618141619da2d87bc71802e9195e032b91f1200f7a2fd8faf5ad88355950",
-    "size": 475,
+    "sha256": "17f4a3428871763893dba669589b7715f2a5fe2abee1287c95eb16ebffb8377a",
+    "size": 504,
     "type": "file"
   },
   ".github/skills/working-memory/SKILL.md": {
-    "target": "../../../agents/skills/brain/working-memory.skill.md",
-    "type": "symlink"
+    "sha256": "099278239c1c6ea4c99d9e9794788db429fdfcd80aa368bcd2510a747b972657",
+    "size": 4350,
+    "type": "file"
   },
   ".github/skills/working-memory/config.json": {
-    "sha256": "3881906134f44f78d4212cecfd5ae784397f5df377183b21a81ac0fada3dc187",
-    "size": 315,
+    "sha256": "35d84c2e12a0ad8ca6219b3789e50894b099fa060ed0697c9ea60abed83135e2",
+    "size": 344,
     "type": "file"
+  },
+  "AGENTS.md": {
+    "target": "agents/AGENTS.md",
+    "type": "symlink"
   },
   "SETUP_MISSION.md": {
     "sha256": "0d4ddf4b467b8382fcd0c78f73f2b430de860963889d20f81a5f0916e05cc8a4",
@@ -2128,64 +2302,14 @@
     "size": 2711,
     "type": "file"
   },
-  "agents/scripts/__pycache__/check_skills_docs.cpython-312.pyc": {
-    "sha256": "b12a4ba10108d5d2c9ce7b7d134d50d388729f32da58d81832de3559327c007c",
-    "size": 5020,
-    "type": "file"
-  },
-  "agents/scripts/__pycache__/compile_skills.cpython-312.pyc": {
-    "sha256": "ff51057d8593af983ac0206aa2e7f29f3b5eabe1188588b313199244e4563c3a",
-    "size": 8604,
-    "type": "file"
-  },
-  "agents/scripts/__pycache__/comprehensive_checker.cpython-312.pyc": {
-    "sha256": "2895cca46d794cf6c8b774a265046e97e943858e987373af954bb40b70c762bb",
-    "size": 8348,
-    "type": "file"
-  },
-  "agents/scripts/__pycache__/validate_integrity.cpython-312.pyc": {
-    "sha256": "502e23dc84ff74dedf2df3b741daf14e3825a9f884a73a4165f3df1a6248d621",
-    "size": 3520,
-    "type": "file"
-  },
-  "agents/scripts/__pycache__/validate_links.cpython-312.pyc": {
-    "sha256": "50b2e8007208994fb4c8bdc728c2321f90b3b40b34ca1fa28b71fdb91af21786",
-    "size": 2962,
-    "type": "file"
-  },
-  "agents/scripts/__pycache__/validate_skills.cpython-312.pyc": {
-    "sha256": "14e3af31fffdabc9c533b772762ede626f911c3fb8b76800fee9904fd1c96e6f",
-    "size": 2559,
-    "type": "file"
-  },
-  "agents/scripts/__pycache__/verify_e2e_init_flows.cpython-312.pyc": {
-    "sha256": "babb64f23730fcdce2af41fffe7ac4411d1a0d115f11d04f3f094656f10a548b",
-    "size": 9731,
-    "type": "file"
-  },
-  "agents/scripts/__pycache__/verify_setup_simulation.cpython-312.pyc": {
-    "sha256": "445b17abac48ac758e9c8d113c06d349d1aa62833d8cb52720fade1334f6b1bb",
-    "size": 4798,
-    "type": "file"
-  },
-  "agents/scripts/__pycache__/verify_triggers_and_mcps.cpython-312.pyc": {
-    "sha256": "eb45f712f9e742236089160dddce443dc39d64019a9bebc0339fce884f53124b",
-    "size": 6596,
-    "type": "file"
-  },
-  "agents/scripts/__pycache__/verify_use_cases.cpython-312.pyc": {
-    "sha256": "f8178fe8e27ce9e3aa94503caed586b42141b49fd17f710b01901f2131862cce",
-    "size": 25625,
-    "type": "file"
-  },
   "agents/scripts/check_skills_docs.py": {
     "sha256": "6f9d37e083e54e8f81bf427cca6204d865068a9bd03edd94557ad3c42cb4633d",
     "size": 4786,
     "type": "file"
   },
   "agents/scripts/compile_skills.py": {
-    "sha256": "10f5a573eaa219911da8877832a7a761b6e15f05ea9cbcc6ed2e00ec226dcf11",
-    "size": 7198,
+    "sha256": "e3422c2da588545ab9d696012151a648ac7c42f78bc0072e6305f5e1e9cc7c0f",
+    "size": 9248,
     "type": "file"
   },
   "agents/scripts/comprehensive_checker.py": {
@@ -2214,8 +2338,8 @@
     "type": "file"
   },
   "agents/scripts/validate_links.py": {
-    "sha256": "9f7ede12ad7c9f393bb883b1d47b791bd68af8a07327c4dba5b28ced47dda0b9",
-    "size": 2521,
+    "sha256": "322eff13a16c19bc10c135a64b4abd57d211d4250702bdf03811ac0889939d2f",
+    "size": 2754,
     "type": "file"
   },
   "agents/scripts/validate_skills.py": {
@@ -2491,21 +2615,6 @@
   "agents/skills/brain/neuroscience-foundations.skill.md": {
     "sha256": "2a972cedc9e318b96dd48030f2d045c45c203b8363fc943a8c7860bb24dc93d0",
     "size": 5641,
-    "type": "file"
-  },
-  "agents/skills/brain/scripts/__pycache__/active_inference_loop.cpython-312.pyc": {
-    "sha256": "7463ef1cebfa9af99a49cf516dbbe09d0b40028db5aad6538664f34d475ffc21",
-    "size": 3633,
-    "type": "file"
-  },
-  "agents/skills/brain/scripts/__pycache__/cognition_test.cpython-312.pyc": {
-    "sha256": "fb38440f8b7ee45f7bd41ed23239f433fd8a59ef5712904ddb1bd18ef4927cc6",
-    "size": 3273,
-    "type": "file"
-  },
-  "agents/skills/brain/scripts/__pycache__/global_workspace.cpython-312.pyc": {
-    "sha256": "61f13e6819a6293679d9c7636447264291597608e9b6ab660b56698bde1e7e7c",
-    "size": 4621,
     "type": "file"
   },
   "agents/skills/brain/scripts/active_inference_loop.py": {

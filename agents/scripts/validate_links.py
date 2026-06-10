@@ -45,9 +45,13 @@ def main():
     checked_files = 0
     checked_links = 0
     
+    # Directories that are not part of the project's own docs (dependencies,
+    # build output, VCS, bytecode) and must not be link-checked.
+    EXCLUDED_DIRS = ("node_modules", ".venv", "venv", ".git", "__pycache__",
+                     "build", "dist", ".egg-info", "site-packages")
+
     for md_file in PROJECT_ROOT.rglob("*.md"):
-        # Skip node_modules or hidden dirs if any (besides agents which we want to check)
-        if "node_modules" in str(md_file):
+        if any(ex in part for part in md_file.parts for ex in EXCLUDED_DIRS):
             continue
         
         checked_files += 1

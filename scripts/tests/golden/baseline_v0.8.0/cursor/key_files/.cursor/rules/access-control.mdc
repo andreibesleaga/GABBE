@@ -1,7 +1,7 @@
 ---
 description: Design RBAC/ABAC models, Principle of Least Privilege, Identity Management.
-globs: *
 alwaysApply: false
+gabbe-schema-version: 1
 ---
 
 # access-control Skill

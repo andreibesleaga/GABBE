@@ -1,5 +1,7 @@
 {
   "agent_instructions_file": "agents/AGENTS.md",
   "skills_directory": "agents/skills",
+  "contextFileName": "GEMINI.md",
+  "gabbe-schema-version": 1,
   "notes": "Managed by init.py"
 }

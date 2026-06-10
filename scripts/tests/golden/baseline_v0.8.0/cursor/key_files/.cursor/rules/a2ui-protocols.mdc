@@ -1,7 +1,7 @@
 ---
 description: Design and enforce Agent-to-UI communication protocols
-globs: *
 alwaysApply: false
+gabbe-schema-version: 1
 ---
 
 # a2ui-protocols

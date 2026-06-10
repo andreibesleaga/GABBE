@@ -109,10 +109,14 @@ def normalize(path_str, project_dir):
 def build_manifest(project_dir):
     manifest = {}
     for root, dirs, files in os.walk(project_dir):
-        dirs.sort()
+        # Bytecode caches are non-deterministic build cruft, not part of the
+        # emitted contract — never manifest them.
+        dirs[:] = sorted(d for d in dirs if d != "__pycache__")
         # The agents/ kit copy is manifested but its 400+ source files are
         # summarized by hash only, like everything else.
         for name in sorted(files):
+            if name.endswith(".pyc"):
+                continue
             p = Path(root) / name
             rel = str(p.relative_to(project_dir))
             if p.is_symlink():

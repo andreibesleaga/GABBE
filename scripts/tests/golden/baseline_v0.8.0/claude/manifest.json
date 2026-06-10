@@ -3,9 +3,859 @@
     "target": "../agents/AGENTS.md",
     "type": "symlink"
   },
-  ".claude/skills": {
-    "target": "../agents/skills",
-    "type": "symlink-dir"
+  ".claude/skills/a2ui-protocols/SKILL.md": {
+    "sha256": "41c9026d7a6e329d529b42e1c4a911b1f0464cf958301ae98b037cca5e6f380d",
+    "size": 1612,
+    "type": "file"
+  },
+  ".claude/skills/access-control/SKILL.md": {
+    "sha256": "1d1ae25a56bb37a464391a6cedd5182701005f276402aca4078433223e0da004",
+    "size": 3289,
+    "type": "file"
+  },
+  ".claude/skills/accessibility/SKILL.md": {
+    "sha256": "c5a162165f01b589598a36035a7efe88b83644edc33822a9cde77a392f30d391",
+    "size": 6899,
+    "type": "file"
+  },
+  ".claude/skills/active-inference/SKILL.md": {
+    "sha256": "4ccd489492c1bcfd197d7af1199cc1910e7afe1059a410c4e34cbf0065d59a04",
+    "size": 4977,
+    "type": "file"
+  },
+  ".claude/skills/actor-agent-frameworks/SKILL.md": {
+    "sha256": "d91ba2201f3037bc5d2ad929a75f16464b01fe5b95ce6228c0cccad2597af202",
+    "size": 1727,
+    "type": "file"
+  },
+  ".claude/skills/adaptive-architecture/SKILL.md": {
+    "sha256": "d083ff8d5059ed78787ef063cb13767b7223a012533fd02eb81cf2ca5f976bc1",
+    "size": 3817,
+    "type": "file"
+  },
+  ".claude/skills/adr-writer/SKILL.md": {
+    "sha256": "31b5ca9ae4f775e2de718d4a798bb797615e4c869db6382af1f37315c7cfc101",
+    "size": 5152,
+    "type": "file"
+  },
+  ".claude/skills/agent-analytics/SKILL.md": {
+    "sha256": "237a953a143c8c8796ce9abeb32d58d27a3404f99a0e3737918d8005601a9833",
+    "size": 2805,
+    "type": "file"
+  },
+  ".claude/skills/agent-communication/SKILL.md": {
+    "sha256": "95b142e9e05c6e7d2511870c80f41c6e3957e88325d3f1d3b8abe879544b0b3a",
+    "size": 2914,
+    "type": "file"
+  },
+  ".claude/skills/agent-interop/SKILL.md": {
+    "sha256": "ba3b29f229ba965bddc2cdef18a369a4b8b931067a70c2fa69956f3e160ceba4",
+    "size": 3583,
+    "type": "file"
+  },
+  ".claude/skills/agent-protocol/SKILL.md": {
+    "sha256": "58604da9966083b70e3dbb40276832262473213d07e1447abebb964d01023276",
+    "size": 3205,
+    "type": "file"
+  },
+  ".claude/skills/agent-ui/SKILL.md": {
+    "sha256": "75afe724c4f3f0e9e79646c70643fcb36802b554e99961dc3883ec26c15fc194",
+    "size": 1709,
+    "type": "file"
+  },
+  ".claude/skills/agentic-linter/SKILL.md": {
+    "sha256": "1bbd6053466cdcfb929d36cef7a8bf6abc5fa1f346663016e893482b8532eb72",
+    "size": 5630,
+    "type": "file"
+  },
+  ".claude/skills/agentic-patterns/SKILL.md": {
+    "sha256": "eeaddfa79678f5f115ef6dd061ef2d144e3a40e71199d5f2e530e74c0ba80b86",
+    "size": 3760,
+    "type": "file"
+  },
+  ".claude/skills/ai-ethics-compliance/SKILL.md": {
+    "sha256": "700e4cafc15c9c8f7b99f81db9e0eb4705b4bafa4eb3b38f9039e4db1bbce136",
+    "size": 3510,
+    "type": "file"
+  },
+  ".claude/skills/ai-safety-guardrails/SKILL.md": {
+    "sha256": "80dedae3c1a7f142aa7c872a39340c4224ca360221a038982fb10790ca97e039",
+    "size": 3540,
+    "type": "file"
+  },
+  ".claude/skills/api-design/SKILL.md": {
+    "sha256": "9753af745314a6b060b4193abb8c6e393e43532d8249825329dc4f3d2ef7c6cb",
+    "size": 4857,
+    "type": "file"
+  },
+  ".claude/skills/api-security/SKILL.md": {
+    "sha256": "e5cc19f505b5edf8da52a2a625bc3ad46ea2ba56f989f7f2ebc44a01245f866f",
+    "size": 1983,
+    "type": "file"
+  },
+  ".claude/skills/api-standards/SKILL.md": {
+    "sha256": "fbb8fc32f34d502d410e5be23962bd09b0d90e87420be3c93a2ca91f648e37b2",
+    "size": 1777,
+    "type": "file"
+  },
+  ".claude/skills/arch-debt/SKILL.md": {
+    "sha256": "c2d5a61231bbc0d532f8bc1e9bea7756d13697bc11aaece6648b4fe10c82a02c",
+    "size": 8394,
+    "type": "file"
+  },
+  ".claude/skills/arch-design/SKILL.md": {
+    "sha256": "a5fc8350b0034383f36314d35bcd1e6122926b5aff6a5e8c7381b3946bca9554",
+    "size": 13022,
+    "type": "file"
+  },
+  ".claude/skills/arch-patterns/SKILL.md": {
+    "sha256": "592023aebba5b798d9a1271bf0b8d03c6a3167c91b1e014711cf6e6a71a4f44b",
+    "size": 4059,
+    "type": "file"
+  },
+  ".claude/skills/arch-review/SKILL.md": {
+    "sha256": "67730a2a7d006298074d63c1dddbb0b6282eb00d9fc0ea2f5f91cf4caa3c2c0c",
+    "size": 12496,
+    "type": "file"
+  },
+  ".claude/skills/architecture-governance/SKILL.md": {
+    "sha256": "6275b03c44ac23d7e4837c5086820a60ba5429a183f8ac71a68c9904549d88ea",
+    "size": 3664,
+    "type": "file"
+  },
+  ".claude/skills/artisan-commands/SKILL.md": {
+    "sha256": "b4ffa548729174c406a120dbac87884772d618ff088affc4bb9a5f885fd588ed",
+    "size": 3811,
+    "type": "file"
+  },
+  ".claude/skills/audit-trail/SKILL.md": {
+    "sha256": "01a1b753ad990e8cd5bbfc3539ed306f1f0c4d7e3eea9e7ea7daadb7340b6240",
+    "size": 6267,
+    "type": "file"
+  },
+  ".claude/skills/autonomous-swarm-patterns/SKILL.md": {
+    "sha256": "ec5c61f83ffabff55245c12ca423e71a258c951ee5fcdb9cb6a0635270d7a4b6",
+    "size": 1976,
+    "type": "file"
+  },
+  ".claude/skills/backup-recovery/SKILL.md": {
+    "sha256": "d2077131671136d01f3600a517b52212dfd1f6c3ba2d0cf620deb36936abb898",
+    "size": 3635,
+    "type": "file"
+  },
+  ".claude/skills/beyond-llms/SKILL.md": {
+    "sha256": "8ef28e848d3ec45ab26d187d39d637acf78eff1bf6daefb09c81c5a4194bd7e9",
+    "size": 1838,
+    "type": "file"
+  },
+  ".claude/skills/blockchain-dlt/SKILL.md": {
+    "sha256": "3e50eaa00d3d48bde82fed067d2be713aa209f5c921b57a08c16c0bdf79d5f32",
+    "size": 1992,
+    "type": "file"
+  },
+  ".claude/skills/brain-mode/SKILL.md": {
+    "sha256": "44d3309d62815fdf849e8f22565db3a8978d9fb1aa398558519d94eb64b00f77",
+    "size": 8134,
+    "type": "file"
+  },
+  ".claude/skills/browser-tdd/SKILL.md": {
+    "sha256": "446c7cc2457de5d4234cebe58db1fe000d4da0d3b799ce74a11dae8231349968",
+    "size": 7226,
+    "type": "file"
+  },
+  ".claude/skills/business-case/SKILL.md": {
+    "sha256": "c3c874ff5cc13f7c53f789850b612c76cf9df87c59af7b7c9192575ca96b91aa",
+    "size": 4254,
+    "type": "file"
+  },
+  ".claude/skills/caching-strategy/SKILL.md": {
+    "sha256": "754505fe107304727180e15227a7ee737263e53e345242da24caeee77e7352dd",
+    "size": 3974,
+    "type": "file"
+  },
+  ".claude/skills/capacity-planning/SKILL.md": {
+    "sha256": "184707880c62f9dad3d3409d667952d1aa6c1e654fad5498085b66f9c8f9b018",
+    "size": 3704,
+    "type": "file"
+  },
+  ".claude/skills/ci-autofix/SKILL.md": {
+    "sha256": "e9e431e9727865047865248032af7f1fdd6b63b244c9d76250a84dc76e213382",
+    "size": 4362,
+    "type": "file"
+  },
+  ".claude/skills/clean-coder/SKILL.md": {
+    "sha256": "c4d3196b592c1021740c8fbd24ea0c1eb56309d9e376f7901bb23cb4702a719d",
+    "size": 4588,
+    "type": "file"
+  },
+  ".claude/skills/cloud-deploy/SKILL.md": {
+    "sha256": "a962688905b89a0813b8d62baaf806fe7f286dfa0a2d31a67013486074665fbb",
+    "size": 3261,
+    "type": "file"
+  },
+  ".claude/skills/code-review/SKILL.md": {
+    "sha256": "9334414725d790618223b69b7a55cd04af7de4adf86d23590e7f78647e2e1345",
+    "size": 6233,
+    "type": "file"
+  },
+  ".claude/skills/cognitive-architectures/SKILL.md": {
+    "sha256": "3567ea21134400696eaa816349a2788dddcc760f8c05dc20a8e3bf9c65a102ab",
+    "size": 6066,
+    "type": "file"
+  },
+  ".claude/skills/compatibility-design/SKILL.md": {
+    "sha256": "57b8210f40fbb7c1a5a37477a53f87b5d8327799416b30ff918812be66b2def4",
+    "size": 3745,
+    "type": "file"
+  },
+  ".claude/skills/compliance-review/SKILL.md": {
+    "sha256": "68ab2c1260a2ce0f3d3e53081a77403707b0a8e29c582f0c5055704f2ae69ab0",
+    "size": 7766,
+    "type": "file"
+  },
+  ".claude/skills/consciousness-loop/SKILL.md": {
+    "sha256": "0800332380b8c2eb64283037759c215981cccbff3d5495cd9a33b4be3890a67f",
+    "size": 4832,
+    "type": "file"
+  },
+  ".claude/skills/cost-benefit-router/SKILL.md": {
+    "sha256": "99859bf22d01dd211dd956fb70c56e5a408f3fa5f7d51d0308ed6dbb05aab3ac",
+    "size": 4647,
+    "type": "file"
+  },
+  ".claude/skills/cost-optimization/SKILL.md": {
+    "sha256": "7e6a4d1a5c9e5fb835aa2f34bc2322d804e85c73f1b48bc2f9a706d17afabfc1",
+    "size": 2420,
+    "type": "file"
+  },
+  ".claude/skills/critical-systems-arch/SKILL.md": {
+    "sha256": "0c92d77bf96d19bca3b15dc5110dab7a9dd1a0339061e901fb9e43af2e5c72cb",
+    "size": 2041,
+    "type": "file"
+  },
+  ".claude/skills/cryptography-standards/SKILL.md": {
+    "sha256": "7a59d03d112553c39427d94cf4dfd36b4bd7981eadf9a11ca3ec11df485a65df",
+    "size": 1963,
+    "type": "file"
+  },
+  ".claude/skills/data-engineering/SKILL.md": {
+    "sha256": "963a17ea3021373c6b31f3c765ace7f6215ff3546d7b7dfb1f74a10b1a8cb942",
+    "size": 3047,
+    "type": "file"
+  },
+  ".claude/skills/data-governance/SKILL.md": {
+    "sha256": "41cc10ac65bd5f505f700b72ca8f6e440dd636d04c0cbbe74fc46d8d4888cc68",
+    "size": 2871,
+    "type": "file"
+  },
+  ".claude/skills/db-migration/SKILL.md": {
+    "sha256": "9a00020ded495fafaa05703fc541c0d889bf9271268f1fa193dfc2d149281c35",
+    "size": 5943,
+    "type": "file"
+  },
+  ".claude/skills/debug/SKILL.md": {
+    "sha256": "a648f6799112721a9a9bd0ab2f21cf7f5237f51fd15eea77e19c6b3fa6e472d4",
+    "size": 6688,
+    "type": "file"
+  },
+  ".claude/skills/decompose/SKILL.md": {
+    "sha256": "6ecb61a2181484bc9c3b30a078e84ef34346856ef3f9d152420ae79204ad47a2",
+    "size": 4215,
+    "type": "file"
+  },
+  ".claude/skills/dependency-security/SKILL.md": {
+    "sha256": "4a66a28a9a67a52571bea486637e94947be8daedeb28eb733ab628e5dcc901c1",
+    "size": 3523,
+    "type": "file"
+  },
+  ".claude/skills/deployment/SKILL.md": {
+    "sha256": "0b8570f4730c8a06b95cbce07d2e83c70d38d68b51e9c181a72edac1bccc55ec",
+    "size": 8050,
+    "type": "file"
+  },
+  ".claude/skills/design-patterns/SKILL.md": {
+    "sha256": "8015bb855777ecf542d78aa6b57113094d5389a3af8ec2fb59d60a4b73095790",
+    "size": 4421,
+    "type": "file"
+  },
+  ".claude/skills/design-thinking/SKILL.md": {
+    "sha256": "4a38ef7c726787550840b4f010dec3b327f44e8558407607ac24210b2130ae09",
+    "size": 4063,
+    "type": "file"
+  },
+  ".claude/skills/dev-environments/SKILL.md": {
+    "sha256": "708768991323c883796fda70f61c08bb81da67c188ea3ac4be78bdad81b0d595",
+    "size": 1964,
+    "type": "file"
+  },
+  ".claude/skills/dev-workflow/SKILL.md": {
+    "sha256": "a1a894e11fa26ff10b2d7c954799c683603d0e5ab0b0b2ec57dc2877a4d8ceaf",
+    "size": 1827,
+    "type": "file"
+  },
+  ".claude/skills/diagramming/SKILL.md": {
+    "sha256": "4bbab904ed4a8432311e80c115bab92aad90ec2529ac723e713e592b43864d8c",
+    "size": 14428,
+    "type": "file"
+  },
+  ".claude/skills/docker-dev/SKILL.md": {
+    "sha256": "accdd1ace0227c736c64c303507330bdc0432d6f858df0734c1a461c768817ac",
+    "size": 3204,
+    "type": "file"
+  },
+  ".claude/skills/documentation/SKILL.md": {
+    "sha256": "4a81cdef31d2ebf8a86bd50c322cbab44044a29e3e90654d07119f978b8514e0",
+    "size": 7502,
+    "type": "file"
+  },
+  ".claude/skills/domain-model/SKILL.md": {
+    "sha256": "2cee6a35a53ddf360880ce8b41042e302569b86b89b71fec5cb91fabe88ac7f5",
+    "size": 12544,
+    "type": "file"
+  },
+  ".claude/skills/emerging-tech/SKILL.md": {
+    "sha256": "8a23432e0c82c5b549f0d2b91c02f0404cdb865c42d46a666bbdbb14ec1186fa",
+    "size": 3260,
+    "type": "file"
+  },
+  ".claude/skills/engineering-standards/SKILL.md": {
+    "sha256": "ab4eaf3a8b0718e1b17658417407a81b2172a0bf8b9026bc9a3d74359b19330d",
+    "size": 2611,
+    "type": "file"
+  },
+  ".claude/skills/enterprise-integration/SKILL.md": {
+    "sha256": "7726557b786dac1f0e18af1780f1c983d52268afa42d781a32307a43b8cbac6f",
+    "size": 3238,
+    "type": "file"
+  },
+  ".claude/skills/enterprise-migration-scenario/SKILL.md": {
+    "sha256": "bc5a14eb7a285ad7c69ea49d64f9a1d67e36e640942ba3954975df909f5d4325",
+    "size": 2086,
+    "type": "file"
+  },
+  ".claude/skills/enterprise-patterns/SKILL.md": {
+    "sha256": "983880b3b4345ff726bbe01a60019d2b9207037879b08cb533f67ee1ef5921e5",
+    "size": 1928,
+    "type": "file"
+  },
+  ".claude/skills/episodic-consolidation/SKILL.md": {
+    "sha256": "39a652822cb0ae9826456cf9063bc8a165ba94161ed25abe98ea15d1043c2639",
+    "size": 3728,
+    "type": "file"
+  },
+  ".claude/skills/epistemology-knowledge/SKILL.md": {
+    "sha256": "53236e9465b9f1b377d797ddaf65e7d8a9c34561e30110f3c8fdf485b46b403f",
+    "size": 5735,
+    "type": "file"
+  },
+  ".claude/skills/error-handling-strategy/SKILL.md": {
+    "sha256": "4f8322ed4f1c261e423b0d27ef00d0fbf5a247747aa488ec397a715ebbc234f4",
+    "size": 3962,
+    "type": "file"
+  },
+  ".claude/skills/event-driven-architecture/SKILL.md": {
+    "sha256": "30fc31c71a90a4897682eaf913da2f59d98a0351f611b5221c4300707f28f839",
+    "size": 1905,
+    "type": "file"
+  },
+  ".claude/skills/event-governance/SKILL.md": {
+    "sha256": "2635d6aa393e69dc538b9fd04287bd33221f70f6c205fac8c4940cd49b0238ed",
+    "size": 3499,
+    "type": "file"
+  },
+  ".claude/skills/excalidraw/SKILL.md": {
+    "sha256": "46d18b25bdc3504141e77dd8f9fa2131dddda5ad4b5df3f2d281b69a501a20df",
+    "size": 3847,
+    "type": "file"
+  },
+  ".claude/skills/file-processing/SKILL.md": {
+    "sha256": "c8f1edbcb51a035b7435078ad224ea99e77c710a743e3feb70b2dabdbe1bf713",
+    "size": 4377,
+    "type": "file"
+  },
+  ".claude/skills/git-workflow/SKILL.md": {
+    "sha256": "c5975af4d67983cf28ea2bcdd1000cedc53ba989344ccfc990d57edcaee87b26",
+    "size": 7365,
+    "type": "file"
+  },
+  ".claude/skills/global-standards/SKILL.md": {
+    "sha256": "07b5df77d4916223a3c65823ca5486809a7b7c995c5a46cf462cb752a4feb43f",
+    "size": 2292,
+    "type": "file"
+  },
+  ".claude/skills/global-workspace/SKILL.md": {
+    "sha256": "5f39262caad6227812b99ffa7b1ec2642c59691c4ab29ef9c2455e3e52ffd756",
+    "size": 5095,
+    "type": "file"
+  },
+  ".claude/skills/graphql-schema/SKILL.md": {
+    "sha256": "3e646872a80b197b925a73f6d6b71a41cd9141e0e3e53fba2d8828e54964568f",
+    "size": 3932,
+    "type": "file"
+  },
+  ".claude/skills/green-software/SKILL.md": {
+    "sha256": "038087c7ca323cf702b4ff3013652be49a3487f9289a5cc9aa51a7d77e4b88b8",
+    "size": 3320,
+    "type": "file"
+  },
+  ".claude/skills/hazard-analysis/SKILL.md": {
+    "sha256": "792cf9976562700bae1e2eabc735dbc15850034f978cc336b0816e77eb796600",
+    "size": 3511,
+    "type": "file"
+  },
+  ".claude/skills/healthcare-fhir/SKILL.md": {
+    "sha256": "a1a8b0872e6acc3ea47e256880311ce849fe2da89e9c67f0c28729ccc636f5f2",
+    "size": 1981,
+    "type": "file"
+  },
+  ".claude/skills/incident-response/SKILL.md": {
+    "sha256": "f3490745b6d0e2f4703c549296e69214a6b187b7469fd89d63bc787ae8779815",
+    "size": 2685,
+    "type": "file"
+  },
+  ".claude/skills/industrial-iot/SKILL.md": {
+    "sha256": "9f554fe91312db4a694f2afd21004472339fb99c5034c9745ecb659166788a3c",
+    "size": 1981,
+    "type": "file"
+  },
+  ".claude/skills/infra-devops/SKILL.md": {
+    "sha256": "0d1c69222b5254f5e9d4b4a09a1b9a87797ea9a257ededd6a1628b64fe13fb4a",
+    "size": 3278,
+    "type": "file"
+  },
+  ".claude/skills/integrity-check/SKILL.md": {
+    "sha256": "d47bd08a7e78d77aa035ae28feadebcc2fbbb50385bb03b36a8dc913c237b443",
+    "size": 6723,
+    "type": "file"
+  },
+  ".claude/skills/k8s-dev/SKILL.md": {
+    "sha256": "99396559be682af5a58546609523d8ea0224e4156f1555aa468d332e6c54f301",
+    "size": 3281,
+    "type": "file"
+  },
+  ".claude/skills/knowledge-connectors/SKILL.md": {
+    "sha256": "e2338a10c5ac903b9d5c608f34b83538894538d94097c7d8f3f800701479b025",
+    "size": 4102,
+    "type": "file"
+  },
+  ".claude/skills/knowledge-gap/SKILL.md": {
+    "sha256": "4f20d118647809abf248895c4448bd1029d7819ba59262430ea07a60f7f853e3",
+    "size": 5937,
+    "type": "file"
+  },
+  ".claude/skills/learning-adaptation/SKILL.md": {
+    "sha256": "b9a43ff32f5c4d8740d63de366f6039e5bb35d1887a508660345be47311e8810",
+    "size": 4598,
+    "type": "file"
+  },
+  ".claude/skills/legacy-modernization/SKILL.md": {
+    "sha256": "75a26c950c95127bef5511f360cbb36f8f7520bde5a5958c6110a7bc38347413",
+    "size": 4145,
+    "type": "file"
+  },
+  ".claude/skills/legal-review/SKILL.md": {
+    "sha256": "4336b7fae00a7675ff27b754c31de3ce48a845c3e975f43880857801cc312b5b",
+    "size": 3247,
+    "type": "file"
+  },
+  ".claude/skills/log-analysis/SKILL.md": {
+    "sha256": "560fb48e68a92e081627bf36a8d34e1441b063bb5dc8a3d6812fadc07a79ac5a",
+    "size": 4014,
+    "type": "file"
+  },
+  ".claude/skills/loki-mode/SKILL.md": {
+    "sha256": "0a9c7620c2d9366f1fc9004505b5b3d7e9d1cddda2a625d009e4d4352ea5c4ad",
+    "size": 21168,
+    "type": "file"
+  },
+  ".claude/skills/market-analysis/SKILL.md": {
+    "sha256": "981e21b2287be04863b962522966ef1e39f4e55360d12446494c993a4f6754fc",
+    "size": 3567,
+    "type": "file"
+  },
+  ".claude/skills/memory-optimization/SKILL.md": {
+    "sha256": "357b91469b1aa4fbc40ac87e6b706ebf7c883b6b863d1b616ea1c5ee212127fd",
+    "size": 2944,
+    "type": "file"
+  },
+  ".claude/skills/meta-optimize/SKILL.md": {
+    "sha256": "e9eafe563a2a2e0ffc0a9726764073ec8c6000630caf5ff2ebc818edb38c93a5",
+    "size": 3346,
+    "type": "file"
+  },
+  ".claude/skills/meta-prompting/SKILL.md": {
+    "sha256": "6a40347ed075609fe7c70e07088338771466e37e3bae324f707e74d1d881764f",
+    "size": 2667,
+    "type": "file"
+  },
+  ".claude/skills/microservices/SKILL.md": {
+    "sha256": "245d2c360ca1bbdd21602f92114963d2bedee3e19be3185677467839f03a821d",
+    "size": 1746,
+    "type": "file"
+  },
+  ".claude/skills/middleware-design/SKILL.md": {
+    "sha256": "e14177805e5e1759fdb970921693bc0faa020196b7399678df617cd82d80844b",
+    "size": 4100,
+    "type": "file"
+  },
+  ".claude/skills/mobile-dev/SKILL.md": {
+    "sha256": "85ab868cb20c6463366a216fc19edbf38c540addb14c2c14655ba2195adea562",
+    "size": 4141,
+    "type": "file"
+  },
+  ".claude/skills/monolith/SKILL.md": {
+    "sha256": "aef6c8995041326cd1ac1a14240646eb13f794c2656932500bd6be7819eeb3aa",
+    "size": 1785,
+    "type": "file"
+  },
+  ".claude/skills/multi-agent-orch/SKILL.md": {
+    "sha256": "2785c256a8c74f39cdc3a6bd2ef6908a9faa3cbe0314848d61678ca971a48dc6",
+    "size": 4336,
+    "type": "file"
+  },
+  ".claude/skills/multi-agent-systems/SKILL.md": {
+    "sha256": "c86ae968a772d72ed4d2d4a396793e592c3e98b2430a9245b391d44fa107fb0d",
+    "size": 1792,
+    "type": "file"
+  },
+  ".claude/skills/network-security/SKILL.md": {
+    "sha256": "cc55adcd9a05558f63fe1ee0831b1f337164fb62082e81a11776cb6ed3591f43",
+    "size": 3936,
+    "type": "file"
+  },
+  ".claude/skills/neuroscience-foundations/SKILL.md": {
+    "sha256": "b1268c5d00ed436b1e9a8e6c8e0e1ca3d1296c36d44b4441ad72d964c789fe10",
+    "size": 5665,
+    "type": "file"
+  },
+  ".claude/skills/nodejs-expert/SKILL.md": {
+    "sha256": "bf0d0adbb74fe3ced25628cfc7c39f9f77ef669b249361c40daeb12b9f5906e9",
+    "size": 1524,
+    "type": "file"
+  },
+  ".claude/skills/performance-audit/SKILL.md": {
+    "sha256": "186b27997b12d7a953993ffafdc801eb159e79b7e336bc15849cd2dfcd4cb79b",
+    "size": 7332,
+    "type": "file"
+  },
+  ".claude/skills/performance-optimization/SKILL.md": {
+    "sha256": "f57b1218ec1cb72d2094d61db6a71fe15eadf9296eec75a6a50c0d94f25d3568",
+    "size": 3245,
+    "type": "file"
+  },
+  ".claude/skills/performant-ai/SKILL.md": {
+    "sha256": "612ec508d5d7edd8538e5849a8fa2cd0ac583c809598cca3f77ea7c3ff2d46e3",
+    "size": 3779,
+    "type": "file"
+  },
+  ".claude/skills/performant-go/SKILL.md": {
+    "sha256": "e99865b376572bcdabc350531deb01b5723e2bad697a6e3638739cb2e53c16b6",
+    "size": 3747,
+    "type": "file"
+  },
+  ".claude/skills/performant-laravel/SKILL.md": {
+    "sha256": "e8c4e9ff17f1fd60cb942854690e91f3b0a54e8cce153e1459da741da9e0e48e",
+    "size": 4448,
+    "type": "file"
+  },
+  ".claude/skills/performant-nodejs/SKILL.md": {
+    "sha256": "479323daabe1e601b75da362342c9f7b319d53e1445d98ca3049c8b2dd3aaddb",
+    "size": 4263,
+    "type": "file"
+  },
+  ".claude/skills/performant-python/SKILL.md": {
+    "sha256": "ce465548ac968abc5730ca318751bdcd121f505c956af5fa9ec8daad29de7105",
+    "size": 3679,
+    "type": "file"
+  },
+  ".claude/skills/privacy-audit/SKILL.md": {
+    "sha256": "7b552827b96c21f3757272cd882c20ea5fb3079491312a1538e61a4a4be21b9b",
+    "size": 7454,
+    "type": "file"
+  },
+  ".claude/skills/privacy-data-protection/SKILL.md": {
+    "sha256": "3cc06f14fff55b56cdd5f79498f58d66cc36257660857d8430046f77b93776c3",
+    "size": 2019,
+    "type": "file"
+  },
+  ".claude/skills/production-health-optimization/SKILL.md": {
+    "sha256": "3c48a5ee60e9f910714277f6d19a8826dd0d1d45f5872cfe26f931588c205591",
+    "size": 4164,
+    "type": "file"
+  },
+  ".claude/skills/production-verifier/SKILL.md": {
+    "sha256": "0f50f7620563b0555caa89c97de929b78e50115603f8bf38badeef6ba0afb3b5",
+    "size": 2744,
+    "type": "file"
+  },
+  ".claude/skills/queue-management/SKILL.md": {
+    "sha256": "232b0f80cdc5e6b980e98b68a29fd2b13efcd3d8f2ed6412c0dbd29f6a57a7cc",
+    "size": 3262,
+    "type": "file"
+  },
+  ".claude/skills/realtime-comm/SKILL.md": {
+    "sha256": "d3886ae10c0b205454d9f069c842635ac1f9ed76929583733c865b81589a9d3a",
+    "size": 3914,
+    "type": "file"
+  },
+  ".claude/skills/refactor/SKILL.md": {
+    "sha256": "886a28890e372eb549bf5eb333ab2fc30d7dd61df1c4869ad5fdccc64c50fee4",
+    "size": 6553,
+    "type": "file"
+  },
+  ".claude/skills/release-management/SKILL.md": {
+    "sha256": "e49053dca4c810d1698b64a80b87952a5a4762f4de8b71ee93c4a0618c9faab0",
+    "size": 2684,
+    "type": "file"
+  },
+  ".claude/skills/release-validation/SKILL.md": {
+    "sha256": "c42d551c17706132965e863861ec09ee15f161ecd2e5e5f3498da3301b862d19",
+    "size": 2792,
+    "type": "file"
+  },
+  ".claude/skills/reliability-engineering/SKILL.md": {
+    "sha256": "ddc50f31e990bf8955ffeac93ee00b6121655dc73f2464c7b83018033f8fd3f5",
+    "size": 3722,
+    "type": "file"
+  },
+  ".claude/skills/reliability-sre/SKILL.md": {
+    "sha256": "9925c9010b69a4925fa49c5b563f868129b1e60547cbc7acbdc7caf20427c2ef",
+    "size": 3221,
+    "type": "file"
+  },
+  ".claude/skills/req-elicitation/SKILL.md": {
+    "sha256": "85baa0eff7869944849cd0818dab97a85d6f5f459ddc7a771c525d3014ca194e",
+    "size": 11800,
+    "type": "file"
+  },
+  ".claude/skills/req-review/SKILL.md": {
+    "sha256": "aa722283bdc72598f1bba4b2b5d3ad27570a0b9887e8f7e61edc55136a0b54ba",
+    "size": 12121,
+    "type": "file"
+  },
+  ".claude/skills/research/SKILL.md": {
+    "sha256": "d3e481bfb30302c6635cec92ac9c4363aaa42d2d46f143ba15652a7bfaab20ab",
+    "size": 6054,
+    "type": "file"
+  },
+  ".claude/skills/safety-scan/SKILL.md": {
+    "sha256": "920b7f2e568e07889868f4fb3e18e4819f38e3b29e9bb4207a3633d2dbc9b51b",
+    "size": 3511,
+    "type": "file"
+  },
+  ".claude/skills/sdlc-checkpoint/SKILL.md": {
+    "sha256": "9a5c8ff4d072a845e8c3dee4dcd6cdde6b1c800035527de0976d276bcc8e28e0",
+    "size": 6676,
+    "type": "file"
+  },
+  ".claude/skills/secrets-management/SKILL.md": {
+    "sha256": "bb38b72a52385664615c17f1eff4d213d2700c278a76566dd47920175e5cd178",
+    "size": 3895,
+    "type": "file"
+  },
+  ".claude/skills/secure-architecture/SKILL.md": {
+    "sha256": "4a8f77597e933db80f092d325351618a010858313bcd547d0ce15ce202a96e76",
+    "size": 2034,
+    "type": "file"
+  },
+  ".claude/skills/secure-coding/SKILL.md": {
+    "sha256": "a37038612232f303983c64598487028058a7b405a8e7b95763f4b0e326847e22",
+    "size": 4417,
+    "type": "file"
+  },
+  ".claude/skills/security-audit/SKILL.md": {
+    "sha256": "eeaff41f9a9a6c3613ea55a60a3571e07bbe42714d8be24a29901003dc9b3f3f",
+    "size": 8492,
+    "type": "file"
+  },
+  ".claude/skills/self-heal/SKILL.md": {
+    "sha256": "c73d148a92e0733127d559b285af3ad9263c3ea4129956aaee5ac2a0ec2821f6",
+    "size": 6621,
+    "type": "file"
+  },
+  ".claude/skills/self-improvement/SKILL.md": {
+    "sha256": "19504fcfdac75e8318a8bbbb00bc0b969f824a312072534bd5be3ae09e1b2dc0",
+    "size": 4971,
+    "type": "file"
+  },
+  ".claude/skills/semantic-web/SKILL.md": {
+    "sha256": "59073562940f8ac1151f26f263a2f6583698826a3fd20a6a46c975458f1c5abe",
+    "size": 1739,
+    "type": "file"
+  },
+  ".claude/skills/sensory-motor/SKILL.md": {
+    "sha256": "4f2234eb1336c646f47c5d88ae22da2a67d2e60ffd0ba03f3c45c9486f7d81d5",
+    "size": 5322,
+    "type": "file"
+  },
+  ".claude/skills/sequential-thinking/SKILL.md": {
+    "sha256": "5f833b6fd48e800ad503b5e9983950635aa8e2a242e00700019f75796be5734e",
+    "size": 3954,
+    "type": "file"
+  },
+  ".claude/skills/session-resume/SKILL.md": {
+    "sha256": "be86bed22deb8b1945f3bf150a447f543d37212c32bec32e5b69132f343a7457",
+    "size": 6064,
+    "type": "file"
+  },
+  ".claude/skills/sketch-to-diagram/SKILL.md": {
+    "sha256": "834063a21f8c641cdd944e8bd900d17fe1f14f5e6604739b84cf8f13fa8040ef",
+    "size": 5258,
+    "type": "file"
+  },
+  ".claude/skills/spec-analyze/SKILL.md": {
+    "sha256": "5af8bf28a3f5fd1572bfa01e472aa44c492e1340fbbd8dca4de09d4e3ac5ae48",
+    "size": 5351,
+    "type": "file"
+  },
+  ".claude/skills/spec-writer/SKILL.md": {
+    "sha256": "c02975992335fe746ecb53fff48f1307e12115467cf834005e5fbf0ba8860915",
+    "size": 5917,
+    "type": "file"
+  },
+  ".claude/skills/sql-optimization/SKILL.md": {
+    "sha256": "194e0b92cc815aedb20febb557147de14bf78b0e739bd5494b7ba8e332727f5f",
+    "size": 4215,
+    "type": "file"
+  },
+  ".claude/skills/stakeholder-management/SKILL.md": {
+    "sha256": "ee0749b5746645675a7af1c604b0bfa239036266ee78c8bbbff0c57428559d03",
+    "size": 3629,
+    "type": "file"
+  },
+  ".claude/skills/state-management/SKILL.md": {
+    "sha256": "395fe5d36e317f51aafb37f3d14579844efa92822948075ccf2843c8491307d0",
+    "size": 4622,
+    "type": "file"
+  },
+  ".claude/skills/sustainability-checks/SKILL.md": {
+    "sha256": "0eb605f367a85ec996712b212085cdebc5d1c5efa3dfb496733d39c89367965f",
+    "size": 2018,
+    "type": "file"
+  },
+  ".claude/skills/swarm-consensus/SKILL.md": {
+    "sha256": "55079b2049c41d34321f769e2216990f774fbfc717c54c755b6901fbd6c76ee7",
+    "size": 2890,
+    "type": "file"
+  },
+  ".claude/skills/system-benchmark/SKILL.md": {
+    "sha256": "17392a9c6bb88e03cdf6a83b03595cb62529d9fb97943bc5d1794f3129e1f1e1",
+    "size": 3797,
+    "type": "file"
+  },
+  ".claude/skills/system-lifecycle/SKILL.md": {
+    "sha256": "a8d63cb390bd79b6cc96af91e4c22d855a44dcb4b49af8178c65e59e7b88ee9e",
+    "size": 2978,
+    "type": "file"
+  },
+  ".claude/skills/system-qualities/SKILL.md": {
+    "sha256": "19b0731e7f08d053114e15b68c11c4096226b6b62c19fc6ecddf512f6ad10fbf",
+    "size": 1821,
+    "type": "file"
+  },
+  ".claude/skills/system-scalability/SKILL.md": {
+    "sha256": "ee12fc3113238b55200810859e263a6489a949e7e01024336308c1d9f9fd6187",
+    "size": 2133,
+    "type": "file"
+  },
+  ".claude/skills/systems-architecture/SKILL.md": {
+    "sha256": "bb56c56b07307bcce9cf5c17a26b21cd55634bd5251582abc29c1da3d994b39a",
+    "size": 1891,
+    "type": "file"
+  },
+  ".claude/skills/systems-thinking/SKILL.md": {
+    "sha256": "4bb51281786e3cc05bb2b23aa70c3377ef42ac86709db3f5e26032d2efa133ca",
+    "size": 3938,
+    "type": "file"
+  },
+  ".claude/skills/tdd-cycle/SKILL.md": {
+    "sha256": "d53a666eec6cbc079d6dfe677ba25c5b30e16e7171bedb35a6b10500eed86882",
+    "size": 6238,
+    "type": "file"
+  },
+  ".claude/skills/tech-debt/SKILL.md": {
+    "sha256": "f37128c3c1aa1a203138eabeb4895098a3a1435f4ace5740f5fad459f5a624e9",
+    "size": 6100,
+    "type": "file"
+  },
+  ".claude/skills/telecom-networks/SKILL.md": {
+    "sha256": "754690fb2e9412df29e7c99d5cb3b5266593c104edac33b427fc9b2d0819f9be",
+    "size": 2332,
+    "type": "file"
+  },
+  ".claude/skills/testing-strategy/SKILL.md": {
+    "sha256": "839890ce9e4322e57a0917efdcc7605ec7a1cdd3bf1fb6eec511d4bfb09b20e4",
+    "size": 4951,
+    "type": "file"
+  },
+  ".claude/skills/threat-model/SKILL.md": {
+    "sha256": "0333fe99e330efb8e0afba9e62436cd97deaa481ecf132e9e8c70ec28d136265",
+    "size": 7142,
+    "type": "file"
+  },
+  ".claude/skills/time-complexity/SKILL.md": {
+    "sha256": "3cf8ac0e209fd5e970e99d743a27cedc4bcd3ac2d1b9dad1c2eaa94d7eb4d615",
+    "size": 5368,
+    "type": "file"
+  },
+  ".claude/skills/tldraw-canvas/SKILL.md": {
+    "sha256": "ec4c284da8fa890a03dbdd0e40cb27034524908859ec31d91a69d3f079b8e42d",
+    "size": 4758,
+    "type": "file"
+  },
+  ".claude/skills/tool-construction/SKILL.md": {
+    "sha256": "7204f7f1c95246ad9c9251ce439afa97ea33192e2bfe4f368f9783d4de38e240",
+    "size": 4006,
+    "type": "file"
+  },
+  ".claude/skills/traceability-audit/SKILL.md": {
+    "sha256": "fc895b2ea59ddf776d7e002ceb883df7728d86060978c3c6ebe3c9265b061b6b",
+    "size": 3213,
+    "type": "file"
+  },
+  ".claude/skills/troubleshooting-guide/SKILL.md": {
+    "sha256": "6c21e76e9b13e50772f025acaa4eddfc55233e2b16d600e3f884446dff52d4e7",
+    "size": 2114,
+    "type": "file"
+  },
+  ".claude/skills/ui-gen/SKILL.md": {
+    "sha256": "16e76afce754a0f1eea35037c4a2aaa976d25e9462012cadf0bdf30d70e71b0a",
+    "size": 5244,
+    "type": "file"
+  },
+  ".claude/skills/user-story-mapping/SKILL.md": {
+    "sha256": "3afa79cb3a47b3b8e17069e4a651b2081c991bf80c2b3cbdcad2e9e9156d3cd1",
+    "size": 3417,
+    "type": "file"
+  },
+  ".claude/skills/vibe-coding/SKILL.md": {
+    "sha256": "c09077a97be5fbb270c2d8cfd68ef9e2f9708e958cfea132572a3d0fb7fa40e1",
+    "size": 5154,
+    "type": "file"
+  },
+  ".claude/skills/visual-design/SKILL.md": {
+    "sha256": "e7706f48de46851c9a1c8d5cdee2d212626c7dbe915c0d9d0d91ee49466786e1",
+    "size": 5529,
+    "type": "file"
+  },
+  ".claude/skills/visual-specs/SKILL.md": {
+    "sha256": "a814da3701e6f5e581faaf845595a3b984e889f3d143bff39644cc2d298758db",
+    "size": 5401,
+    "type": "file"
+  },
+  ".claude/skills/visual-whiteboarding/SKILL.md": {
+    "sha256": "4950876626a998f81dd54f861800f91755c82b9a782d1546a3e26eb575771b8d",
+    "size": 2538,
+    "type": "file"
+  },
+  ".claude/skills/working-memory/SKILL.md": {
+    "sha256": "099278239c1c6ea4c99d9e9794788db429fdfcd80aa368bcd2510a747b972657",
+    "size": 4350,
+    "type": "file"
+  },
+  "AGENTS.md": {
+    "target": "agents/AGENTS.md",
+    "type": "symlink"
   },
   "SETUP_MISSION.md": {
     "sha256": "0d4ddf4b467b8382fcd0c78f73f2b430de860963889d20f81a5f0916e05cc8a4",
@@ -602,64 +1452,14 @@
     "size": 2711,
     "type": "file"
   },
-  "agents/scripts/__pycache__/check_skills_docs.cpython-312.pyc": {
-    "sha256": "b12a4ba10108d5d2c9ce7b7d134d50d388729f32da58d81832de3559327c007c",
-    "size": 5020,
-    "type": "file"
-  },
-  "agents/scripts/__pycache__/compile_skills.cpython-312.pyc": {
-    "sha256": "ff51057d8593af983ac0206aa2e7f29f3b5eabe1188588b313199244e4563c3a",
-    "size": 8604,
-    "type": "file"
-  },
-  "agents/scripts/__pycache__/comprehensive_checker.cpython-312.pyc": {
-    "sha256": "2895cca46d794cf6c8b774a265046e97e943858e987373af954bb40b70c762bb",
-    "size": 8348,
-    "type": "file"
-  },
-  "agents/scripts/__pycache__/validate_integrity.cpython-312.pyc": {
-    "sha256": "502e23dc84ff74dedf2df3b741daf14e3825a9f884a73a4165f3df1a6248d621",
-    "size": 3520,
-    "type": "file"
-  },
-  "agents/scripts/__pycache__/validate_links.cpython-312.pyc": {
-    "sha256": "50b2e8007208994fb4c8bdc728c2321f90b3b40b34ca1fa28b71fdb91af21786",
-    "size": 2962,
-    "type": "file"
-  },
-  "agents/scripts/__pycache__/validate_skills.cpython-312.pyc": {
-    "sha256": "14e3af31fffdabc9c533b772762ede626f911c3fb8b76800fee9904fd1c96e6f",
-    "size": 2559,
-    "type": "file"
-  },
-  "agents/scripts/__pycache__/verify_e2e_init_flows.cpython-312.pyc": {
-    "sha256": "babb64f23730fcdce2af41fffe7ac4411d1a0d115f11d04f3f094656f10a548b",
-    "size": 9731,
-    "type": "file"
-  },
-  "agents/scripts/__pycache__/verify_setup_simulation.cpython-312.pyc": {
-    "sha256": "445b17abac48ac758e9c8d113c06d349d1aa62833d8cb52720fade1334f6b1bb",
-    "size": 4798,
-    "type": "file"
-  },
-  "agents/scripts/__pycache__/verify_triggers_and_mcps.cpython-312.pyc": {
-    "sha256": "eb45f712f9e742236089160dddce443dc39d64019a9bebc0339fce884f53124b",
-    "size": 6596,
-    "type": "file"
-  },
-  "agents/scripts/__pycache__/verify_use_cases.cpython-312.pyc": {
-    "sha256": "f8178fe8e27ce9e3aa94503caed586b42141b49fd17f710b01901f2131862cce",
-    "size": 25625,
-    "type": "file"
-  },
   "agents/scripts/check_skills_docs.py": {
     "sha256": "6f9d37e083e54e8f81bf427cca6204d865068a9bd03edd94557ad3c42cb4633d",
     "size": 4786,
     "type": "file"
   },
   "agents/scripts/compile_skills.py": {
-    "sha256": "10f5a573eaa219911da8877832a7a761b6e15f05ea9cbcc6ed2e00ec226dcf11",
-    "size": 7198,
+    "sha256": "e3422c2da588545ab9d696012151a648ac7c42f78bc0072e6305f5e1e9cc7c0f",
+    "size": 9248,
     "type": "file"
   },
   "agents/scripts/comprehensive_checker.py": {
@@ -688,8 +1488,8 @@
     "type": "file"
   },
   "agents/scripts/validate_links.py": {
-    "sha256": "9f7ede12ad7c9f393bb883b1d47b791bd68af8a07327c4dba5b28ced47dda0b9",
-    "size": 2521,
+    "sha256": "322eff13a16c19bc10c135a64b4abd57d211d4250702bdf03811ac0889939d2f",
+    "size": 2754,
     "type": "file"
   },
   "agents/scripts/validate_skills.py": {
@@ -965,21 +1765,6 @@
   "agents/skills/brain/neuroscience-foundations.skill.md": {
     "sha256": "2a972cedc9e318b96dd48030f2d045c45c203b8363fc943a8c7860bb24dc93d0",
     "size": 5641,
-    "type": "file"
-  },
-  "agents/skills/brain/scripts/__pycache__/active_inference_loop.cpython-312.pyc": {
-    "sha256": "7463ef1cebfa9af99a49cf516dbbe09d0b40028db5aad6538664f34d475ffc21",
-    "size": 3633,
-    "type": "file"
-  },
-  "agents/skills/brain/scripts/__pycache__/cognition_test.cpython-312.pyc": {
-    "sha256": "fb38440f8b7ee45f7bd41ed23239f433fd8a59ef5712904ddb1bd18ef4927cc6",
-    "size": 3273,
-    "type": "file"
-  },
-  "agents/skills/brain/scripts/__pycache__/global_workspace.cpython-312.pyc": {
-    "sha256": "61f13e6819a6293679d9c7636447264291597608e9b6ab660b56698bde1e7e7c",
-    "size": 4621,
     "type": "file"
   },
   "agents/skills/brain/scripts/active_inference_loop.py": {

@@ -2,6 +2,7 @@
   "name": "access-control",
   "description": "Design RBAC/ABAC models, Principle of Least Privilege, Identity Management.",
   "version": "1.0.0",
+  "gabbe-schema-version": 1,
   "slashCommands": [
     {
       "name": "access-control",

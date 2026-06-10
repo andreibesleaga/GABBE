@@ -752,7 +752,10 @@ def main():
         claude_dir = PROJECT_ROOT / ".claude"
         claude_dir.mkdir(exist_ok=True)
         create_symlink(agents_md_src, claude_dir / "CLAUDE.md")
-        create_symlink(skills_src, claude_dir / "skills")
+        # Generate real .claude/skills/<slug>/SKILL.md directories (the agent-skills
+        # open standard). Claude Code only discovers <name>/SKILL.md directories,
+        # not the legacy <name>.skill.md file tree, so we must NOT symlink the
+        # source skills/ dir here.
         setup_skills_for_platform("Claude Code", AGENTS_DIR, claude_dir / "skills")
 
     if "Cursor" in agents:
@@ -800,12 +803,16 @@ def main():
         settings_content = {
             "agent_instructions_file": rel_agents,
             "skills_directory": rel_skills,
+            "contextFileName": "GEMINI.md",
+            "gabbe-schema-version": 1,
             "notes": "Managed by init.py",
         }
         (gemini_dir / "settings.json").write_text(
             json.dumps(settings_content, indent=2)
         )
-        print(f"  {GREEN}✓ Wired .gemini/settings.json{NC}")
+        # Gemini CLI natively reads a GEMINI.md context file; point it at AGENTS.md.
+        create_symlink(agents_md_src, PROJECT_ROOT / "GEMINI.md")
+        print(f"  {GREEN}✓ Wired .gemini/settings.json + GEMINI.md{NC}")
 
     if "OpenAI / Codex" in agents:
         codex_dir = PROJECT_ROOT / ".codex"
@@ -821,6 +828,13 @@ def main():
     if "VS Code" in agents:  # Added VS Code explicitly if requested, reusing logic
         gh_dir = PROJECT_ROOT / ".github"
         setup_skills_for_platform("VS Code", AGENTS_DIR, gh_dir / "skills")
+
+    # Root AGENTS.md (the agents.md open standard, read by Codex, Cursor,
+    # Gemini CLI, and the Copilot coding agent). Emitted once for all agents.
+    root_agents_md = PROJECT_ROOT / "AGENTS.md"
+    if root_agents_md.resolve() != agents_md_src.resolve():
+        create_symlink(agents_md_src, root_agents_md)
+        print(f"  {GREEN}✓ Wired root AGENTS.md (agents.md standard){NC}")
 
     # --- Step 6: Gitignore ---
     gitignore = PROJECT_ROOT / ".gitignore"

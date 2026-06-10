@@ -110,9 +110,11 @@ def _run_serve_with_input(lines, tmp_project):
     stdin_data = "".join(lines)
     outputs = []
 
-    with patch("gabbe.mcp_server.RunContext") as MockCtx, patch(
-        "sys.stdin", io.StringIO(stdin_data)
-    ), patch("builtins.print", side_effect=lambda s, **kw: outputs.append(s)):
+    with (
+        patch("gabbe.mcp_server.RunContext") as MockCtx,
+        patch("sys.stdin", io.StringIO(stdin_data)),
+        patch("builtins.print", side_effect=lambda s, **kw: outputs.append(s)),
+    ):
 
         mock_ctx = MagicMock()
         MockCtx.return_value.__enter__ = MagicMock(return_value=mock_ctx)
@@ -165,9 +167,11 @@ def test_serve_tools_call_dispatches_to_gateway(tmp_project, mcp_insecure):
     )
     outputs = []
 
-    with patch("gabbe.mcp_server.RunContext") as MockCtx, patch(
-        "sys.stdin", io.StringIO(call_req)
-    ), patch("builtins.print", side_effect=lambda s, **kw: outputs.append(s)):
+    with (
+        patch("gabbe.mcp_server.RunContext") as MockCtx,
+        patch("sys.stdin", io.StringIO(call_req)),
+        patch("builtins.print", side_effect=lambda s, **kw: outputs.append(s)),
+    ):
 
         mock_ctx = MagicMock()
         MockCtx.return_value.__enter__ = MagicMock(return_value=mock_ctx)
@@ -198,9 +202,11 @@ def test_serve_tools_call_gateway_error_returns_json_error(tmp_project, mcp_inse
     )
     outputs = []
 
-    with patch("gabbe.mcp_server.RunContext") as MockCtx, patch(
-        "sys.stdin", io.StringIO(call_req)
-    ), patch("builtins.print", side_effect=lambda s, **kw: outputs.append(s)):
+    with (
+        patch("gabbe.mcp_server.RunContext") as MockCtx,
+        patch("sys.stdin", io.StringIO(call_req)),
+        patch("builtins.print", side_effect=lambda s, **kw: outputs.append(s)),
+    ):
 
         mock_ctx = MagicMock()
         MockCtx.return_value.__enter__ = MagicMock(return_value=mock_ctx)
@@ -224,9 +230,11 @@ def test_serve_malformed_json_returns_parse_error(tmp_project):
     from gabbe.mcp_server import serve
 
     outputs = []
-    with patch("gabbe.mcp_server.RunContext") as MockCtx, patch(
-        "sys.stdin", io.StringIO("not json at all\n")
-    ), patch("builtins.print", side_effect=lambda s, **kw: outputs.append(s)):
+    with (
+        patch("gabbe.mcp_server.RunContext") as MockCtx,
+        patch("sys.stdin", io.StringIO("not json at all\n")),
+        patch("builtins.print", side_effect=lambda s, **kw: outputs.append(s)),
+    ):
 
         mock_ctx = MagicMock()
         MockCtx.return_value.__enter__ = MagicMock(return_value=mock_ctx)

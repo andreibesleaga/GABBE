@@ -18,6 +18,7 @@ removed or byte-changed artifact fails. To intentionally update a baseline
 and review the diff against the additive-only rule before committing.
 """
 
+import gzip
 import json
 import subprocess
 import sys
@@ -30,6 +31,14 @@ BASELINE_ROOT = REPO_ROOT / "scripts" / "tests" / "golden" / "baseline_v0.8.0"
 CAPTURE = REPO_ROOT / "scripts" / "gates" / "capture_emitter_baseline.py"
 
 PLATFORMS = ["claude", "codex", "copilot", "cursor", "gemini"]
+
+
+def _load_manifest(platform_dir):
+    """Read a golden manifest (gzipped to keep the git diff small)."""
+    gz = platform_dir / "manifest.json.gz"
+    if gz.exists():
+        return json.loads(gzip.decompress(gz.read_bytes()).decode("utf-8"))
+    return json.loads((platform_dir / "manifest.json").read_text())
 
 
 def _run_capture(dest_root):
@@ -57,10 +66,12 @@ def captured(tmp_path_factory):
 @pytest.mark.parametrize("platform", PLATFORMS)
 def test_emitter_output_is_additive_superset_of_baseline(platform, captured):
     run_a, _ = captured
-    baseline_file = BASELINE_ROOT / platform / "manifest.json"
-    assert baseline_file.exists(), f"missing golden baseline for {platform}"
-    baseline = json.loads(baseline_file.read_text())
-    current = json.loads((run_a / platform / "manifest.json").read_text())
+    baseline_dir = BASELINE_ROOT / platform
+    assert (baseline_dir / "manifest.json.gz").exists() or (
+        baseline_dir / "manifest.json"
+    ).exists(), f"missing golden baseline for {platform}"
+    baseline = _load_manifest(baseline_dir)
+    current = _load_manifest(run_a / platform)
 
     removed = [rel for rel in baseline if rel not in current]
     changed = [rel for rel in baseline if rel in current and current[rel] != baseline[rel]]
@@ -71,6 +82,6 @@ def test_emitter_output_is_additive_superset_of_baseline(platform, captured):
 @pytest.mark.parametrize("platform", PLATFORMS)
 def test_emitter_is_deterministic(platform, captured):
     run_a, run_b = captured
-    first = json.loads((run_a / platform / "manifest.json").read_text())
-    second = json.loads((run_b / platform / "manifest.json").read_text())
+    first = _load_manifest(run_a / platform)
+    second = _load_manifest(run_b / platform)
     assert first == second, f"{platform}: emitter output is non-deterministic"

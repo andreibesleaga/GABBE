@@ -107,15 +107,20 @@ EOF
 note "== Gate 4: Emitter fixture vault =="
 "$PY" "$ROOT/scripts/gates/capture_emitter_baseline.py" /tmp/gabbe-vault-current >/dev/null 2>&1
 "$PY" - "$ROOT/scripts/tests/golden/baseline_v0.8.0" /tmp/gabbe-vault-current <<'EOF' || FAIL=1
-import json, sys
+import gzip, json, sys
 from pathlib import Path
+def load(d):
+    gz = d / "manifest.json.gz"
+    if gz.exists():
+        return json.loads(gzip.decompress(gz.read_bytes()).decode("utf-8"))
+    return json.loads((d / "manifest.json").read_text())
 base_root, cur_root = Path(sys.argv[1]), Path(sys.argv[2])
 bad, added = [], 0
 for plat_dir in sorted(base_root.iterdir()):
-    if not (plat_dir / "manifest.json").exists(): continue
+    if not ((plat_dir / "manifest.json.gz").exists() or (plat_dir / "manifest.json").exists()): continue
     plat = plat_dir.name
-    base = json.loads((plat_dir / "manifest.json").read_text())
-    cur = json.loads((cur_root / plat / "manifest.json").read_text())
+    base = load(plat_dir)
+    cur = load(cur_root / plat)
     for rel, desc in base.items():
         if rel not in cur:
             bad.append(f"{plat}: artifact removed: {rel}")

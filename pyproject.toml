@@ -7,7 +7,7 @@ name = "gabbe"
 version = "0.9.0"
 description = "Generative Architectural Brain Base Engine - Agentic Engineering Kit"
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 # Dual-licensed: executable code (gabbe/, scripts/, agents/scripts/) under
 # Apache-2.0 (see LICENSE-CODE); documentation and content (agents/ markdown,
 # docs/, skills/templates/guides/personas) under CC-BY-SA-4.0 (see LICENSE).
@@ -21,11 +21,11 @@ classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Topic :: Software Development :: Libraries :: Application Frameworks",
 ]
 dependencies = [
@@ -57,7 +57,7 @@ testpaths = ["gabbe/tests", "scripts/tests"]
 
 [tool.ruff]
 line-length = 100
-target-version = "py38"
+target-version = "py39"
 extend-exclude = [".venv", "build", "dist", "scripts/tests/golden"]
 
 [tool.ruff.lint]
@@ -71,11 +71,11 @@ ignore = [
 
 [tool.black]
 line-length = 100
-target-version = ["py38"]
+target-version = ["py39"]
 extend-exclude = "scripts/tests/golden"
 
 [tool.mypy]
-python_version = "3.8"
+python_version = "3.9"
 ignore_missing_imports = true
 # Gradual typing: warn but don't fail the build on the existing untyped corpus.
 disallow_untyped_defs = false

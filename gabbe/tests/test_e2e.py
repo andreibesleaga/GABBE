@@ -176,8 +176,9 @@ class TestGabbeE2E(unittest.TestCase):
         from gabbe.brain import activate_brain
 
         captured = io.StringIO()
-        with patch("gabbe.brain.call_llm", return_value="Focus on critical path"), patch(
-            "sys.stdout", captured
+        with (
+            patch("gabbe.brain.call_llm", return_value="Focus on critical path"),
+            patch("sys.stdout", captured),
         ):
             activate_brain()
 

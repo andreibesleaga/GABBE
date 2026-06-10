@@ -1,0 +1,9 @@
+# Generated test fixtures and baselines — collapsed in diffs, excluded from
+# language stats, and skipped by automated reviewers. Regenerate with
+# scripts/gates/capture_emitter_baseline.py / dump_api.py / pip-compile.
+scripts/tests/golden/** linguist-generated=true
+scripts/gates/baselines/** linguist-generated=true
+requirements-lock.txt linguist-generated=true
+
+# Gzipped manifests are binary.
+*.gz binary

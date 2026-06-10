@@ -240,8 +240,9 @@ class TestWorkflowGoldenPath(unittest.TestCase):
         gabbe.sync.sync_tasks()
 
         captured = io.StringIO()
-        with patch("gabbe.brain.call_llm", return_value="Focus on critical test coverage"), patch(
-            "sys.stdout", captured
+        with (
+            patch("gabbe.brain.call_llm", return_value="Focus on critical test coverage"),
+            patch("sys.stdout", captured),
         ):
             activate_brain()
 
@@ -368,8 +369,9 @@ class TestWorkflowGoldenPath(unittest.TestCase):
         init_db()
         gabbe.sync.sync_tasks()
 
-        with patch("gabbe.brain.call_llm", return_value="Action"), patch(
-            "sys.stdout", io.StringIO()
+        with (
+            patch("gabbe.brain.call_llm", return_value="Action"),
+            patch("sys.stdout", io.StringIO()),
         ):
             activate_brain()
 
@@ -387,8 +389,9 @@ class TestWorkflowGoldenPath(unittest.TestCase):
 
         init_db()
 
-        with patch("gabbe.brain.call_llm", return_value="Action"), patch(
-            "sys.stdout", io.StringIO()
+        with (
+            patch("gabbe.brain.call_llm", return_value="Action"),
+            patch("sys.stdout", io.StringIO()),
         ):
             activate_brain()
 
@@ -412,8 +415,9 @@ class TestWorkflowGoldenPath(unittest.TestCase):
         init_db()
         gabbe.sync.sync_tasks()
 
-        with patch("gabbe.brain.call_llm", return_value="Action"), patch(
-            "sys.stdout", io.StringIO()
+        with (
+            patch("gabbe.brain.call_llm", return_value="Action"),
+            patch("sys.stdout", io.StringIO()),
         ):
             activate_brain()
 
@@ -434,8 +438,9 @@ class TestWorkflowGoldenPath(unittest.TestCase):
 
         init_db()
 
-        with patch("gabbe.brain.call_llm", return_value="Action"), patch(
-            "sys.stdout", io.StringIO()
+        with (
+            patch("gabbe.brain.call_llm", return_value="Action"),
+            patch("sys.stdout", io.StringIO()),
         ):
             activate_brain()
 
@@ -636,8 +641,9 @@ class TestWorkflowGoldenPath(unittest.TestCase):
 
         # 5. brain activate
         out = io.StringIO()
-        with patch("gabbe.brain.call_llm", return_value="Next: write tests"), patch(
-            "sys.stdout", out
+        with (
+            patch("gabbe.brain.call_llm", return_value="Next: write tests"),
+            patch("sys.stdout", out),
         ):
             activate_brain()
         self.assertIn("Brain Mode", out.getvalue())
@@ -894,10 +900,11 @@ class TestMCPServerProtocol(unittest.TestCase):
             + "\n"
         )
         outputs = []
-        with patch.dict(os.environ, {"GABBE_MCP_TOKEN": "correct-token"}), patch(
-            "gabbe.mcp_server.RunContext"
-        ) as MockCtx, patch("sys.stdin", io.StringIO(req)), patch(
-            "builtins.print", side_effect=lambda s, **kw: outputs.append(s)
+        with (
+            patch.dict(os.environ, {"GABBE_MCP_TOKEN": "correct-token"}),
+            patch("gabbe.mcp_server.RunContext") as MockCtx,
+            patch("sys.stdin", io.StringIO(req)),
+            patch("builtins.print", side_effect=lambda s, **kw: outputs.append(s)),
         ):
             mock_ctx = MagicMock()
             MockCtx.return_value.__enter__ = MagicMock(return_value=mock_ctx)
@@ -931,8 +938,9 @@ class TestMCPServerProtocol(unittest.TestCase):
         mock_result.stderr = ""
         mock_result.returncode = 0
 
-        with patch.dict(os.environ, {"GABBE_MCP_ALLOWED_COMMANDS": "echo"}), patch(
-            "gabbe.mcp_server.subprocess.run", return_value=mock_result
+        with (
+            patch.dict(os.environ, {"GABBE_MCP_ALLOWED_COMMANDS": "echo"}),
+            patch("gabbe.mcp_server.subprocess.run", return_value=mock_result),
         ):
             result = run_command_handler("echo hello")
 
@@ -969,8 +977,9 @@ class TestCLIGlobalFlags(unittest.TestCase):
 
         from gabbe.main import main
 
-        with patch("sys.argv", ["gabbe", "--debug", "status"]), patch(
-            "gabbe.status.show_dashboard"
+        with (
+            patch("sys.argv", ["gabbe", "--debug", "status"]),
+            patch("gabbe.status.show_dashboard"),
         ):
             try:
                 main()

@@ -11,20 +11,13 @@ permissions:
 
 jobs:
   validate:
-    runs-on: ${{ matrix.os }}
-    # Python 3.8 (EOL Oct 2024) is allowed to fail: the runtime package supports
-    # it, but the dev/test toolchain (pytest 9, black 25, …) has dropped 3.8, so
-    # the full suite cannot be installed there. requires-python is kept at >=3.8
-    # for now; bumping it to >=3.9 is tracked as a v2 (breaking) item.
-    continue-on-error: ${{ matrix.python-version == '3.8' }}
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest]
+        # Python 3.8 reached EOL in Oct 2024 and the dev/test toolchain
+        # (pytest 9, black 25, …) has dropped it; minimum supported is 3.9.
         python-version: ['3.9', '3.10', '3.11', '3.12', '3.13']
-        include:
-          - os: ubuntu-22.04
-            python-version: '3.8'
 
     steps:
     - uses: actions/checkout@v4

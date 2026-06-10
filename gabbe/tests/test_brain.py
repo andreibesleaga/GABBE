@@ -189,8 +189,9 @@ def test_run_healer_db_unreachable(tmp_project, capsys):
     """Healer reports DB issue when get_db raises."""
     from gabbe.brain import run_healer
 
-    with patch("gabbe.brain.get_db", side_effect=Exception("locked")), patch(
-        "gabbe.brain.REQUIRED_FILES", []
+    with (
+        patch("gabbe.brain.get_db", side_effect=Exception("locked")),
+        patch("gabbe.brain.REQUIRED_FILES", []),
     ):
         run_healer()
 

@@ -22,8 +22,9 @@ def test_call_llm_returns_content_on_success():
     mock_response.json.return_value = {"choices": [{"message": {"content": "  Hello world  "}}]}
     mock_response.raise_for_status = MagicMock()
 
-    with patch("gabbe.llm.GABBE_API_KEY", "test-key"), patch(
-        "gabbe.llm.requests.post", return_value=mock_response
+    with (
+        patch("gabbe.llm.GABBE_API_KEY", "test-key"),
+        patch("gabbe.llm.requests.post", return_value=mock_response),
     ):
         result = llm_mod.call_llm("prompt")
 
@@ -35,8 +36,9 @@ def test_call_llm_returns_none_on_request_exception():
 
     import gabbe.llm as llm_mod
 
-    with patch("gabbe.llm.GABBE_API_KEY", "test-key"), patch(
-        "gabbe.llm.requests.post", side_effect=requests.exceptions.ConnectionError("fail")
+    with (
+        patch("gabbe.llm.GABBE_API_KEY", "test-key"),
+        patch("gabbe.llm.requests.post", side_effect=requests.exceptions.ConnectionError("fail")),
     ):
         result = llm_mod.call_llm("prompt")
 
@@ -50,8 +52,9 @@ def test_call_llm_returns_none_on_empty_choices():
     mock_response.json.return_value = {"choices": []}
     mock_response.raise_for_status = MagicMock()
 
-    with patch("gabbe.llm.GABBE_API_KEY", "test-key"), patch(
-        "gabbe.llm.requests.post", return_value=mock_response
+    with (
+        patch("gabbe.llm.GABBE_API_KEY", "test-key"),
+        patch("gabbe.llm.requests.post", return_value=mock_response),
     ):
         result = llm_mod.call_llm("prompt")
 
@@ -65,8 +68,9 @@ def test_call_llm_returns_none_on_missing_choices_key():
     mock_response.json.return_value = {"error": "bad request"}
     mock_response.raise_for_status = MagicMock()
 
-    with patch("gabbe.llm.GABBE_API_KEY", "test-key"), patch(
-        "gabbe.llm.requests.post", return_value=mock_response
+    with (
+        patch("gabbe.llm.GABBE_API_KEY", "test-key"),
+        patch("gabbe.llm.requests.post", return_value=mock_response),
     ):
         result = llm_mod.call_llm("prompt")
 

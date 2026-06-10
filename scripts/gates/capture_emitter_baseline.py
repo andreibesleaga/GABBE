@@ -14,11 +14,11 @@ Usage:
     python scripts/gates/capture_emitter_baseline.py <output_dir>
 """
 
+import gzip
 import hashlib
 import io
 import json
 import os
-import shutil
 import sys
 import tempfile
 from contextlib import redirect_stdout
@@ -34,14 +34,6 @@ PLATFORMS = {
     "gemini": ["Gemini / Antigravity"],
     "codex": ["OpenAI / Codex"],
 }
-
-# Key generated files copied verbatim into the vault (when present)
-KEY_FILES = [
-    "agents/AGENTS.md",
-    "SETUP_MISSION.md",
-    ".gemini/settings.json",
-    ".cursorrules",
-]
 
 
 def load_init_module():
@@ -160,6 +152,14 @@ def build_manifest(project_dir):
     return manifest
 
 
+def load_manifest(platform_dir):
+    """Read a (gzipped) golden manifest. Falls back to plain JSON if present."""
+    gz = Path(platform_dir) / "manifest.json.gz"
+    if gz.exists():
+        return json.loads(gzip.decompress(gz.read_bytes()).decode("utf-8"))
+    return json.loads((Path(platform_dir) / "manifest.json").read_text())
+
+
 def capture(platform_key, out_root):
     out_dir = out_root / platform_key
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -167,27 +167,15 @@ def capture(platform_key, out_root):
         project_dir = Path(tmp) / "project"
         project_dir.mkdir()
         init_module = load_init_module()
-        transcript = run_wizard(init_module, project_dir, PLATFORMS[platform_key])
-
+        run_wizard(init_module, project_dir, PLATFORMS[platform_key])
         manifest = build_manifest(project_dir)
-        (out_dir / "manifest.json").write_text(
-            json.dumps(manifest, indent=2, sort_keys=True) + "\n"
-        )
-        (out_dir / "transcript.txt").write_text(normalize(transcript, project_dir))
-        for key_file in KEY_FILES:
-            src = project_dir / key_file
-            if src.exists() and not src.is_symlink():
-                dest = out_dir / "key_files" / key_file
-                dest.parent.mkdir(parents=True, exist_ok=True)
-                shutil.copy2(src, dest)
-        # Full copies of a stable sample of compiled skill artifacts
-        samples = []
-        for pattern in (".cursor/rules/*.mdc", ".github/skills/*/config.json"):
-            samples.extend(sorted(project_dir.glob(pattern))[:3])
-        for src in samples:
-            dest = out_dir / "key_files" / src.relative_to(project_dir)
-            dest.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copy2(src, dest)
+
+    # Store the manifest gzipped (deterministic, mtime=0) so the large
+    # per-artifact baseline does not bloat the reviewable git diff. The test
+    # and gate runner read it via load_manifest(). No human-facing key_files or
+    # transcripts are committed — regenerate locally for inspection if needed.
+    payload = (json.dumps(manifest, indent=2, sort_keys=True) + "\n").encode("utf-8")
+    (out_dir / "manifest.json.gz").write_bytes(gzip.compress(payload, compresslevel=9, mtime=0))
     print(f"[ok] {platform_key}: {len(manifest)} artifacts manifested -> {out_dir}")
 
 

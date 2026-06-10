@@ -29,11 +29,12 @@ def test_sync_preserves_preamble_no_markers(tmp_path):
     # Mocking get_db_timestamp to return 200
 
     # We need to patch get_db and TASKS_FILE config
-    with patch("gabbe.sync.get_db", return_value=mock_db), patch(
-        "gabbe.sync.TASKS_FILE", tasks_file
-    ), patch("gabbe.sync.get_db_timestamp", return_value=200.0), patch(
-        "pathlib.Path.stat"
-    ) as mock_stat:
+    with (
+        patch("gabbe.sync.get_db", return_value=mock_db),
+        patch("gabbe.sync.TASKS_FILE", tasks_file),
+        patch("gabbe.sync.get_db_timestamp", return_value=200.0),
+        patch("pathlib.Path.stat") as mock_stat,
+    ):
 
         # Mock file mtime to be older than DB (100.0 < 200.0)
         mock_stat.return_value.st_mtime = 100.0
@@ -82,11 +83,12 @@ def test_sync_appends_if_no_tasks_found(tmp_path):
     mock_db = MagicMock()
     mock_cursor = mock_db.cursor.return_value
 
-    with patch("gabbe.sync.get_db", return_value=mock_db), patch(
-        "gabbe.sync.TASKS_FILE", tasks_file
-    ), patch("gabbe.sync.get_db_timestamp", return_value=200.0), patch(
-        "pathlib.Path.stat"
-    ) as mock_stat:
+    with (
+        patch("gabbe.sync.get_db", return_value=mock_db),
+        patch("gabbe.sync.TASKS_FILE", tasks_file),
+        patch("gabbe.sync.get_db_timestamp", return_value=200.0),
+        patch("pathlib.Path.stat") as mock_stat,
+    ):
 
         mock_stat.return_value.st_mtime = 100.0
 

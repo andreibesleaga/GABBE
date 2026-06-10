@@ -15,6 +15,7 @@ Edge cases and error cases are included for every command.
 """
 import io
 import json
+import os
 import shutil
 import tempfile
 import unittest
@@ -818,8 +819,7 @@ class TestMCPServerProtocol(unittest.TestCase):
         req = json.dumps({"jsonrpc": "2.0", "method": "initialize", "id": 1,
                           "params": {"token": "wrong-token"}}) + "\n"
         outputs = []
-        with patch("gabbe.mcp_server._MCP_TOKEN", "correct-token"), \
-             patch("gabbe.mcp_server._authenticated", False), \
+        with patch.dict(os.environ, {"GABBE_MCP_TOKEN": "correct-token"}), \
              patch("gabbe.mcp_server.RunContext") as MockCtx, \
              patch("sys.stdin", io.StringIO(req)), \
              patch("builtins.print", side_effect=lambda s, **kw: outputs.append(s)):
@@ -838,7 +838,7 @@ class TestMCPServerProtocol(unittest.TestCase):
         """run_command_handler blocks non-allowed commands."""
         from gabbe.mcp_server import run_command_handler
 
-        with patch("gabbe.mcp_server._ALLOWED_COMMANDS", ["pytest", "ruff"]):
+        with patch.dict(os.environ, {"GABBE_MCP_ALLOWED_COMMANDS": "pytest,ruff"}):
             result = run_command_handler("rm -rf /tmp/evil")
 
         self.assertEqual(result["returncode"], 126)
@@ -854,7 +854,7 @@ class TestMCPServerProtocol(unittest.TestCase):
         mock_result.stderr = ""
         mock_result.returncode = 0
 
-        with patch("gabbe.mcp_server._ALLOWED_COMMANDS", ["echo"]), \
+        with patch.dict(os.environ, {"GABBE_MCP_ALLOWED_COMMANDS": "echo"}), \
              patch("gabbe.mcp_server.subprocess.run", return_value=mock_result):
             result = run_command_handler("echo hello")
 

@@ -6,6 +6,27 @@ Comprehensive installation, configuration, and usage guide for every MCP (Model 
 > **How to apply**: Copy the relevant server entry into your tool's MCP config (Claude `.mcp.json`, VS Code `.vscode/mcp.json`, Cursor settings, etc.) and restart.
 > **Prerequisites**: Node.js 18+ and `npx` available in PATH for all `npx`-based servers.
 
+> [!IMPORTANT]
+> **Package names verified 2026-06-10** against the npm/PyPI registries. Several
+> entries were corrected to their current upstream package (e.g. Context7 →
+> `@upstash/context7-mcp`, Sentry → `@sentry/mcp-server`, Stripe → `@stripe/mcp`,
+> Azure → `@azure/mcp`). The `@modelcontextprotocol/server-*` reference servers
+> are **archived** (still installable, no longer maintained) — prefer official
+> successors where they exist (e.g. the GitHub MCP is now the Go
+> `github-mcp-server`/Docker image).
+>
+> **Hosted / desktop servers (no `npx` package)** — connect via the vendor's URL
+> or app instead of installing: **Zapier** (per-user URL at `mcp.zapier.com`),
+> **Vercel** (hosted MCP + `@vercel/mcp-adapter` to build your own), **Datadog**
+> (hosted MCP), **Figma** (Dev Mode MCP in the Figma desktop app), **Docker**
+> (MCP Toolkit in Docker Desktop). **AWS** ships `awslabs.*` servers on PyPI;
+> **Grafana** ships the Go `mcp-grafana`; **HashiCorp Terraform** ships a
+> Docker/Go `terraform-mcp-server`; **Confluence/Jira** use community Atlassian
+> servers (e.g. `mcp-atlassian`, `@aashari/mcp-server-atlassian-*`). The
+> `@anthropic/mcp-server-shell` entry has no published package and should not be
+> used. See `OpenSourceAudit/projects/GABBE/mcp-verification-2026-06.md` for the
+> full per-server status.
+
 ---
 
 ## Table of Contents
@@ -39,7 +60,7 @@ Up-to-date SDK documentation — prevents the agent from hallucinating deprecate
 
 | Property | Value |
 |---|---|
-| **Package** | `@context7/mcp-server` |
+| **Package** | `@upstash/context7-mcp` |
 | **Website** | [context7.com](https://context7.com) |
 | **API Key** | None required |
 | **GABBE Skill** | `research.skill`, all coding skills |
@@ -49,7 +70,7 @@ Up-to-date SDK documentation — prevents the agent from hallucinating deprecate
 {
   "context7": {
     "command": "npx",
-    "args": ["@context7/mcp-server"],
+    "args": ["@upstash/context7-mcp"],
     "env": {}
   }
 }
@@ -274,7 +295,7 @@ Time-series analytics and robust metrics logging.
 
 | Property | Value |
 |---|---|
-| **Package** | `@greptimedb/mcp-server` |
+| **Package** | `greptimedb-mcp-server` |
 | **Website** | [greptime.com](https://greptime.com) |
 | **API Key** | **Required**: `GREPTIME_HOST`, `GREPTIME_DB`, `GREPTIME_USERNAME`, `GREPTIME_PASSWORD` |
 
@@ -283,7 +304,7 @@ Time-series analytics and robust metrics logging.
 {
   "greptime": {
     "command": "npx",
-    "args": ["-y", "@greptimedb/mcp-server"],
+    "args": ["-y", "greptimedb-mcp-server"],
     "env": {
       "GREPTIME_HOST": "${GREPTIME_HOST}",
       "GREPTIME_DB": "${GREPTIME_DB}",
@@ -302,7 +323,7 @@ Agentic OLAP and real-time reporting.
 
 | Property | Value |
 |---|---|
-| **Package** | `@clickhouse/mcp-server` |
+| **Package** | `mcp-clickhouse` |
 | **Website** | [clickhouse.com](https://clickhouse.com) |
 | **API Key** | **Required**: `CLICKHOUSE_URL`, `CLICKHOUSE_USER`, `CLICKHOUSE_PASSWORD` |
 
@@ -311,7 +332,7 @@ Agentic OLAP and real-time reporting.
 {
   "clickhouse": {
     "command": "npx",
-    "args": ["-y", "@clickhouse/mcp-server"],
+    "args": ["-y", "mcp-clickhouse"],
     "env": {
       "CLICKHOUSE_URL": "${CLICKHOUSE_URL}",
       "CLICKHOUSE_USER": "${CLICKHOUSE_USER}",
@@ -329,7 +350,7 @@ MongoDB exploration, queries, and collection management.
 
 | Property | Value |
 |---|---|
-| **Package** | `@modelcontextprotocol/server-mongodb-lens` |
+| **Package** | `mongodb-lens` |
 | **Website** | [mongodb.com](https://www.mongodb.com) |
 | **API Key** | **Required**: `MONGODB_URI` (connection string) |
 
@@ -338,7 +359,7 @@ MongoDB exploration, queries, and collection management.
 {
   "mongodb": {
     "command": "npx",
-    "args": ["-y", "@modelcontextprotocol/server-mongodb-lens"],
+    "args": ["-y", "mongodb-lens"],
     "env": {
       "MONGODB_CONNECTION_STRING": "${MONGODB_URI}"
     }
@@ -404,7 +425,7 @@ Universal database client supporting MySQL, MariaDB, PostgreSQL, and SQL Server.
 
 | Property | Value |
 |---|---|
-| **Package** | `@modelcontextprotocol/server-dbhub` |
+| **Package** | `@bytebase/dbhub` |
 | **Website** | [github.com/modelcontextprotocol/servers](https://github.com/modelcontextprotocol/servers) |
 | **API Key** | None (uses local DB connections) |
 
@@ -413,7 +434,7 @@ Universal database client supporting MySQL, MariaDB, PostgreSQL, and SQL Server.
 {
   "dbhub": {
     "command": "npx",
-    "args": ["-y", "@modelcontextprotocol/server-dbhub"],
+    "args": ["-y", "@bytebase/dbhub"],
     "env": {}
   }
 }
@@ -594,7 +615,7 @@ Error tracking, bug context, and performance issue correlation.
 
 | Property | Value |
 |---|---|
-| **Package** | `@sentry/mcp` |
+| **Package** | `@sentry/mcp-server` |
 | **Website** | [sentry.io](https://sentry.io) |
 | **API Key** | **Required**: `SENTRY_AUTH_TOKEN`, `SENTRY_ORG`, `SENTRY_PROJECT` |
 | **Get API Key** | Sentry → Settings → API Keys |
@@ -605,7 +626,7 @@ Error tracking, bug context, and performance issue correlation.
 {
   "sentry": {
     "command": "npx",
-    "args": ["-y", "@sentry/mcp"],
+    "args": ["-y", "@sentry/mcp-server"],
     "env": {
       "SENTRY_AUTH_TOKEN": "${SENTRY_AUTH_TOKEN}",
       "SENTRY_ORG": "${SENTRY_ORG}",
@@ -796,7 +817,7 @@ Privacy-focused web search. No API key required.
 
 | Property | Value |
 |---|---|
-| **Package** | `@modelcontextprotocol/server-duckduckgo` |
+| **Package** | `duckduckgo-mcp-server` |
 | **Website** | [duckduckgo.com](https://duckduckgo.com) |
 | **API Key** | None required |
 
@@ -805,7 +826,7 @@ Privacy-focused web search. No API key required.
 {
   "duckduckgo": {
     "command": "npx",
-    "args": ["-y", "@modelcontextprotocol/server-duckduckgo"],
+    "args": ["-y", "duckduckgo-mcp-server"],
     "env": {}
   }
 }
@@ -927,7 +948,7 @@ Azure Resource management — Key Vault, CosmosDB, Azure Storage.
 
 | Property | Value |
 |---|---|
-| **Package** | `@microsoft/azure-mcp-server` |
+| **Package** | `@azure/mcp` |
 | **Website** | [azure.microsoft.com](https://azure.microsoft.com) |
 | **API Key** | **Required**: `AZURE_CLIENT_ID`, `AZURE_CLIENT_SECRET`, `AZURE_TENANT_ID` |
 
@@ -936,7 +957,7 @@ Azure Resource management — Key Vault, CosmosDB, Azure Storage.
 {
   "azure": {
     "command": "npx",
-    "args": ["-y", "@microsoft/azure-mcp-server"],
+    "args": ["-y", "@azure/mcp"],
     "env": {
       "AZURE_CLIENT_ID": "${AZURE_CLIENT_ID}",
       "AZURE_CLIENT_SECRET": "${AZURE_CLIENT_SECRET}",
@@ -1040,7 +1061,7 @@ Programmatic generation and editing of C4, UML, and network diagrams.
 
 | Property | Value |
 |---|---|
-| **Package** | `@jgraph/drawio-mcp-server` |
+| **Package** | `drawio-mcp-server` |
 | **Website** | [draw.io](https://www.drawio.com) |
 | **API Key** | None required |
 | **GABBE Skill** | `architecture/visual-whiteboarding.skill` |
@@ -1050,7 +1071,7 @@ Programmatic generation and editing of C4, UML, and network diagrams.
 {
   "drawio": {
     "command": "npx",
-    "args": ["-y", "@jgraph/drawio-mcp-server"],
+    "args": ["-y", "drawio-mcp-server"],
     "env": {}
   }
 }
@@ -1322,7 +1343,7 @@ Jira Cloud task interaction — read and update tickets.
 
 | Property | Value |
 |---|---|
-| **Package** | `aashari/mcp-server-atlassian-jira` |
+| **Package** | `@aashari/mcp-server-atlassian-jira` |
 | **Website** | [atlassian.com/jira](https://www.atlassian.com/software/jira) |
 | **API Key** | **Required**: `JIRA_SITE`, `JIRA_EMAIL`, `JIRA_API_TOKEN` |
 | **Get API Key** | [id.atlassian.com/manage-profile/security/api-tokens](https://id.atlassian.com/manage-profile/security/api-tokens) |
@@ -1332,7 +1353,7 @@ Jira Cloud task interaction — read and update tickets.
 {
   "jira": {
     "command": "npx",
-    "args": ["-y", "aashari/mcp-server-atlassian-jira"],
+    "args": ["-y", "@aashari/mcp-server-atlassian-jira"],
     "env": {
       "ATLASSIAN_SITE_NAME": "${JIRA_SITE}",
       "ATLASSIAN_USER_EMAIL": "${JIRA_EMAIL}",
@@ -1429,7 +1450,7 @@ Workspace channels, DMs, and message history.
 
 | Property | Value |
 |---|---|
-| **Package** | `@slack/mcp-server` |
+| **Package** | `slack-mcp-server` |
 | **Website** | [api.slack.com](https://api.slack.com) |
 | **API Key** | **Required**: `SLACK_BOT_TOKEN`, `SLACK_TEAM_ID` |
 | **Get API Key** | [api.slack.com/apps](https://api.slack.com/apps) → Create App → Bot Token |
@@ -1439,7 +1460,7 @@ Workspace channels, DMs, and message history.
 {
   "slack": {
     "command": "npx",
-    "args": ["-y", "@slack/mcp-server"],
+    "args": ["-y", "slack-mcp-server"],
     "env": {
       "SLACK_BOT_TOKEN": "${SLACK_BOT_TOKEN}",
       "SLACK_TEAM_ID": "${SLACK_TEAM_ID}"
@@ -1563,7 +1584,7 @@ Search and manage Stripe payment resources.
 
 | Property | Value |
 |---|---|
-| **Package** | `@stripe/mcp-server` |
+| **Package** | `@stripe/mcp` |
 | **Website** | [stripe.com](https://stripe.com) |
 | **API Key** | **Required**: `STRIPE_SECRET_KEY` |
 | **Get API Key** | Stripe Dashboard → Developers → API Keys |
@@ -1573,7 +1594,7 @@ Search and manage Stripe payment resources.
 {
   "stripe": {
     "command": "npx",
-    "args": ["-y", "@stripe/mcp-server"],
+    "args": ["-y", "@stripe/mcp"],
     "env": {
       "STRIPE_API_KEY": "${STRIPE_SECRET_KEY}"
     }

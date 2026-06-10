@@ -650,7 +650,7 @@ Text Overview (ASCII):
 ---
 
 *Last updated: [DATE]*
-*GABBE Kit version: 0.8.0*
+*GABBE Kit version: 0.9.6*
 *This file is maintained by the team and updated when project conventions change.*
 
 ---

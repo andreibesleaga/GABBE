@@ -9,7 +9,7 @@
 ## Installation
 
 ### Method 1: This Kit (built-in — no install needed)
-All 171 skills in this directory are ready to use immediately.
+All 180 skills in this directory are ready to use immediately.
 Run `setup-context.sh` to wire them to your AI tool's skill directory.
 
 ### Method 2: Skill Marketplaces & Registries
@@ -45,7 +45,7 @@ ln -sf /path/to/agents/skills/*/*.skill.md ~/.agent/skills/
 
 ---
 
-> **Total Skills**: 160+
+> **Total Skills**: 180
 > *Registry auto-updated by init.py logic*
 
 ## Skills Registry

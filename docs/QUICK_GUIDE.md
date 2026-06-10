@@ -416,7 +416,7 @@ Skills are invoked by mentioning trigger keywords in conversation.
 ```
 
 
-All 120+ skills are listed in `agents/skills/00-index.md`.
+All 180+ skills are listed in `agents/skills/00-index.md`.
 
 ---
 
@@ -891,7 +891,7 @@ python3 GABBE/scripts/init.py
 
 ## 🛡️ Security & Guardrails
 
-All 140+ skills in the GABBE kit feature a heavily enforced **"Security & Guardrails"** section that binds agents to the project's CONSTITUTION.md. The 3-layer security constraints include:
+All 180+ skills in the GABBE kit feature a heavily enforced **"Security & Guardrails"** section that binds agents to the project's CONSTITUTION.md. The 3-layer security constraints include:
 
 1.  **Skill Security**: Tool-specific protection (e.g., preventing command injection or sandbox escapes).
 2.  **System Integration Security**: Safe external integration (e.g., verifying boundary enforcement or ensuring test coverage).

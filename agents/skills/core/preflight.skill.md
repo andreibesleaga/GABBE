@@ -24,7 +24,7 @@ Read ONLY the index/summary files, not the skill bodies:
 - `agents/skills/00-index.md` — the skill catalog (name, triggers, `context_cost`, purpose).
 - `agents/guides/00-index.md` — the guide catalog.
 - `agents/templates/00-index.md` — the template catalog.
-- `agents/personas/00-index.md` — the 35 personas (swarm, role, when-to-use).
+- `agents/personas/00-index.md` — the personas (swarm, role, when-to-use).
 Build an in-context map of *what exists* so selection can be deliberate, not generic.
 
 ### Step 2 — Load memory + state headers (priming, not full bodies)

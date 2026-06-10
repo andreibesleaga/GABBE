@@ -1,6 +1,6 @@
 {
   "name": "gabbe",
-  "version": "0.9.0",
+  "version": "0.9.6",
   "description": "GABBE - Generative Architectural Brain Base Engine. A Markdown agentic engineering kit installer (Python-independent). Wires AGENTS.md, skills, and per-agent rule files into any project.",
   "keywords": [
     "agentic",

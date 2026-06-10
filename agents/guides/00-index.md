@@ -6,7 +6,7 @@
 
 ---
 
-> **Total Guides**: 70
+> **Total Guides**: 72
 > *Registry categorized by domain.*
 
 ## Guides Registry

@@ -333,6 +333,9 @@
     }
   },
   "gabbe.mcp_server": {
+    "MCP_PROTOCOL_VERSION": {
+      "kind": "str"
+    },
     "run_command_handler": {
       "kind": "function",
       "signature": "(command: str)"

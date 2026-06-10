@@ -1,0 +1,486 @@
+{
+  "gabbe.audit": {
+    "AuditTracer": {
+      "kind": "class",
+      "methods": {
+        "__init__": "(self, run_id: 'str', db_conn=None)",
+        "end_span": "(self, span_ctx: 'dict', output_data: 'dict | None' = None, reasoning_content: 'str | None' = None, model_name: 'str | None' = None, token_usage: 'dict | None' = None, cost_usd: 'float' = 0.0, status: 'str' = 'ok', metadata: 'dict | None' = None)",
+        "export_json": "(self, run_id: 'str') -> 'str'",
+        "get_run_trace": "(self, run_id: 'str') -> 'list'",
+        "snapshot_budget": "(self, step: 'int', budget)",
+        "start_span": "(self, event_type: 'str', node_name: 'str', input_data: 'dict', parent_span_id: 'str | None' = None)"
+      }
+    },
+    "GABBE_OTEL_ENABLED": {
+      "kind": "bool"
+    },
+    "otel_tracer": {
+      "kind": "NoneType"
+    },
+    "traced": {
+      "kind": "function",
+      "signature": "(event_type: 'str', node_name: 'str | None' = None)"
+    }
+  },
+  "gabbe.brain": {
+    "REQUIRED_FILES": {
+      "kind": "list"
+    },
+    "TASK_STATUS_DONE": {
+      "kind": "str"
+    },
+    "TASK_STATUS_IN_PROGRESS": {
+      "kind": "str"
+    },
+    "TASK_STATUS_TODO": {
+      "kind": "str"
+    },
+    "activate_brain": {
+      "kind": "function",
+      "signature": "(run_context=None)"
+    },
+    "evolve_prompts": {
+      "kind": "function",
+      "signature": "(skill_name)"
+    },
+    "run_healer": {
+      "kind": "function",
+      "signature": "()"
+    }
+  },
+  "gabbe.budget": {
+    "Budget": {
+      "kind": "class",
+      "methods": {
+        "__init__": "(self, max_tokens: int = 100000, max_tool_calls: int = 50, max_wall_seconds: int = 300, max_iterations: int = 25, max_cost_usd: float = 5.0, tokens_used: int = 0, tool_calls_used: int = 0, iterations: int = 0, cost_usd: float = 0.0, _start_time: float = <factory>, _cached_prices: dict = <factory>) -> None",
+        "check": "(self)",
+        "record_iteration": "(self)",
+        "record_llm_usage": "(self, model_id: str, usage_dict: dict)",
+        "record_tool_call": "(self)",
+        "remaining": "(self) -> dict",
+        "snapshot": "(self) -> dict"
+      }
+    },
+    "BudgetExceeded": {
+      "kind": "class",
+      "methods": {
+        "__init__": "(self, reason, snapshot)"
+      }
+    },
+    "GABBE_MAX_COST_USD": {
+      "kind": "float"
+    },
+    "GABBE_MAX_ITERATIONS": {
+      "kind": "int"
+    },
+    "GABBE_MAX_TOKENS_PER_RUN": {
+      "kind": "int"
+    },
+    "GABBE_MAX_TOOL_CALLS_PER_RUN": {
+      "kind": "int"
+    },
+    "GABBE_MAX_WALL_TIME": {
+      "kind": "int"
+    }
+  },
+  "gabbe.config": {
+    "Colors": {
+      "kind": "class",
+      "methods": {}
+    },
+    "GABBE_API_KEY": {
+      "kind": "NoneType"
+    },
+    "GABBE_API_MODEL": {
+      "kind": "str"
+    },
+    "GABBE_API_URL": {
+      "kind": "str"
+    },
+    "GABBE_ESCALATION_MODE": {
+      "kind": "str"
+    },
+    "GABBE_MAX_COST_USD": {
+      "kind": "float"
+    },
+    "GABBE_MAX_ITERATIONS": {
+      "kind": "int"
+    },
+    "GABBE_MAX_RECURSION_DEPTH": {
+      "kind": "int"
+    },
+    "GABBE_MAX_RETRIES_PER_TOOL": {
+      "kind": "int"
+    },
+    "GABBE_MAX_TOKENS_PER_RUN": {
+      "kind": "int"
+    },
+    "GABBE_MAX_TOOL_CALLS_PER_RUN": {
+      "kind": "int"
+    },
+    "GABBE_MAX_WALL_TIME": {
+      "kind": "int"
+    },
+    "GABBE_OTEL_ENABLED": {
+      "kind": "bool"
+    },
+    "LLM_MAX_RETRIES": {
+      "kind": "int"
+    },
+    "LLM_TEMPERATURE": {
+      "kind": "float"
+    },
+    "LLM_TIMEOUT": {
+      "kind": "int"
+    },
+    "LOG_LEVEL": {
+      "kind": "str"
+    },
+    "PII_PATTERNS": {
+      "kind": "list"
+    },
+    "PROGRESS_BAR_LEN": {
+      "kind": "int"
+    },
+    "REQUIRED_FILES": {
+      "kind": "list"
+    },
+    "ROUTE_COMPLEXITY_THRESHOLD": {
+      "kind": "int"
+    },
+    "SUBPROCESS_TIMEOUT": {
+      "kind": "int"
+    },
+    "TASK_STATUS_DONE": {
+      "kind": "str"
+    },
+    "TASK_STATUS_IN_PROGRESS": {
+      "kind": "str"
+    },
+    "TASK_STATUS_TODO": {
+      "kind": "str"
+    }
+  },
+  "gabbe.context": {
+    "RunContext": {
+      "kind": "class",
+      "methods": {
+        "__init__": "(self, command: 'str', initiator: 'str' = 'cli', agent_persona: 'str | None' = None, run_id: 'str | None' = None, budget: 'Budget | None' = None, hard_stop: 'HardStop | None' = None, policy: 'PolicyEngine | None' = None, gateway: 'ToolGateway | None' = None)"
+      }
+    }
+  },
+  "gabbe.database": {
+    "SCHEMA_VERSION": {
+      "kind": "int"
+    },
+    "get_db": {
+      "kind": "function",
+      "signature": "()"
+    },
+    "init_db": {
+      "kind": "function",
+      "signature": "()"
+    }
+  },
+  "gabbe.escalation": {
+    "EscalationHandler": {
+      "kind": "class",
+      "methods": {
+        "__init__": "(self, run_id: 'str', db_conn=None)",
+        "escalate": "(self, trigger: 'EscalationTrigger', context_dict: 'dict', step: 'int' = 0) -> 'EscalationResult'",
+        "resolve": "(self, esc_id: 'int', status: 'str', response: 'str | None' = None)"
+      }
+    },
+    "EscalationPaused": {
+      "kind": "class",
+      "methods": {}
+    },
+    "EscalationResult": {
+      "kind": "class",
+      "methods": {
+        "__init__": "(self, status: 'str', response: 'str | None' = None)"
+      }
+    },
+    "EscalationTrigger": {
+      "kind": "class",
+      "methods": {}
+    },
+    "GABBE_ESCALATION_MODE": {
+      "kind": "str"
+    }
+  },
+  "gabbe.forecast": {
+    "run_forecast": {
+      "kind": "function",
+      "signature": "()"
+    }
+  },
+  "gabbe.gateway": {
+    "CircuitOpen": {
+      "kind": "class",
+      "methods": {}
+    },
+    "HAS_JSONSCHEMA": {
+      "kind": "bool"
+    },
+    "PolicyDenied": {
+      "kind": "class",
+      "methods": {}
+    },
+    "RateLimitExceeded": {
+      "kind": "class",
+      "methods": {}
+    },
+    "ToolDefinition": {
+      "kind": "class",
+      "methods": {
+        "__init__": "(self, name: str, description: str, parameters: dict, handler: Callable, allowed_roles: set, rate_limit_per_min: int = 60, circuit_breaker_threshold: int = 3) -> None"
+      }
+    },
+    "ToolGateway": {
+      "kind": "class",
+      "methods": {
+        "__init__": "(self)",
+        "execute": "(self, name: str, arguments: dict, role: str, run_context) -> Any",
+        "register": "(self, tool_def: gabbe.gateway.ToolDefinition)"
+      }
+    },
+    "ToolNotFound": {
+      "kind": "class",
+      "methods": {}
+    }
+  },
+  "gabbe.hardstop": {
+    "GABBE_MAX_ITERATIONS": {
+      "kind": "int"
+    },
+    "GABBE_MAX_RECURSION_DEPTH": {
+      "kind": "int"
+    },
+    "HardStop": {
+      "kind": "class",
+      "methods": {
+        "__init__": "(self, max_iterations=None, max_depth=None, timeout_sec=None)",
+        "remaining_steps": "(self) -> int",
+        "should_wrap_up": "(self, threshold=2) -> bool",
+        "tick": "(self, depth=0)"
+      }
+    },
+    "HardStopTriggered": {
+      "kind": "class",
+      "methods": {}
+    },
+    "MaxDepthExceeded": {
+      "kind": "class",
+      "methods": {}
+    },
+    "MaxIterationsExceeded": {
+      "kind": "class",
+      "methods": {}
+    },
+    "TimeoutExceeded": {
+      "kind": "class",
+      "methods": {}
+    }
+  },
+  "gabbe.llm": {
+    "GABBE_API_KEY": {
+      "kind": "NoneType"
+    },
+    "GABBE_API_MODEL": {
+      "kind": "str"
+    },
+    "GABBE_API_URL": {
+      "kind": "str"
+    },
+    "LLM_MAX_RETRIES": {
+      "kind": "int"
+    },
+    "LLM_TEMPERATURE": {
+      "kind": "float"
+    },
+    "LLM_TIMEOUT": {
+      "kind": "int"
+    },
+    "call_llm": {
+      "kind": "function",
+      "signature": "(prompt, system_prompt='You are a helpful assistant.', temperature=None, timeout=None)"
+    },
+    "call_llm_with_usage": {
+      "kind": "function",
+      "signature": "(prompt, system_prompt='You are a helpful assistant.', temperature=None, timeout=None)"
+    }
+  },
+  "gabbe.main": {
+    "LOG_LEVEL": {
+      "kind": "str"
+    },
+    "main": {
+      "kind": "function",
+      "signature": "()"
+    }
+  },
+  "gabbe.mcp_server": {
+    "MCP_PROTOCOL_VERSION": {
+      "kind": "str"
+    },
+    "run_command_handler": {
+      "kind": "function",
+      "signature": "(command: str)"
+    },
+    "serve": {
+      "kind": "function",
+      "signature": "()"
+    }
+  },
+  "gabbe.policy": {
+    "ContentSafetyPolicy": {
+      "kind": "class",
+      "methods": {
+        "check": "(self, context: dict) -> gabbe.policy.PolicyResult"
+      }
+    },
+    "PII_PATTERNS": {
+      "kind": "list"
+    },
+    "ParameterRangePolicy": {
+      "kind": "class",
+      "methods": {
+        "__init__": "(self, bounds: Dict[str, Dict[str, float]])",
+        "check": "(self, context: dict) -> gabbe.policy.PolicyResult"
+      }
+    },
+    "Policy": {
+      "kind": "class",
+      "methods": {
+        "check": "(self, context: dict) -> gabbe.policy.PolicyResult"
+      }
+    },
+    "PolicyEngine": {
+      "kind": "class",
+      "methods": {
+        "__init__": "(self, policies: List[gabbe.policy.Policy])",
+        "evaluate": "(self, context: dict) -> gabbe.policy.PolicyResult",
+        "evaluate_all": "(self, context: dict) -> List[gabbe.policy.PolicyResult]"
+      }
+    },
+    "PolicyResult": {
+      "kind": "class",
+      "methods": {
+        "__init__": "(self, allowed: bool, reason: str, policy_name: str) -> None"
+      }
+    },
+    "RolePolicy": {
+      "kind": "class",
+      "methods": {
+        "__init__": "(self, roles: Dict[str, List[str]])",
+        "check": "(self, context: dict) -> gabbe.policy.PolicyResult"
+      }
+    },
+    "ToolAllowlistPolicy": {
+      "kind": "class",
+      "methods": {
+        "__init__": "(self, allowed_tools: List[str], denied_tools: List[str])",
+        "check": "(self, context: dict) -> gabbe.policy.PolicyResult"
+      }
+    }
+  },
+  "gabbe.replay": {
+    "CheckpointStore": {
+      "kind": "class",
+      "methods": {
+        "__init__": "(self, db_conn=None)",
+        "get_history": "(self, run_id: 'str') -> 'list'",
+        "load": "(self, checkpoint_id: 'int') -> 'dict | None'",
+        "save": "(self, run_id: 'str', step: 'int', node_name: 'str', state_snapshot: 'dict', policy_version: 'str', parent_id: 'int | None' = None) -> 'int | None'"
+      }
+    },
+    "ReplayRunner": {
+      "kind": "class",
+      "methods": {
+        "__init__": "(self, store: 'CheckpointStore')",
+        "diff": "(self, run_id_a: 'str', run_id_b: 'str') -> 'list'",
+        "replay": "(self, run_id: 'str', from_step: 'int' = 0) -> 'list'"
+      }
+    }
+  },
+  "gabbe.route": {
+    "PII_PATTERNS": {
+      "kind": "list"
+    },
+    "ROUTE_COMPLEXITY_THRESHOLD": {
+      "kind": "int"
+    },
+    "calculate_complexity": {
+      "kind": "function",
+      "signature": "(prompt)"
+    },
+    "detect_pii": {
+      "kind": "function",
+      "signature": "(prompt)"
+    },
+    "route_request": {
+      "kind": "function",
+      "signature": "(prompt)"
+    }
+  },
+  "gabbe.status": {
+    "PROGRESS_BAR_LEN": {
+      "kind": "int"
+    },
+    "show_dashboard": {
+      "kind": "function",
+      "signature": "()"
+    }
+  },
+  "gabbe.sync": {
+    "export_to_md": {
+      "kind": "function",
+      "signature": "(c)"
+    },
+    "generate_markdown_tasks": {
+      "kind": "function",
+      "signature": "(tasks)"
+    },
+    "get_db_timestamp": {
+      "kind": "function",
+      "signature": "(c)"
+    },
+    "import_from_md": {
+      "kind": "function",
+      "signature": "(c, tasks_or_content)"
+    },
+    "parse_markdown_tasks": {
+      "kind": "function",
+      "signature": "(content)"
+    },
+    "sync_tasks": {
+      "kind": "function",
+      "signature": "()"
+    }
+  },
+  "gabbe.verify": {
+    "REQUIRED_FILES": {
+      "kind": "list"
+    },
+    "SUBPROCESS_TIMEOUT": {
+      "kind": "int"
+    },
+    "check_files": {
+      "kind": "function",
+      "signature": "()"
+    },
+    "parse_agents_config": {
+      "kind": "function",
+      "signature": "()"
+    },
+    "run_command": {
+      "kind": "function",
+      "signature": "(cmd, name)"
+    },
+    "run_verification": {
+      "kind": "function",
+      "signature": "()"
+    }
+  }
+}

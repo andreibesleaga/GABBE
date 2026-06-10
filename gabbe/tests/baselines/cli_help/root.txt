@@ -1,0 +1,27 @@
+usage: main.py [-h] [--version] [--debug]
+               {init,db,sync,verify,status,route,brain,serve-mcp,forecast,runs,audit,replay,resume}
+               ...
+
+[1mGABBE CLI (experimental) - Agentic Engineering Platform[0m
+
+positional arguments:
+  {init,db,sync,verify,status,route,brain,serve-mcp,forecast,runs,audit,replay,resume}
+                        Available commands
+    init                Initialize GABBE in the current directory
+    db                  Database management
+    sync                Sync Markdown <-> SQLite
+    verify              Run integrity checks
+    status              Show project dashboard
+    route               Cost-Effective Router
+    brain               Brain Mode Interface
+    serve-mcp           Run the zero-dependency JSON-RPC MCP Server
+    forecast            Strategic Forecast of Remaining Work and Budgets
+    runs                List recent agent runs
+    audit               Display structured trace for a run
+    replay              Replay a past run from checkpoints
+    resume              Resume a paused/escalated run
+
+options:
+  -h, --help            show this help message and exit
+  --version             show program's version number and exit
+  --debug               Enable debug logging and full stack traces

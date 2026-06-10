@@ -1,9 +1,13 @@
+# SPDX-License-Identifier: Apache-2.0
 from __future__ import annotations
+
 import json
 import logging
+
 from .database import get_db
 
 logger = logging.getLogger("gabbe.replay")
+
 
 class CheckpointStore:
     def __init__(self, db_conn=None):
@@ -18,14 +22,25 @@ class CheckpointStore:
         if self._owns_db and self.db_conn:
             self.db_conn.close()
 
-    def save(self, run_id: str, step: int, node_name: str, state_snapshot: dict, policy_version: str, parent_id: int | None = None) -> int | None:
+    def save(
+        self,
+        run_id: str,
+        step: int,
+        node_name: str,
+        state_snapshot: dict,
+        policy_version: str,
+        parent_id: int | None = None,
+    ) -> int | None:
         try:
             cursor = self.db_conn.cursor()
-            cursor.execute("""
+            cursor.execute(
+                """
                 INSERT INTO checkpoints 
                 (run_id, step, node_name, state_snapshot, policy_version, parent_checkpoint_id)
                 VALUES (?, ?, ?, ?, ?, ?)
-            """, (run_id, step, node_name, json.dumps(state_snapshot), policy_version, parent_id))
+            """,
+                (run_id, step, node_name, json.dumps(state_snapshot), policy_version, parent_id),
+            )
             self.db_conn.commit()
             return cursor.lastrowid
         except Exception as e:
@@ -35,9 +50,12 @@ class CheckpointStore:
     def get_history(self, run_id: str) -> list:
         try:
             cursor = self.db_conn.cursor()
-            cursor.execute("""
+            cursor.execute(
+                """
                 SELECT * FROM checkpoints WHERE run_id = ? ORDER BY step ASC
-            """, (run_id,))
+            """,
+                (run_id,),
+            )
             rows = cursor.fetchall()
             return [dict(row) for row in rows]
         except Exception as e:
@@ -47,9 +65,12 @@ class CheckpointStore:
     def load(self, checkpoint_id: int) -> dict | None:
         try:
             cursor = self.db_conn.cursor()
-            cursor.execute("""
+            cursor.execute(
+                """
                 SELECT * FROM checkpoints WHERE id = ?
-            """, (checkpoint_id,))
+            """,
+                (checkpoint_id,),
+            )
             row = cursor.fetchone()
             if row:
                 d = dict(row)
@@ -59,6 +80,7 @@ class CheckpointStore:
         except Exception as e:
             logger.error(f"Failed to load checkpoint: {e}")
             return None
+
 
 class ReplayRunner:
     def __init__(self, store: CheckpointStore):
@@ -83,10 +105,13 @@ class ReplayRunner:
         recorded_outputs = {}
         try:
             cursor = self.store.db_conn.cursor()
-            cursor.execute("""
+            cursor.execute(
+                """
                 SELECT node_name, output_data FROM audit_spans
                 WHERE run_id = ? ORDER BY id ASC
-            """, (run_id,))
+            """,
+                (run_id,),
+            )
             node_occurrence: dict = {}
             for row in cursor.fetchall():
                 nn = row["node_name"]
@@ -109,7 +134,11 @@ class ReplayRunner:
             step_result = {
                 "step": ckpt["step"],
                 "node_name": nn,
-                "state_snapshot": json.loads(ckpt["state_snapshot"]) if isinstance(ckpt["state_snapshot"], str) else ckpt["state_snapshot"],
+                "state_snapshot": (
+                    json.loads(ckpt["state_snapshot"])
+                    if isinstance(ckpt["state_snapshot"], str)
+                    else ckpt["state_snapshot"]
+                ),
                 "policy_version": ckpt["policy_version"],
                 "recorded_output": recorded_outputs.get((nn, idx)),
             }
@@ -133,10 +162,12 @@ class ReplayRunner:
             b = history_b[i] if i < len(history_b) else None
             node_a = a["node_name"] if a else "<missing>"
             node_b = b["node_name"] if b else "<missing>"
-            results.append({
-                "step": i,
-                "run_a_node": node_a,
-                "run_b_node": node_b,
-                "match": node_a == node_b,
-            })
+            results.append(
+                {
+                    "step": i,
+                    "run_a_node": node_a,
+                    "run_b_node": node_b,
+                    "match": node_a == node_b,
+                }
+            )
         return results

@@ -1,14 +1,18 @@
+# SPDX-License-Identifier: Apache-2.0
 from __future__ import annotations
-import time
-import requests
+
 import logging
+import time
+
+import requests
+
 from .config import (
-    GABBE_API_URL,
     GABBE_API_KEY,
     GABBE_API_MODEL,
+    GABBE_API_URL,
+    LLM_MAX_RETRIES,
     LLM_TEMPERATURE,
     LLM_TIMEOUT,
-    LLM_MAX_RETRIES,
 )
 
 logger = logging.getLogger("gabbe.llm")
@@ -45,8 +49,7 @@ def _call_with_retry(prompt, system_prompt, temperature, timeout):
     """Shared retry loop. Returns (content, usage) tuple."""
     if not GABBE_API_KEY:
         raise EnvironmentError(
-            "GABBE_API_KEY is not set. "
-            "Set the environment variable before using LLM features."
+            "GABBE_API_KEY is not set. " "Set the environment variable before using LLM features."
         )
 
     temperature = temperature if temperature is not None else LLM_TEMPERATURE
@@ -66,9 +69,7 @@ def _call_with_retry(prompt, system_prompt, temperature, timeout):
                 LLM_MAX_RETRIES,
                 GABBE_API_URL,
             )
-            response = requests.post(
-                GABBE_API_URL, headers=headers, json=payload, timeout=timeout
-            )
+            response = requests.post(GABBE_API_URL, headers=headers, json=payload, timeout=timeout)
             return _handle_response(response)
 
         except requests.exceptions.HTTPError as e:
@@ -100,9 +101,7 @@ def _call_with_retry(prompt, system_prompt, temperature, timeout):
     return None, {}
 
 
-def call_llm(
-    prompt, system_prompt="You are a helpful assistant.", temperature=None, timeout=None
-):
+def call_llm(prompt, system_prompt="You are a helpful assistant.", temperature=None, timeout=None):
     """
     Call an LLM via an OpenAI-compatible API.
 

@@ -1,6 +1,8 @@
-import subprocess
+# SPDX-License-Identifier: Apache-2.0
 import shlex
-from .config import PROJECT_ROOT, Colors, GABBE_DIR, REQUIRED_FILES, SUBPROCESS_TIMEOUT
+import subprocess
+
+from .config import GABBE_DIR, PROJECT_ROOT, REQUIRED_FILES, SUBPROCESS_TIMEOUT, Colors
 
 
 def check_files():
@@ -79,14 +81,10 @@ def run_command(cmd, name):
             print(f"  {Colors.GREEN}✓ {name} Passed{Colors.ENDC}")
             return True
         else:
-            print(
-                f"  {Colors.FAIL}x {name} Failed (Exit Code {result.returncode}){Colors.ENDC}"
-            )
+            print(f"  {Colors.FAIL}x {name} Failed (Exit Code {result.returncode}){Colors.ENDC}")
             return False
     except subprocess.TimeoutExpired:
-        print(
-            f"  {Colors.FAIL}x {name} Timed Out (>{SUBPROCESS_TIMEOUT}s){Colors.ENDC}"
-        )
+        print(f"  {Colors.FAIL}x {name} Timed Out (>{SUBPROCESS_TIMEOUT}s){Colors.ENDC}")
         return False
     except Exception as e:
         print(f"  {Colors.FAIL}x Execution Error: {e}{Colors.ENDC}")
@@ -110,9 +108,7 @@ def run_verification():
 
     # 2. Project State / DB
     if not (GABBE_DIR / "state.db").exists():
-        print(
-            f"{Colors.WARNING}[WARN] Database not initialized (Run 'gabbe init'){Colors.ENDC}"
-        )
+        print(f"{Colors.WARNING}[WARN] Database not initialized (Run 'gabbe init'){Colors.ENDC}")
 
     # 3. Dynamic Checks (Tests/Lint)
     config = parse_agents_config()

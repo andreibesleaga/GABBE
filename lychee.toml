@@ -1,0 +1,25 @@
+# lychee link-checker config for GABBE docs.
+exclude_path = [
+  ".venv",
+  "node_modules",
+  "build",
+  "dist",
+  "agents/memory",
+]
+
+# Don't fail on transient/rate-limited or auth-gated hosts.
+exclude = [
+  '^https?://localhost',
+  '^https?://127\.0\.0\.1',
+  '^https?://example\.com',
+]
+
+# Treat 429 (rate limit) and 200/206 as acceptable.
+accept = ["200", "206", "429"]
+
+max_retries = 2
+retry_wait_time = 2
+timeout = 20
+
+# GitHub heavily rate-limits anonymous link checks.
+max_concurrency = 8

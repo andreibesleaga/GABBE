@@ -1,0 +1,43 @@
+name: Docs Lint
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  markdownlint:
+    name: Markdown lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # Report-only for now; the skill/template/guide corpus predates the lint
+      # config. Step-level soft-fail keeps the job green until the corpus is
+      # brought into compliance, then remove continue-on-error to make it block.
+      - name: markdownlint-cli2
+        continue-on-error: true
+        uses: DavidAnson/markdownlint-cli2-action@v19
+        with:
+          globs: |
+            **/*.md
+            !**/node_modules
+            !.venv
+            !agents/skills/**
+
+  links:
+    name: Link check (lychee)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # Report-only: external links rate-limit/404 transiently. `fail: false`
+      # surfaces broken links in the job summary without failing the PR. The
+      # repo's own validate_links.py gates internal links in the main CI job.
+      - name: lychee
+        uses: lycheeverse/lychee-action@v2
+        with:
+          args: --config lychee.toml --no-progress './**/*.md'
+          fail: false

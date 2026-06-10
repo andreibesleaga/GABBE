@@ -1,7 +1,10 @@
+# SPDX-License-Identifier: Apache-2.0
 """Unit tests for gabbe.context."""
+
 import json
-from gabbe.context import RunContext
+
 from gabbe.budget import Budget, BudgetExceeded
+from gabbe.context import RunContext
 
 
 def test_from_config_creates_run_row(tmp_project, db_conn):
@@ -55,6 +58,7 @@ def test_budget_exceeded_sets_status(tmp_project, db_conn):
 def test_run_id_is_uuid_string(tmp_project):
     ctx = RunContext.from_config(command="ctx-uuid")
     import uuid
+
     assert isinstance(ctx.run_id, str)
     uuid.UUID(ctx.run_id)  # raises if not valid UUID
 
@@ -73,7 +77,9 @@ def test_default_attributes(tmp_project):
 def test_config_snapshot_stored(tmp_project, db_conn):
     ctx = RunContext.from_config(command="ctx-snap")
     with ctx:
-        row = db_conn.execute("SELECT config_snapshot FROM runs WHERE id=?", (ctx.run_id,)).fetchone()
+        row = db_conn.execute(
+            "SELECT config_snapshot FROM runs WHERE id=?", (ctx.run_id,)
+        ).fetchone()
         snap = json.loads(row["config_snapshot"])
         assert "budget" in snap
         assert "policy_version" in snap
@@ -101,15 +107,16 @@ def test_initiator_and_persona_stored(tmp_project, db_conn):
 
 def test_from_checkpoint(tmp_project, db_conn):
     import uuid
+
     run_id = str(uuid.uuid4())
     config_snap = {"budget": {"max_tokens": 500, "max_tool_calls": 15, "max_cost_usd": 2.0}}
     db_conn.execute(
         "INSERT INTO runs (id, command, status, config_snapshot) VALUES (?, ?, ?, ?)",
-        (run_id, "original", "completed", json.dumps(config_snap))
+        (run_id, "original", "completed", json.dumps(config_snap)),
     )
     db_conn.execute(
         "INSERT INTO checkpoints (run_id, step, node_name, state_snapshot, policy_version) VALUES (?, ?, ?, ?, ?)",
-        (run_id, 0, "start", json.dumps({"k": "v"}), "v1")
+        (run_id, 0, "start", json.dumps({"k": "v"}), "v1"),
     )
     db_conn.commit()
 

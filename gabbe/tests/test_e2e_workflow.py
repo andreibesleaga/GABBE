@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """
 E2E Workflow Test — follows the documented README / QUICK_GUIDE workflow:
 
@@ -12,8 +13,10 @@ E2E Workflow Test — follows the documented README / QUICK_GUIDE workflow:
 Each step asserts correct output & side-effects before proceeding.
 Edge cases and error cases are included for every command.
 """
+
 import io
 import json
+import os
 import shutil
 import tempfile
 import unittest
@@ -23,7 +26,7 @@ from unittest.mock import patch
 import gabbe.config
 import gabbe.sync
 import gabbe.verify
-from gabbe.database import init_db, get_db
+from gabbe.database import get_db, init_db
 
 
 class TestWorkflowGoldenPath(unittest.TestCase):
@@ -95,12 +98,23 @@ class TestWorkflowGoldenPath(unittest.TestCase):
         self.assertTrue(self.db_path.exists(), "state.db should exist after init")
         conn = get_db()
         try:
-            tables = {r[0] for r in conn.execute(
-                "SELECT name FROM sqlite_master WHERE type='table'"
-            ).fetchall()}
-            for t in ["tasks", "runs", "audit_spans", "checkpoints",
-                       "pending_escalations", "genes", "forecast_snapshots",
-                       "pricing_registry", "budget_snapshots"]:
+            tables = {
+                r[0]
+                for r in conn.execute(
+                    "SELECT name FROM sqlite_master WHERE type='table'"
+                ).fetchall()
+            }
+            for t in [
+                "tasks",
+                "runs",
+                "audit_spans",
+                "checkpoints",
+                "pending_escalations",
+                "genes",
+                "forecast_snapshots",
+                "pricing_registry",
+                "budget_snapshots",
+            ]:
                 self.assertIn(t, tables, f"Table '{t}' missing after init")
         finally:
             conn.close()
@@ -113,9 +127,12 @@ class TestWorkflowGoldenPath(unittest.TestCase):
         init_db()
         conn = get_db()
         try:
-            tables = {r[0] for r in conn.execute(
-                "SELECT name FROM sqlite_master WHERE type='table'"
-            ).fetchall()}
+            tables = {
+                r[0]
+                for r in conn.execute(
+                    "SELECT name FROM sqlite_master WHERE type='table'"
+                ).fetchall()
+            }
             self.assertIn("tasks", tables)
         finally:
             conn.close()
@@ -144,6 +161,7 @@ class TestWorkflowGoldenPath(unittest.TestCase):
     def test_step02b_sync_export(self):
         """DB tasks are exported to markdown via export_to_md."""
         from gabbe.sync import export_to_md
+
         init_db()
         conn = get_db()
         try:
@@ -163,6 +181,7 @@ class TestWorkflowGoldenPath(unittest.TestCase):
     def test_step03_status_dashboard(self):
         """gabbe status → renders dashboard with phase, tasks, progress."""
         from gabbe.status import show_dashboard
+
         init_db()
         gabbe.sync.sync_tasks()
 
@@ -198,12 +217,14 @@ class TestWorkflowGoldenPath(unittest.TestCase):
     def test_step05_route_simple(self):
         """Simple prompt → LOCAL."""
         from gabbe.route import route_request
+
         result = route_request("Fix a typo in README")
         self.assertEqual(result, "LOCAL")
 
     def test_step05b_route_complex(self):
         """Complex prompt → REMOTE."""
         from gabbe.route import route_request
+
         with patch("gabbe.route.calculate_complexity", return_value=(85, "mocked")):
             result = route_request("architect a distributed system " * 20)
         self.assertEqual(result, "REMOTE")
@@ -214,12 +235,15 @@ class TestWorkflowGoldenPath(unittest.TestCase):
     def test_step06_brain_activate(self):
         """gabbe brain activate invokes LLM and prints action."""
         from gabbe.brain import activate_brain
+
         init_db()
         gabbe.sync.sync_tasks()
 
         captured = io.StringIO()
-        with patch("gabbe.brain.call_llm", return_value="Focus on critical test coverage"), \
-             patch("sys.stdout", captured):
+        with (
+            patch("gabbe.brain.call_llm", return_value="Focus on critical test coverage"),
+            patch("sys.stdout", captured),
+        ):
             activate_brain()
 
         output = captured.getvalue()
@@ -229,11 +253,11 @@ class TestWorkflowGoldenPath(unittest.TestCase):
     def test_step06b_brain_activate_no_llm(self):
         """gabbe brain activate with no LLM → graceful freeze."""
         from gabbe.brain import activate_brain
+
         init_db()
 
         captured = io.StringIO()
-        with patch("gabbe.brain.call_llm", return_value=None), \
-             patch("sys.stdout", captured):
+        with patch("gabbe.brain.call_llm", return_value=None), patch("sys.stdout", captured):
             activate_brain()
 
         output = captured.getvalue()
@@ -245,6 +269,7 @@ class TestWorkflowGoldenPath(unittest.TestCase):
     def test_step07_brain_evolve(self):
         """gabbe brain evolve --skill seeds and mutates genes table."""
         from gabbe.brain import evolve_prompts
+
         init_db()
 
         with patch("gabbe.brain.call_llm", return_value="Improved prompt output"):
@@ -267,6 +292,7 @@ class TestWorkflowGoldenPath(unittest.TestCase):
     def test_step08_brain_heal(self):
         """gabbe brain heal checks DB reachability and required files."""
         from gabbe.brain import run_healer
+
         init_db()
 
         captured = io.StringIO()
@@ -281,6 +307,7 @@ class TestWorkflowGoldenPath(unittest.TestCase):
     def test_step08b_brain_heal_missing_files(self):
         """Healer detects missing files."""
         from gabbe.brain import run_healer
+
         init_db()
         self.tasks_file.unlink()
 
@@ -297,6 +324,7 @@ class TestWorkflowGoldenPath(unittest.TestCase):
     def test_step09_forecast(self):
         """gabbe forecast renders cost/token projections."""
         from gabbe.forecast import run_forecast
+
         init_db()
         gabbe.sync.sync_tasks()
 
@@ -311,6 +339,7 @@ class TestWorkflowGoldenPath(unittest.TestCase):
     def test_step09b_forecast_empty_db(self):
         """Forecast with empty DB doesn't crash."""
         from gabbe.forecast import run_forecast
+
         init_db()
 
         captured = io.StringIO()
@@ -336,11 +365,14 @@ class TestWorkflowGoldenPath(unittest.TestCase):
     def test_step10b_runs_after_brain(self):
         """gabbe runs lists the brain activate run."""
         from gabbe.brain import activate_brain
+
         init_db()
         gabbe.sync.sync_tasks()
 
-        with patch("gabbe.brain.call_llm", return_value="Action"), \
-             patch("sys.stdout", io.StringIO()):
+        with (
+            patch("gabbe.brain.call_llm", return_value="Action"),
+            patch("sys.stdout", io.StringIO()),
+        ):
             activate_brain()
 
         conn = get_db()
@@ -354,20 +386,19 @@ class TestWorkflowGoldenPath(unittest.TestCase):
     def test_step10c_runs_status_filter(self):
         """gabbe runs --status completed filters correctly."""
         from gabbe.brain import activate_brain
+
         init_db()
 
-        with patch("gabbe.brain.call_llm", return_value="Action"), \
-             patch("sys.stdout", io.StringIO()):
+        with (
+            patch("gabbe.brain.call_llm", return_value="Action"),
+            patch("sys.stdout", io.StringIO()),
+        ):
             activate_brain()
 
         conn = get_db()
         try:
-            completed = conn.execute(
-                "SELECT * FROM runs WHERE status = 'completed'"
-            ).fetchall()
-            errored = conn.execute(
-                "SELECT * FROM runs WHERE status = 'error'"
-            ).fetchall()
+            completed = conn.execute("SELECT * FROM runs WHERE status = 'completed'").fetchall()
+            errored = conn.execute("SELECT * FROM runs WHERE status = 'error'").fetchall()
             total = conn.execute("SELECT COUNT(*) FROM runs").fetchone()[0]
             self.assertEqual(len(completed) + len(errored), total)
         finally:
@@ -378,13 +409,16 @@ class TestWorkflowGoldenPath(unittest.TestCase):
     # =====================================================================
     def test_step11_audit_table(self):
         """gabbe audit <id> --format table shows span data."""
-        from gabbe.brain import activate_brain
         from gabbe.audit import AuditTracer
+        from gabbe.brain import activate_brain
+
         init_db()
         gabbe.sync.sync_tasks()
 
-        with patch("gabbe.brain.call_llm", return_value="Action"), \
-             patch("sys.stdout", io.StringIO()):
+        with (
+            patch("gabbe.brain.call_llm", return_value="Action"),
+            patch("sys.stdout", io.StringIO()),
+        ):
             activate_brain()
 
         conn = get_db()
@@ -399,12 +433,15 @@ class TestWorkflowGoldenPath(unittest.TestCase):
 
     def test_step11b_audit_json(self):
         """gabbe audit <id> --format json returns valid JSON."""
-        from gabbe.brain import activate_brain
         from gabbe.audit import AuditTracer
+        from gabbe.brain import activate_brain
+
         init_db()
 
-        with patch("gabbe.brain.call_llm", return_value="Action"), \
-             patch("sys.stdout", io.StringIO()):
+        with (
+            patch("gabbe.brain.call_llm", return_value="Action"),
+            patch("sys.stdout", io.StringIO()),
+        ):
             activate_brain()
 
         conn = get_db()
@@ -421,6 +458,7 @@ class TestWorkflowGoldenPath(unittest.TestCase):
     def test_step11c_audit_nonexistent_run(self):
         """gabbe audit with invalid run ID → returns empty list."""
         from gabbe.audit import AuditTracer
+
         init_db()
         conn = get_db()
         try:
@@ -436,6 +474,7 @@ class TestWorkflowGoldenPath(unittest.TestCase):
     def test_step12_replay_empty(self):
         """gabbe replay with no checkpoints → empty list."""
         from gabbe.replay import CheckpointStore, ReplayRunner
+
         init_db()
         conn = get_db()
         try:
@@ -449,6 +488,7 @@ class TestWorkflowGoldenPath(unittest.TestCase):
     def test_step12b_replay_with_checkpoints(self):
         """gabbe replay with saved checkpoints returns steps."""
         from gabbe.replay import CheckpointStore, ReplayRunner
+
         init_db()
         conn = get_db()
         try:
@@ -459,10 +499,20 @@ class TestWorkflowGoldenPath(unittest.TestCase):
             conn.commit()
 
             store = CheckpointStore(db_conn=conn)
-            store.save("replay-test", step=0, node_name="observe",
-                       state_snapshot={"tasks": 3}, policy_version="v1")
-            store.save("replay-test", step=1, node_name="decide",
-                       state_snapshot={"action": "test"}, policy_version="v1")
+            store.save(
+                "replay-test",
+                step=0,
+                node_name="observe",
+                state_snapshot={"tasks": 3},
+                policy_version="v1",
+            )
+            store.save(
+                "replay-test",
+                step=1,
+                node_name="decide",
+                state_snapshot={"action": "test"},
+                policy_version="v1",
+            )
 
             runner = ReplayRunner(store)
             steps = runner.replay("replay-test", from_step=0)
@@ -475,6 +525,7 @@ class TestWorkflowGoldenPath(unittest.TestCase):
     def test_step12c_replay_from_step(self):
         """gabbe replay --from-step N skips earlier steps."""
         from gabbe.replay import CheckpointStore, ReplayRunner
+
         init_db()
         conn = get_db()
         try:
@@ -484,12 +535,15 @@ class TestWorkflowGoldenPath(unittest.TestCase):
             conn.commit()
 
             store = CheckpointStore(db_conn=conn)
-            store.save("replay-skip", step=0, node_name="observe",
-                       state_snapshot={}, policy_version="v1")
-            store.save("replay-skip", step=1, node_name="decide",
-                       state_snapshot={}, policy_version="v1")
-            store.save("replay-skip", step=2, node_name="act",
-                       state_snapshot={}, policy_version="v1")
+            store.save(
+                "replay-skip", step=0, node_name="observe", state_snapshot={}, policy_version="v1"
+            )
+            store.save(
+                "replay-skip", step=1, node_name="decide", state_snapshot={}, policy_version="v1"
+            )
+            store.save(
+                "replay-skip", step=2, node_name="act", state_snapshot={}, policy_version="v1"
+            )
 
             runner = ReplayRunner(store)
             steps = runner.replay("replay-skip", from_step=1)
@@ -516,6 +570,7 @@ class TestWorkflowGoldenPath(unittest.TestCase):
     def test_step13b_resume_with_escalation(self):
         """gabbe resume resolves a pending escalation."""
         from gabbe.escalation import EscalationHandler, EscalationTrigger
+
         init_db()
         conn = get_db()
         try:
@@ -546,6 +601,7 @@ class TestWorkflowGoldenPath(unittest.TestCase):
     def test_step14_mcp_server_importable(self):
         """MCP server module imports and has serve() function."""
         from gabbe.mcp_server import serve
+
         self.assertTrue(callable(serve))
 
     # =====================================================================
@@ -556,10 +612,10 @@ class TestWorkflowGoldenPath(unittest.TestCase):
         Exercises every command in the documented workflow order.
         This is the integration test that proves the README 'How to Use' works.
         """
+        from gabbe.audit import AuditTracer
         from gabbe.brain import activate_brain
         from gabbe.forecast import run_forecast
         from gabbe.status import show_dashboard
-        from gabbe.audit import AuditTracer
 
         # 1. init
         init_db()
@@ -585,8 +641,10 @@ class TestWorkflowGoldenPath(unittest.TestCase):
 
         # 5. brain activate
         out = io.StringIO()
-        with patch("gabbe.brain.call_llm", return_value="Next: write tests"), \
-             patch("sys.stdout", out):
+        with (
+            patch("gabbe.brain.call_llm", return_value="Next: write tests"),
+            patch("sys.stdout", out),
+        ):
             activate_brain()
         self.assertIn("Brain Mode", out.getvalue())
 
@@ -609,6 +667,7 @@ class TestWorkflowGoldenPath(unittest.TestCase):
             self.assertIsInstance(spans, list)
         finally:
             conn.close()
+
 
 class TestPlatformControls(unittest.TestCase):
     """Tests for PLATFORM_CONTROLS.md documented features:
@@ -645,6 +704,7 @@ class TestPlatformControls(unittest.TestCase):
     def test_budget_from_config(self):
         """Budget.from_config() reads env vars and creates a Budget instance."""
         from gabbe.budget import Budget
+
         b = Budget.from_config()
         self.assertIsNotNone(b)
         snap = b.snapshot()
@@ -654,6 +714,7 @@ class TestPlatformControls(unittest.TestCase):
     def test_budget_exceeded_on_tokens(self):
         """BudgetExceeded raised when token limit is hit."""
         from gabbe.budget import Budget, BudgetExceeded
+
         b = Budget.from_dict({"max_tokens": 10, "tokens_used": 0})
         b.tokens_used = 11
         with self.assertRaises(BudgetExceeded):
@@ -662,6 +723,7 @@ class TestPlatformControls(unittest.TestCase):
     def test_budget_remaining(self):
         """Budget.remaining() returns remaining per dimension."""
         from gabbe.budget import Budget
+
         b = Budget.from_config()
         rem = b.remaining()
         self.assertIn("tokens", rem)
@@ -671,6 +733,7 @@ class TestPlatformControls(unittest.TestCase):
     def test_hardstop_max_iterations_chain(self):
         """HardStop → MaxIterationsExceeded during an iteration chain."""
         from gabbe.hardstop import HardStop, MaxIterationsExceeded
+
         h = HardStop(max_iterations=2, max_depth=5, timeout_sec=60)
         h.tick()
         h.tick()
@@ -680,6 +743,7 @@ class TestPlatformControls(unittest.TestCase):
     def test_hardstop_should_wrap_up(self):
         """should_wrap_up returns True near the limit."""
         from gabbe.hardstop import HardStop
+
         h = HardStop(max_iterations=3)
         h.tick()
         h.tick()
@@ -689,6 +753,7 @@ class TestPlatformControls(unittest.TestCase):
     def test_policy_allowlist_permits(self):
         """ToolAllowlistPolicy permits allowed tools."""
         from gabbe.policy import ToolAllowlistPolicy
+
         p = ToolAllowlistPolicy(["call_llm", "run_command"], [])
         result = p.check({"tool": "call_llm"})
         self.assertTrue(result.allowed)
@@ -696,6 +761,7 @@ class TestPlatformControls(unittest.TestCase):
     def test_policy_allowlist_denies(self):
         """ToolAllowlistPolicy denies unlisted tools."""
         from gabbe.policy import ToolAllowlistPolicy
+
         p = ToolAllowlistPolicy(["call_llm"], [])
         result = p.check({"tool": "run_command"})
         self.assertFalse(result.allowed)
@@ -703,6 +769,7 @@ class TestPlatformControls(unittest.TestCase):
     def test_policy_deny_overrides_allow(self):
         """Explicit deny overrides allow in ToolAllowlistPolicy."""
         from gabbe.policy import ToolAllowlistPolicy
+
         p = ToolAllowlistPolicy(["*"], ["run_security_scan"])
         result = p.check({"tool": "run_security_scan"})
         self.assertFalse(result.allowed)
@@ -710,18 +777,21 @@ class TestPlatformControls(unittest.TestCase):
     # ----- Gateway (PLATFORM_CONTROLS § Tool Gateway) -----
     def test_gateway_register_and_execute(self):
         """ToolGateway.execute dispatches to registered handler."""
-        from gabbe.gateway import ToolGateway, ToolDefinition
         from gabbe.context import RunContext
+        from gabbe.gateway import ToolDefinition, ToolGateway
+
         init_db()
 
         gw = ToolGateway()
-        gw.register(ToolDefinition(
-            name="test_tool",
-            description="A test tool",
-            parameters={"type": "object", "properties": {}},
-            handler=lambda **kw: {"result": "ok"},
-            allowed_roles={"agent"},
-        ))
+        gw.register(
+            ToolDefinition(
+                name="test_tool",
+                description="A test tool",
+                parameters={"type": "object", "properties": {}},
+                handler=lambda **kw: {"result": "ok"},
+                allowed_roles={"agent"},
+            )
+        )
 
         with RunContext(command="test", initiator="test") as ctx:
             result = gw.execute("test_tool", {}, role="agent", run_context=ctx)
@@ -730,7 +800,8 @@ class TestPlatformControls(unittest.TestCase):
     # ----- Escalation (PLATFORM_CONTROLS § Escalation Handler) -----
     def test_escalation_silent_auto_rejects(self):
         """Silent escalation mode auto-rejects (for CI/CD)."""
-        from gabbe.escalation import EscalationHandler, EscalationTrigger, EscalationResult
+        from gabbe.escalation import EscalationHandler, EscalationTrigger
+
         init_db()
         conn = get_db()
         try:
@@ -747,7 +818,8 @@ class TestPlatformControls(unittest.TestCase):
 
     def test_escalation_file_mode_raises(self):
         """File escalation mode raises EscalationPaused."""
-        from gabbe.escalation import EscalationHandler, EscalationTrigger, EscalationPaused
+        from gabbe.escalation import EscalationHandler, EscalationPaused, EscalationTrigger
+
         init_db()
         conn = get_db()
         try:
@@ -766,6 +838,7 @@ class TestPlatformControls(unittest.TestCase):
     def test_run_context_lifecycle(self):
         """RunContext creates and closes a run record in DB."""
         from gabbe.context import RunContext
+
         init_db()
         with RunContext(command="test-lifecycle", initiator="test") as ctx:
             self.assertIsNotNone(ctx.run_id)
@@ -811,17 +884,28 @@ class TestMCPServerProtocol(unittest.TestCase):
 
     def test_mcp_auth_token_rejected(self):
         """MCP initialize with wrong token returns Unauthorized."""
-        from gabbe.mcp_server import serve
         from unittest.mock import MagicMock
 
-        req = json.dumps({"jsonrpc": "2.0", "method": "initialize", "id": 1,
-                          "params": {"token": "wrong-token"}}) + "\n"
+        from gabbe.mcp_server import serve
+
+        req = (
+            json.dumps(
+                {
+                    "jsonrpc": "2.0",
+                    "method": "initialize",
+                    "id": 1,
+                    "params": {"token": "wrong-token"},
+                }
+            )
+            + "\n"
+        )
         outputs = []
-        with patch("gabbe.mcp_server._MCP_TOKEN", "correct-token"), \
-             patch("gabbe.mcp_server._authenticated", False), \
-             patch("gabbe.mcp_server.RunContext") as MockCtx, \
-             patch("sys.stdin", io.StringIO(req)), \
-             patch("builtins.print", side_effect=lambda s, **kw: outputs.append(s)):
+        with (
+            patch.dict(os.environ, {"GABBE_MCP_TOKEN": "correct-token"}),
+            patch("gabbe.mcp_server.RunContext") as MockCtx,
+            patch("sys.stdin", io.StringIO(req)),
+            patch("builtins.print", side_effect=lambda s, **kw: outputs.append(s)),
+        ):
             mock_ctx = MagicMock()
             MockCtx.return_value.__enter__ = MagicMock(return_value=mock_ctx)
             MockCtx.return_value.__exit__ = MagicMock(return_value=False)
@@ -837,7 +921,7 @@ class TestMCPServerProtocol(unittest.TestCase):
         """run_command_handler blocks non-allowed commands."""
         from gabbe.mcp_server import run_command_handler
 
-        with patch("gabbe.mcp_server._ALLOWED_COMMANDS", ["pytest", "ruff"]):
+        with patch.dict(os.environ, {"GABBE_MCP_ALLOWED_COMMANDS": "pytest,ruff"}):
             result = run_command_handler("rm -rf /tmp/evil")
 
         self.assertEqual(result["returncode"], 126)
@@ -845,16 +929,19 @@ class TestMCPServerProtocol(unittest.TestCase):
 
     def test_mcp_command_allowlist_permits(self):
         """run_command_handler allows permitted commands."""
-        from gabbe.mcp_server import run_command_handler
         from unittest.mock import MagicMock
+
+        from gabbe.mcp_server import run_command_handler
 
         mock_result = MagicMock()
         mock_result.stdout = "ok"
         mock_result.stderr = ""
         mock_result.returncode = 0
 
-        with patch("gabbe.mcp_server._ALLOWED_COMMANDS", ["echo"]), \
-             patch("gabbe.mcp_server.subprocess.run", return_value=mock_result):
+        with (
+            patch.dict(os.environ, {"GABBE_MCP_ALLOWED_COMMANDS": "echo"}),
+            patch("gabbe.mcp_server.subprocess.run", return_value=mock_result),
+        ):
             result = run_command_handler("echo hello")
 
         self.assertEqual(result["returncode"], 0)
@@ -862,6 +949,7 @@ class TestMCPServerProtocol(unittest.TestCase):
     def test_mcp_empty_command(self):
         """Empty command returns error."""
         from gabbe.mcp_server import run_command_handler
+
         result = run_command_handler("")
         self.assertEqual(result["returncode"], 1)
         self.assertIn("Empty", result["stderr"])
@@ -872,13 +960,12 @@ class TestCLIGlobalFlags(unittest.TestCase):
 
     def test_cli_version_flag(self):
         """gabbe --version prints version and exits."""
-        from gabbe.main import main
+
         from gabbe import __version__
-        import sys
+        from gabbe.main import main
 
         captured = io.StringIO()
-        with patch("sys.argv", ["gabbe", "--version"]), \
-             patch("sys.stdout", captured):
+        with patch("sys.argv", ["gabbe", "--version"]), patch("sys.stdout", captured):
             with self.assertRaises(SystemExit) as ctx:
                 main()
             self.assertEqual(ctx.exception.code, 0)
@@ -886,11 +973,14 @@ class TestCLIGlobalFlags(unittest.TestCase):
 
     def test_cli_debug_flag_sets_debug_level(self):
         """gabbe --debug enables DEBUG logging."""
-        from gabbe.main import main
         import logging
 
-        with patch("sys.argv", ["gabbe", "--debug", "status"]), \
-             patch("gabbe.status.show_dashboard"):
+        from gabbe.main import main
+
+        with (
+            patch("sys.argv", ["gabbe", "--debug", "status"]),
+            patch("gabbe.status.show_dashboard"),
+        ):
             try:
                 main()
             except Exception:

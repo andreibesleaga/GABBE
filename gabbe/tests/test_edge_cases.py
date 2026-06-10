@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """
 Edge-case and gap-coverage E2E tests.
 
@@ -10,18 +11,21 @@ Covers areas identified as missing from the existing 303-test suite:
   - Status dashboard with large mixed task states
   - Database schema v3 tables presence
 """
-import json
-import pytest
-from unittest.mock import patch, MagicMock
 
+import json
+from unittest.mock import patch
+
+import pytest
 
 # ---------------------------------------------------------------------------
 # CLI dispatch: gabbe runs
 # ---------------------------------------------------------------------------
 
+
 def test_runs_command_empty(tmp_project, capsys):
     """gabbe runs with no runs → 'No runs found'."""
     from gabbe.main import main
+
     with patch("sys.argv", ["gabbe", "runs"]):
         main()
     out = capsys.readouterr().out
@@ -77,11 +81,12 @@ def test_runs_command_status_filter(tmp_project, capsys):
 # CLI dispatch: gabbe forecast
 # ---------------------------------------------------------------------------
 
+
 def test_forecast_command_dispatches(tmp_project):
     """gabbe forecast dispatches to run_forecast."""
     from gabbe.main import main
-    with patch("sys.argv", ["gabbe", "forecast"]), \
-         patch("gabbe.forecast.run_forecast") as mock_fc:
+
+    with patch("sys.argv", ["gabbe", "forecast"]), patch("gabbe.forecast.run_forecast") as mock_fc:
         main()
     mock_fc.assert_called_once()
 
@@ -89,6 +94,7 @@ def test_forecast_command_dispatches(tmp_project):
 def test_forecast_empty_db_no_crash(tmp_project, capsys):
     """gabbe forecast on empty DB doesn't crash."""
     from gabbe.main import main
+
     with patch("sys.argv", ["gabbe", "forecast"]):
         main()
     # Should complete without exception
@@ -98,9 +104,11 @@ def test_forecast_empty_db_no_crash(tmp_project, capsys):
 # CLI dispatch: gabbe audit
 # ---------------------------------------------------------------------------
 
+
 def test_audit_command_no_spans(tmp_project, capsys):
     """gabbe audit <id> with no spans → 'No audit spans found'."""
     from gabbe.main import main
+
     with patch("sys.argv", ["gabbe", "audit", "nonexistent-run"]):
         main()
     out = capsys.readouterr().out
@@ -135,9 +143,11 @@ def test_audit_command_json_format(tmp_project, capsys):
 # CLI dispatch: gabbe replay
 # ---------------------------------------------------------------------------
 
+
 def test_replay_command_empty(tmp_project, capsys):
     """gabbe replay with no checkpoints → 'No checkpoints'."""
     from gabbe.main import main
+
     with patch("sys.argv", ["gabbe", "replay", "no-such-run"]):
         main()
     out = capsys.readouterr().out
@@ -148,9 +158,11 @@ def test_replay_command_empty(tmp_project, capsys):
 # CLI dispatch: gabbe resume
 # ---------------------------------------------------------------------------
 
+
 def test_resume_command_no_escalations(tmp_project, capsys):
     """gabbe resume with no pending escalations → 'No pending'."""
     from gabbe.main import main
+
     with patch("sys.argv", ["gabbe", "resume", "no-such-run"]):
         main()
     out = capsys.readouterr().out
@@ -161,6 +173,7 @@ def test_resume_command_no_escalations(tmp_project, capsys):
 # Memory directory lifecycle
 # ---------------------------------------------------------------------------
 
+
 def test_memory_directory_created_on_init(tmp_project):
     """Memory directories (episodic, semantic) should be usable after DB init."""
     from gabbe.database import get_db
@@ -169,9 +182,7 @@ def test_memory_directory_created_on_init(tmp_project):
     conn = get_db()
     tables = {
         row[0]
-        for row in conn.execute(
-            "SELECT name FROM sqlite_master WHERE type='table'"
-        ).fetchall()
+        for row in conn.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()
     }
     conn.close()
 
@@ -187,8 +198,8 @@ def test_memory_directory_created_on_init(tmp_project):
 
 def test_memory_persists_across_sync_cycles(tmp_project):
     """Tasks survive import → DB mutation → export cycle."""
-    from gabbe.database import get_db
     import gabbe.sync as sync_mod
+    from gabbe.database import get_db
 
     # Write initial tasks
     tasks_file = tmp_project / "project" / "TASKS.md"
@@ -214,6 +225,7 @@ def test_memory_persists_across_sync_cycles(tmp_project):
 # Sync edge cases: unicode / special characters
 # ---------------------------------------------------------------------------
 
+
 def test_sync_unicode_task_titles(tmp_project):
     """Tasks with unicode characters survive sync roundtrip."""
     import gabbe.sync as sync_mod
@@ -221,9 +233,7 @@ def test_sync_unicode_task_titles(tmp_project):
     tasks_file = tmp_project / "project" / "TASKS.md"
     tasks_file.parent.mkdir(parents=True, exist_ok=True)
     tasks_file.write_text(
-        "- [ ] Добавить поддержку 🚀\n"
-        "- [x] Tâche complétée ✅\n"
-        "- [ ] 任务：测试中文\n"
+        "- [ ] Добавить поддержку 🚀\n" "- [x] Tâche complétée ✅\n" "- [ ] 任务：测试中文\n"
     )
 
     sync_mod.sync_tasks()
@@ -246,10 +256,7 @@ def test_sync_task_with_special_markdown_chars(tmp_project):
 
     tasks_file = tmp_project / "project" / "TASKS.md"
     tasks_file.parent.mkdir(parents=True, exist_ok=True)
-    tasks_file.write_text(
-        "- [ ] Fix `config.py` edge case\n"
-        "- [ ] Handle [brackets] in names\n"
-    )
+    tasks_file.write_text("- [ ] Fix `config.py` edge case\n" "- [ ] Handle [brackets] in names\n")
 
     sync_mod.sync_tasks()
 
@@ -266,6 +273,7 @@ def test_sync_task_with_special_markdown_chars(tmp_project):
 # ---------------------------------------------------------------------------
 # Brain evolve: multi-generation stress
 # ---------------------------------------------------------------------------
+
 
 def test_evolve_multi_generation(tmp_project):
     """Evolving the same skill 5 times with increasing success_rate creates generations 0-5."""
@@ -302,6 +310,7 @@ def test_evolve_multi_generation(tmp_project):
 # Brain heal: partial file existence
 # ---------------------------------------------------------------------------
 
+
 def test_brain_heal_one_file_missing(tmp_project, capsys):
     """Healer detects exactly which files are missing vs present."""
     from gabbe.brain import run_healer
@@ -329,6 +338,7 @@ def test_brain_heal_one_file_missing(tmp_project, capsys):
 # Status dashboard: large mixed task states
 # ---------------------------------------------------------------------------
 
+
 def test_status_large_mixed_workload(tmp_project, capsys):
     """Dashboard handles 100+ tasks without crash and shows correct percentages."""
     from gabbe.database import get_db
@@ -354,9 +364,11 @@ def test_status_large_mixed_workload(tmp_project, capsys):
 # CLI dispatch: serve-mcp importability
 # ---------------------------------------------------------------------------
 
+
 def test_serve_mcp_importable(tmp_project):
     """serve-mcp module is importable and has serve() function."""
     from gabbe.mcp_server import serve
+
     assert callable(serve)
 
 
@@ -364,9 +376,11 @@ def test_serve_mcp_importable(tmp_project):
 # CLI: unknown command gracefully handled
 # ---------------------------------------------------------------------------
 
+
 def test_unknown_command_prints_help(tmp_project, capsys):
     """gabbe with unknown command prints help, doesn't crash."""
     from gabbe.main import main
+
     with patch("sys.argv", ["gabbe", "nonexistent_cmd"]):
         with pytest.raises(SystemExit) as exc_info:
             main()
@@ -376,6 +390,7 @@ def test_unknown_command_prints_help(tmp_project, capsys):
 # ---------------------------------------------------------------------------
 # Database: duplicate task title constraint
 # ---------------------------------------------------------------------------
+
 
 def test_sync_duplicate_titles_handled(tmp_project):
     """Syncing a file with duplicate task titles should not crash."""

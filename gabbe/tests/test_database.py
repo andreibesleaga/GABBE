@@ -1,10 +1,14 @@
+# SPDX-License-Identifier: Apache-2.0
 """Unit tests for gabbe.database."""
-import pytest
+
 import sqlite3
+
+import pytest
 
 
 def test_init_db_creates_tables(tmp_project):
     from gabbe.database import get_db
+
     conn = get_db()
     try:
         c = conn.cursor()
@@ -21,7 +25,8 @@ def test_init_db_creates_tables(tmp_project):
 
 
 def test_schema_version_is_current(tmp_project):
-    from gabbe.database import get_db, SCHEMA_VERSION
+    from gabbe.database import SCHEMA_VERSION, get_db
+
     conn = get_db()
     try:
         c = conn.cursor()
@@ -34,6 +39,7 @@ def test_schema_version_is_current(tmp_project):
 
 def test_tasks_title_unique_constraint(tmp_project):
     from gabbe.database import get_db
+
     conn = get_db()
     try:
         c = conn.cursor()
@@ -48,6 +54,7 @@ def test_tasks_title_unique_constraint(tmp_project):
 
 def test_get_db_returns_row_factory(tmp_project):
     from gabbe.database import get_db
+
     conn = get_db()
     try:
         c = conn.cursor()
@@ -56,7 +63,7 @@ def test_get_db_returns_row_factory(tmp_project):
         c.execute("SELECT * FROM tasks")
         row = c.fetchone()
         # sqlite3.Row supports dict-like access
-        assert row['title'] == 'Row Factory Test'
+        assert row["title"] == "Row Factory Test"
     finally:
         conn.close()
 
@@ -64,8 +71,10 @@ def test_get_db_returns_row_factory(tmp_project):
 def test_init_db_idempotent(tmp_project):
     """Calling init_db twice must not raise or duplicate schema objects."""
     from gabbe.database import init_db
+
     init_db()  # second call
     from gabbe.database import get_db
+
     conn = get_db()
     try:
         c = conn.cursor()

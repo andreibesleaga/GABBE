@@ -1,0 +1,9 @@
+usage: main.py audit [-h] [--format {table,json}] run_id
+
+positional arguments:
+  run_id                Run ID to inspect
+
+options:
+  -h, --help            show this help message and exit
+  --format {table,json}
+                        Output format

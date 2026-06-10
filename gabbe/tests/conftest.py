@@ -1,8 +1,9 @@
+# SPDX-License-Identifier: Apache-2.0
 """Shared pytest fixtures for the GABBE test suite."""
 
-import pytest
 from unittest.mock import patch
 
+import pytest
 
 
 @pytest.fixture()
@@ -39,24 +40,27 @@ def tmp_project(tmp_path):
     policy_file = gabbe_dir / "policies.yml"
     policy_file.write_text("version: '1'\ntools:\n  allowed:\n    - '*'\n")
 
-    with patch("gabbe.config.PROJECT_ROOT", tmp_path), \
-         patch("gabbe.config.GABBE_DIR", gabbe_dir), \
-         patch("gabbe.config.DB_PATH", db_path), \
-         patch("gabbe.config.TASKS_FILE", tasks_file), \
-         patch("gabbe.config.REQUIRED_FILES", required_files), \
-         patch("gabbe.config.GABBE_POLICY_FILE", policy_file), \
-         patch("gabbe.policy.GABBE_POLICY_FILE", policy_file), \
-         patch("gabbe.database.GABBE_DIR", gabbe_dir), \
-         patch("gabbe.database.DB_PATH", db_path), \
-         patch("gabbe.sync.TASKS_FILE", tasks_file), \
-         patch("gabbe.verify.PROJECT_ROOT", tmp_path), \
-         patch("gabbe.verify.GABBE_DIR", gabbe_dir), \
-         patch("gabbe.verify.REQUIRED_FILES", required_files), \
-         patch("gabbe.brain.PROJECT_ROOT", tmp_path), \
-         patch("gabbe.brain.REQUIRED_FILES", required_files), \
-         patch("gabbe.audit.GABBE_DIR", gabbe_dir):
+    with (
+        patch("gabbe.config.PROJECT_ROOT", tmp_path),
+        patch("gabbe.config.GABBE_DIR", gabbe_dir),
+        patch("gabbe.config.DB_PATH", db_path),
+        patch("gabbe.config.TASKS_FILE", tasks_file),
+        patch("gabbe.config.REQUIRED_FILES", required_files),
+        patch("gabbe.config.GABBE_POLICY_FILE", policy_file),
+        patch("gabbe.policy.GABBE_POLICY_FILE", policy_file),
+        patch("gabbe.database.GABBE_DIR", gabbe_dir),
+        patch("gabbe.database.DB_PATH", db_path),
+        patch("gabbe.sync.TASKS_FILE", tasks_file),
+        patch("gabbe.verify.PROJECT_ROOT", tmp_path),
+        patch("gabbe.verify.GABBE_DIR", gabbe_dir),
+        patch("gabbe.verify.REQUIRED_FILES", required_files),
+        patch("gabbe.brain.PROJECT_ROOT", tmp_path),
+        patch("gabbe.brain.REQUIRED_FILES", required_files),
+        patch("gabbe.audit.GABBE_DIR", gabbe_dir),
+    ):
         # Initialise the DB so every test starts clean
         from gabbe.database import init_db
+
         init_db()
         yield tmp_path
 
@@ -65,6 +69,7 @@ def tmp_project(tmp_path):
 def db_conn(tmp_project):
     """Return an open DB connection against the tmp_project database."""
     from gabbe.database import get_db
+
     conn = get_db()
     yield conn
     conn.close()

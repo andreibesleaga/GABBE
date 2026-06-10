@@ -1,9 +1,11 @@
+# SPDX-License-Identifier: Apache-2.0
 """Unit tests for gabbe.status."""
 
 
 def test_dashboard_renders_sections(tmp_project, capsys):
     """Dashboard output contains all expected sections."""
     from gabbe.status import show_dashboard
+
     show_dashboard()
     out = capsys.readouterr().out
     assert "GABBE PROJECT DASHBOARD" in out
@@ -14,6 +16,7 @@ def test_dashboard_renders_sections(tmp_project, capsys):
 def test_dashboard_empty_db_no_crash(tmp_project, capsys):
     """Dashboard must not crash on an empty database (zero division guard)."""
     from gabbe.status import show_dashboard
+
     show_dashboard()
     out = capsys.readouterr().out
     assert "0%" in out or "Progress:" in out  # should render 0 %
@@ -56,9 +59,9 @@ def test_dashboard_progress_100_percent(tmp_project, capsys):
 
 def test_dashboard_progress_bar_does_not_overflow(tmp_project, capsys):
     """Progress bar must never exceed PROGRESS_BAR_LEN characters."""
+    from gabbe.config import PROGRESS_BAR_LEN
     from gabbe.database import get_db
     from gabbe.status import show_dashboard
-    from gabbe.config import PROGRESS_BAR_LEN
 
     conn = get_db()
     # All tasks done → 100% → bar should be exactly PROGRESS_BAR_LEN filled
@@ -72,7 +75,8 @@ def test_dashboard_progress_bar_does_not_overflow(tmp_project, capsys):
 
     # Extract the bar content between [ and ]
     import re
-    match = re.search(r'\[.*?([\u2588\-]+).*?\]', out)
+
+    match = re.search(r"\[.*?([\u2588\-]+).*?\]", out)
     if match:
         bar_content = match.group(1)
         assert len(bar_content) <= PROGRESS_BAR_LEN
@@ -84,9 +88,7 @@ def test_dashboard_shows_phase_from_project_state(tmp_project, capsys):
     from gabbe.status import show_dashboard
 
     conn = get_db()
-    conn.execute(
-        "INSERT INTO project_state (key, value) VALUES ('current_phase', 'S03-Design')"
-    )
+    conn.execute("INSERT INTO project_state (key, value) VALUES ('current_phase', 'S03-Design')")
     conn.commit()
     conn.close()
 
@@ -98,6 +100,7 @@ def test_dashboard_shows_phase_from_project_state(tmp_project, capsys):
 def test_dashboard_missing_phase_shows_dash(tmp_project, capsys):
     """When current_phase is not in project_state, a placeholder is shown."""
     from gabbe.status import show_dashboard
+
     show_dashboard()
     out = capsys.readouterr().out
     # Should show placeholder — not crash

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
-import sys
+# SPDX-License-Identifier: Apache-2.0
 import py_compile
+import sys
 from pathlib import Path
 
 # Configuration
@@ -18,21 +19,23 @@ REQUIRED_FILES = [
     AGENTS_DIR / "AGENTS.md",
     AGENTS_DIR / "CONSTITUTION.md",
     AGENTS_DIR / "skills/00-index.md",
-    AGENTS_DIR / "templates/00-index.md"
+    AGENTS_DIR / "templates/00-index.md",
 ]
 
 REQUIRED_DIRS = [
     AGENTS_DIR / "skills",
     AGENTS_DIR / "templates",
     AGENTS_DIR / "guides",
-    AGENTS_DIR / "memory"
+    AGENTS_DIR / "memory",
 ]
+
 
 def check_exists(path):
     if not path.exists():
         print(f"{RED}[MISSING] {path.relative_to(PROJECT_ROOT)}{NC}")
         return False
     return True
+
 
 def check_python_syntax(path):
     try:
@@ -43,20 +46,21 @@ def check_python_syntax(path):
         print(f"{RED}[SYNTAX ERROR] {path.relative_to(PROJECT_ROOT)}: {e}{NC}")
         return False
 
+
 def main():
     print(f"{BLUE}Validating GABBE Project Integrity...{NC}")
     errors = 0
-    
+
     # 1. Check Essential Files
     print(f"\n{BLUE}1. Checking Essential Files...{NC}")
     for f in REQUIRED_FILES:
         if not check_exists(f):
             errors += 1
-        
+
     for d in REQUIRED_DIRS:
         if not check_exists(d):
             errors += 1
-        
+
     # 2. Check Python Syntax
     print(f"\n{BLUE}2. Checking Python Scripts...{NC}")
     python_files = list(PROJECT_ROOT.glob("*.py")) + list(AGENTS_DIR.rglob("*.py"))
@@ -66,7 +70,16 @@ def main():
 
     # 3. Check Templates (Basic Existence)
     print(f"\n{BLUE}3. Checking Template Directories...{NC}")
-    template_cats = ["coding", "architecture", "ops", "security", "product", "core", "coordination", "brain"]
+    template_cats = [
+        "coding",
+        "architecture",
+        "ops",
+        "security",
+        "product",
+        "core",
+        "coordination",
+        "brain",
+    ]
     for cat in template_cats:
         d = AGENTS_DIR / "templates" / cat
         if not check_exists(d):
@@ -79,6 +92,7 @@ def main():
     else:
         print(f"{GREEN}Project integrity check passed!{NC}")
         sys.exit(0)
+
 
 if __name__ == "__main__":
     main()

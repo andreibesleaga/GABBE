@@ -1,0 +1,9 @@
+usage: main.py runs [-h]
+                    [--status {running,completed,error,budget_exceeded,escalated}]
+                    [--limit LIMIT]
+
+options:
+  -h, --help            show this help message and exit
+  --status {running,completed,error,budget_exceeded,escalated}
+                        Filter by run status
+  --limit LIMIT         Max rows to display

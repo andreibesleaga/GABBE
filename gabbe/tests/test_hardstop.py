@@ -1,11 +1,15 @@
+# SPDX-License-Identifier: Apache-2.0
 """Unit tests for gabbe.hardstop."""
+
 import time
+
 import pytest
+
 from gabbe.hardstop import (
     HardStop,
     HardStopTriggered,
-    MaxIterationsExceeded,
     MaxDepthExceeded,
+    MaxIterationsExceeded,
     TimeoutExceeded,
 )
 

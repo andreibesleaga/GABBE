@@ -22,6 +22,37 @@ python3 agents/scripts/verify_use_cases.py
 python3 agents/scripts/verify_triggers_and_mcps.py
 ```
 
+For a reproducible install, use the pinned, hashed lockfile:
+
+```bash
+pip install -r requirements-lock.txt
+```
+
+### Refreshing the lockfile
+
+`requirements-lock.txt` is generated from `pyproject.toml` with
+[pip-tools](https://github.com/jazzband/pip-tools). Regenerate it whenever
+dependencies change:
+
+```bash
+pip install pip-tools
+pip-compile --extra dev --generate-hashes --output-file requirements-lock.txt pyproject.toml
+```
+
+### Backward-compatibility gates
+
+Code changes must keep the six verification gates green (API surface, CLI
+`--help`, config schema, emitter output, benchmarks, CVE delta):
+
+```bash
+./scripts/gates/run_gates.sh
+```
+
+The emitted client formats (`.cursor/rules/*.mdc`, `.claude/skills/`,
+`.github/skills/`, `.gemini/settings.json`) are a public contract documented in
+[docs/SCHEMA.md](docs/SCHEMA.md) and locked by
+`scripts/tests/test_golden_emitters.py`. They evolve additive-only.
+
 ---
 
 ## Adding a Custom Skill

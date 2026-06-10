@@ -1,11 +1,13 @@
+# SPDX-License-Identifier: Apache-2.0
+import hashlib
+import logging
 import os
 import re
 import tempfile
-import hashlib
 from datetime import datetime
+
+from .config import TASKS_FILE, Colors
 from .database import get_db
-from .config import Colors, TASKS_FILE
-import logging
 
 logger = logging.getLogger("gabbe.sync")
 
@@ -28,13 +30,9 @@ def parse_markdown_tasks(content):
             if start_idx < end_idx:
                 section = content[start_idx:end_idx]
                 lines_to_parse = section.split("\n")
-                logger.debug(
-                    "Found markers, parsing %d chars of marked content", len(section)
-                )
+                logger.debug("Found markers, parsing %d chars of marked content", len(section))
         except Exception as e:
-            logger.warning(
-                "Failed to parse between markers, falling back to full file: %s", e
-            )
+            logger.warning("Failed to parse between markers, falling back to full file: %s", e)
 
     tasks = []
     for line in lines_to_parse:
@@ -123,14 +121,76 @@ def _calculate_state_hash(tasks):
     if not tasks:
         return "0"
     # Sort by title to ensure consistent ordering for hashing
-    sorted_tasks = sorted(tasks, key=lambda x: x['title'])
-    combined = "|".join(t['hash'] for t in sorted_tasks)
+    sorted_tasks = sorted(tasks, key=lambda x: x["title"])
+    combined = "|".join(t["hash"] for t in sorted_tasks)
     return hashlib.sha256(combined.encode()).hexdigest()
+
+
+class _SyncLock:
+    """Cross-process advisory lock serializing TASKS.md <-> SQLite sync.
+
+    Prevents the read-mtime -> decide-direction -> write TOCTOU window from
+    interleaving between two concurrent `gabbe sync` runs (or an editor save
+    racing a sync). Uses atomic O_EXCL lock-file creation; portable across
+    POSIX and Windows.
+    """
+
+    def __init__(self, timeout=10.0, poll=0.1):
+        from .config import GABBE_DIR
+
+        self.path = GABBE_DIR / ".sync.lock"
+        self.timeout = timeout
+        self.poll = poll
+        self._fd = None
+
+    def __enter__(self):
+        import time
+
+        try:
+            self.path.parent.mkdir(parents=True, exist_ok=True)
+        except Exception:
+            # Best-effort advisory lock: if the lock dir can't be prepared,
+            # proceed without locking rather than blocking sync.
+            return self
+        deadline = time.monotonic() + self.timeout
+        while True:
+            try:
+                self._fd = os.open(str(self.path), os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+                os.write(self._fd, str(os.getpid()).encode())
+                return self
+            except FileExistsError:
+                if time.monotonic() >= deadline:
+                    raise TimeoutError(
+                        f"Could not acquire sync lock {self.path} within "
+                        f"{self.timeout}s; another sync may be in progress."
+                    )
+                time.sleep(self.poll)
+            except Exception:
+                # Any other OS/mocked-environment issue: skip locking.
+                return self
+
+    def __exit__(self, *exc):
+        if self._fd is not None:
+            try:
+                os.close(self._fd)
+            except OSError:
+                pass
+            self._fd = None
+        try:
+            self.path.unlink()
+        except OSError:
+            pass
+        return False
 
 
 def sync_tasks():
     """Bidirectional sync for project/TASKS.md based on content changes."""
     print(f"{Colors.HEADER}🔄 Syncing Tasks...{Colors.ENDC}")
+    with _SyncLock():
+        return _sync_tasks_locked()
+
+
+def _sync_tasks_locked():
     conn = get_db()
     try:
         c = conn.cursor()
@@ -141,10 +201,10 @@ def sync_tasks():
         db_tasks = []
         # sqlite3.Row supports dict-like ['col'] access; row_factory is set in get_db()
         for row in db_rows:
-            title = row['title']
-            status = row['status']
+            title = row["title"]
+            status = row["status"]
             content_hash = hashlib.sha256(f"{title}|{status}".encode()).hexdigest()
-            db_tasks.append({'title': title, 'status': status, 'hash': content_hash})
+            db_tasks.append({"title": title, "status": status, "hash": content_hash})
 
         file_exists = TASKS_FILE.exists()
         file_tasks = []
@@ -154,34 +214,34 @@ def sync_tasks():
 
         # 1. Check content equality first (Fast Path)
         if _calculate_state_hash(db_tasks) == _calculate_state_hash(file_tasks):
-             print(f"  {Colors.GREEN}✓ Synchronized (No changes detected).{Colors.ENDC}")
-             return
+            print(f"  {Colors.GREEN}✓ Synchronized (No changes detected).{Colors.ENDC}")
+            return
 
         # 2. Decide Sync Direction
         db_count = len(db_tasks)
         file_count = len(file_tasks)
         db_mtime = get_db_timestamp(c)
         file_mtime = TASKS_FILE.stat().st_mtime if file_exists else 0
-        
+
         if db_count == 0 and file_count > 0:
-             print(f"  {Colors.BLUE}Bootstrap: Importing from project/TASKS.md{Colors.ENDC}")
-             import_from_md(c, file_tasks)
-             conn.commit()
+            print(f"  {Colors.BLUE}Bootstrap: Importing from project/TASKS.md{Colors.ENDC}")
+            import_from_md(c, file_tasks)
+            conn.commit()
 
         elif file_count == 0 and db_count > 0:
-             print(f"  {Colors.BLUE}Bootstrap: Exporting to project/TASKS.md{Colors.ENDC}")
-             export_to_md(c)
+            print(f"  {Colors.BLUE}Bootstrap: Exporting to project/TASKS.md{Colors.ENDC}")
+            export_to_md(c)
 
         elif file_mtime >= db_mtime:
-             # File is newer (or equal). Check for actual changes.
-             print(f"  {Colors.BLUE}Checking project/TASKS.md for new updates...{Colors.ENDC}")
-             import_from_md(c, file_tasks)
-             conn.commit()
-        
+            # File is newer (or equal). Check for actual changes.
+            print(f"  {Colors.BLUE}Checking project/TASKS.md for new updates...{Colors.ENDC}")
+            import_from_md(c, file_tasks)
+            conn.commit()
+
         else:
-             # DB is newer
-             print(f"  {Colors.BLUE}Exporting DB changes to project/TASKS.md...{Colors.ENDC}")
-             export_to_md(c)
+            # DB is newer
+            print(f"  {Colors.BLUE}Exporting DB changes to project/TASKS.md...{Colors.ENDC}")
+            export_to_md(c)
 
     finally:
         conn.close()
@@ -233,9 +293,7 @@ def export_to_md(c):
     new_task_lines = _generate_task_lines(db_tasks)
 
     # Default content for new file
-    final_content = (
-        f"# Project Tasks\n\n{_MARKER_START}\n{new_task_lines}\n{_MARKER_END}\n"
-    )
+    final_content = f"# Project Tasks\n\n{_MARKER_START}\n{new_task_lines}\n{_MARKER_END}\n"
 
     # Read existing if present to preserve custom content
     if TASKS_FILE.exists():
@@ -249,28 +307,24 @@ def export_to_md(c):
                 if start_idx < end_idx:
                     logger.debug("Splicing %d tasks into existing file", len(db_tasks))
                     final_content = (
-                        content[:start_idx]
-                        + "\n"
-                        + new_task_lines
-                        + "\n"
-                        + content[end_idx:]
+                        content[:start_idx] + "\n" + new_task_lines + "\n" + content[end_idx:]
                     )
                 else:
-                    logger.warning(
-                        "Markers found but malformed. Overwriting task section."
-                    )
+                    logger.warning("Markers found but malformed. Overwriting task section.")
             else:
                 # Legacy fallback: Try to preserve header/preamble
                 first_task_idx = content.find("- [")
                 if first_task_idx != -1:
-                    logger.info(
-                        "No markers found. Preserving preamble before first task."
-                    )
+                    logger.info("No markers found. Preserving preamble before first task.")
                     preamble = content[:first_task_idx].rstrip()
-                    final_content = f"{preamble}\n\n{_MARKER_START}\n{new_task_lines}\n{_MARKER_END}\n"
+                    final_content = (
+                        f"{preamble}\n\n{_MARKER_START}\n{new_task_lines}\n{_MARKER_END}\n"
+                    )
                 else:
                     logger.info("No markers or tasks found. Appending to file.")
-                    final_content = f"{content.rstrip()}\n\n{_MARKER_START}\n{new_task_lines}\n{_MARKER_END}\n"
+                    final_content = (
+                        f"{content.rstrip()}\n\n{_MARKER_START}\n{new_task_lines}\n{_MARKER_END}\n"
+                    )
 
         except Exception as e:
             logger.error("Error reading project/TASKS.md: %s", e)

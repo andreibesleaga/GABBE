@@ -1,12 +1,13 @@
+# SPDX-License-Identifier: Apache-2.0
 """Tests for gabbe.forecast.run_forecast()."""
 
-import pytest
 from gabbe.database import get_db
 
 
 def test_forecast_runs_on_empty_db(tmp_project, capsys):
     """run_forecast() should succeed and print output even with no tasks or runs."""
     from gabbe.forecast import run_forecast
+
     run_forecast()
     out = capsys.readouterr().out
     assert "Forecast" in out or "forecast" in out.lower()
@@ -16,13 +17,13 @@ def test_forecast_runs_on_empty_db(tmp_project, capsys):
 def test_forecast_shows_zero_costs_on_empty_db(tmp_project, capsys):
     """With no runs, total cost and tokens are zero."""
     from gabbe.forecast import run_forecast
+
     run_forecast()
     out = capsys.readouterr().out
     assert "$0.0000" in out
 
 
 def test_forecast_shows_task_counts(tmp_project, capsys):
-    from gabbe.database import get_db
     from gabbe.forecast import run_forecast
 
     conn = get_db()
@@ -41,7 +42,6 @@ def test_forecast_shows_task_counts(tmp_project, capsys):
 
 def test_forecast_computes_avg_cost_per_task(tmp_project, capsys):
     """Average cost per task is total_cost / done_count."""
-    from gabbe.database import get_db
     from gabbe.forecast import run_forecast
 
     conn = get_db()
@@ -63,7 +63,6 @@ def test_forecast_computes_avg_cost_per_task(tmp_project, capsys):
 
 def test_forecast_zero_done_tasks_no_div_zero(tmp_project, capsys):
     """With tasks all TODO and no runs, no division-by-zero should occur."""
-    from gabbe.database import get_db
     from gabbe.forecast import run_forecast
 
     conn = get_db()
@@ -79,7 +78,6 @@ def test_forecast_zero_done_tasks_no_div_zero(tmp_project, capsys):
 
 def test_forecast_inserts_snapshot(tmp_project):
     """run_forecast() must insert a row into forecast_snapshots."""
-    from gabbe.database import get_db
     from gabbe.forecast import run_forecast
 
     run_forecast()
@@ -94,7 +92,6 @@ def test_forecast_inserts_snapshot(tmp_project):
 
 def test_forecast_snapshot_reflects_projections(tmp_project):
     """The snapshot cost matches what is printed."""
-    from gabbe.database import get_db
     from gabbe.forecast import run_forecast
 
     conn = get_db()

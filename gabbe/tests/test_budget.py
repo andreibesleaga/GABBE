@@ -1,5 +1,8 @@
+# SPDX-License-Identifier: Apache-2.0
 """Unit tests for gabbe.budget."""
+
 import pytest
+
 from gabbe.budget import Budget, BudgetExceeded
 
 
@@ -12,7 +15,9 @@ def test_budget_from_config():
 
 
 def test_budget_check_ok():
-    b = Budget(max_tokens=100, max_tool_calls=10, max_iterations=5, max_cost_usd=1.0, max_wall_seconds=300)
+    b = Budget(
+        max_tokens=100, max_tool_calls=10, max_iterations=5, max_cost_usd=1.0, max_wall_seconds=300
+    )
     b.check()  # should not raise
 
 
@@ -57,6 +62,7 @@ def test_budget_cost_exceeded():
 def test_budget_wall_time_exceeded():
     b = Budget(max_wall_seconds=0)  # 0 seconds — immediately exceeded
     import time as t
+
     t.sleep(0.05)
     with pytest.raises(BudgetExceeded) as exc_info:
         b.check()
@@ -86,7 +92,9 @@ def test_budget_record_iteration():
 
 def test_budget_record_llm_usage_no_pricing():
     b = Budget(max_tokens=1000)
-    b.record_llm_usage("gpt-test", {"total_tokens": 50, "prompt_tokens": 30, "completion_tokens": 20})
+    b.record_llm_usage(
+        "gpt-test", {"total_tokens": 50, "prompt_tokens": 30, "completion_tokens": 20}
+    )
     assert b.tokens_used == 50
     assert b.cost_usd == 0.0  # No pricing in registry
 

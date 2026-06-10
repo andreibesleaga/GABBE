@@ -1,14 +1,17 @@
+# SPDX-License-Identifier: Apache-2.0
 """End-to-end tests for the GABBE CLI toolkit."""
-import unittest
+
 import io
 import shutil
 import tempfile
+import unittest
 from pathlib import Path
 from unittest.mock import patch
+
 import gabbe.config
 import gabbe.sync
 import gabbe.verify
-from gabbe.database import init_db, get_db
+from gabbe.database import get_db, init_db
 
 
 class TestGabbeE2E(unittest.TestCase):
@@ -173,8 +176,10 @@ class TestGabbeE2E(unittest.TestCase):
         from gabbe.brain import activate_brain
 
         captured = io.StringIO()
-        with patch("gabbe.brain.call_llm", return_value="Focus on critical path"), \
-             patch("sys.stdout", captured):
+        with (
+            patch("gabbe.brain.call_llm", return_value="Focus on critical path"),
+            patch("sys.stdout", captured),
+        ):
             activate_brain()
 
         output = captured.getvalue()

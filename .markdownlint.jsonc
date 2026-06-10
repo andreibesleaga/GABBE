@@ -1,0 +1,14 @@
+{
+  // GABBE markdown lint config. The skill/template/guide corpus is large and
+  // intentionally varied, so we relax the noisiest stylistic rules and keep the
+  // structural ones.
+  "default": true,
+  "MD013": false, // line length — long lines are common in skill descriptions
+  "MD033": false, // inline HTML — used in README badges and callouts
+  "MD041": false, // first line heading — many docs open with a banner image
+  "MD024": { "siblings_only": true }, // duplicate headings OK across sections
+  "MD025": false, // multiple H1 — some compiled docs legitimately have several
+  "MD036": false, // emphasis-as-heading — used for short labels
+  "MD040": false, // fenced code language — many examples are plain text
+  "MD046": false  // code block style — mix of fenced and indented
+}

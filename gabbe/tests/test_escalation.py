@@ -1,7 +1,11 @@
+# SPDX-License-Identifier: Apache-2.0
 """Unit tests for gabbe.escalation."""
-import pytest
+
 from unittest.mock import patch
-from gabbe.escalation import EscalationHandler, EscalationTrigger, EscalationPaused
+
+import pytest
+
+from gabbe.escalation import EscalationHandler, EscalationPaused, EscalationTrigger
 
 
 def test_silent_mode_auto_rejects(tmp_project, db_conn):
@@ -15,9 +19,7 @@ def test_silent_mode_records_to_db(tmp_project, db_conn):
     handler = EscalationHandler("run-esc-db", db_conn=db_conn)
     handler.mode = "silent"
     handler.escalate(EscalationTrigger.POLICY_VIOLATION, {"tool": "blocked_tool"})
-    rows = db_conn.execute(
-        "SELECT * FROM pending_escalations WHERE run_id='run-esc-db'"
-    ).fetchall()
+    rows = db_conn.execute("SELECT * FROM pending_escalations WHERE run_id='run-esc-db'").fetchall()
     assert len(rows) == 1
     assert rows[0]["trigger"] == "POLICY_VIOLATION"
     assert rows[0]["status"] == "rejected"
@@ -86,9 +88,7 @@ def test_resolve_updates_db(tmp_project, db_conn):
 
     handler.resolve(esc_id, "approved", "human reviewed")
 
-    updated = db_conn.execute(
-        "SELECT * FROM pending_escalations WHERE id=?", (esc_id,)
-    ).fetchone()
+    updated = db_conn.execute("SELECT * FROM pending_escalations WHERE id=?", (esc_id,)).fetchone()
     assert updated["status"] == "approved"
     assert updated["response"] == "human reviewed"
     assert updated["resolved_at"] is not None

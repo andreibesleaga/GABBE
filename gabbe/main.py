@@ -1,9 +1,11 @@
+# SPDX-License-Identifier: Apache-2.0
 import argparse
 import logging
 import sys
-from .config import Colors, LOG_LEVEL
-from .database import init_db
+
 from . import __version__
+from .config import LOG_LEVEL, Colors
+from .database import init_db
 
 
 def main():
@@ -17,9 +19,7 @@ def main():
         description=f"{Colors.BOLD}GABBE CLI (experimental) - Agentic Engineering Platform{Colors.ENDC}",
         formatter_class=argparse.RawTextHelpFormatter,
     )
-    parser.add_argument(
-        "--version", action="version", version=f"%(prog)s {__version__}"
-    )
+    parser.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
     parser.add_argument(
         "--debug",
         action="store_true",
@@ -32,9 +32,7 @@ def main():
 
     # --- COMMAND: db ---
     db_parser = subparsers.add_parser("db", help="Database management")
-    db_parser.add_argument(
-        "--init", action="store_true", help="Initialize the database schema"
-    )
+    db_parser.add_argument("--init", action="store_true", help="Initialize the database schema")
 
     # --- COMMAND: sync ---
     subparsers.add_parser("sync", help="Sync Markdown <-> SQLite")
@@ -86,7 +84,9 @@ def main():
     # --- COMMAND: replay ---
     replay_parser = subparsers.add_parser("replay", help="Replay a past run from checkpoints")
     replay_parser.add_argument("run_id", help="Run ID to replay")
-    replay_parser.add_argument("--from-step", type=int, default=0, metavar="N", help="Start replay from step N")
+    replay_parser.add_argument(
+        "--from-step", type=int, default=0, metavar="N", help="Start replay from step N"
+    )
 
     # --- COMMAND: resume ---
     resume_parser = subparsers.add_parser("resume", help="Resume a paused/escalated run")
@@ -145,14 +145,17 @@ def main():
 
         elif args.command == "serve-mcp":
             from .mcp_server import serve
+
             serve()
 
         elif args.command == "forecast":
             from .forecast import run_forecast
+
             run_forecast()
 
         elif args.command == "runs":
             from .database import get_db
+
             conn = get_db()
             try:
                 query = "SELECT id, command, status, started_at, ended_at, total_cost_usd, initiator FROM runs"
@@ -169,14 +172,17 @@ def main():
                     print(f"{'ID':<38} {'CMD':<20} {'STATUS':<16} {'STARTED':<22} {'COST':>8}")
                     print("-" * 108)
                     for r in rows:
-                        cost = f"${r['total_cost_usd']:.4f}" if r['total_cost_usd'] else "$0.0000"
-                        print(f"{r['id']:<38} {(r['command'] or '')[:20]:<20} {(r['status'] or ''):<16} {(r['started_at'] or ''):<22} {cost:>8}")
+                        cost = f"${r['total_cost_usd']:.4f}" if r["total_cost_usd"] else "$0.0000"
+                        print(
+                            f"{r['id']:<38} {(r['command'] or '')[:20]:<20} {(r['status'] or ''):<16} {(r['started_at'] or ''):<22} {cost:>8}"
+                        )
             finally:
                 conn.close()
 
         elif args.command == "audit":
-            from .database import get_db
             from .audit import AuditTracer
+            from .database import get_db
+
             conn = get_db()
             tracer = AuditTracer(args.run_id, db_conn=conn)
             if args.format == "json":
@@ -186,17 +192,22 @@ def main():
                 if not spans:
                     print(f"No audit spans found for run {args.run_id}")
                 else:
-                    print(f"{'EVENT TYPE':<18} {'NODE':<25} {'DURATION(ms)':>14} {'COST(USD)':>12} {'STATUS':<10}")
+                    print(
+                        f"{'EVENT TYPE':<18} {'NODE':<25} {'DURATION(ms)':>14} {'COST(USD)':>12} {'STATUS':<10}"
+                    )
                     print("-" * 82)
                     for s in spans:
-                        dur = f"{s['duration_ms']:.2f}" if s['duration_ms'] else "N/A"
-                        cost = f"${s['cost_usd']:.6f}" if s['cost_usd'] else "$0.000000"
-                        print(f"{(s['event_type'] or ''):<18} {(s['node_name'] or '')[:25]:<25} {dur:>14} {cost:>12} {(s['status'] or ''):<10}")
+                        dur = f"{s['duration_ms']:.2f}" if s["duration_ms"] else "N/A"
+                        cost = f"${s['cost_usd']:.6f}" if s["cost_usd"] else "$0.000000"
+                        print(
+                            f"{(s['event_type'] or ''):<18} {(s['node_name'] or '')[:25]:<25} {dur:>14} {cost:>12} {(s['status'] or ''):<10}"
+                        )
             conn.close()
 
         elif args.command == "replay":
             from .database import get_db
             from .replay import CheckpointStore, ReplayRunner
+
             conn = get_db()
             store = CheckpointStore(db_conn=conn)
             runner = ReplayRunner(store)
@@ -213,11 +224,12 @@ def main():
         elif args.command == "resume":
             from .database import get_db
             from .escalation import EscalationHandler
+
             conn = get_db()
             try:
                 rows = conn.execute(
                     "SELECT * FROM pending_escalations WHERE run_id = ? AND status = 'pending' ORDER BY id",
-                    (args.run_id,)
+                    (args.run_id,),
                 ).fetchall()
                 if not rows:
                     print(f"No pending escalations for run {args.run_id}")

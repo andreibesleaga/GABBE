@@ -1,0 +1,10 @@
+usage: main.py brain [-h] {activate,evolve,heal} ...
+
+positional arguments:
+  {activate,evolve,heal}
+    activate            Run Active Inference Loop
+    evolve              Run EPO
+    heal                Run Self-Healing
+
+options:
+  -h, --help            show this help message and exit

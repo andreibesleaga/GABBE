@@ -439,6 +439,15 @@ agents/
 
 ## 🧠 Brain Mode (Meta-Cognitive Layer)
 
+> [!NOTE]
+> **Experimental.** Brain Mode, Loki Mode, Active Inference, Evolutionary Prompt
+> Optimization, the self-healing loop, and forecasting are experimental research
+> runtimes. They are gated behind explicit `gabbe brain …` subcommands (never on
+> by default), covered by the test suite, and deterministically replayable
+> (`gabbe replay`). See [ADR-0002](docs/adr/0002-brain-active-inference-runtime.md)
+> for the design rationale and [docs/VERIFICATION_GUIDE.md](docs/VERIFICATION_GUIDE.md)
+> for how to reproduce each one. Treat outputs as advisory, not production guarantees.
+
 Sits **above** Loki. Decides *how* to execute, not just *what* to execute.
 
 | Feature | Description |
@@ -765,4 +774,20 @@ gabbe verify
 
 ---
 
-[© 2026 Andrei Nicolae Besleaga. This work is licensed CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)
+## License
+
+GABBE is **dual-licensed** so the executable engine and the knowledge content
+can each use the license appropriate to it:
+
+| Part | License | Files |
+| --- | --- | --- |
+| **Code** | [Apache-2.0](LICENSE-CODE) | `gabbe/`, `scripts/`, `agents/scripts/` (all `.py`) |
+| **Content** | [CC BY-SA 4.0](LICENSE) | `agents/` Markdown (skills, templates, guides, personas), `docs/` |
+
+SPDX expression: `Apache-2.0 AND CC-BY-SA-4.0`. Apache-2.0 adds an explicit
+patent grant and is OSI-approved, making the CLI safe to embed in downstream
+(including proprietary) projects; the curated Markdown corpus stays
+copyleft under CC BY-SA 4.0. Existing users lose no rights — this is purely
+additive to the prior CC-BY-SA-4.0-only declaration.
+
+[© 2026 Andrei Nicolae Besleaga.](https://creativecommons.org/licenses/by-sa/4.0/)

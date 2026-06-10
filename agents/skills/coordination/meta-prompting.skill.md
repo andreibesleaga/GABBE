@@ -2,8 +2,10 @@
 name: meta-prompting
 description: Agents optimizing prompts for other agents (Chain of Thought, Tree of Thoughts).
 triggers: [meta prompting]
+when_to_use: "Use this when the task involves: meta prompting."
 tags: [coordination]
 role: orch-planner
+context_cost: low
 ---
 # meta-prompting Skill
 

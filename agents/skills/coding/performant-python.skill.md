@@ -2,6 +2,7 @@
 name: performant-python
 description: Strategies for high-performance Python systems (FastAPI, Asyncio, UVloop, Memory Optimization).
 triggers: [python, fastapi, performance, asyncio, uvloop, pydantic, scalability, profiling]
+when_to_use: "Use this when the task involves: python; fastapi; performance; asyncio; uvloop; pydantic; scalability; profiling."
 tags: [coding, python, architecture]
 context_cost: medium
 ---

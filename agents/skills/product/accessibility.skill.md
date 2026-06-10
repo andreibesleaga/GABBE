@@ -2,6 +2,7 @@
 name: accessibility
 description: WCAG 2.2 compliance audit — keyboard navigation, screen reader testing, ARIA, color contrast
 triggers: [a11y, accessibility, WCAG, keyboard nav, screen reader, aria, color contrast, tab order]
+when_to_use: "Use this when the task involves: a11y; accessibility; WCAG; keyboard nav; screen reader; aria; color contrast; tab order."
 tags: [product]
 context_cost: medium
 ---

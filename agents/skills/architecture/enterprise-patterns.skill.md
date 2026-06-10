@@ -2,6 +2,7 @@
 name: enterprise-patterns
 description: Implement robust Enterprise Architecture Patterns
 triggers: [implement enterprise pattern, add circuit breaker, design saga pattern]
+when_to_use: "Use this when the task involves: implement enterprise pattern; add circuit breaker; design saga pattern."
 tags: [architecture]
 context_cost: medium
 ---

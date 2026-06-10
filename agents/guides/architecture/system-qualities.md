@@ -2,6 +2,13 @@
 
 Building software is easy. Building software that *lasts*, *scales*, and *adapts* is hard.
 
+> **Standard:** align quality attributes to **ISO/IEC 25010:2023** (Ed. 2) — the
+> nine product-quality characteristics: Functional Suitability, Performance
+> Efficiency, Compatibility, **Interaction Capability** (was Usability),
+> Reliability, **Safety** (new in 2023), Security, Maintainability, and
+> **Flexibility** (was Portability). Use these as the canonical NFR checklist.
+> Source: <https://www.iso.org/standard/78176.html> (verified 2026-06-10).
+
 ## 1. Reliability & SRE
 *Reliability is the most important feature. If it's down, it doesn't matter how fast it is.*
 

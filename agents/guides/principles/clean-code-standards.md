@@ -1,6 +1,13 @@
-# Clean Code Principles (2025 Standards)
+# Clean Code Principles (2026 Standards)
 
 Code is read 10x more than it is written. Optimize for readability and maintainability.
+
+> **Body of knowledge:** these practices align with **SWEBOK v4.0** (IEEE,
+> Oct 2024) — the current edition, which added Software Architecture, Software
+> Engineering Operations, and Software Security knowledge areas and integrated
+> Agile/DevOps throughout. Source:
+> <https://www.computer.org/education/bodies-of-knowledge/software-engineering>
+> (verified 2026-06-10).
 
 ## 1. Core Principles
 

@@ -22,13 +22,27 @@ def validate_frontmatter(file_path):
         return False, "Missing YAML end (---)"
 
     yaml_block = content[3:end_yaml]
-    lines = yaml_block.strip().split("\n")
 
-    keys = {}
-    for line in lines:
-        if ":" in line:
-            k, v = line.split(":", 1)
-            keys[k.strip()] = v.strip()
+    # The frontmatter must be parseable by a real YAML parser — the per-platform
+    # compiler (compile_skills.py) uses yaml.safe_load and silently falls back to
+    # a default block when parsing fails, which would drop the skill's real
+    # description/triggers from the emitted output. Catch that here.
+    try:
+        import yaml
+
+        parsed = yaml.safe_load(yaml_block)
+        if not isinstance(parsed, dict):
+            return False, "Frontmatter is not a YAML mapping"
+        keys = {str(k): v for k, v in parsed.items()}
+    except ImportError:
+        # PyYAML unavailable (bootstrapping): fall back to a line parser.
+        keys = {}
+        for line in yaml_block.strip().split("\n"):
+            if ":" in line:
+                k, v = line.split(":", 1)
+                keys[k.strip()] = v.strip()
+    except Exception as e:  # noqa: BLE001 - surface the YAML error to the user
+        return False, f"Frontmatter is not valid YAML ({str(e).splitlines()[0]})"
 
     required = ["name", "description"]
     missing = [k for k in required if k not in keys]

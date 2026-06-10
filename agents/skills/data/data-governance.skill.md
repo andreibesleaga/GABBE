@@ -2,8 +2,10 @@
 name: data-governance
 description: Data lineage, classification (PII/Confidential), and integrity checks (checksums).
 triggers: [data governance]
+when_to_use: "Use this when the task involves: data governance."
 tags: [data]
 role: biz-compliance, eng-data
+context_cost: low
 ---
 # data-governance Skill
 

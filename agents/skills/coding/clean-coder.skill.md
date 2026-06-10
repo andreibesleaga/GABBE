@@ -2,6 +2,7 @@
 name: clean-coder
 description: Enforces Clean Code standards, identifies code smells, and ensures SOLID principles.
 triggers: [clean code, code smell, SOLID, refactor, quality check]
+when_to_use: "Use this when the task involves: clean code; code smell; SOLID; refactor; quality check."
 tags: [coding]
 context_cost: medium
 ---

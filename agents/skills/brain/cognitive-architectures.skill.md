@@ -2,7 +2,9 @@
 name: cognitive-architectures
 description: Patterns from SOAR, ACT-R, and LIDA for advanced agent cognitive cycles
 triggers: [cognitive, architecture, soar, act-r, lida, reasoning cycle]
+when_to_use: "Use this when the task involves: cognitive; architecture; soar; act-r; lida; reasoning cycle."
 tags: [brain, architecture, theory]
+context_cost: low
 ---
 # Cognitive Architectures for Agents
 

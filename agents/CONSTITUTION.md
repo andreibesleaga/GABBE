@@ -161,7 +161,7 @@
 > Add project-specific constitutional rules below.
 > Each article should: state the rule, explain why it exists, give an example.
 
-### Article IX — [User Defined]
+### Article XI — [User Defined]
 <!-- This section is reserved for project-specific rules added by the user or init.py -->
 <!-- Example: Tenant Isolation, Audit Trails, or Performance Budgets -->
 

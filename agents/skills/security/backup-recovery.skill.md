@@ -2,8 +2,10 @@
 name: backup-recovery
 description: Define RPO/RTO, implement PITR/Snapshots, and test restores.
 triggers: [backup recovery]
+when_to_use: "Use this when the task involves: backup recovery."
 tags: [security]
 role: ops-sre, eng-database
+context_cost: low
 ---
 # backup-recovery Skill
 

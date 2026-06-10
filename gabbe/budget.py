@@ -91,8 +91,11 @@ class Budget:
         reasoning_tokens = usage_dict.get("completion_tokens_details", {}).get(
             "reasoning_tokens", 0
         )
-        # Cache read tokens come from prompt_tokens_details.cached_tokens (OpenAI format).
-        cache_read_tokens = usage_dict.get("prompt_tokens_details", {}).get("cached_tokens", 0)
+        # Cache-read tokens: OpenAI reports them in prompt_tokens_details.cached_tokens;
+        # Anthropic-style endpoints use cache_read_input_tokens. Support both.
+        cache_read_tokens = usage_dict.get("prompt_tokens_details", {}).get(
+            "cached_tokens", 0
+        ) or usage_dict.get("cache_read_input_tokens", 0)
 
         self.tokens_used += total_tokens
 
@@ -100,11 +103,20 @@ class Budget:
         # If no dedicated reasoning price is configured, fall back to the output rate so
         # reasoning tokens are never silently billed at zero.
         reasoning_price = prices["reasoning"] if prices["reasoning"] > 0 else prices["output"]
+        # cached_tokens is a SUBSET of prompt_tokens (both OpenAI's
+        # prompt_tokens_details.cached_tokens and Anthropic's cache_read are
+        # already counted in the prompt total). Bill the cached portion once at
+        # the cache-read rate and the remainder at full input price — otherwise
+        # prompt caching paradoxically *increases* tracked cost. Fall back to the
+        # input rate when no cache-read price is configured (no double-count, no
+        # silent under-count).
+        cache_read_price = prices["cache_read"] if prices["cache_read"] > 0 else prices["input"]
+        non_cached_prompt = max(0, prompt_tokens - cache_read_tokens)
         cost = (
-            (prompt_tokens * prices["input"])
+            (non_cached_prompt * prices["input"])
+            + (cache_read_tokens * cache_read_price)
             + ((completion_tokens - reasoning_tokens) * prices["output"])
             + (reasoning_tokens * reasoning_price)
-            + (cache_read_tokens * prices["cache_read"])
         )
         self.cost_usd += cost
         self.check()

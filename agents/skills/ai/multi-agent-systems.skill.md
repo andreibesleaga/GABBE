@@ -2,6 +2,7 @@
 name: multi-agent-systems
 description: Orchestrate Multi-Agent System (MAS) architectures
 triggers: [design mas, setup multi-agent, orchestrate agents]
+when_to_use: "Use this when the task involves: design mas; setup multi-agent; orchestrate agents."
 tags: [ai]
 context_cost: high
 ---

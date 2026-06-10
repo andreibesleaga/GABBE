@@ -1,5 +1,7 @@
 # GABBE (Generative Architectural Brain Base Engine) - Agentic Software R&D Engineering Kit
 
+> **Audience:** new users. **Scope:** fast-track common workflows (specs → design → TDD → brain mode) with copy-paste prompts.
+
 ## QUICK_GUIDE.md — Everything You Need in One Place
 
 > Complete reference sheet for the Agentic Engineering Kit.

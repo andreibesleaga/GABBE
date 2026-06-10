@@ -1,5 +1,7 @@
 # GABBE Comprehensive Verification Guide
 
+> **Audience:** maintainers verifying an install. **Scope:** how to validate the kit and run the validation scripts.
+
 > **Important**: This guide consolidates all testing and verification processes for the GABBE Agentic R&D Engineering Framework into a single, comprehensive source of truth. Use this to explicitly verify the integrity of the framework and its CLI.
 
 ---

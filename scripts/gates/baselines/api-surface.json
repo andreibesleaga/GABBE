@@ -83,6 +83,20 @@
       "kind": "int"
     }
   },
+  "gabbe.cache": {
+    "ContentCache": {
+      "kind": "class",
+      "methods": {
+        "__init__": "(self, root: 'Path', namespace: 'str' = 'default')",
+        "get": "(self, key: 'str')",
+        "set": "(self, key: 'str', value) -> 'None'"
+      }
+    },
+    "content_key": {
+      "kind": "function",
+      "signature": "(*parts) -> 'str'"
+    }
+  },
   "gabbe.config": {
     "Colors": {
       "kind": "class",
@@ -99,6 +113,9 @@
     },
     "GABBE_ESCALATION_MODE": {
       "kind": "str"
+    },
+    "GABBE_LLM_CACHE": {
+      "kind": "bool"
     },
     "GABBE_MAX_COST_USD": {
       "kind": "float"

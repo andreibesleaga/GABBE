@@ -2,8 +2,10 @@
 name: user-story-mapping
 description: Visualizing user journeys and slicing deliverables into releases.
 triggers: [user story mapping]
+when_to_use: "Use this when the task involves: user story mapping."
 tags: [product]
 role: prod-pm
+context_cost: low
 ---
 # user-story-mapping Skill
 

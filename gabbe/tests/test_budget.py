@@ -144,3 +144,70 @@ def test_budget_exceeded_contains_snapshot():
         b.check()
     assert isinstance(exc_info.value.snapshot, dict)
     assert "tokens_used" in exc_info.value.snapshot
+
+
+def test_budget_cached_tokens_reduce_cost_not_double_billed():
+    """Cached prompt tokens (a subset of prompt_tokens) must be billed once at the
+    cache-read rate, not at full input price + cache-read on top. Caching should
+    LOWER tracked cost, never raise it (regression for the double-count bug)."""
+    b = Budget(max_tokens=10_000)
+    # Inject a price for a synthetic model: input 10/Mtok, cache_read 1/Mtok (0.1x).
+    b._cached_prices["cache-model"] = {
+        "input": 10e-6,
+        "output": 30e-6,
+        "reasoning": 0.0,
+        "cache_creation": 12.5e-6,
+        "cache_read": 1e-6,
+    }
+    # Request A: 1000 prompt tokens, none cached.
+    b.record_llm_usage(
+        "cache-model",
+        {
+            "total_tokens": 1000,
+            "prompt_tokens": 1000,
+            "completion_tokens": 0,
+        },
+    )
+    cost_uncached = b.cost_usd
+
+    # Request B: same 1000 prompt tokens, 800 served from cache.
+    b2 = Budget(max_tokens=10_000)
+    b2._cached_prices["cache-model"] = b._cached_prices["cache-model"]
+    b2.record_llm_usage(
+        "cache-model",
+        {
+            "total_tokens": 1000,
+            "prompt_tokens": 1000,
+            "completion_tokens": 0,
+            "prompt_tokens_details": {"cached_tokens": 800},
+        },
+    )
+    cost_cached = b2.cost_usd
+
+    # 800 cached @1/M + 200 fresh @10/M = 0.0008 + 0.002 = 0.0028
+    assert abs(cost_cached - (800 * 1e-6 + 200 * 10e-6)) < 1e-12
+    # Caching must strictly reduce cost vs the all-uncached request.
+    assert cost_cached < cost_uncached
+
+
+def test_budget_anthropic_cache_read_field_supported():
+    """Anthropic-style cache_read_input_tokens is also honored."""
+    b = Budget(max_tokens=10_000)
+    b._cached_prices["anthropic-model"] = {
+        "input": 10e-6,
+        "output": 30e-6,
+        "reasoning": 0.0,
+        "cache_creation": 0.0,
+        "cache_read": 1e-6,
+    }
+    b.record_llm_usage(
+        "anthropic-model",
+        {
+            "total_tokens": 500,
+            "prompt_tokens": 500,
+            "completion_tokens": 0,
+            "cache_read_input_tokens": 400,
+        },
+    )
+    # 400 cached @1/M + 100 fresh @10/M = 0.0004 + 0.001 = 0.0014
+    assert abs(b.cost_usd - (400 * 1e-6 + 100 * 10e-6)) < 1e-12

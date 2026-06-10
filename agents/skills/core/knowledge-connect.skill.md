@@ -2,6 +2,7 @@
 name: Knowledge Connectors
 description: Manage knowledge integration via MCP, Vector DBs, and A2A connectors.
 triggers: [Connect to knowledge base, Ingest documentation, Query vector database, Setup RAG pipeline, Index project files]
+when_to_use: "Use this when the task involves: Connect to knowledge base; Ingest documentation; Query vector database; Setup RAG pipeline; Index project files."
 tags: [core]
 context_cost: medium
 ---

@@ -2,6 +2,7 @@
 name: excalidraw
 description: Create and manage Excalidraw diagrams via MCP for architecture visualization.
 triggers: [excalidraw, whiteboard, visual diagram, hand-drawn diagram]
+when_to_use: "Use this when the task involves: excalidraw; whiteboard; visual diagram; hand-drawn diagram."
 tags: [coding, architecture, visual, diagramming]
 context_cost: medium
 ---

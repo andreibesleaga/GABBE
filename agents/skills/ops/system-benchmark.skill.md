@@ -2,6 +2,7 @@
 name: System Benchmark
 description: Measure system throughput, stability, scalability, and resilience.
 triggers: [Run system benchmark, Test scalability, Measure throughput, Check system stability, Run load test]
+when_to_use: "Use this when the task involves: Run system benchmark; Test scalability; Measure throughput; Check system stability; Run load test."
 tags: [ops]
 context_cost: medium
 ---

@@ -122,6 +122,9 @@ def _safe_int(env_var, default):
 
 
 LLM_TEMPERATURE = _safe_float("GABBE_LLM_TEMPERATURE", 0.7)
+# Opt-in: memoize identical deterministic LLM calls to a local content cache
+# (zero tokens on a hit). Off by default — only correct for deterministic calls.
+GABBE_LLM_CACHE = os.environ.get("GABBE_LLM_CACHE", "false").lower() in ("1", "true", "yes")
 LLM_TIMEOUT = max(1, _safe_int("GABBE_LLM_TIMEOUT", 30))
 LLM_MAX_RETRIES = max(1, _safe_int("GABBE_LLM_MAX_RETRIES", 3))
 LOG_LEVEL = os.environ.get("GABBE_LOG_LEVEL", "INFO").upper()

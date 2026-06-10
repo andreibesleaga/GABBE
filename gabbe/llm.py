@@ -119,5 +119,30 @@ def call_llm_with_usage(
     """
     Like call_llm() but also returns the token usage dict for budget tracking.
     Returns (str|None, dict) where dict contains prompt_tokens, completion_tokens, total_tokens.
+
+    Cost optimization: when GABBE_LLM_CACHE is enabled, identical
+    (model, system, prompt, temperature) requests are served from a local
+    content cache — zero tokens, zero cost — instead of re-calling the API.
+    Only enable this for deterministic calls (e.g. temperature 0); it is OFF by
+    default so it never changes behavior silently.
     """
-    return _call_with_retry(prompt, system_prompt, temperature, timeout)
+    from .config import GABBE_API_MODEL, GABBE_DIR, GABBE_LLM_CACHE
+
+    if not GABBE_LLM_CACHE:
+        return _call_with_retry(prompt, system_prompt, temperature, timeout)
+
+    from .cache import ContentCache, content_key
+
+    temp = LLM_TEMPERATURE if temperature is None else temperature
+    cache = ContentCache(GABBE_DIR / ".cache", namespace="llm")
+    key = content_key(GABBE_API_MODEL, system_prompt, prompt, temp)
+    hit = cache.get(key)
+    if hit is not None:
+        # Served from cache: no tokens billed for this call.
+        logger.debug("LLM cache hit for %s", key[:12])
+        return hit.get("content"), {"total_tokens": 0, "prompt_tokens": 0, "completion_tokens": 0}
+
+    content, usage = _call_with_retry(prompt, system_prompt, temperature, timeout)
+    if content is not None:
+        cache.set(key, {"content": content})
+    return content, usage

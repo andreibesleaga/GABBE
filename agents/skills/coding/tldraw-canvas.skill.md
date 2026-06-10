@@ -2,6 +2,7 @@
 name: tldraw-canvas
 description: Create, manage, and search tldraw canvases for visual design, wireframing, and UI prototyping.
 triggers: [tldraw, canvas, wireframe, visual scratchpad, UI sketch, make-real]
+when_to_use: "Use this when the task involves: tldraw; canvas; wireframe; visual scratchpad; UI sketch; make-real."
 tags: [coding, architecture, visual, design, prototyping]
 context_cost: medium
 ---

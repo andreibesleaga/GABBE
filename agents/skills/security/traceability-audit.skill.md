@@ -2,8 +2,10 @@
 name: traceability-audit
 description: Verifies that every PRD requirement has a linked Test Case and Code Implementation.
 triggers: [traceability audit]
+when_to_use: "Use this when the task involves: traceability audit."
 tags: [security]
 role: prod-pm
+context_cost: low
 ---
 # traceability-audit Skill
 

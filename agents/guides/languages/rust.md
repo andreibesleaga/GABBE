@@ -1,60 +1,73 @@
 # Rust Project Guide
 
-> **Status:** Placeholder / Basic Guide
-> **Version:** 1.0
+> **Audience:** agents writing or reviewing Rust services/tools. **Scope:**
+> current edition, idioms, structure, testing, performance, and pitfalls for
+> 2026. Versions verified 2026-06-10 (see sources at the end).
 
-## Recommended Stack (2026)
+## Recommended stack (2026)
 
--   **Runtime:** Rust (Latest Stable)
--   **Build Tool:** Cargo
--   **Web Framework:** Axum or Actix-Web
--   **ORM:** SurrealDB, Diesel, or SeaORM
--   **Testing:** built-in `#[test]`, `testcontainers` for integration
--   **Linting:** `clippy`, `rustfmt`
+- **Toolchain:** latest stable Rust on **edition 2024** (stabilized in Rust
+  1.85.0, 2025-02-20). Set `edition = "2024"` in `Cargo.toml`. Pin with
+  `rust-toolchain.toml`.
+- **Async runtime:** **Tokio** (de-facto standard) — multi-threaded scheduler,
+  timers, I/O, sync primitives.
+- **Web:** **Axum** (Tower-based, ergonomic) or Actix-Web (max throughput).
+- **Data:** **SQLx** (async, compile-time-checked SQL) or SeaORM/Diesel for an
+  ORM. `serde` + `serde_json` for serialization.
+- **Errors:** `thiserror` for library error enums; `anyhow` for application-level
+  error context. Avoid `unwrap()`/`expect()` outside tests and provably-infallible spots.
+- **Testing:** built-in `#[test]` + `assert_*`; `tokio::test` for async;
+  `proptest` for property tests; `criterion` for benchmarks; `testcontainers` for
+  integration.
+- **Quality:** `cargo clippy -- -D warnings`, `cargo fmt`, `cargo deny` (license/
+  advisory), and `cargo audit` for the RustSec advisory DB.
 
-## Standard Commands
+## Idioms (edition 2024)
 
-```bash
-# Install / Restore
-cargo fetch
+- **Ownership & borrowing** drive the design: prefer owned data at boundaries,
+  borrow for reads; reach for `Arc`/`Mutex` only when shared mutable state is
+  unavoidable. Favor message passing (`tokio::mpsc`) over shared locks.
+- Model domain states with `enum`s and exhaustive `match`; use the newtype
+  pattern for type-safe identifiers.
+- `Result<T, E>` + the `?` operator for fallible flows; convert errors with
+  `From`/`thiserror`. Use `Option` combinators (`map`, `and_then`, `ok_or`).
+- **Async closures** (`async || {}`) are stable as of edition 2024 — use them for
+  combinator-style async code.
+- `unsafe` only behind a safe, documented abstraction with an explicit invariant
+  comment; edition 2024 requires `unsafe extern` blocks and `unsafe` attributes.
 
-# Test
-cargo test
+## Project structure
 
-# Run
-cargo run
-
-# Format
-cargo fmt
-
-# Lint
-cargo clippy
 ```
-
-## Architecture Patterns
-
--   **Clean Architecture** is viable but idiomatic Rust often prefers simpler layering.
--   **Features over Layers**: Group code by business feature rather than technical layer if possible.
--   **Error Handling**: Use `Result<T, AppError>` and `thiserror` / `anyhow`.
-
-## Standard Directory Structure
-```
-Cargo.toml
+Cargo.toml          [workspace] for multi-crate; edition = "2024"
 src/
-  main.rs         # Setup, Axum Router
-  lib.rs          # Module exposure
-  error.rs        # Centralized AppError
-  domain/         # Core data structures
-  handlers/       # Axum route handlers
-  db/             # Database access / repositories
-tests/
-  integration_test.rs
+  main.rs | lib.rs  binary vs library crate root
+  domain/           pure types + logic (no I/O)
+  infra/            db, http clients, adapters
+  api/              axum routers/handlers
+tests/              integration tests (separate crate)
+benches/            criterion benchmarks
 ```
 
-## AI Agent Rules for Rust
-1. **Error Handling**: Implement `IntoResponse` for your custom `AppError` type to automatically translate `Result<T, AppError>` into HTTP responses.
-2. **Axum**: Use Axum's `State` extractor for passing around DB connection pools and configuration.
-3. **Cloning vs References**: Default to passing references (`&T`). Only `clone()` when strictly necessary for ownership, like moving into `tokio::spawn`.
-4. **Macros**: Avoid writing custom `macro_rules!` unless solving a problem that features or generics cannot.
-5. **Testing**: Prefer `rust core` testing for logic. Use `testcontainers-rs` to spin up a Postgres instance for repository integration tests.
-6. **Linting**: No PR should fail `cargo clippy -- -D warnings`. Ensure all structs are properly documented via `///`.
+Split a workspace into a `lib` crate (testable core) + thin `bin` crate.
+
+## Performance & ops
+
+- Build with `--release`; tune `[profile.release]` (`lto = "thin"`,
+  `codegen-units = 1`, `panic = "abort"` for smallest/fastest binaries).
+- Profile before optimizing (`cargo flamegraph`, `perf`); avoid premature
+  `clone()`; prefer borrowing and `&str`/`&[T]` in hot paths.
+- Observe with `tracing` + `tracing-opentelemetry`; structured spans over `println!`.
+
+## Common pitfalls
+
+- Fighting the borrow checker by sprinkling `clone()`/`Arc<Mutex<…>>` — usually a
+  design smell; restructure ownership instead.
+- Blocking calls inside async tasks — use `tokio::task::spawn_blocking`.
+- `.unwrap()` in library/production code; panics across FFI boundaries.
+- Holding a `MutexGuard` across an `.await` (can deadlock) — drop it first.
+
+## Sources (verified 2026-06-10)
+- Rust 1.85.0 + 2024 edition announcement: <https://blog.rust-lang.org/2025/02/20/Rust-1.85.0/>
+- Rust 2024 edition guide: <https://doc.rust-lang.org/edition-guide/rust-2024/index.html>
+- RustSec advisory DB (`cargo audit`): <https://rustsec.org/>

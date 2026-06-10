@@ -2,6 +2,7 @@
 name: refactor
 description: Safe refactoring with test guard — improve code quality without changing behavior
 triggers: [refactor, cleanup, restructure, simplify, extract function, improve code quality]
+when_to_use: "Use this when the task involves: refactor; cleanup; restructure; simplify; extract function; improve code quality."
 tags: [coding]
 context_cost: low
 ---

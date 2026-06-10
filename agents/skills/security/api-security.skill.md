@@ -2,6 +2,7 @@
 name: api-security
 description: Design and enforce REST/GraphQL API Security paradigms
 triggers: [secure api, audit api security, implement jwt auth]
+when_to_use: "Use this when the task involves: secure api; audit api security; implement jwt auth."
 tags: [security]
 context_cost: medium
 ---

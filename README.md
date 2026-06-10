@@ -21,11 +21,11 @@ It contains:
 - **70+ Templates** (standardized documents)
 - **40+ Guides** (language & domain expertise)
 - **30+ Personas** (specialized roles)
-- **40+ MCP servers** (configuration and guides for AI tools)
+- **50+ MCP servers** (configuration and guides for AI tools)
 - **Brain Mode** (meta-cognitive orchestration)
 - **Loki Mode** (multi-agent swarm engineering personas team for large projects)
 
-> **140+ Skills · 70+ Templates · 40+ Guides · 30+ Personas · 40+ MCPs · Loki / Brain Mode CLI**
+> **140+ Skills · 70+ Templates · 40+ Guides · 30+ Personas · 50+ MCPs · Loki / Brain Mode CLI**
 
 ---
 
@@ -43,7 +43,7 @@ It contains:
 
 ### ⚡ Automated Setup (Recommended)
 The `init.py` script is a **Universal Skill Compiler**. It generates the correct formats for your AI tools:
-- **Cursor**: Generates `.cursor/rules/*.mdc` (Optimized with Globs)
+- **Cursor**: Generates `.cursor/rules/*.mdc` (agent-requested rules, intelligently selected by description)
 - **VS Code / Copilot**: Generates `.github/skills/` with `config.json`
 - **Claude Code**: Symlinks `.claude/skills` for instant updates
 - **Gemini**: Wires up `.gemini/settings.json`
@@ -340,25 +340,25 @@ The "Golden Path" for every feature.
 
 ```mermaid
 flowchart TD
-    S0[S0: Strategy] -->|Business Case| S1[S1: Specify]
+    S0[S00: Strategy] -->|Business Case| S1[S01: Specify]
     
     subgraph Definition
         S1 -->|PRD Draft| Ambiguity{Ambiguous?}
         Ambiguity -- Yes --> Clarify[Clarify Questions]
         Clarify --> S1
-        Ambiguity -- No --> S2[S2: Plan]
+        Ambiguity -- No --> S2[S02: Plan]
     end
 
     subgraph Design
         S2 -->|PLAN.md + C4| Review1{Approved?}
         Review1 -- No --> S2
-        Review1 -- Yes --> S3[S3: Tasks]
+        Review1 -- Yes --> S3[S04: Tasks]
     end
 
     subgraph Execution
         S3 -->|project/TASKS.md| Decomp{Task < 15m?}
         Decomp -- No --> S3
-        Decomp -- Yes --> S4[S4: Implement]
+        Decomp -- Yes --> S4[S05: Implement]
         
         S4 --> TDD[TDD Cycle]
         TDD --> RARV[RARV: Reason/Act/Reflect/Verify]

@@ -2,6 +2,7 @@
 name: event-driven-architecture
 description: Design and implement Event-Driven and Async Architectures
 triggers: [design event-driven system, implement eda, setup message broker topology]
+when_to_use: "Use this when the task involves: design event-driven system; implement eda; setup message broker topology."
 tags: [architecture]
 context_cost: medium
 ---

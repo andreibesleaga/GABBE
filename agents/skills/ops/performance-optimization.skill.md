@@ -2,6 +2,7 @@
 name: performance-optimization
 description: Optimize systems for speed and scale (Caching, Sharding, Async).
 triggers: [performance, optimization, scaling, caching, sharding, profiling, latency, slow]
+when_to_use: "Use this when the task involves: performance; optimization; scaling; caching; sharding; profiling; latency; slow."
 tags: [ops]
 context_cost: medium
 ---

@@ -1,5 +1,7 @@
 # GABBE CLI Reference (experimental)
 
+> **Audience:** operators of the `gabbe` CLI. **Scope:** every command, flag, and environment variable.
+
 ## Installation
 
 ```bash

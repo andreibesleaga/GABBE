@@ -2,6 +2,7 @@
 name: legacy-modernization
 description: Analyze, document, and modernize legacy systems (COBOL, Mainframe, Fortran).
 triggers: [legacy code, cobol, mainframe, fortran, ibm z, jcl, db2, cics, modernization, rewrite, migration]
+when_to_use: "Use this when the task involves: legacy code; cobol; mainframe; fortran; ibm z; jcl; db2; cics; modernization; rewrite."
 tags: [architecture]
 context_cost: medium
 ---

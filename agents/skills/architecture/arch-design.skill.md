@@ -2,6 +2,7 @@
 name: arch-design
 description: Design system architecture from approved requirements. Technology-agnostic process covering quality attribute analysis, architectural style selection, multi-view documentation (arc42/4+1), and ADR creation. For new systems or major architectural changes.
 triggers: [design architecture, new architecture, architect the system, system design, choose architecture, architectural design, create architecture, system structure]
+when_to_use: "Use this when the task involves: design architecture; new architecture; architect the system; system design; choose architecture; architectural design; create architecture; system structure."
 tags: [architecture]
 context_cost: high
 ---

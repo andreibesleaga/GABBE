@@ -2,6 +2,7 @@
 name: enterprise-migration-scenario
 description: Plan and execute complex enterprise-scale legacy migrations
 triggers: [plan enterprise migration, migrate legacy to microservices, architect system migration]
+when_to_use: "Use this when the task involves: plan enterprise migration; migrate legacy to microservices; architect system migration."
 tags: [architecture]
 context_cost: high
 ---

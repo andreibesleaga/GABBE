@@ -2,6 +2,7 @@
 name: performant-laravel
 description: Strategies for high-performance, scalable Laravel systems (Octane, DB Optimization, Redis, Microservices).
 triggers: [laravel, performance, scalability, octane, frankenphp, redis, eloquent, microservices]
+when_to_use: "Use this when the task involves: laravel; performance; scalability; octane; frankenphp; redis; eloquent; microservices."
 tags: [coding, laravel, architecture]
 context_cost: medium
 ---

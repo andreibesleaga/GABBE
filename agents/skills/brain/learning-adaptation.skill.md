@@ -2,6 +2,7 @@
 name: learning-adaptation
 description: Mechanisms for In-Context Reinforcement Learning, Meta-Learning, and Neuroplasticity.
 triggers: [learning adaptation]
+when_to_use: "Use this when the task involves: learning adaptation."
 tags: [brain]
 context_cost: high
 tools: [replace_file_content, write_to_file]

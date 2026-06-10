@@ -2,6 +2,7 @@
 name: engineering-standards
 description: Enforce academic and industry engineering standards (IEEE, ACM, ISO/IEC)
 triggers: [ieee standards, acm compliance, iso 12207, swebok, academic standards, ieee 42010]
+when_to_use: "Use this when the task involves: ieee standards; acm compliance; iso 12207; swebok; academic standards; ieee 42010."
 tags: [engineering, standards, ieee, acm, iso]
 context_cost: medium
 ---

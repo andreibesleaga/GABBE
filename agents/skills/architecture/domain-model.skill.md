@@ -2,6 +2,7 @@
 name: domain-model
 description: Create or review a domain model for a system — identifying bounded contexts, entities, value objects, aggregates, domain events, and context relationships. Technology-agnostic. Works from requirements or from existing system descriptions.
 triggers: [domain model, bounded context, ubiquitous language, context map, domain design, domain analysis, domain events, aggregate, entities, DDD analysis]
+when_to_use: "Use this when the task involves: domain model; bounded context; ubiquitous language; context map; domain design; domain analysis; domain events; aggregate; entities; DDD analysis."
 tags: [architecture]
 context_cost: medium
 ---

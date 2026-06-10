@@ -2,8 +2,10 @@
 name: dependency-security
 description: Managing Supply Chain Security, SBOM generation, and vulnerability patching (SCA).
 triggers: [dependency security]
+when_to_use: "Use this when the task involves: dependency security."
 tags: [security]
 role: ops-security, ops-devops
+context_cost: low
 ---
 # dependency-security Skill
 

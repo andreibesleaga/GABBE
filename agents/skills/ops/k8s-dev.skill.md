@@ -2,6 +2,7 @@
 name: k8s-dev
 description: Assistance with Remote Kubernetes Development (Telepresence, Okteto, DevSpace).
 triggers: [k8s dev, remote dev, telepresence, okteto, devspace, tilt, scaffold, remote cluster]
+when_to_use: "Use this when the task involves: k8s dev; remote dev; telepresence; okteto; devspace; tilt; scaffold; remote cluster."
 tags: [ops]
 context_cost: medium
 ---

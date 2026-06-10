@@ -2,7 +2,9 @@
 name: neuroscience-foundations
 description: Apply biological brain patterns to agent design
 triggers: [neuroscience, brain, cognitive, thalamus, basal ganglia]
+when_to_use: "Use this when the task involves: neuroscience; brain; cognitive; thalamus; basal ganglia."
 tags: [brain, architecture, theory]
+context_cost: low
 ---
 # Neuroscience Foundations for Agents
 

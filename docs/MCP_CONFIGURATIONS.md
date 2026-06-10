@@ -1,5 +1,7 @@
 # MCP Server Configurations Guide
 
+> **Audience:** users wiring MCP servers. **Scope:** install/config/usage for every supported MCP server (package names verified 2026-06-10).
+
 Comprehensive installation, configuration, and usage guide for every MCP (Model Context Protocol) server supported by the GABBE kit.
 
 > **Config file**: `agents/templates/core/MCP_CONFIG_TEMPLATE.json`

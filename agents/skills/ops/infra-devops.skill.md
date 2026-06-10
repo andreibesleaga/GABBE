@@ -2,6 +2,7 @@
 name: infra-devops
 description: Design and implement cloud infrastructure (Terraform/K8s) and CI/CD pipelines.
 triggers: [infra, terraform, k8s, kubernetes, docker, cicd, pipeline, devops, aws, gcp, azure]
+when_to_use: "Use this when the task involves: infra; terraform; k8s; kubernetes; docker; cicd; pipeline; devops; aws; gcp."
 tags: [ops]
 context_cost: medium
 ---

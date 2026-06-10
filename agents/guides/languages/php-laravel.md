@@ -61,9 +61,9 @@ tests/
 ## AGENTS.md Snippet (Laravel project)
 
 ```yaml
-runtime: PHP 8.3
+runtime: PHP 8.4  # 8.5 current stable (verified 2026-06)
 language: PHP (typed, strict)
-framework: Laravel 11.x
+framework: Laravel 12.x  # min PHP 8.2
 package_manager: Composer 2.x
 
 install: composer install
@@ -86,7 +86,7 @@ migrate: php artisan migrate
 ### Core
 | Role | Library | Why |
 |---|---|---|
-| Framework | Laravel 11.x | Full-stack, mature ecosystem |
+| Framework | Laravel 12.x | Full-stack, mature ecosystem (min PHP 8.2) |
 | DTOs | `spatie/laravel-data` | Typed DTOs with casting + validation |
 | State Machine | `spatie/laravel-model-states` | Enum-like states with transitions |
 | Query Builder | Eloquent (with Spatie QueryBuilder) | Flexible, typed |

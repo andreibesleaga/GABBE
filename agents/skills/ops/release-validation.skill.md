@@ -2,8 +2,10 @@
 name: release-validation
 description: The final "Green Light". Checks all test suites (Unit, Int, E2E) and third-party reports.
 triggers: [release validation]
+when_to_use: "Use this when the task involves: release validation."
 tags: [ops]
 role: ops-release
+context_cost: low
 ---
 # release-validation Skill
 

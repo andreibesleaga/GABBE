@@ -2,8 +2,10 @@
 name: secrets-management
 description: Safe handling of API keys, Vault/AWS Secrets Manager patterns, rotation.
 triggers: [secrets management]
+when_to_use: "Use this when the task involves: secrets management."
 tags: [security]
 role: ops-security
+context_cost: low
 ---
 # secrets-management Skill
 

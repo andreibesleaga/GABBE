@@ -2,6 +2,7 @@
 name: sensory-motor
 description: Embodied cognition patterns for treating tools as muscles and inputs as senses.
 triggers: [sensory motor]
+when_to_use: "Use this when the task involves: sensory motor."
 tags: [brain]
 context_cost: medium
 tools: [run_command, read_file]

@@ -1,5 +1,7 @@
 # Quick Commands & Prompts Reference
 
+> **Audience:** day-to-day users. **Scope:** copy-paste prompts for the most common tasks.
+
 This guide provides a quick reference for the most common commands, setup instructions, and copy-paste prompts used in the GABBE Agentic Engineering Kit.
 
 ## 1. Setup Commands

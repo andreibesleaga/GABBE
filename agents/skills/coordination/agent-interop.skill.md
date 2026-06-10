@@ -1,9 +1,10 @@
 ---
-name: Agent Interoperability
-description: Manage connections, handshakes, and protocol negotiation between agents (MCP, A2A, ACP).
-triggers: [Connect to agent [Name], Negotiate protocol, Send A2A message, Establish handshake, Join swarm]
-tags: [coordination]
-context_cost: medium
+name: "Agent Interoperability"
+description: "Manage connections, handshakes, and protocol negotiation between agents (MCP, A2A, ACP)."
+triggers: ["Connect to agent [Name]", "Negotiate protocol", "Send A2A message", "Establish handshake", "Join swarm"]
+when_to_use: "Use this when the task involves: Connect to agent [Name]; Negotiate protocol; Send A2A message; Establish handshake; Join swarm."
+tags: ["coordination"]
+context_cost: "medium"
 ---
 # Agent Interoperability Skill
 

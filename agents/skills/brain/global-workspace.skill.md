@@ -2,6 +2,7 @@
 name: global-workspace
 description: Broadcast information across the swarm 'consciousness' (Global Workspace Theory).
 triggers: [global workspace]
+when_to_use: "Use this when the task involves: global workspace."
 tags: [brain]
 context_cost: high
 tools: [write_to_file, notify_user]

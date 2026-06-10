@@ -9,7 +9,7 @@
 ## Installation
 
 ### Method 1: This Kit (built-in — no install needed)
-All 126 skills in this directory are ready to use immediately.
+All 171 skills in this directory are ready to use immediately.
 Run `setup-context.sh` to wire them to your AI tool's skill directory.
 
 ### Method 2: Skill Marketplaces & Registries
@@ -70,11 +70,13 @@ ln -sf /path/to/agents/skills/*/*.skill.md ~/.agent/skills/
 | UI Gen | `coding/ui-gen.skill.md` | ui, dashboard, cli | medium | Generate React/HTMX UIs |
 | File Processing | `coding/file-processing.skill.md` | stream, large file | medium | Efficient file IO |
 | Testing Strategy | `coding/testing-strategy.skill.md` | test strategy, pyramid | medium | Testing Pyramid Strategy |
+| Node.js Expert | `coding/nodejs-expert.skill.md` | node internals, fastify, typescript | low | Node.js internals & Fastify |
 | Artisan Commands | `coding/artisan-commands.skill.md` | artisan, laravel | low | Execute Laravel commands |
 | Performant Node.js | `coding/performant-nodejs.skill.md` | nodejs, performance | medium | High-performance Node.js systems |
 | Performant Laravel | `coding/performant-laravel.skill.md` | laravel, performance | medium | High-performance Laravel systems |
 | Performant Python | `coding/performant-python.skill.md` | python, performance | medium | High-performance Python systems |
 | Performant Go | `coding/performant-go.skill.md` | go, performance | medium | High-performance Go systems |
+| Performant PHP | `coding/performant-php.skill.md` | php, composer, symfony, laravel | medium | Modern PHP ecosystem performance |
 | Performant AI | `coding/performant-ai.skill.md` | ai, llm, performance | medium | High-performance AI/LLM systems |
 | Time Complexity | `coding/time-complexity.skill.md` | complexity, big-o, hotspot | medium | Big-O static analysis via MCP |
 | Excalidraw | `coding/excalidraw.skill.md` | excalidraw, whiteboard, visual | medium | Excalidraw diagram creation via MCP |
@@ -142,6 +144,7 @@ ln -sf /path/to/agents/skills/*/*.skill.md ~/.agent/skills/
 | Dev Environments | `ops/dev-environments.skill.md` | devcontainer | Dev setups |
 | Troubleshooting | `ops/troubleshooting-guide.skill.md` | troubleshoot | Incident diagnosis |
 | Cost Optimization | `ops/cost-optimization.skill.md` | finops, costs | Analyze cloud spend |
+| Dev Workflow | `ops/dev-workflow.skill.md` | git workflow, gh cli, docs | Git & Diátaxis docs |
 
 ### 4. Security & Compliance (`security/`)
 | Skill | File | Triggers | Purpose |

@@ -1,5 +1,7 @@
 # GABBE Emitted-Format Schema
 
+> **Audience:** maintainers & downstream consumers. **Scope:** the contract of every emitted client format and its evolution policy.
+
 **Audience:** maintainers and downstream consumers who depend on the files
 GABBE writes into a project. **Scope:** the public contract of every artifact
 `scripts/init.py` (and `agents/scripts/compile_skills.py`) emit per AI client.

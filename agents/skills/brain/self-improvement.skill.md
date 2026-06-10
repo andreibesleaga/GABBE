@@ -2,6 +2,7 @@
 name: self-improvement
 description: Evolutionary mechanisms for the agent to rewrite its own prompts (Neuroplasticity).
 triggers: [self improvement]
+when_to_use: "Use this when the task involves: self improvement."
 tags: [brain]
 context_cost: very_high
 tools: [replace_file_content, task_boundary]

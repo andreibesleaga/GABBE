@@ -2,6 +2,7 @@
 name: consciousness-loop
 description: Recursive self-reference (Strange Loop) and OODA Loop implementation.
 triggers: [consciousness loop]
+when_to_use: "Use this when the task involves: consciousness loop."
 tags: [brain]
 context_cost: high
 tools: [task_boundary, notify_user]

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """
 Edge-case and gap-coverage E2E tests.
 

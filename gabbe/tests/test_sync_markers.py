@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 from gabbe.sync import parse_markdown_tasks, _generate_task_lines, _MARKER_START, _MARKER_END
 
 def test_generate_task_lines():

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Unit tests for gabbe.replay."""
 import json
 from gabbe.replay import CheckpointStore, ReplayRunner

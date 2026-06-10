@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 import pytest
 from gabbe.budget import Budget, BudgetExceeded
 from gabbe.hardstop import HardStop, MaxIterationsExceeded

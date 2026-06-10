@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """Gate 1 harness: dump the public API surface of the gabbe package.
 
 Walks every module in gabbe/ and records {module: {public_name: signature}}.

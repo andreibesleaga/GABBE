@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Unit tests for gabbe.budget."""
 import pytest
 from gabbe.budget import Budget, BudgetExceeded

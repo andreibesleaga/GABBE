@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """
 E2E Workflow Test — follows the documented README / QUICK_GUIDE workflow:
 

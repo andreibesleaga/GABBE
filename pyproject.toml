@@ -8,7 +8,11 @@ version = "0.8.0"
 description = "Generative Architectural Brain Base Engine - Agentic Engineering Kit"
 readme = "README.md"
 requires-python = ">=3.8"
-license = "CC-BY-SA-4.0"
+# Dual-licensed: executable code (gabbe/, scripts/, agents/scripts/) under
+# Apache-2.0 (see LICENSE-CODE); documentation and content (agents/ markdown,
+# docs/, skills/templates/guides/personas) under CC-BY-SA-4.0 (see LICENSE).
+license = "Apache-2.0 AND CC-BY-SA-4.0"
+license-files = ["LICENSE", "LICENSE-CODE"]
 authors = [
   {name = "Andrei Nicolae Besleaga"}
 ]

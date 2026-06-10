@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Unit tests for gabbe.gateway."""
 import pytest
 from gabbe.gateway import ToolDefinition, ToolNotFound, PolicyDenied, CircuitOpen, RateLimitExceeded

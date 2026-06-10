@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Unit tests for gabbe.context."""
 import json
 from gabbe.context import RunContext

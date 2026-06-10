@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """Gate 4 harness: capture the byte-level output of scripts/init.py per platform.
 
 Runs the setup wizard non-interactively (scripted answers) inside a temp

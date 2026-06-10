@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Unit tests for gabbe.database."""
 import pytest
 import sqlite3

@@ -765,4 +765,20 @@ gabbe verify
 
 ---
 
-[© 2026 Andrei Nicolae Besleaga. This work is licensed CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)
+## License
+
+GABBE is **dual-licensed** so the executable engine and the knowledge content
+can each use the license appropriate to it:
+
+| Part | License | Files |
+| --- | --- | --- |
+| **Code** | [Apache-2.0](LICENSE-CODE) | `gabbe/`, `scripts/`, `agents/scripts/` (all `.py`) |
+| **Content** | [CC BY-SA 4.0](LICENSE) | `agents/` Markdown (skills, templates, guides, personas), `docs/` |
+
+SPDX expression: `Apache-2.0 AND CC-BY-SA-4.0`. Apache-2.0 adds an explicit
+patent grant and is OSI-approved, making the CLI safe to embed in downstream
+(including proprietary) projects; the curated Markdown corpus stays
+copyleft under CC BY-SA 4.0. Existing users lose no rights — this is purely
+additive to the prior CC-BY-SA-4.0-only declaration.
+
+[© 2026 Andrei Nicolae Besleaga.](https://creativecommons.org/licenses/by-sa/4.0/)

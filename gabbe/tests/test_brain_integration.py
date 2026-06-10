@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Integration tests for gabbe.brain with platform controls (RunContext)."""
 from unittest.mock import patch
 from gabbe.budget import Budget

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 
 from unittest.mock import MagicMock, patch
 from gabbe.sync import sync_tasks, _MARKER_START, _MARKER_END

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 import subprocess
 import shlex
 from .config import PROJECT_ROOT, Colors, GABBE_DIR, REQUIRED_FILES, SUBPROCESS_TIMEOUT

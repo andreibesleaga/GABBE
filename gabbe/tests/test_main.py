@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Unit tests for gabbe.main — CLI dispatch and error handling."""
 import pytest
 from unittest.mock import patch

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 import sqlite3
 import time
 from dataclasses import dataclass, field

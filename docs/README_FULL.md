@@ -1,5 +1,7 @@
 # GABBE (Generative Architectural Brain Base Engine) - Agentic Software R&D Engineering Kit
 
+> **Audience:** users & agents adopting the full GABBE kit. **Scope:** complete reference — skills, templates, guides, modes, setup per language, troubleshooting.
+
 ## Complete Guide
 
 ## What is this?

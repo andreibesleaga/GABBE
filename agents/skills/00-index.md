@@ -9,7 +9,7 @@
 ## Installation
 
 ### Method 1: This Kit (built-in — no install needed)
-All 170 skills in this directory are ready to use immediately.
+All 171 skills in this directory are ready to use immediately.
 Run `setup-context.sh` to wire them to your AI tool's skill directory.
 
 ### Method 2: Skill Marketplaces & Registries
@@ -76,6 +76,7 @@ ln -sf /path/to/agents/skills/*/*.skill.md ~/.agent/skills/
 | Performant Laravel | `coding/performant-laravel.skill.md` | laravel, performance | medium | High-performance Laravel systems |
 | Performant Python | `coding/performant-python.skill.md` | python, performance | medium | High-performance Python systems |
 | Performant Go | `coding/performant-go.skill.md` | go, performance | medium | High-performance Go systems |
+| Performant PHP | `coding/performant-php.skill.md` | php, composer, symfony, laravel | medium | Modern PHP ecosystem performance |
 | Performant AI | `coding/performant-ai.skill.md` | ai, llm, performance | medium | High-performance AI/LLM systems |
 | Time Complexity | `coding/time-complexity.skill.md` | complexity, big-o, hotspot | medium | Big-O static analysis via MCP |
 | Excalidraw | `coding/excalidraw.skill.md` | excalidraw, whiteboard, visual | medium | Excalidraw diagram creation via MCP |

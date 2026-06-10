@@ -1,5 +1,7 @@
 # GABBE Platform Controls (Experimental)
 
+> **Audience:** operators enforcing budget/policy. **Scope:** budget, hard stops, policy, gateway, audit, escalation, replay.
+
 This document describes the agent platform control layer for the experimental `gabbe` CLI. It covers budget enforcement, hard stops, policy rules, the tool gateway, audit tracing, human escalation, and deterministic replay.
 
 ---

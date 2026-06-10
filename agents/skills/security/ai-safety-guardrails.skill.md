@@ -2,6 +2,7 @@
 name: ai-safety-guardrails
 description: Security-by-design for AI (Prompt Injection defense, Hallucination checks, PII filters).
 triggers: [ai safety guardrails]
+when_to_use: "Use this when the task involves: ai safety guardrails."
 tags: [security]
 role: prod-ethicist
 context_cost: low

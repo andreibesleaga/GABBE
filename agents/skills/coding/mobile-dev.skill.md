@@ -2,6 +2,7 @@
 name: mobile-dev
 description: Mobile application development (iOS, Android, React Native)
 triggers: [Build a mobile app, Create a React Native screen, Debug iOS build, Optimize Android performance]
+when_to_use: "Use this when the task involves: Build a mobile app; Create a React Native screen; Debug iOS build; Optimize Android performance."
 tags: [coding]
 context_cost: medium
 ---

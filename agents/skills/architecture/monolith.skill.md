@@ -2,6 +2,7 @@
 name: monolith
 description: Design and refactor Monolithic and Modular Monolithic architectures
 triggers: [design monolith, build modular monolith, enforce boundaries]
+when_to_use: "Use this when the task involves: design monolith; build modular monolith; enforce boundaries."
 tags: [architecture]
 context_cost: medium
 ---

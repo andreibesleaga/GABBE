@@ -2,6 +2,7 @@
 name: dev-workflow
 description: Standardized Github operations, Diátaxis documentation framework, and visual assets
 triggers: [git workflow, github, gh cli, documentation, diataxis, restructure docs]
+when_to_use: "Use this when the task involves: git workflow; github; gh cli; documentation; diataxis; restructure docs."
 tags: [git, github, documentation, diataxis]
 context_cost: low
 ---

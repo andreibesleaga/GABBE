@@ -2,6 +2,7 @@
 name: caching-strategy
 description: Implement Redis/Memcached patterns and invalidation strategies.
 triggers: [caching strategy]
+when_to_use: "Use this when the task involves: caching strategy."
 tags: [ops]
 role: eng-backend
 context_cost: low

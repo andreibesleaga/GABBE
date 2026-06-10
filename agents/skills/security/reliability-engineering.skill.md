@@ -2,6 +2,7 @@
 name: reliability-engineering
 description: Designing failover patterns (Hot Standby, TMR), redundancy, and MTTF calculations.
 triggers: [reliability engineering]
+when_to_use: "Use this when the task involves: reliability engineering."
 tags: [security]
 role: prod-safety-engineer, eng-arch
 context_cost: low

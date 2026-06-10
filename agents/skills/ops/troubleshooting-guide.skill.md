@@ -2,6 +2,7 @@
 name: troubleshooting-guide
 description: Diagnose complex system failures through systematic troubleshooting
 triggers: [troubleshoot issue, diagnose system failure, fix production outage]
+when_to_use: "Use this when the task involves: troubleshoot issue; diagnose system failure; fix production outage."
 tags: [ops]
 context_cost: high
 ---

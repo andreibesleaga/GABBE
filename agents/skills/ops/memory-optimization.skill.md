@@ -2,6 +2,7 @@
 name: memory-optimization
 description: Summarizing context, pruning history, and managing token budget efficiency.
 triggers: [memory optimization]
+when_to_use: "Use this when the task involves: memory optimization."
 tags: [ops]
 role: orch-researcher
 context_cost: low

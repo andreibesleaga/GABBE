@@ -2,6 +2,7 @@
 name: loki-mode
 description: Master multi-agent swarm orchestration. Spawns and coordinates specialized personas for large projects that exceed single-agent context limits. Manages 10-phase SDLC with checkpoints, memory, and human-in-the-loop gates.
 triggers: [loki, swarm, orchestrate, big project, autonomous build, multi-agent, spawn, coordinate swarm]
+when_to_use: "Use this when the task involves: loki; swarm; orchestrate; big project; autonomous build; multi-agent; spawn; coordinate swarm."
 tags: [brain]
 context_cost: high
 ---

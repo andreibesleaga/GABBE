@@ -2,6 +2,7 @@
 name: critical-systems-arch
 description: Design architecture for safety-critical and high-reliability systems
 triggers: [design critical system, architect safety-critical application, enforce high reliability]
+when_to_use: "Use this when the task involves: design critical system; architect safety-critical application; enforce high reliability."
 tags: [architecture]
 context_cost: high
 ---

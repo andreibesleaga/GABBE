@@ -2,6 +2,7 @@
 name: multi-agent-orch
 description: Plans and orchestrates multi-agent swarms, defining roles, topologies, and handoffs.
 triggers: [orchestrate, swarm, delegation, multi-agent, agent-team]
+when_to_use: "Use this when the task involves: orchestrate; swarm; delegation; multi-agent; agent-team."
 tags: [coordination]
 context_cost: medium
 ---

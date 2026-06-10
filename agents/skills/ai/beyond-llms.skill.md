@@ -2,6 +2,7 @@
 name: beyond-llms
 description: Implement advanced neuro-symbolic and genetic algorithm techniques
 triggers: [implement active inference, add neuro-symbolic logic, optimize using genetic algorithms]
+when_to_use: "Use this when the task involves: implement active inference; add neuro-symbolic logic; optimize using genetic algorithms."
 tags: [ai]
 context_cost: high
 ---

@@ -2,6 +2,7 @@
 name: docker-dev
 description: Assistance with Local Development using Docker (Compose, DevContainers).
 triggers: [docker, compose, local dev, devcontainer, dev environment, containerize, dockerization]
+when_to_use: "Use this when the task involves: docker; compose; local dev; devcontainer; dev environment; containerize; dockerization."
 tags: [ops]
 context_cost: medium
 ---

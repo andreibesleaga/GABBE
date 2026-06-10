@@ -2,6 +2,7 @@
 name: research
 description: Find authoritative answers from official docs, RFCs, standards, and academic sources — never from blogs or opinions
 triggers: [research, find, how to, unknown, best practice, which library, official docs, RFC, spec, standard, look this up]
+when_to_use: "Use this when the task involves: research; find; how to; unknown; best practice; which library; official docs; RFC; spec; standard."
 tags: [core]
 context_cost: medium
 ---

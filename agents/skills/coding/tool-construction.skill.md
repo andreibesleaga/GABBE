@@ -2,6 +2,7 @@
 name: tool-construction
 description: Dynamically building simple MCP servers or Python scripts to solve unique problems.
 triggers: [tool construction]
+when_to_use: "Use this when the task involves: tool construction."
 tags: [coding]
 role: eng-tooling
 context_cost: low

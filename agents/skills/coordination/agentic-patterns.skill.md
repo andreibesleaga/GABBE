@@ -2,6 +2,7 @@
 name: agentic-patterns
 description: Implements advanced AI patterns like Reflection, ReAct, Planning, and Tool Use.
 triggers: [agentic, reflection, react pattern, planning, memory, tool use]
+when_to_use: "Use this when the task involves: agentic; reflection; react pattern; planning; memory; tool use."
 tags: [coordination]
 context_cost: high
 ---

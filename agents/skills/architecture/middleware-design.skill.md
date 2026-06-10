@@ -2,6 +2,7 @@
 name: middleware-design
 description: Designing robust middleware chains (Auth, Rate Limiting, Logging).
 triggers: [middleware design]
+when_to_use: "Use this when the task involves: middleware design."
 tags: [architecture]
 role: eng-backend
 context_cost: low

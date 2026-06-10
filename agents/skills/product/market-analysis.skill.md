@@ -2,6 +2,7 @@
 name: market-analysis
 description: Competitive research, SWOT analysis, and feature differentiation.
 triggers: [market analysis]
+when_to_use: "Use this when the task involves: market analysis."
 tags: [product]
 role: prod-pm
 context_cost: low

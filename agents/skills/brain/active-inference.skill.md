@@ -2,6 +2,7 @@
 name: active-inference
 description: Apply Active Inference to minimize prediction error (Surprise).
 triggers: [active inference]
+when_to_use: "Use this when the task involves: active inference."
 tags: [brain]
 context_cost: medium
 tools: [run_command, read_file]

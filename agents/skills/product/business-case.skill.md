@@ -2,6 +2,7 @@
 name: business-case
 description: Generate comprehensive business cases, ROI analysis, and strategic justification for new initiatives.
 triggers: [business case, ROI, cost-benefit, justify project, strategic value, investment memo, pitch]
+when_to_use: "Use this when the task involves: business case; ROI; cost-benefit; justify project; strategic value; investment memo; pitch."
 tags: [product]
 context_cost: medium
 ---

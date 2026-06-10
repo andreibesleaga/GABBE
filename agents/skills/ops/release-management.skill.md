@@ -2,6 +2,7 @@
 name: release-management
 description: Manage versioning, changelogs, and release processes
 triggers: [Prepare a release, Draft release notes, Bump version, Generate Changelog]
+when_to_use: "Use this when the task involves: Prepare a release; Draft release notes; Bump version; Generate Changelog."
 tags: [ops]
 context_cost: low
 ---

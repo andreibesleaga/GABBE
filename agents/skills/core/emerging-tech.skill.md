@@ -2,6 +2,7 @@
 name: emerging-tech
 description: Architecture assistance for 2026-2030 technologies (6G, Matter IoT, Vector DBs).
 triggers: [6g, iot, matter, vector, bedding, semantic search, rag, edge native, post-quantum]
+when_to_use: "Use this when the task involves: 6g; iot; matter; vector; bedding; semantic search; rag; edge native; post-quantum."
 tags: [core]
 context_cost: medium
 ---

@@ -2,6 +2,7 @@
 name: performant-nodejs
 description: Strategies for high-performance, scalable Node.js systems (Worker Threads, ESM, Observability, Clean Architecture).
 triggers: [nodejs, performance, scalability, worker threads, clustering, esm, observability, hexagonal architecture]
+when_to_use: "Use this when the task involves: nodejs; performance; scalability; worker threads; clustering; esm; observability; hexagonal architecture."
 tags: [coding, nodejs, architecture]
 context_cost: medium
 ---

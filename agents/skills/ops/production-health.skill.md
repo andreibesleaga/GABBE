@@ -2,6 +2,7 @@
 name: Production Health & Optimization
 description: Manage system stability, avoid agentic loops, optimize costs, and enforce sleep cycles.
 triggers: [Check system health, Prevent infinite loops, Optimize agent costs, Configure sleep cycles, Avoid recursion]
+when_to_use: "Use this when the task involves: Check system health; Prevent infinite loops; Optimize agent costs; Configure sleep cycles; Avoid recursion."
 tags: [ops]
 context_cost: medium
 ---

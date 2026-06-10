@@ -2,6 +2,7 @@
 name: capacity-planning
 description: Forecasting resource usage, load testing interpretation, and scaling limits.
 triggers: [capacity planning]
+when_to_use: "Use this when the task involves: capacity planning."
 tags: [ops]
 role: ops-sre
 context_cost: low

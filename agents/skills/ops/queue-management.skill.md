@@ -2,6 +2,7 @@
 name: queue-management
 description: Standards for DLQs (Dead Letter Queues), Idempotency, and Retry policies.
 triggers: [queue management]
+when_to_use: "Use this when the task involves: queue management."
 tags: [ops]
 role: eng-backend, ops-sre
 context_cost: low

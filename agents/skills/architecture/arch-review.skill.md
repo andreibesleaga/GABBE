@@ -2,6 +2,7 @@
 name: arch-review
 description: Systematic review of existing architecture using ATAM-lite methodology. Evaluates architectural fitness against quality attribute scenarios, identifies risks, sensitivity points, tradeoffs, and anti-patterns. Produces structured review report with findings and recommendations.
 triggers: [review architecture, audit architecture, architecture analysis, architecture assessment, arch review, evaluate architecture, is the architecture good, architecture problems, existing architecture]
+when_to_use: "Use this when the task involves: review architecture; audit architecture; architecture analysis; architecture assessment; arch review; evaluate architecture; is the architecture good; architecture problems; existing architecture."
 tags: [architecture]
 context_cost: high
 ---

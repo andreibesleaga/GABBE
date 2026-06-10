@@ -2,6 +2,7 @@
 name: performant-ai
 description: Strategies for high-performance AI/LLM systems (Context Management, Prompt Engineering, RAG, Inference Tuning).
 triggers: [ai, llm, performance, context window, tokens, prompt engineering, rag, inference, latency]
+when_to_use: "Use this when the task involves: ai; llm; performance; context window; tokens; prompt engineering; rag; inference; latency."
 tags: [coding, ai, architecture]
 context_cost: medium
 ---

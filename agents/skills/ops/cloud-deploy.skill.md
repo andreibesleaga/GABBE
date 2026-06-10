@@ -2,6 +2,7 @@
 name: cloud-deploy
 description: Deploy applications to modern cloud platforms (Vercel, Railway, AWS).
 triggers: [deploy, vercel, railway, aws, sst, serverless, lambda, flightcontrol, neon, supabase]
+when_to_use: "Use this when the task involves: deploy; vercel; railway; aws; sst; serverless; lambda; flightcontrol; neon; supabase."
 tags: [ops]
 context_cost: medium
 ---

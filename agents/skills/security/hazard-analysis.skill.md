@@ -2,6 +2,7 @@
 name: hazard-analysis
 description: Conducting FMEA (Failure Mode & Effects Analysis) and identifying hazards.
 triggers: [hazard analysis]
+when_to_use: "Use this when the task involves: hazard analysis."
 tags: [security]
 role: prod-safety-engineer
 context_cost: low

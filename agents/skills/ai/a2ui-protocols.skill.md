@@ -2,6 +2,7 @@
 name: a2ui-protocols
 description: Design and enforce Agent-to-UI communication protocols
 triggers: [design agent ui protocol, implement a2ui, build genui]
+when_to_use: "Use this when the task involves: design agent ui protocol; implement a2ui; build genui."
 tags: [ai]
 context_cost: medium
 ---

@@ -2,6 +2,7 @@
 name: enterprise-integration
 description: Design integrations with ERP/CRM systems and modernize legacy applications.
 triggers: [integration, erp, crm, sap, salesforce, legacy, middleware, esb, kafka, message bus, event bus]
+when_to_use: "Use this when the task involves: integration; erp; crm; sap; salesforce; legacy; middleware; esb; kafka; message bus."
 tags: [ops]
 context_cost: medium
 ---

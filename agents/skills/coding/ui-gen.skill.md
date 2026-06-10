@@ -2,6 +2,7 @@
 name: ui-gen
 description: Generate User Interfaces (Web, CLI, Mobile) using GenUI, HTMX, or TUI patterns.
 triggers: [ui gen]
+when_to_use: "Use this when the task involves: ui gen."
 tags: [coding]
 context_cost: medium
 tools: [write_to_file, replace_file_content]

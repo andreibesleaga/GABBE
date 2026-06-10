@@ -2,6 +2,7 @@
 name: spec-writer
 description: Generate Product Requirements Document with EARS syntax and structured ambiguity clarification
 triggers: [spec, PRD, feature, requirements, product requirements, write spec, new feature]
+when_to_use: "Use this when the task involves: spec; PRD; feature; requirements; product requirements; write spec; new feature."
 tags: [product]
 context_cost: medium
 ---

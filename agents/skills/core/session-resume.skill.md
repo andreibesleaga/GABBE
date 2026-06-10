@@ -2,6 +2,7 @@
 name: session-resume
 description: Cold-start resume — load all memory and project state to continue any interrupted project
 triggers: [resume, continue, new session, where were we, restart project, pick up, interrupted, cold start]
+when_to_use: "Use this when the task involves: resume; continue; new session; where were we; restart project; pick up; interrupted; cold start."
 tags: [core]
 context_cost: medium
 ---

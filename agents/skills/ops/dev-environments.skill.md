@@ -2,6 +2,7 @@
 name: dev-environments
 description: Set up, configure, and maintain local/remote development environments
 triggers: [setup dev environment, configure docker compose, build devcontainer]
+when_to_use: "Use this when the task involves: setup dev environment; configure docker compose; build devcontainer."
 tags: [ops]
 context_cost: medium
 ---

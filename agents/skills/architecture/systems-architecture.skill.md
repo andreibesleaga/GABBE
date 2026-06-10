@@ -2,6 +2,7 @@
 name: systems-architecture
 description: Generate comprehensive C4 models and System Architecture documents
 triggers: [generate c4 model, document system architecture, architect entire system]
+when_to_use: "Use this when the task involves: generate c4 model; document system architecture; architect entire system."
 tags: [architecture]
 context_cost: high
 ---

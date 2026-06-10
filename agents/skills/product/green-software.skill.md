@@ -2,6 +2,7 @@
 name: green-software
 description: Carbon efficiency, sustainable architecture choices, and GreenTech goals.
 triggers: [green software]
+when_to_use: "Use this when the task involves: green software."
 tags: [product]
 role: prod-ethicist
 context_cost: low

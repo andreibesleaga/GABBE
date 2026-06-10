@@ -2,6 +2,7 @@
 name: git-workflow
 description: Conventional commits, PR creation, and quality gate verification
 triggers: [commit, PR, branch, push, conventional commit, create pull request, git]
+when_to_use: "Use this when the task involves: commit; PR; branch; push; conventional commit; create pull request; git."
 tags: [coding]
 context_cost: low
 ---

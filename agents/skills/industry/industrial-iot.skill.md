@@ -2,6 +2,7 @@
 name: industrial-iot
 description: Architect high-throughput industrial telemetry via MQTT & OPC UA
 triggers: [iiot, opc ua, mqtt, scale telemetry, purdue model, scada, plc]
+when_to_use: "Use this when the task involves: iiot; opc ua; mqtt; scale telemetry; purdue model; scada; plc."
 tags: [iot, industrial, mqtt, opc-ua, edge]
 context_cost: medium
 ---

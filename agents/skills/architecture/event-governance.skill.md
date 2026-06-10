@@ -2,6 +2,7 @@
 name: event-governance
 description: Schema Registry enforcement (Avro/JSON), CloudEvents standard, and Event Evolution rules.
 triggers: [event governance]
+when_to_use: "Use this when the task involves: event governance."
 tags: [architecture]
 role: prod-architect, eng-data
 context_cost: low

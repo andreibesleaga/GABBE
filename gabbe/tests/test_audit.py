@@ -117,3 +117,24 @@ def test_multiple_runs_isolated(tmp_project, db_conn):
 
     assert len(trace_a) == 1 and trace_a[0]["node_name"] == "node_a"
     assert len(trace_b) == 1 and trace_b[0]["node_name"] == "node_b"
+
+
+# R20: audit-log PII/secret redaction
+def test_audit_jsonl_redacts_secrets(tmp_project, tmp_path):
+    import json as _json
+    from gabbe.audit import AuditTracer
+    tracer = AuditTracer(run_id="redact-test")
+    tracer._log_jsonl({
+        "event_type": "tool_call",
+        "input_data": {"prompt": "key sk-or-v1-deadbeefdeadbeef12 email x@y.com"},
+        "output_data": {"text": "Bearer abc123tokenvalue9999"},
+        "count": 7,
+    })
+    line = tracer.jsonl_path.read_text().strip()
+    rec = _json.loads(line)
+    blob = _json.dumps(rec)
+    assert "sk-or-v1-" not in blob
+    assert "x@y.com" not in blob
+    assert "Bearer abc123" not in blob
+    assert "[REDACTED]" in blob
+    assert rec["count"] == 7  # non-string values preserved

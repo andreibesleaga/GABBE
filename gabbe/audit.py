@@ -2,6 +2,7 @@
 from __future__ import annotations
 import json
 import logging
+import re
 import sqlite3
 import time
 import uuid
@@ -12,6 +13,36 @@ from .config import GABBE_DIR, GABBE_OTEL_ENABLED
 
 # Set up local text logger
 logger = logging.getLogger("gabbe.audit")
+
+# Extra secret patterns beyond config.PII_PATTERNS (which covers email/phone/
+# SSN/credit-card/credential-assignments) — common bearer/API-key token shapes.
+_SECRET_PATTERNS = [
+    re.compile(r"(?i)bearer\s+[A-Za-z0-9._\-]+"),
+    re.compile(r"\bsk-[A-Za-z0-9_\-]{16,}\b"),          # OpenAI-style keys
+    re.compile(r"\bsk-or-v1-[A-Za-z0-9]{16,}\b"),       # OpenRouter keys
+    re.compile(r"\bgh[pousr]_[A-Za-z0-9]{16,}\b"),      # GitHub tokens
+    re.compile(r"\bAKIA[0-9A-Z]{16}\b"),                # AWS access key id
+]
+_REDACTION = "[REDACTED]"
+
+
+def _redact_text(value):
+    from .config import PII_PATTERNS
+    for pat in list(PII_PATTERNS) + _SECRET_PATTERNS:
+        value = pat.sub(_REDACTION, value)
+    return value
+
+
+def _redact(obj):
+    """Recursively redact PII/secret-looking strings in a JSON-able structure
+    before it is written to the audit log (honors CONSTITUTION 'no PII logged')."""
+    if isinstance(obj, str):
+        return _redact_text(obj)
+    if isinstance(obj, dict):
+        return {k: _redact(v) for k, v in obj.items()}
+    if isinstance(obj, (list, tuple)):
+        return [_redact(v) for v in obj]
+    return obj
 
 if GABBE_OTEL_ENABLED:
     try:
@@ -47,7 +78,7 @@ class AuditTracer:
     def _log_jsonl(self, record):
         try:
             with open(self.jsonl_path, "a", encoding="utf-8") as f:
-                f.write(json.dumps(record, default=str) + "\n")
+                f.write(json.dumps(_redact(record), default=str) + "\n")
         except Exception as e:
             logger.error(f"Failed to write JSONL log: {e}")
 

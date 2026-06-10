@@ -129,9 +129,69 @@ def _calculate_state_hash(tasks):
     return hashlib.sha256(combined.encode()).hexdigest()
 
 
+class _SyncLock:
+    """Cross-process advisory lock serializing TASKS.md <-> SQLite sync.
+
+    Prevents the read-mtime -> decide-direction -> write TOCTOU window from
+    interleaving between two concurrent `gabbe sync` runs (or an editor save
+    racing a sync). Uses atomic O_EXCL lock-file creation; portable across
+    POSIX and Windows.
+    """
+
+    def __init__(self, timeout=10.0, poll=0.1):
+        from .config import GABBE_DIR
+        self.path = GABBE_DIR / ".sync.lock"
+        self.timeout = timeout
+        self.poll = poll
+        self._fd = None
+
+    def __enter__(self):
+        import time
+        try:
+            self.path.parent.mkdir(parents=True, exist_ok=True)
+        except Exception:
+            # Best-effort advisory lock: if the lock dir can't be prepared,
+            # proceed without locking rather than blocking sync.
+            return self
+        deadline = time.monotonic() + self.timeout
+        while True:
+            try:
+                self._fd = os.open(str(self.path), os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+                os.write(self._fd, str(os.getpid()).encode())
+                return self
+            except FileExistsError:
+                if time.monotonic() >= deadline:
+                    raise TimeoutError(
+                        f"Could not acquire sync lock {self.path} within "
+                        f"{self.timeout}s; another sync may be in progress."
+                    )
+                time.sleep(self.poll)
+            except Exception:
+                # Any other OS/mocked-environment issue: skip locking.
+                return self
+
+    def __exit__(self, *exc):
+        if self._fd is not None:
+            try:
+                os.close(self._fd)
+            except OSError:
+                pass
+            self._fd = None
+        try:
+            self.path.unlink()
+        except OSError:
+            pass
+        return False
+
+
 def sync_tasks():
     """Bidirectional sync for project/TASKS.md based on content changes."""
     print(f"{Colors.HEADER}🔄 Syncing Tasks...{Colors.ENDC}")
+    with _SyncLock():
+        return _sync_tasks_locked()
+
+
+def _sync_tasks_locked():
     conn = get_db()
     try:
         c = conn.cursor()

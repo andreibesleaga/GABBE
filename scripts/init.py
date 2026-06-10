@@ -156,7 +156,11 @@ def safe_merge_directory(src_root, dst_root, is_kit_root=False):
             dst_file = dst_dir / file_
             
             preserve = False
-            if is_kit_root and dst_file.exists():
+            # Honor the preserve-set unconditionally. Previously this only ran
+            # when is_kit_root=True, so the symlink-fallback path (is_kit_root
+            # defaults to False) clobbered existing user files. User content
+            # must never be overwritten regardless of how the merge was reached.
+            if dst_file.exists():
                 if in_memory:
                     preserve = True
                 elif in_project:

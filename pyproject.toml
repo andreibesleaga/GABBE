@@ -75,7 +75,7 @@ target-version = ["py39"]
 extend-exclude = "scripts/tests/golden"
 
 [tool.mypy]
-python_version = "3.9"
+python_version = "3.10"  # mypy analysis target (runtime floor stays >=3.9)
 ignore_missing_imports = true
 # Gradual typing: warn but don't fail the build on the existing untyped corpus.
 disallow_untyped_defs = false

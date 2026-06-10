@@ -712,7 +712,9 @@ def main():
                         "All new code must adhere to modern patterns. Legacy code touched must be refactored to >99% coverage (Boy Scout Rule).\n"
                     )
                 if compliance:
-                    f.write(f"\n### Article XIII. Regulatory Compliance ({', '.join(compliance)})\n")
+                    f.write(
+                        f"\n### Article XIII. Regulatory Compliance ({', '.join(compliance)})\n"
+                    )
                     f.write(
                         "No PII shall be logged. All data at rest must be encrypted. Security audit is mandatory before Release.\n"
                     )

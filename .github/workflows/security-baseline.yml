@@ -54,27 +54,18 @@ jobs:
   trivy:
     name: Trivy filesystem scan
     runs-on: ubuntu-latest
-    # Report-only (uploads SARIF to code-scanning). exit-code 0 keeps the scan
-    # step green; the SARIF upload soft-fails if code-scanning is not enabled.
+    # Report-only: prints findings to the job log. Table output (not SARIF
+    # upload, which needs code-scanning enabled) + exit-code 0 keeps it green.
     permissions:
       contents: read
-      security-events: write
     steps:
       - uses: actions/checkout@v4
       - name: Run Trivy (fs)
         continue-on-error: true
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           scan-type: fs
           scanners: vuln,secret,misconfig
-          format: sarif
-          output: trivy.sarif
+          format: table
           severity: HIGH,CRITICAL
           exit-code: '0'
-      - name: Upload Trivy SARIF
-        if: always()
-        continue-on-error: true
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: trivy.sarif
-          category: trivy-fs

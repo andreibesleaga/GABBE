@@ -4,6 +4,7 @@ description: Security-by-design for AI (Prompt Injection defense, Hallucination 
 triggers: [ai safety guardrails]
 tags: [security]
 role: prod-ethicist
+context_cost: low
 ---
 # ai-safety-guardrails Skill
 

@@ -4,6 +4,7 @@ description: Query tuning, indexing strategies, and EXPLAIN plan analysis.
 triggers: [sql optimization]
 tags: [data]
 role: eng-database
+context_cost: low
 ---
 # sql-optimization Skill
 

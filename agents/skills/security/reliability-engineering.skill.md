@@ -4,6 +4,7 @@ description: Designing failover patterns (Hot Standby, TMR), redundancy, and MTT
 triggers: [reliability engineering]
 tags: [security]
 role: prod-safety-engineer, eng-arch
+context_cost: low
 ---
 # reliability-engineering Skill
 

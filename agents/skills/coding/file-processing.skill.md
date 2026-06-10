@@ -4,6 +4,7 @@ description: Stream processing, large file uploads, and IO efficiency.
 triggers: [file processing]
 tags: [coding]
 role: eng-backend
+context_cost: low
 ---
 # file-processing Skill
 

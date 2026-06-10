@@ -4,6 +4,7 @@ description: Forecasting resource usage, load testing interpretation, and scalin
 triggers: [capacity planning]
 tags: [ops]
 role: ops-sre
+context_cost: low
 ---
 # capacity-planning Skill
 

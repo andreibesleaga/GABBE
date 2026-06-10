@@ -4,6 +4,7 @@ description: Carbon efficiency, sustainable architecture choices, and GreenTech 
 triggers: [green software]
 tags: [product]
 role: prod-ethicist
+context_cost: low
 ---
 # green-software Skill
 

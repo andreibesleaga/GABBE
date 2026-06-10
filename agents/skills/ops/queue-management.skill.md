@@ -4,6 +4,7 @@ description: Standards for DLQs (Dead Letter Queues), Idempotency, and Retry pol
 triggers: [queue management]
 tags: [ops]
 role: eng-backend, ops-sre
+context_cost: low
 ---
 # queue-management Skill
 

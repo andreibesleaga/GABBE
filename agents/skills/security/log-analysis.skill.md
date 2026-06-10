@@ -4,6 +4,7 @@ description: Parsing structured logs, finding patterns in noise, and ELK/Splunk 
 triggers: [log analysis]
 tags: [security]
 role: ops-monitor
+context_cost: low
 ---
 # log-analysis Skill
 

@@ -4,6 +4,7 @@ description: Implement voting mechanisms (majority, weighted) to resolve inter-a
 triggers: [swarm consensus]
 tags: [coordination]
 role: orch-coordinator
+context_cost: low
 ---
 # swarm-consensus Skill
 

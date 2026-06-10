@@ -4,6 +4,7 @@ description: Safe handling of API keys, Vault/AWS Secrets Manager patterns, rota
 triggers: [secrets management]
 tags: [security]
 role: ops-security
+context_cost: low
 ---
 # secrets-management Skill
 

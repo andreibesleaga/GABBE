@@ -4,6 +4,7 @@ description: Post-deployment smoke tests, synthetic user checks, and "Canary" va
 triggers: [production verifier]
 tags: [ops]
 role: ops-sre
+context_cost: low
 ---
 # production-verifier Skill
 

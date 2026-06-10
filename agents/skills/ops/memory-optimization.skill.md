@@ -4,6 +4,7 @@ description: Summarizing context, pruning history, and managing token budget eff
 triggers: [memory optimization]
 tags: [ops]
 role: orch-researcher
+context_cost: low
 ---
 # memory-optimization Skill
 

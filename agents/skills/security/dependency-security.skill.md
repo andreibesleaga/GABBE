@@ -4,6 +4,7 @@ description: Managing Supply Chain Security, SBOM generation, and vulnerability 
 triggers: [dependency security]
 tags: [security]
 role: ops-security, ops-devops
+context_cost: low
 ---
 # dependency-security Skill
 

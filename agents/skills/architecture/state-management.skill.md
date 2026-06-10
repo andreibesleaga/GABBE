@@ -4,6 +4,7 @@ description: Manage client-side state, side effects, and data flow.
 triggers: [state management]
 tags: [architecture]
 role: eng-frontend
+context_cost: low
 ---
 # state-management Skill
 

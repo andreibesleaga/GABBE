@@ -4,6 +4,7 @@ description: The final "Green Light". Checks all test suites (Unit, Int, E2E) an
 triggers: [release validation]
 tags: [ops]
 role: ops-release
+context_cost: low
 ---
 # release-validation Skill
 

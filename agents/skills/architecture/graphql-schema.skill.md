@@ -4,6 +4,7 @@ description: Schema design, federation, and resolution strategies.
 triggers: [graphql schema]
 tags: [architecture]
 role: eng-api
+context_cost: low
 ---
 # graphql-schema Skill
 

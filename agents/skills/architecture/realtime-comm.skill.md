@@ -4,6 +4,7 @@ description: WebSocket handling, Pub/Sub patterns, and persistent connections.
 triggers: [realtime comm]
 tags: [architecture]
 role: eng-backend
+context_cost: low
 ---
 # realtime-comm Skill
 

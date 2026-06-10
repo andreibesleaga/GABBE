@@ -4,6 +4,7 @@ description: Schema Registry enforcement (Avro/JSON), CloudEvents standard, and 
 triggers: [event governance]
 tags: [architecture]
 role: prod-architect, eng-data
+context_cost: low
 ---
 # event-governance Skill
 

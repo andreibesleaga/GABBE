@@ -4,6 +4,7 @@ description: Define RPO/RTO, implement PITR/Snapshots, and test restores.
 triggers: [backup recovery]
 tags: [security]
 role: ops-sre, eng-database
+context_cost: low
 ---
 # backup-recovery Skill
 

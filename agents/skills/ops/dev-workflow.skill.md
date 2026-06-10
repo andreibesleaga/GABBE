@@ -1,8 +1,9 @@
 ---
 name: dev-workflow
 description: Standardized Github operations, Diátaxis documentation framework, and visual assets
-metadata:
-  tags: git, github, documentation, write, diataxis
+triggers: [git workflow, github, gh cli, documentation, diataxis, restructure docs]
+tags: [git, github, documentation, diataxis]
+context_cost: low
 ---
 # Developer Workflow & Documentation Organizer
 

@@ -4,6 +4,7 @@ description: Agents optimizing prompts for other agents (Chain of Thought, Tree 
 triggers: [meta prompting]
 tags: [coordination]
 role: orch-planner
+context_cost: low
 ---
 # meta-prompting Skill
 

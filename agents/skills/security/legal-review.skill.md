@@ -1,9 +1,9 @@
 ---
-name: legal-review
-description: Check for license compliance, PII, and IP risks
-triggers: [Check licenses, Review for legal compliance, Is this library safe to use?, GDPR compliance check]
-tags: [security]
-context_cost: medium
+name: "legal-review"
+description: "Check for license compliance, PII, and IP risks"
+triggers: ["Check licenses", "Review for legal compliance", "Is this library safe to use?", "GDPR compliance check"]
+tags: ["security"]
+context_cost: "medium"
 ---
 # Legal Review Skill
 

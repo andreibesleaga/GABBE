@@ -4,6 +4,7 @@ description: Matrices for managing expectations and communication plans.
 triggers: [stakeholder management]
 tags: [product]
 role: prod-pm
+context_cost: low
 ---
 # stakeholder-management Skill
 

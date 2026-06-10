@@ -4,6 +4,7 @@ description: Dynamically building simple MCP servers or Python scripts to solve 
 triggers: [tool construction]
 tags: [coding]
 role: eng-tooling
+context_cost: low
 ---
 # tool-construction Skill
 

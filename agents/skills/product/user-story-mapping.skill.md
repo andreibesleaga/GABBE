@@ -4,6 +4,7 @@ description: Visualizing user journeys and slicing deliverables into releases.
 triggers: [user story mapping]
 tags: [product]
 role: prod-pm
+context_cost: low
 ---
 # user-story-mapping Skill
 

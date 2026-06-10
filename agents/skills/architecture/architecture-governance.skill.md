@@ -4,6 +4,7 @@ description: Automated fitness functions (ArchUnit) to prevent architectural dri
 triggers: [architecture governance]
 tags: [architecture]
 role: prod-architect
+context_cost: low
 ---
 # architecture-governance Skill
 

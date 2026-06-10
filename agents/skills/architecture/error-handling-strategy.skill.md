@@ -4,6 +4,7 @@ description: Centralized error handling (RFC 7807), circuit breakers, and user-f
 triggers: [error handling strategy]
 tags: [architecture]
 role: prod-architect, eng-backend
+context_cost: low
 ---
 # error-handling-strategy Skill
 

@@ -4,6 +4,7 @@ description: Implementing OWASP Proactive Controls (Input Validation, Output Enc
 triggers: [secure coding]
 tags: [coding]
 role: ops-security, eng-backend
+context_cost: low
 ---
 # secure-coding Skill
 

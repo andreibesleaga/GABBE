@@ -4,6 +4,7 @@ description: Assessing Bias, Fairness, Transparency, and Legal (EU AI Act, GDPR)
 triggers: [ai ethics compliance]
 tags: [security]
 role: prod-ethicist
+context_cost: low
 ---
 # ai-ethics-compliance Skill
 

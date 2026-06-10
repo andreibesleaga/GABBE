@@ -4,6 +4,7 @@ description: Verifies that every PRD requirement has a linked Test Case and Code
 triggers: [traceability audit]
 tags: [security]
 role: prod-pm
+context_cost: low
 ---
 # traceability-audit Skill
 

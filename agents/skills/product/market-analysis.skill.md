@@ -4,6 +4,7 @@ description: Competitive research, SWOT analysis, and feature differentiation.
 triggers: [market analysis]
 tags: [product]
 role: prod-pm
+context_cost: low
 ---
 # market-analysis Skill
 

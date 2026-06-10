@@ -4,6 +4,7 @@ description: Implement Redis/Memcached patterns and invalidation strategies.
 triggers: [caching strategy]
 tags: [ops]
 role: eng-backend
+context_cost: low
 ---
 # caching-strategy Skill
 

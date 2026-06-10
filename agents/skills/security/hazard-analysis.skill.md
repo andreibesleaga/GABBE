@@ -4,6 +4,7 @@ description: Conducting FMEA (Failure Mode & Effects Analysis) and identifying h
 triggers: [hazard analysis]
 tags: [security]
 role: prod-safety-engineer
+context_cost: low
 ---
 # hazard-analysis Skill
 

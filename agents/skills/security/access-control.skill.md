@@ -4,6 +4,7 @@ description: Design RBAC/ABAC models, Principle of Least Privilege, Identity Man
 triggers: [access control]
 tags: [security]
 role: ops-security, eng-backend
+context_cost: low
 ---
 # access-control Skill
 

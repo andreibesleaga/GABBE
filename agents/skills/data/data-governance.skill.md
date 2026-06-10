@@ -4,6 +4,7 @@ description: Data lineage, classification (PII/Confidential), and integrity chec
 triggers: [data governance]
 tags: [data]
 role: biz-compliance, eng-data
+context_cost: low
 ---
 # data-governance Skill
 

@@ -4,6 +4,7 @@ description: Firewall rules, VPC design, TLS config, and subnet isolation.
 triggers: [network security]
 tags: [security]
 role: ops-security
+context_cost: low
 ---
 # network-security Skill
 

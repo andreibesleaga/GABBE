@@ -6,20 +6,31 @@ on:
   pull_request:
     branches: [ main, master ]
 
+permissions:
+  contents: read
+
 jobs:
   validate:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
-        python-version: ['3.9', '3.10', '3.11']
+        os: [ubuntu-latest]
+        python-version: ['3.9', '3.10', '3.11', '3.12', '3.13']
+        include:
+          # Python 3.8 is EOL and unavailable on ubuntu-latest (24.04);
+          # test it on 22.04 to back the requires-python >=3.8 claim.
+          - os: ubuntu-22.04
+            python-version: '3.8'
 
     steps:
     - uses: actions/checkout@v4
 
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
+        cache: pip
 
     - name: Install package and dev dependencies
       run: pip install -e ".[dev]"
@@ -44,3 +55,19 @@ jobs:
 
     - name: Run tests
       run: pytest gabbe/tests/ scripts/tests/ -v
+
+  gates:
+    name: Backward-compatibility gates
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+        cache: pip
+    - name: Install
+      run: |
+        python -m venv .venv
+        .venv/bin/pip install -e ".[dev]" pip-audit
+    - name: Run verification gates
+      run: ./scripts/gates/run_gates.sh

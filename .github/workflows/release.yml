@@ -1,0 +1,38 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  sbom-and-build:
+    name: Build + CycloneDX SBOM
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Install build tooling
+        run: pip install build cyclonedx-bom
+
+      - name: Build sdist + wheel
+        run: python -m build
+
+      - name: Generate CycloneDX 1.6 SBOM
+        run: |
+          pip install -e .
+          cyclonedx-py environment --output-format JSON --spec-version 1.6 --outfile sbom.json
+
+      - name: Attach artifacts to release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/*
+            sbom.json

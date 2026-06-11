@@ -1,9 +1,13 @@
-# MANIFEST.in -- ship the Markdown agentic kit in the sdist (and, via
-# include-package-data, in installs) so pip / pipx / uvx users get the full kit,
-# not just the importable `gabbe` package.
+# MANIFEST.in -- ship the Markdown agentic kit in the **sdist** so source /
+# pipx / uvx / `--no-binary` installs (and the GitHub release tarball) get the
+# full kit, not just the importable `gabbe` package.
 #
-# The wheel's [tool.setuptools.packages.find] only picks up `gabbe*`; this file
-# additively bundles the kit content that lives outside that package.
+# IMPORTANT: the kit (agents/, docs/) lives OUTSIDE the `gabbe*` package, so it
+# is bundled into the sdist ONLY — a plain *wheel* install does NOT carry it
+# (include-package-data can only place files that live inside a package). For a
+# Python-independent kit install use `npx gabbe init` or the install scripts.
+# This matches the packaging note in pyproject.toml and additively bundles the
+# kit alongside the wheel's [tool.setuptools.packages.find] = `gabbe*` selection.
 
 # The Markdown kit (skills, guides, templates, personas, memory, scripts).
 recursive-include agents *

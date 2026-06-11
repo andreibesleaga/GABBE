@@ -274,8 +274,12 @@ def main():
                         f"{Colors.WARNING}{name} not found (packaged install): run from a "
                         f"GABBE repo checkout to use registry commands.{Colors.ENDC}"
                     )
-                    return
-                subprocess.run([sys.executable, str(script), *extra], check=False)
+                    # Missing tooling is a failure for scripting/CI, not a silent success.
+                    sys.exit(2)
+                result = subprocess.run([sys.executable, str(script), *extra], check=False)
+                # Propagate the child's exit code so failures don't look successful.
+                if result.returncode != 0:
+                    sys.exit(result.returncode)
 
             if args.registry_command == "publish":
                 _run_script("registry_export.py", ["--out", args.out])
@@ -293,12 +297,16 @@ def main():
 
             init_script = Path(__file__).resolve().parent.parent / "scripts" / "init.py"
             if init_script.exists():
-                subprocess.run([sys.executable, str(init_script)], check=False)
+                result = subprocess.run([sys.executable, str(init_script)], check=False)
+                # Propagate the wizard's exit code so failures don't look successful.
+                if result.returncode != 0:
+                    sys.exit(result.returncode)
             else:
                 print(
                     f"{Colors.WARNING}Install wizard not found (packaged install): "
                     f"use 'npx gabbe init' or the repo's scripts/init.py.{Colors.ENDC}"
                 )
+                sys.exit(2)
 
         else:
             parser.print_help()

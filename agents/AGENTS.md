@@ -82,11 +82,9 @@ docs: "[PLACEHOLDER: pnpm typedoc | php artisan scribe:generate]"
 ### Layer Definitions
 
 ```
-```
 [PLACEHOLDER — adapt to your architecture pattern]
 
 <!-- OPTIONAL: Architecture Examples -> Document layer mappings (e.g., Domain -> Application -> Adapters -> Infrastructure) -->
-```
 ```
 
 ### Forbidden Patterns
@@ -104,11 +102,9 @@ docs: "[PLACEHOLDER: pnpm typedoc | php artisan scribe:generate]"
 ### Directory Purpose Map
 
 ```
-```
 [PLACEHOLDER: Document what each top-level directory is for]
 
 <!-- OPTIONAL: Directory Map Example -> e.g., src/ -> src code, tests/ -> test suites, docs/ -> Architectural info -->
-```
 ```
 
 ---
@@ -254,7 +250,6 @@ Use: [PLACEHOLDER: dotenv | .env.vault | AWS Secrets Manager | HashiCorp Vault]
 
 ### PR Format (Conventional Commits)
 ```
-```
 Format: <type>(<scope>): <subject>
 
 Types: feat | fix | docs | style | refactor | test | chore | perf | sec | deps
@@ -267,7 +262,6 @@ PR body must include:
   - Test coverage for the change
   - Breaking changes (if any)
   - Security implications (if any)
-```
 ```
 
 ### Quality Gates (all must pass before PR merges)

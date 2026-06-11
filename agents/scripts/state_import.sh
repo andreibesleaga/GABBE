@@ -23,6 +23,15 @@ KIT_ROOT=${2:-$(CDPATH= cd -- "$SCRIPT_DIR/../.." && pwd)}
 
 STAGE=$(mktemp -d 2>/dev/null || echo "/tmp/gabbe-import-stage")
 mkdir -p "$STAGE"
+
+# The bundle is untrusted input. Reject any member with an absolute path or a
+# ".." traversal component BEFORE extracting, so a crafted archive cannot write
+# outside $STAGE. (GNU tar's --no-absolute-names is not portable, so validate.)
+if tar -tzf "$BUNDLE" | grep -qE '^/|(^|/)\.\.(/|$)'; then
+    echo "ERROR: archive contains unsafe paths (absolute or '..'); refusing to extract." >&2
+    rm -rf "$STAGE"
+    exit 1
+fi
 tar -xzf "$BUNDLE" -C "$STAGE"
 
 echo "Staged bundle contents:"

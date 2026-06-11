@@ -19,7 +19,7 @@ Modular Monolith (recommended starting point):
 Microservices:
   Multiple codebases, independent deployments
   Best for: > 50 engineers, proven domain boundaries, strong DevOps
-  See: guides/microservices.md
+  See: guides/architecture/microservices.md
 ```
 
 **Start with modular monolith. Extract microservices only when boundaries are proven and scale demands it.**

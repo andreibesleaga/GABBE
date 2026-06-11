@@ -456,11 +456,12 @@ Every session, agents MUST:
 ```
 START of session:
   1. Read this AGENTS.md
-  2. Read agents/memory/PROJECT_STATE.md (if exists) -> understand current state
-  3. Read agents/memory/CONTINUITY.md (if exists) -> understand past failures
-  4. Load latest agents/memory/episodic/SESSION_SNAPSHOT/ (if exists)
-  5. If resuming: use session-resume.skill for full recovery
-  6. Run integrity-check.skill before starting new work on existing code
+  2. Read agents/memory/RESUME_POINTER.md (the lifeline — current task + NEXT ACTION)
+  3. Read agents/memory/PROJECT_STATE.md (if exists) -> understand current state
+  4. Read agents/memory/CONTINUITY.md (if exists) -> understand past failures
+  5. Load latest agents/memory/episodic/SESSION_SNAPSHOT/ (if exists)
+  6. If resuming: use session-resume.skill for full recovery
+  7. Run integrity-check.skill before starting new work on existing code
 
 CONTINUOUSLY — never lose progress (state-preserve.skill; assume a cutoff at any moment):
   - After each meaningful step: refresh RESUME_POINTER.md (current task + precise NEXT ACTION)

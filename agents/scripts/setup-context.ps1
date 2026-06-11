@@ -34,8 +34,11 @@ function New-SymlinkOrCopy {
 
     # Remove existing target if it exists
     if (Test-Path $Target) {
-        if ((Get-Item $Target).Target -ne $null) {
-            # It's a symlink/junction, safe to remove
+        if ((Get-Item $Target).LinkType -in @('SymbolicLink', 'Junction', 'HardLink')) {
+            # It's a link (symlink/junction/hardlink) — safe to remove the link itself.
+            # LinkType avoids misclassifying a regular file/dir as a link (which would
+            # delete the user's real file); a directory Junction must be in this set or
+            # it falls into the "real dir" branch and Move-Item would relocate its target.
             Remove-Item $Target -Force -Recurse -ErrorAction SilentlyContinue
         } else {
             # It's a real file/dir, backup first

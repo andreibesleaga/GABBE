@@ -138,7 +138,7 @@
 | Engineering Review | `industry/ENGINEERING_STANDARDS_REVIEW_TEMPLATE.md` | ISO/IEEE standard audit |
 
 
-### 10. Memory & Continuity (`agents/memory/`)
+### 11. Memory & Continuity (`agents/memory/`)
 | Template | File | Purpose |
 |---|---|---|
 | Decision Log | `../memory/episodic/DECISION_LOG_TEMPLATE.md` | Sequential decision history |

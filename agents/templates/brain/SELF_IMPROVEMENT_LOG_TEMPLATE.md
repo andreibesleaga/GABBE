@@ -34,6 +34,6 @@ Log every mutation of the agent's prompts/skills here.
 - [x] Regression Test: No side effects
 
 **Outcome:**
-> Mutation Committed to `skills/coding/spec-writer.skill.md`.
+> Mutation Committed to `skills/product/spec-writer.skill.md`.
 
 ---

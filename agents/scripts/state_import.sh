@@ -21,8 +21,14 @@ KIT_ROOT=${2:-$(CDPATH= cd -- "$SCRIPT_DIR/../.." && pwd)}
 
 [ -f "$BUNDLE" ] || { echo "ERROR: bundle not found: $BUNDLE" >&2; exit 1; }
 
-STAGE=$(mktemp -d 2>/dev/null || echo "/tmp/gabbe-import-stage")
-mkdir -p "$STAGE"
+# mktemp must succeed — a predictable fixed fallback (/tmp/gabbe-import-stage) is a
+# symlink/pre-seed target an attacker could exploit, then rm -rf would follow it.
+# Use an explicit template: bare `mktemp -d` is non-portable under BSD/macOS sh,
+# which requires a template (the XXXXXX keeps the dir name unpredictable).
+STAGE=$(mktemp -d "${TMPDIR:-/tmp}/gabbe-import.XXXXXX") || { echo "ERROR: mktemp failed; refusing to use a predictable temp dir." >&2; exit 1; }
+
+# Fail the link/path checks if any stage of the pipeline errors (e.g. corrupt archive).
+set -o pipefail 2>/dev/null || true
 
 # The bundle is untrusted input. Reject any member with an absolute path or a
 # ".." traversal component BEFORE extracting, so a crafted archive cannot write
@@ -40,7 +46,9 @@ if tar -tvzf "$BUNDLE" 2>/dev/null | grep -qE '^[lh]'; then
     rm -rf "$STAGE"
     exit 1
 fi
-tar -xzf "$BUNDLE" -C "$STAGE"
+# --no-same-owner/--no-same-permissions: never honor a crafted archive's uid/gid or
+# setuid bits (matters if ever run as root); the Python extractor is the safer model.
+tar --no-same-owner --no-same-permissions -xzf "$BUNDLE" -C "$STAGE"
 
 echo "Staged bundle contents:"
 ( cd "$STAGE" && find . -type f | sed 's/^/  /' | head -60 )

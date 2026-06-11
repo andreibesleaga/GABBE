@@ -175,7 +175,7 @@
 
 ---
 
-<!-- OPTIONAL BOILERPLATE: EARS Syntax Quick Reference -> Refer to guides/principles/Spec-Driven-Development.md or PRD_TEMPLATE.md for usage and implementation details of EARS (Ubiquitous, Event-Driven, State-Driven, Optional, Unwanted Behavior constraint formats). -->
+<!-- OPTIONAL BOILERPLATE: EARS Syntax Quick Reference -> Refer to guides/planning/product-requirements.md or PRD_TEMPLATE.md for usage and implementation details of EARS (Ubiquitous, Event-Driven, State-Driven, Optional, Unwanted Behavior constraint formats). -->
 
 ---
 

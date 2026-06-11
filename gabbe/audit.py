@@ -96,7 +96,12 @@ def _redact(obj):
         return {k: _redact(v) for k, v in obj.items()}
     if isinstance(obj, (list, tuple)):
         return [_redact(v) for v in obj]
-    return obj
+    if isinstance(obj, (int, float, bool)) or obj is None:
+        return obj  # JSON primitives carry no free text to redact
+    # Any other type is not guaranteed JSON-serializable. Stringify THEN redact here,
+    # so a later json.dumps(..., default=str) can't smuggle PII/secrets through an
+    # object's __str__ output without passing through _redact_text().
+    return _redact_text(str(obj))
 
 
 def should_capture_content() -> bool:
@@ -219,7 +224,7 @@ class AuditTracer:
             db_otel_span = otel_tracer.start_span(f"{event_type}:{node_name}")
             db_otel_span.set_attribute("gabbe.run_id", self.run_id)
             db_otel_span.set_attribute("gabbe.span_id", span_id)
-            db_otel_span.set_attribute("gabbe.input", json.dumps(input_data))
+            db_otel_span.set_attribute("gabbe.input", json.dumps(_redact(input_data), default=str))
 
         return {
             "span_id": span_id,
@@ -325,7 +330,7 @@ class AuditTracer:
             otel_span = span_ctx["_otel_span"]
             if status != "ok":
                 otel_span.set_status(Status(StatusCode.ERROR))
-            otel_span.set_attribute("gabbe.output", json.dumps(output_data))
+            otel_span.set_attribute("gabbe.output", json.dumps(_redact(output_data), default=str))
             otel_span.set_attribute("gabbe.cost_usd", cost_usd)
             otel_span.end()
 

@@ -9,7 +9,7 @@ context_cost: high
 # Brain Mode — Meta-Cognitive Orchestrator
 
 ## Goal
-> **Supersedes**: `loki-mode`
+> **Wraps / orchestrates**: `loki-mode` (System 1)
 > **Concept**: Applies Active Inference (Free Energy Principle) to Software Engineering.
 > **Goal**: Minimize "Surprise" (Bugs, Delays, Costs) by continuously updating internal models and routing work intelligently.
 

@@ -2,7 +2,6 @@
 name: agent-protocol
 description: Defines and validates standard communication protocols between agents (A2A).
 triggers: [protocol, handshake, ipc, agent-messaging, a2a]
-when_to_use: "Use this when the task involves: protocol; handshake; ipc; agent-messaging; a2a."
 tags: [coordination]
 context_cost: low
 ---

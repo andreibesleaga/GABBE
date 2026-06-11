@@ -2,7 +2,6 @@
 name: "visual-design"
 description: "Create high-fidelity UI designs, color palettes, and design systems"
 triggers: ["Design the UI for [feature]", "Create a color palette", "Update the design system", "Style this component", "Make it look modern/clean/premium"]
-when_to_use: "Use this when the task involves: Design the UI for [feature]; Create a color palette; Update the design system; Style this component; Make it look modern/clean/premium."
 tags: ["coding"]
 context_cost: "medium"
 ---

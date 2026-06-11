@@ -2,7 +2,6 @@
 name: deployment
 description: CI/CD pipeline verification, Docker container security, environment management, and deployment workflow
 triggers: [deploy, CI/CD, Docker, pipeline, environment, release, container, staging, production]
-when_to_use: "Use this when the task involves: deploy; CI/CD; Docker; pipeline; environment; release; container; staging; production."
 tags: [ops]
 context_cost: medium
 ---

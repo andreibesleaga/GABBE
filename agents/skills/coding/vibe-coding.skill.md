@@ -1,8 +1,7 @@
 ---
 name: vibe-coding
-description: Translates high-level aesthetic or behavioral "vibe" requests (e.g., "Make it feel like 90s cyberpunk", "Apple-style minimalism") into concrete code changes (CSS, Animation, Copy).
+description: Translate aesthetic 'vibe' requests (e.g. 90s cyberpunk, Apple minimalism) into concrete CSS/animation/copy changes.
 triggers: [vibe, aesthetic, style, feel, atmosphere, theme, mood, redesign, make it pop]
-when_to_use: "Use this when the task involves: vibe; aesthetic; style; feel; atmosphere; theme; mood; redesign; make it pop."
 tags: [coding]
 context_cost: medium
 ---

@@ -2,7 +2,6 @@
 name: system-lifecycle
 description: Orchestrate the full SDLC from Requirement to Code to Test (Traceability).
 triggers: [lifecycle, traceability, requirement, golden thread, definition of done, verify requirements]
-when_to_use: "Use this when the task involves: lifecycle; traceability; requirement; golden thread; definition of done; verify requirements."
 tags: [core]
 context_cost: medium
 ---

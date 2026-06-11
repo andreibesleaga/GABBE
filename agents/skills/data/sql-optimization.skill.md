@@ -2,7 +2,6 @@
 name: sql-optimization
 description: Query tuning, indexing strategies, and EXPLAIN plan analysis.
 triggers: [sql optimization]
-when_to_use: "Use this when the task involves: sql optimization."
 tags: [data]
 role: eng-database
 context_cost: low

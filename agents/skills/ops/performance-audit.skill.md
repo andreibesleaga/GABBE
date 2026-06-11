@@ -2,7 +2,6 @@
 name: performance-audit
 description: Profiling, benchmarking, Web Vitals audit, N+1 detection, and performance optimization
 triggers: [performance, profiling, Web Vitals, N+1, slow, optimize, benchmark, latency, throughput]
-when_to_use: "Use this when the task involves: performance; profiling; Web Vitals; N+1; slow; optimize; benchmark; latency; throughput."
 tags: [ops]
 context_cost: high
 ---

@@ -2,7 +2,6 @@
 name: sequential-thinking
 description: Break down complex problems into a step-by-step chain of thought for better reasoning
 triggers: [think, reason, complex, plan, analyze, sequential]
-when_to_use: "Use this when the task involves: think; reason; complex; plan; analyze; sequential."
 tags: [brain, core, reasoning]
 context_cost: low
 ---

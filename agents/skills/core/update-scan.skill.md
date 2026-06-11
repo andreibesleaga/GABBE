@@ -1,9 +1,9 @@
 ---
 name: update-scan
-description: Discover new/updated skills, tools, MCPs, and models; recommend or auto-adopt the best per scenario within cost + permission bounds
+description: Discover new skills/tools/MCPs/models; recommend or auto-adopt the best per scenario within cost + permission bounds.
 triggers: [update scan, check for updates, new tools, better model, newer skill, whats new, self-evolve, upgrade, scan registry, better mcp]
-when_to_use: "Use this when the task involves: update scan; check for updates; new tools; better model; newer skill; whats new; self-evolve; upgrade; scan registry; better mcp."
 tags: [core]
+core: true
 context_cost: medium
 ---
 # Update-Scan Skill

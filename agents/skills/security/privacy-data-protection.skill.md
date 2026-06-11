@@ -2,7 +2,6 @@
 name: privacy-data-protection
 description: Elicit and enforce GDPR, CCPA, and general privacy by design rules
 triggers: [design privacy system, audit gdpr conformity, protect pii]
-when_to_use: "Use this when the task involves: design privacy system; audit gdpr conformity; protect pii."
 tags: [security]
 context_cost: medium
 ---

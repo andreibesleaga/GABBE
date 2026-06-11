@@ -2,7 +2,6 @@
 name: performant-go
 description: Strategies for high-performance Go systems (Goroutines, Channels, Pprof, Memory Alignment).
 triggers: [go, golang, performance, goroutines, channels, pprof, gc, scalability]
-when_to_use: "Use this when the task involves: go; golang; performance; goroutines; channels; pprof; gc; scalability."
 tags: [coding, go, architecture]
 context_cost: medium
 ---

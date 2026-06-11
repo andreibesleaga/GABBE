@@ -1,8 +1,7 @@
 ---
 name: "diagramming"
-description: "Choose the right diagram type for a documentation need, then create it using standard notation. Covers all major diagram families: UML structural/behavioral, C4 architecture, ER data, BPMN process, and domain diagrams. Produces Mermaid-compatible syntax where possible."
+description: Choose and create the right diagram type (UML, C4, ER, BPMN, domain) in standard notation; Mermaid-compatible output.
 triggers: ["create diagram", "draw diagram", "which diagram", "diagram this", "visualize", "sequence diagram", "class diagram", "flowchart", "architecture diagram", "ER diagram", "state diagram", "activity diagram", "context diagram", "swimlane"]
-when_to_use: "Use this when the task involves: create diagram; draw diagram; which diagram; diagram this; visualize; sequence diagram; class diagram; flowchart; architecture diagram; ER diagram."
 tags: ["architecture"]
 context_cost: "low"
 ---

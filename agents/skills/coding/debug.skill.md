@@ -2,8 +2,8 @@
 name: debug
 description: Systematic root-cause debugging — reproduce, isolate, hypothesize, fix with TDD
 triggers: [bug, error, fix, broken, crash, exception, not working, unexpected behavior, regression]
-when_to_use: "Use this when the task involves: bug; error; fix; broken; crash; exception; not working; unexpected behavior; regression."
 tags: [coding]
+core: true
 context_cost: medium
 ---
 # Debug Skill

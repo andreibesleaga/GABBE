@@ -2,7 +2,6 @@
 name: system-qualities
 description: Define and enforce Quality Attributes (Non-Functional Requirements)
 triggers: [define NFRs, analyze system qualities, set SLAs]
-when_to_use: "Use this when the task involves: define NFRs; analyze system qualities; set SLAs."
 tags: [architecture]
 context_cost: low
 ---

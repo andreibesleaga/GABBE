@@ -1,9 +1,9 @@
 ---
 name: self-optimize
-description: Tune skill/guide/persona/model selection to the current project and task for best principles, quality, and cost — driven by project/gabbe.config.json and explicit autonomy levels with macro/meso/micro alignment
+description: Tune skill/guide/persona/model selection to the project for quality+cost; gabbe.config.json + autonomy levels + alignment.
 triggers: [self optimize, optimize for project, tune selection, best for this project, project config, autonomy level, optimize quality cost, adapt to project]
-when_to_use: "Use this when the task involves: self optimize; optimize for project; tune selection; best for this project; project config; autonomy level; optimize quality cost; adapt to project."
 tags: [coordination]
+core: true
 context_cost: medium
 ---
 # Self-Optimize Skill

@@ -2,7 +2,6 @@
 name: browser-tdd
 description: Browser-based visual TDD using Playwright — verify UI produces correct visual output, not just syntactic correctness
 triggers: [visual, playwright, frontend, UI, browser, screenshot, sticky, layout, DOM, visual test]
-when_to_use: "Use this when the task involves: visual; playwright; frontend; UI; browser; screenshot; sticky; layout; DOM; visual test."
 tags: [coding]
 context_cost: medium
 ---

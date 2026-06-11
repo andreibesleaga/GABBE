@@ -2,7 +2,6 @@
 name: graphql-schema
 description: Schema design, federation, and resolution strategies.
 triggers: [graphql schema]
-when_to_use: "Use this when the task involves: graphql schema."
 tags: [architecture]
 role: eng-api
 context_cost: low

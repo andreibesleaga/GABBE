@@ -2,7 +2,6 @@
 name: swarm-consensus
 description: Implement voting mechanisms (majority, weighted) to resolve inter-agent conflicts.
 triggers: [swarm consensus]
-when_to_use: "Use this when the task involves: swarm consensus."
 tags: [coordination]
 role: orch-coordinator
 context_cost: low

@@ -2,7 +2,6 @@
 name: ai-ethics-compliance
 description: Assessing Bias, Fairness, Transparency, and Legal (EU AI Act, GDPR).
 triggers: [ai ethics compliance]
-when_to_use: "Use this when the task involves: ai ethics compliance."
 tags: [security]
 role: prod-ethicist
 context_cost: low

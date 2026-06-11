@@ -2,7 +2,6 @@
 name: reliability-sre
 description: Apply SRE principles (SLO, Error Budget, Chaos Engineering).
 triggers: [sre, reliability, slo, sli, error budget, chaos engineering, postmortem, incident, oncall]
-when_to_use: "Use this when the task involves: sre; reliability; slo; sli; error budget; chaos engineering; postmortem; incident; oncall."
 tags: [ops]
 context_cost: medium
 ---

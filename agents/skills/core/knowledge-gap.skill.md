@@ -1,9 +1,9 @@
 ---
 name: knowledge-gap
-description: Detect unknown territory before acting — Research Gate that forces authoritative verification before using unknown APIs or libraries
+description: Detect unknown territory before acting — a research gate forcing authoritative verification of unknown APIs/libraries.
 triggers: [not sure, unfamiliar, haven't used, unknown API, new technology, not familiar with, unsure how, I don't know]
-when_to_use: "Use this when the task involves: not sure; unfamiliar; haven't used; unknown API; new technology; not familiar with; unsure how; I don't know."
 tags: [core]
+core: true
 context_cost: low
 ---
 # Knowledge Gap Skill

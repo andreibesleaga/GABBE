@@ -2,7 +2,6 @@
 name: autonomous-swarm-patterns
 description: Implement self-organizing autonomous swarm architectures
 triggers: [implement swarm, deploy autonomous agents, setup swarm consensus]
-when_to_use: "Use this when the task involves: implement swarm; deploy autonomous agents; setup swarm consensus."
 tags: [ai]
 context_cost: high
 ---

@@ -2,7 +2,6 @@
 name: agent-communication
 description: Establish Agent-to-Agent (A2A) communication channels and topologies
 triggers: [setup swarm communication, implement a2a protocol, connect agents using mcp, design gossip protocol]
-when_to_use: "Use this when the task involves: setup swarm communication; implement a2a protocol; connect agents using mcp; design gossip protocol."
 tags: [ai]
 context_cost: medium
 ---

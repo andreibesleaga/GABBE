@@ -2,7 +2,6 @@
 name: privacy-audit
 description: PII detection, data flow mapping, GDPR/CCPA/HIPAA compliance verification
 triggers: [privacy, PII, GDPR, CCPA, HIPAA, personal data, data flow, consent, data protection]
-when_to_use: "Use this when the task involves: privacy; PII; GDPR; CCPA; HIPAA; personal data; data flow; consent; data protection."
 tags: [security]
 context_cost: medium
 ---

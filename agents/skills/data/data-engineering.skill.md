@@ -2,7 +2,6 @@
 name: data-engineering
 description: Design and implement data pipelines (ETL/ELT), warehousing, and analytics engineering.
 triggers: [data pipeline, etl, elt, spark, airflow, dbt, warehouse, big data, sql optimization, kafka]
-when_to_use: "Use this when the task involves: data pipeline; etl; elt; spark; airflow; dbt; warehouse; big data; sql optimization; kafka."
 tags: [data]
 context_cost: medium
 ---

@@ -31,6 +31,7 @@
 | Guide | File | Purpose |
 |---|---|---|
 | RARV Cycle | `processes/RARV_CYCLE.md` | Reason Act Reflect Verify loop |
+| Loki SDLC Phases | `processes/loki-sdlc-phases.md` | Detailed S01–S10 phase specs (referenced by loki-mode) |
 | System Lifecycle | `processes/full-system-lifecycle.md` | SDLC and traceability |
 | Knowledge Integration | `processes/knowledge-integration.md` | Connectors and RAG overview |
 

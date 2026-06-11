@@ -2,7 +2,6 @@
 name: visual-specs
 description: Process visual inputs (scans, sketches, diagrams) into structured product specifications before implementation.
 triggers: [visual spec, design phase, visual requirements, scan to spec, diagram spec, visual design, sketch spec]
-when_to_use: "Use this when the task involves: visual spec; design phase; visual requirements; scan to spec; diagram spec; visual design; sketch spec."
 tags: [product, design, visual, architecture, requirements]
 context_cost: high
 ---

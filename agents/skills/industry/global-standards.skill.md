@@ -2,7 +2,6 @@
 name: global-standards
 description: Enforce UN, ITU, and Global Open Source (OSI, OpenSSF) software standards
 triggers: [un standards, itu guidelines, open source compliance, global interoperability, osi, openssf]
-when_to_use: "Use this when the task involves: un standards; itu guidelines; open source compliance; global interoperability; osi; openssf."
 tags: [governance, standards, global, un, itu]
 context_cost: medium
 ---

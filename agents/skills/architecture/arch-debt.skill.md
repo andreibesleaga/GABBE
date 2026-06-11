@@ -2,7 +2,6 @@
 name: arch-debt
 description: Identify architectural anti-patterns — coupling, circular dependencies, God objects — and propose concrete migration paths
 triggers: [architecture debt, coupling, God object, Big Ball of Mud, circular dependency, spaghetti, modularize, arch debt]
-when_to_use: "Use this when the task involves: architecture debt; coupling; God object; Big Ball of Mud; circular dependency; spaghetti; modularize; arch debt."
 tags: [architecture]
 context_cost: high
 ---

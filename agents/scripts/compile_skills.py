@@ -145,9 +145,17 @@ def create_symlink(source, target, project_root):
         print(f"  {RED}x Failed to link {target}: {e}{NC}")
 
 
-def setup_skills_for_platform(platform, skills_src_dir, target_dir, project_root):
+def setup_skills_for_platform(
+    platform, skills_src_dir, target_dir, project_root, native_subset=None
+):
     """
     Distributes skills to platform-specific formats.
+
+    native_subset: when "core", emit only skills flagged `core: true` in their
+    frontmatter. This keeps a large collection (180+ skills) under a runtime's
+    native skill-discovery budget (e.g. Claude Code truncates big skill menus) —
+    the full catalog stays discoverable via agents/skills/00-index.md. Default
+    (None) emits every skill, preserving existing behavior.
     """
     print(f"\n{BLUE}→ Setting up skills for {platform}...{NC}")
     target_dir.mkdir(parents=True, exist_ok=True)
@@ -159,6 +167,10 @@ def setup_skills_for_platform(platform, skills_src_dir, target_dir, project_root
     for skill_file in skill_files:
         content = skill_file.read_text()
         meta, content_with_fm = ensure_yaml_frontmatter(content, skill_file.name)
+
+        # Curated native emit: skip non-core skills when a subset was requested.
+        if native_subset == "core" and str(meta.get("core", "")).lower() != "true":
+            continue
 
         # Slugify name for files/commands (e.g. "Agent Interop" -> "agent-interop").
         # safe_slug() prevents path traversal via a malicious frontmatter name.
@@ -242,6 +254,13 @@ def main():
     )
     parser.add_argument("--target-dir", required=True, help="Target directory for output")
     parser.add_argument("--project-root", required=True, help="Root of the project")
+    parser.add_argument(
+        "--native-subset",
+        choices=["all", "core"],
+        default="all",
+        help="'core' emits only skills flagged core:true (fits native discovery budgets); "
+        "default 'all' emits every skill. Full catalog is always in skills/00-index.md.",
+    )
 
     args = parser.parse_args()
 
@@ -253,11 +272,12 @@ def main():
         print(f"{RED}Error: Skills directory not found at {skills_src}{NC}")
         sys.exit(1)
 
+    subset = None if args.native_subset == "all" else args.native_subset
     if args.platform == "All":
         # Example logic for 'All' if needed, otherwise distinct calls are safer
         pass
     else:
-        setup_skills_for_platform(args.platform, skills_src, target_dir, project_root)
+        setup_skills_for_platform(args.platform, skills_src, target_dir, project_root, subset)
 
 
 if __name__ == "__main__":

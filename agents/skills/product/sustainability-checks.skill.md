@@ -2,7 +2,6 @@
 name: sustainability-checks
 description: Evaluate software architecture for ESG and sustainability impact
 triggers: [run sustainability check, audit esg, is this green, sustainability review, science-based targets, carbon footprint]
-when_to_use: "Use this when the task involves: run sustainability check; audit esg; is this green; sustainability review; science-based targets; carbon footprint."
 tags: [product, sustainability, green-software, esg]
 context_cost: medium
 ---

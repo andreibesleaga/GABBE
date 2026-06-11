@@ -2,7 +2,6 @@
 name: secure-architecture
 description: Architect systems with defense-in-depth and Zero Trust principles
 triggers: [design secure system, enforce zero trust, audit architecture security]
-when_to_use: "Use this when the task involves: design secure system; enforce zero trust; audit architecture security."
 tags: [security]
 context_cost: high
 ---

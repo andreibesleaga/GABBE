@@ -116,29 +116,17 @@ docs: "[PLACEHOLDER: pnpm typedoc | php artisan scribe:generate]"
 
 ## 5. Workflow for Agents — Review-Driven Development
 
-Agents MUST follow this order. Skipping steps is forbidden.
+Agents MUST follow this order; skipping steps is forbidden. Keep `agents/memory/` current at
+every task (episodic, semantic, AUDIT_LOG, CONTINUITY, PROJECT_STATE, RESUME_POINTER), and consult
+`agents/{skills,guides,templates}/` for relevant capabilities at each step.
 
-Agents must always verify that agents/memory files are kept up-to-date at each task (episodic, metrics, semantic, AUDIT_LOG, CONTINUITY, PROJECT_STATE), according to this project structure and logic.
+**CRITICAL MANDATES (always apply):**
 
-Agents must read agents/guides/ skills/ templates/ for any relevant information discovered during research and added by you or other agents, and use appropiate ones or knowledge in them, at each step and task of R&D, if needed.
-
-**CRITICAL MANDATE: Optimal Skill, Guide & MCP Selection**
-Agents must **always analyze the task/prompt and select (or ask the user to confirm/select) the best `guides` and `skills`** for the specific tasks, user queries, actions being performed, gate passing, or system workflows. Do not default to generic execution if a specialized skill or guide exists. If in doubt, present the best options to the user and ask for their selection.
-Additionally, agents must explicitly evaluate whether any **MCP (Model Context Protocol) servers** (either universal or task-specific) would optimally assist the task. If essential or highly beneficial MCP servers are not currently enabled, agents *must recommend* the user to enable them before proceeding.
-
-**CRITICAL MANDATE: Default Cost & Budget Optimization**
-Agents must continuously design and execute solutions focusing on minimizing token load, context size, and api costs by default. Do not use complex swarms or expensive remote SOTA models for simple changes. If a task necessitates an expensive strategy, complex reasoning traces, or high-cost MCP tools, agents **must always ask the human user for explicit approval** before deploying that approach, providing a brief explanation for the cost-to-benefit ratio.
-
-Apply the four cost levers (see `agents/guides/ops/cost-optimization.md` → *LLM & Agentic Cost Control*): (1) **prompt caching** — keep stable context first/byte-identical so the provider serves the cached prefix cheaply; (2) **context budgeting** — load the minimum skills/guides, prefer `context_cost: low` and only pull `high` when needed; (3) **model tiering** — route simple work to the cheapest reliable model (`gabbe route`), reserve SOTA for hard/critical tasks; (4) **batching** — run non-interactive bulk work via batch APIs (−50%). These optimizations must **never** weaken the quality gates, the 10-phase SDLC, or human-in-the-loop escalation.
-
-**CRITICAL MANDATE: Spec-Driven Development (first-class)**
-Work flows **spec → evals → test → code**, never code-first. Before implementing any non-trivial feature, ensure a spec exists: capture requirements in **EARS** syntax (`WHEN [event] THE SYSTEM SHALL [response]`), record them (`product/req-elicitation.skill`, `product/spec-writer.skill`, `templates/product/SPEC_TEMPLATE.md`, `guides/planning/product-requirements.md`), and maintain a **golden thread** of traceability: every requirement → a spec item → a test → code → an audit entry. No requirement without a test (Article I). If no spec exists for a task, write/clarify it first (`clarify.skill`) — ambiguity is resolved in the spec, not in the code.
-
-**CRITICAL MANDATE: Human–Agent Collaboration (Manager, not Operator)**
-The human (developer / engineer / architect) is a **manager, not an operator**: delegate the objective, observe progress, intervene on exceptions. Keep the human able to answer three questions at all times — **Purpose** ("what is this for?" — bound scope + non-goals via the spec), **Transparency** ("how is it working?" — legible reasoning/tools/cost via observability), **Control** ("how do I steer it?" — pause/correct/approve via HITL gates). Prefer an asynchronous, observable surface (memory + audit trace + the task/gate board) over pretending a long task is instant. A change is "done" only when all three hold (see `guides/principles/human-agent-collaboration.md`).
-
-**CRITICAL MANDATE: Observability by Default (first-class)**
-Every run, decision, model call, and tool call must be **observable** — never a black box. Emit a decision/span trace with token usage and **cost attribution** per step (`core/audit-trail.skill`, `core/agent-analytics.skill`; the optional `gabbe audit`/`runs` CLI). Tag model/tool spans with the **OpenTelemetry GenAI semantic conventions** (`gen_ai.usage.*`, model, operation) and a decision-span hierarchy (root → plan → discover → execute → retrieve). Redact prompt/response content by default (privacy — Article IV); record references, not secrets. Observability must hold even without the CLI: the Markdown memory (`AUDIT_LOG.md`, decision log) is the authoritative trace.
+- **Optimal skill/guide/MCP selection** — analyze the task and select (or ask the user to confirm) the best skills/guides/templates; never default to generic execution when a specialized one exists. Recommend enabling any MCP server that would materially help.
+- **Cost & budget by default** — minimize tokens/context/API cost; never use swarms or SOTA models for simple work, and **ask the human before any expensive/SOTA/high-cost approach** (with a one-line cost-benefit). Four levers (`guides/ops/cost-optimization.md`): prompt caching (stable context first), context budgeting (load minimum, prefer `context_cost: low`), model tiering (`gabbe route`), batching. Never weaken the gates, the 10-phase SDLC, or HITL to save cost.
+- **Spec-driven (first-class)** — `spec → evals → test → code`, never code-first. Non-trivial features start from an **EARS** spec (`product/spec-writer.skill`, `templates/product/SPEC_TEMPLATE.md`, `guides/planning/product-requirements.md`); keep a **golden thread** (requirement → spec → test → code → audit). No requirement without a test (Article I); resolve ambiguity in the spec via `clarify.skill`.
+- **Observability (first-class)** — every run/decision/model+tool call is traced with token usage + **per-step cost attribution** (`core/audit-trail.skill`, `core/agent-analytics.skill`; OTel GenAI conventions `gen_ai.usage.*`; span tree root→plan→discover→execute→retrieve). Redact content by default (Article IV); `AUDIT_LOG.md` is authoritative without the CLI.
+- **Human–agent collaboration (manager, not operator)** — the human delegates → observes → intervenes on exceptions. Keep three questions always answerable: **Purpose** (scope/non-goals via spec), **Transparency** (legible reasoning/tools/cost via observability), **Control** (pause/correct/approve via HITL). Prefer an async, observable surface; "done" only when all three hold (`guides/principles/human-agent-collaboration.md`).
 
 ### Step 0 — Preflight & Clarify (before anything else)
 ```
@@ -338,33 +326,11 @@ After 5 failed attempts, agent MUST:
 ```
 
 ### Self-Evolving Policy (within cost + permission bounds)
-The system may keep itself current and improve over time — discovering new/better
-skills, tools, MCP servers, and models and adopting the best per scenario — but
-only inside hard bounds. Use `update-scan.skill` for the discovery loop.
-
-```
-ALLOWED (gated by GABBE_AUTONOMY + budget):
-  - Adopt a cheaper/better model or tool for a task when reversible and validated
-  - Import a vetted external skill (validate_skills + slug/egress scan first)
-  - Refine a prompt/persona from SUCCESSFUL trajectories only (A2-style)
-
-ALWAYS REQUIRES HUMAN APPROVAL (even under GABBE_AUTONOMY=auto):
-  - Anything expensive, SOTA-model, or irreversible
-  - Pulling in externally-sourced code that runs (supply-chain surface)
-  - Any change to protected files (see below)
-
-GUARDRAILS:
-  - Misaligned-replay guard: NEVER feed failed/known-bad trajectories into the
-    evolution pool — the system must not amplify its own mistakes.
-  - Protected files: never edit build/IaC/CI/dependency manifests
-    (package.json, pyproject.toml, lockfiles, Dockerfiles, workflow YAML)
-    unless the failure is specifically dependency/build-related and within the
-    self-heal allowlist above. Otherwise escalate.
-  - Policy-as-code self-enforcement: when no external compliance proxy is
-    present, the agent self-enforces these rules and logs every adoption,
-    recommendation, and rejection to AUDIT_LOG.md (auditable + reversible).
-  - Prefer canary/shadow adoption with easy rollback; version evolved components.
-```
+The system may keep itself current and improve (new/better skills, tools, MCPs, models) via
+`update-scan.skill` — but only inside hard bounds (full detail in that skill):
+- **Allowed** (gated by `GABBE_AUTONOMY` + budget): adopt a cheaper/better reversible+validated tool/model; import a vetted external skill (validated first); refine prompts/personas from **successful** trajectories only.
+- **Always needs human approval** (even under `auto`): anything expensive/SOTA/irreversible, externally-sourced runnable code, or any change to protected files.
+- **Guardrails:** misaligned-replay guard (never learn from failed runs); protected files (never auto-edit build/IaC/CI/dependency manifests outside the self-heal allowlist); policy-as-code self-enforcement with every adoption/rejection logged to `AUDIT_LOG.md`; prefer canary + rollback, version evolved components.
 
 ---
 
@@ -466,29 +432,20 @@ Agent context priority: Package AGENTS.md > Root AGENTS.md
 
 ## 12. References
 
-### Skill Access
-- **Search First**: Before coding, search for relevant skills:
-    - **Cursor**: Check `.cursor/rules/` for `.mdc` files.
-    - **VS Code / Copilot**: Check `.github/skills/` or invoke via slash command.
-    - **Claude Code**: Use `/skill-name` or check `.claude/skills/`.
-    - **Gemini**: Skills are auto-loaded from `agents/skills`.
-- **Read Instructions**: Read the full content of the skill file (e.g., `tdd-cycle.skill.md` or `tdd-cycle.mdc`) before use.
+**Discover skills via the index — `agents/skills/00-index.md` is the canonical catalog**: native
+skill menus (e.g. Claude Code) may truncate large collections by token budget, so always consult
+the index to find any skill, then read its full file before use. Per-tool skill locations: see §10.
 
 ```
 Project law:          agents/CONSTITUTION.md
-Skills registry:      agents/skills/00-index.md
-Language guides:      agents/guides/00-index.md
+Skills (canonical):   agents/skills/00-index.md   (master: agents/skills/**)
+Guides:               agents/guides/00-index.md
 Templates:            agents/templates/00-index.md
-Personas agents:      agents/personas/00-index.md
-Brain Patterns:       agents/skills/brain/README.md
+Personas (Loki):      agents/personas/00-index.md (34 roles)
+Brain patterns:       agents/skills/brain/README.md
 Quick reference:      QUICK_GUIDE.md
-Project memory:       agents/memory/PROJECT_STATE.md
-Past failures:        agents/memory/CONTINUITY.md
-Decision log:         agents/memory/AUDIT_LOG.md
+Project memory:       agents/memory/{PROJECT_STATE,CONTINUITY,AUDIT_LOG,RESUME_POINTER}.md
 ```
-- **Skills**: `agents/skills/` (Master) → `.cursor/rules/` (*.mdc) | `.github/skills/` | `.claude/skills/`
-- **Personas**: `agents/personas/` (30+ specialized agent roles for Loki Mode)
-- **Memory**: `agents/memory/`
 
 ---
 
@@ -505,31 +462,17 @@ START of session:
   5. If resuming: use session-resume.skill for full recovery
   6. Run integrity-check.skill before starting new work on existing code
 
-CONTINUOUSLY (never lose progress — assume you may be cut off at any moment):
-  Use state-preserve.skill. An agent can be stopped without warning — tokens
-  exhausted, turn/time limit reached, network drop, crash — usually with NO
-  chance for a graceful shutdown. So state must be saved INCREMENTALLY, not
-  only at session end:
-  1. After each meaningful step: refresh agents/memory/RESUME_POINTER.md
-     (current task, last completed step, the precise NEXT ACTION, open
-     questions) and append the outcome to agents/memory/AUDIT_LOG.md.
-  2. Pre-exhaustion flush: when budget/tokens are low or wall-time/turns near
-     the cap — or before any long/irreversible action — write a FULL snapshot
-     FIRST (RESUME_POINTER first, then snapshot/PROJECT_STATE/CONTINUITY).
-     Never spend your last tokens on work whose result you cannot persist.
-  3. At all times the on-disk Markdown memory must be enough for a fresh agent
-     to resume losslessly via session-resume.skill. The optional gabbe CLI
-     (runs/replay/resume) augments this but the Markdown files are authoritative.
+CONTINUOUSLY — never lose progress (state-preserve.skill; assume a cutoff at any moment):
+  - After each meaningful step: refresh RESUME_POINTER.md (current task + precise NEXT ACTION)
+    and append the outcome to AUDIT_LOG.md.
+  - Pre-exhaustion flush: when budget/tokens/turns run low or before a long/irreversible action,
+    write a FULL snapshot FIRST (RESUME_POINTER, then snapshot/PROJECT_STATE/CONTINUITY).
+  - On-disk Markdown memory must always suffice for a fresh agent to resume losslessly.
 
-PORTABLE (switch coding agent or LLM anytime — state-portability.skill):
-  State is agent-agnostic. To move work to a different agent/LLM and continue
-  as before, DEHYDRATE (export STATE_HANDOFF.md + a lossless bundle of
-  agents/memory + project/TASKS.md + gabbe.config.json + instructions) and
-  HYDRATE it in the destination agent, then run session-resume + preflight.
-  Memory + instructions + state are a fully compatible export/import; the
-  single STATE_HANDOFF.md is enough even for a filesystem-less LLM chat.
-  Helpers: agents/scripts/state_export.sh and state_import.sh. Never export
-  secrets; merge on import (never clobber newer local state without asking).
+PORTABLE — switch coding agent or LLM anytime (state-portability.skill):
+  DEHYDRATE (state_export.sh → STATE_HANDOFF.md + a lossless bundle) and HYDRATE in the
+  destination agent (state_import.sh), then run session-resume + preflight. Memory + instructions
+  + state are a fully compatible export/import. Never export secrets; merge (don't clobber) on import.
 
 END of session:
   1. Update project/TASKS.md with current status of all in-progress tasks
@@ -576,70 +519,18 @@ See `agents/guides/ops/gabbe-cli-workflows.md` for standard CLI workflows: Init,
 
 # Loki & Brain — Agentic Orchestration
 
-## Modes
+Two optional orchestration modes (both run purely via Markdown inference; the `gabbe`
+CLI is optional). Full definitions live in the skills — this is only a pointer (avoid
+restating them here, to prevent drift):
 
-### 1. 🧠 Brain Mode (`brain-mode.skill.md`)
-> **The Strategist (System 2)**
+- **🧠 Brain Mode** (`brain/brain-mode.skill.md`) — the Strategist (System 2): meta-cognitive
+  planner/router/optimizer (Active Inference + dynamic cost routing). Trigger: `gabbe brain activate`, `supermode`.
+- **⚡ Loki Mode** (`brain/loki-mode.skill.md`) — the Executor (System 1): the deterministic
+  10-phase SDLC (S01→S10) with human-in-the-loop gates. Trigger: `loki`, `orchestrate`.
 
-- **Role**: Meta-Cognitive Orchestrator.
-- **Function**: Plans, Routes, and Optimizes.
-- **Logic**: Active Inference (Free Energy Principle) & Experimental CLI Platform Controls (`gabbe/brain.py`).
-- **Use Case**: Complex, ambiguous, or high-stakes projects.
-- **Key Feature**: **Dynamic Cost Routing** (Local vs Remote).
-- **Standalone Mode**: Can fully run purely via LLM markdown inference without the `gabbe` CLI.
-
-**Trigger**: `gabbe brain activate`, `supermode`
-
----
-
-### 2. ⚡ Loki Mode (`loki-mode.skill.md`)
-> **The Executor (System 1)**
-
-- **Role**: SDLC Orchestrator.
-- **Function**: Executes the 10-Phase Engineering Lifecycle.
-- **Logic**: Deterministic Workflow (S01 -> S10).
-- **Use Case**: Building software with strict process requirements.
-- **Key Feature**: **Human-in-the-Loop Gates** and strictly bounds execution within `gabbe` CLI limits.
-- **Standalone Mode**: Can fully run purely via LLM markdown inference without the `gabbe` CLI.
-
-**Trigger**: `loki`, `orchestrate`
-
----
-
-## How they work together
-
-Brain Mode **wraps** Loki Mode.
-
-1.  **Brain Mode** receives a request ("Build X").
-2.  It analyzes complexity and budget.
-3.  It spins up **Loki Mode** to handle the SDLC.
-4.  It monitors Loki's progress, intervening if:
-    - Costs spike.
-    - Errors loop.
-    - Requirements drift.
-
-### Active Orchestration Diagram
-
-```mermaid
-graph TD
-    User -->|Request| Brain[🧠 Brain Mode]
-    Brain -->|Route: Complex| Loki[⚡ Loki Exec Layer]
-    Brain -->|Route: Simple| Local[💻 Local Script]
-    Loki -->|Phase S01-S10| Artifacts[📂 Project Files]
-    Brain -.->|Monitor| Loki
-```
-
-Text Overview (ASCII):
-```text
-[User] --(Request)--> [Brain Mode 🧠]
-                        |
-                        +--(Route: Complex)--> [Loki Exec Layer ⚡] --(Phase S01-S10)--> [Project Files 📂]
-                        |                           ^
-                        |                           | (Monitor)
-                        |                           |
-                        +--(Route: Simple)---- [Local Script 💻]
-```
-
+Brain Mode **wraps** Loki: it receives the request, routes by complexity/budget, runs Loki for
+the SDLC, and monitors — intervening if cost spikes, errors loop, or requirements drift. Both use
+the same operating spine in §5/§13 (preflight → clarify → act → state-preserve → final-review).
 
 ---
 

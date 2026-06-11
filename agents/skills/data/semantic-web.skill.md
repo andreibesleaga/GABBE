@@ -2,7 +2,6 @@
 name: semantic-web
 description: Design Semantic Web structures, Ontologies, and Meta-knowledge graphs
 triggers: [design ontology, semantic web, knowledge graph architecture, rdf data model, sparql, linked data]
-when_to_use: "Use this when the task involves: design ontology; semantic web; knowledge graph architecture; rdf data model; sparql; linked data."
 tags: [data, semantic, owl, rdf, knowledge-graph]
 context_cost: medium
 ---

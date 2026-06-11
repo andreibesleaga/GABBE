@@ -2,7 +2,6 @@
 name: audit-trail
 description: Maintain append-only structured audit log of all agent and human decisions and outcomes
 triggers: [log this, record decision, why did we, audit, what happened, history, trace, record this]
-when_to_use: "Use this when the task involves: log this; record decision; why did we; audit; what happened; history; trace; record this."
 tags: [core]
 context_cost: low
 ---

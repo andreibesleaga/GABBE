@@ -2,7 +2,6 @@
 name: telecom-networks
 description: Architect Telecom interfaces using TM Forum ODA, GSMA CAMARA, and eSIM standards
 triggers: [design telecom api, integrate tm forum, camara network api, esim provisioning, tmf, oda]
-when_to_use: "Use this when the task involves: design telecom api; integrate tm forum; camara network api; esim provisioning; tmf; oda."
 tags: [telecom, networking, camara, tmf, gsma]
 context_cost: high
 ---

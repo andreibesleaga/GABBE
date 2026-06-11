@@ -2,7 +2,6 @@
 name: file-processing
 description: Stream processing, large file uploads, and IO efficiency.
 triggers: [file processing]
-when_to_use: "Use this when the task involves: file processing."
 tags: [coding]
 role: eng-backend
 context_cost: low

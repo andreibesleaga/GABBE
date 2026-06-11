@@ -32,6 +32,14 @@ if tar -tzf "$BUNDLE" | grep -qE '^/|(^|/)\.\.(/|$)'; then
     rm -rf "$STAGE"
     exit 1
 fi
+# Reject symlink/hardlink members too: a link member plus a write-through member
+# can redirect a write outside $STAGE (matches the Python extractor's guard). In
+# tar's verbose listing the type char is the first column (l=symlink, h=hardlink).
+if tar -tvzf "$BUNDLE" 2>/dev/null | grep -qE '^[lh]'; then
+    echo "ERROR: archive contains symlink/hardlink members; refusing to extract." >&2
+    rm -rf "$STAGE"
+    exit 1
+fi
 tar -xzf "$BUNDLE" -C "$STAGE"
 
 echo "Staged bundle contents:"

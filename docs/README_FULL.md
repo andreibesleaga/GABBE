@@ -358,6 +358,7 @@ Or explicitly:
 
 ```
 Multi-agent swarm with 30+ specialized personas for projects >5 features or >20 files.
+```
 
 ---
 

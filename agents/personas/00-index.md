@@ -135,7 +135,7 @@
 All personas share these universal constraints:
 - Always read AGENTS.md and CONSTITUTION.md before acting
 - Always check CONTINUITY.md for past failures before starting
-- Never skip the RARV Cycle (loki/RARV_CYCLE.md)
+- Never skip the RARV Cycle (guides/processes/RARV_CYCLE.md)
 - Never exceed own scope (e.g., eng-backend never touches UI)
 - Never commit secrets or PII to any file
 - Never modify AUDIT_LOG.md existing entries

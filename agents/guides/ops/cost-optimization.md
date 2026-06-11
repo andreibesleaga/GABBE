@@ -47,7 +47,7 @@ Match model power to task difficulty. `gabbe route` decides LOCAL (free/cheap lo
 For non-latency-sensitive bulk work, async batch APIs run at **−50%** (e.g. Anthropic Message Batches). Schedule large non-interactive runs (audits, migrations, regen) as batches.
 
 ### Hard guardrails (never disabled)
-`GABBE_MAX_COST_USD`, token/iteration/wall-time budgets, and hard stops bound a runaway loop regardless of the optimizations above — cost control must never weaken the quality gates, the 10-gate SDLC, or human-in-the-loop escalation.
+`GABBE_MAX_COST_USD`, token/iteration/wall-time budgets, and hard stops bound a runaway loop regardless of the optimizations above — cost control must never weaken the quality gates, the 10-phase SDLC, or human-in-the-loop escalation.
 
 ## Automation & Agentic Checks
 Use the `cost-optimization.skill.md` to autonomously:

@@ -28,7 +28,7 @@
 - Minimum test coverage: **99% line coverage** for all non-trivial code
 - Integration points (database, external APIs, message queues) must have integration tests
 - Violations: No PR merges without this — ever
-- **Spec-Driven (first-class):** work flows **spec → test → code**. Non-trivial features start from an **EARS** spec (`WHEN [event] THE SYSTEM SHALL [response]`); maintain a **golden thread** of traceability (requirement → spec → test → code → audit). No requirement without a test; resolve ambiguity in the spec, not the code.
+- **Spec-Driven (first-class):** work flows **spec → evals → test → code** (evals = the acceptance criteria, defined before implementation — see `guides/principles/testing-strategy.md` Level 5). Non-trivial features start from an **EARS** spec (`WHEN [event] THE SYSTEM SHALL [response]`); maintain a **golden thread** of traceability (requirement → spec → test → code → audit). No requirement without a test; resolve ambiguity in the spec, not the code.
 
 <!-- OPTIONAL: EARS Example -> WHEN [event] THE SYSTEM SHALL [response] -->
 

@@ -57,7 +57,7 @@ Files:       [specific files to create/modify]
 AC:          [acceptance criteria — verbatim from project/TASKS.md]
 Dependencies: [T-NNN, T-NNN — all must be DONE before starting]
 Constraints:
-  - Must follow RARV cycle (loki/RARV_CYCLE.md)
+  - Must follow RARV cycle (guides/processes/RARV_CYCLE.md)
   - Write failing test FIRST (TDD Red — verify it fails before implementing)
   - Run: [test command] + [lint] + [typecheck] before marking DONE
   - Max self-heal attempts: 5 (then escalate to orch-coordinator)

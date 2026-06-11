@@ -51,7 +51,7 @@ A micro request may not override a macro/meso rule; escalate the conflict instea
 5. **Record:** log the selection + rationale to `AUDIT_LOG.md`; version the active policy/ruleset so a later decision is reproducible.
 
 ## Constraints
-- Optimize quality AND cost together — never sacrifice a quality/security gate, the 10-gate SDLC, or HITL escalation to save tokens (Article X).
+- Optimize quality AND cost together — never sacrifice a quality/security gate, the 10-phase SDLC, or HITL escalation to save tokens (Article X).
 - Most-restrictive-wins across macro/meso/micro; never let a task request override law/org/Constitution.
 - Respect the configured autonomy level exactly; expensive/SOTA/irreversible/external-code actions always require approval.
 - Record material selection decisions so optimization stays auditable + reversible.

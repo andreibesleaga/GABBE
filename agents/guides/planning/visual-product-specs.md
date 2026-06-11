@@ -10,7 +10,7 @@ Before implementation begins, the system must have **complete visual specificati
 **This phase sits between PRD approval (S01) and Architecture Design (S02).**
 
 ```
-S00 Strategy → S01 PRD (text) → ★ VISUAL SPEC PHASE ★ → S02 Architecture → S03 Implementation
+S01 Requirements (PRD) → ★ VISUAL SPEC PHASE ★ → S02 Architecture → … → S05 Implementation
 ```
 
 ---

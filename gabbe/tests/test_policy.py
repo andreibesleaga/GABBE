@@ -228,7 +228,10 @@ def test_present_policy_file_without_tools_section_is_fail_closed(tmp_path):
     """A present policy file with NO `tools` section must DENY all (fail-closed),
     matching the no-file default — not silently allow-all (security regression guard)."""
     pf = tmp_path / "policies.yml"
-    pf.write_text("content_safety:\n  pii: true\n")  # configured, but no tools section
+    # A genuinely-configured file (content_safety actually enabled) that still omits
+    # the `tools` section — proves the deny-all is driven by the missing tools section,
+    # not by an empty file. `enabled: true` is the key from_yaml() actually reads.
+    pf.write_text("content_safety:\n  enabled: true\n")
     engine = PolicyEngine.from_yaml(path=pf)
     assert engine.evaluate({"tool": "anything"}).allowed is False
     # An explicit tools section still enables blocklist mode (allow non-denied).

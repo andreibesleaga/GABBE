@@ -1,8 +1,8 @@
 ---
 name: visual-whiteboarding
 description: Use spatial-canvas MCP servers (Miro, Draw.io, Figma) to map architectures, user flows, and wireframes.
-version: 1.0
-author: GABBE-Kit
+triggers: [whiteboard, miro, draw.io, figma, canvas, spatial, wireframe]
+tags: [architecture]
 context_cost: low
 ---
 # Visual Whiteboarding Skill

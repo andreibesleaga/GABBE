@@ -392,7 +392,7 @@ Record assumed defaults in `agents/memory/AUDIT_LOG.md` so silence is informed, 
 ```
 - Context: This AGENTS.md is symlinked to .gemini/settings.json (instructions field) + GEMINI.md
 - Skills: Symlinked to .agent/skills/ -- invoke by trigger keywords
-- MCP: Configure .gemini/mcp_config.json using templates/MCP_CONFIG_TEMPLATE.json
+- MCP: Configure .gemini/mcp_config.json using templates/core/MCP_CONFIG_TEMPLATE.json
 ```
 
 ### Google Antigravity
@@ -443,7 +443,7 @@ Guides:               agents/guides/00-index.md
 Templates:            agents/templates/00-index.md
 Personas (Loki):      agents/personas/00-index.md (34 roles)
 Brain patterns:       agents/skills/brain/README.md
-Quick reference:      QUICK_GUIDE.md
+Quick reference:      docs/QUICK_GUIDE.md
 Project memory:       agents/memory/{PROJECT_STATE,CONTINUITY,AUDIT_LOG,RESUME_POINTER}.md
 ```
 

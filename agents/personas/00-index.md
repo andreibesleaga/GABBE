@@ -7,6 +7,9 @@
 
 ## The 4 Swarms
 
+> The diagram below names representative personas per swarm; the full set of **34**
+> is in the detailed tables further down (the box is a summary, not the complete list).
+
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │  PRODUCT/BUSINESS SWARM (Deciders)                              │
@@ -81,7 +84,7 @@
 |---|---|---|---|
 | `prod-pm` | [prod-pm.md](prod-pm.md) | Product requirements (EARS), PRD writer | PRD.md, EARS_REQUIREMENTS.md |
 | `prod-architect` | [prod-architect.md](prod-architect.md) | Architecture decisions, C4 model, ADRs | PLAN.md, C4_ARCHITECTURE.md, ADR-*.md |
-| `prod-tech-lead` | [prod-tech-lead.md](prod-tech-lead.md) | Business Strategy, Requirements, Stakeholder Management | PRDs, User Stories, Roadmaps |
+| `prod-tech-lead` | [prod-tech-lead.md](prod-tech-lead.md) | Technical lead, task decomposition, code review | SPEC.md, project/TASKS.md, dependency graph |
 | `prod-design` | [prod-design.md](prod-design.md) | UX Design, User Flows, Wireframes | Design Specs, Mockups, Prototypes |
 | `ui-design` | [ui-design.md](ui-design.md) | Visual Design, CSS, Design Tokens | High-Fidelity mocks, Token System |
 | `prod-ethicist` | [prod-ethicist.md](prod-ethicist.md) | AI Ethics & Sustainability Officer | Ethical Impact Assessments, Governance |

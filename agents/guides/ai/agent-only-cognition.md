@@ -35,7 +35,7 @@ Because `brain-mode.skill.md` contains strict procedural logic, the LLM will:
 If your agent is consistently failing at a specific task (e.g., repeatedly generating outdated React components), you don't need the CLI to fix it. You can order the agent to "evolve" its own rulebook.
 
 ### The Agent Prompt
-> "We continually fail when writing React hooks. Invoke the `meta-optimize` skill. Read the last 5 chat messages, identify why your previous attempts failed, and directly edit `agents/skills/coding/react-components.skill.md` to add new constraints preventing this failure in the future. Log the change to `meta-evolution.log`."
+> "We continually fail when writing React hooks. Invoke the `meta-optimize` skill. Read the last 5 chat messages, identify why your previous attempts failed, and directly edit `agents/skills/coding/ui-gen.skill.md` to add new constraints preventing this failure in the future. Log the change to `meta-evolution.log`."
 
 ### What the Agent Does Automatically
 1. Retrospects the immediate chat failure.

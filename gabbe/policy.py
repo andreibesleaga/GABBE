@@ -126,10 +126,18 @@ class PolicyEngine:
                 data = yaml.safe_load(f) or {}
                 version = data.get("version", "1")
 
-                tools = data.get("tools", {})
+                # Fail-closed: a present policy file with NO `tools` section denies all
+                # (matching the no-file default). Only an explicit `tools` section may
+                # opt into blocklist mode (allowed defaults to ["*"] when present).
+                if "tools" in data:
+                    tools = data["tools"]
+                    allowed_default = ["*"]
+                else:
+                    tools = {}
+                    allowed_default = []
                 policies.append(
                     ToolAllowlistPolicy(
-                        allowed_tools=tools.get("allowed", ["*"]),
+                        allowed_tools=tools.get("allowed", allowed_default),
                         denied_tools=tools.get("denied", []),
                     )
                 )

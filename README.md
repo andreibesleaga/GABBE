@@ -21,13 +21,13 @@
 It contains:
 - **180+ Skills** (specialized capabilities)
 - **85+ Templates** (standardized documents)
-- **72 Guides** (language & domain expertise)
+- **73 Guides** (language & domain expertise)
 - **34 Personas** (specialized roles)
 - **50+ MCP servers** (configuration and guides for AI tools)
 - **Brain Mode** (meta-cognitive orchestration)
 - **Loki Mode** (multi-agent swarm engineering personas team for large projects)
 
-> **180+ Skills · 85+ Templates · 72 Guides · 34 Personas · 50+ MCPs · Loki / Brain Mode CLI**
+> **180+ Skills · 85+ Templates · 73 Guides · 34 Personas · 50+ MCPs · Loki / Brain Mode CLI**
 
 ---
 
@@ -300,7 +300,7 @@ graph TB
     subgraph Tools ["Capability Layer"]
         S[180+ Skills]
         T[85+ Templates]
-        G[72 Guides]
+        G[73 Guides]
     end
 
     subgraph Memory ["Memory System"]

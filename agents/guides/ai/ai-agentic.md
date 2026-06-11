@@ -299,7 +299,7 @@ Switch to Loki Mode for:
   - When parallel workstreams would benefit from specialization
 ```
 
-See `agents/skills/brain/README_ORCHESTRATORS.md` for Loki Mode setup and persona guide.
+See `agents/skills/brain/README.md` for Loki Mode setup and persona guide.
 
 ---
 

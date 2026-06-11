@@ -222,3 +222,16 @@ def test_from_yaml_allowlist_from_file(tmp_path):
     engine = PolicyEngine.from_yaml(path=policies_file)
     assert engine.evaluate({"tool": "call_llm"}).allowed is True
     assert engine.evaluate({"tool": "dangerous"}).allowed is False
+
+
+def test_present_policy_file_without_tools_section_is_fail_closed(tmp_path):
+    """A present policy file with NO `tools` section must DENY all (fail-closed),
+    matching the no-file default — not silently allow-all (security regression guard)."""
+    pf = tmp_path / "policies.yml"
+    pf.write_text("content_safety:\n  pii: true\n")  # configured, but no tools section
+    engine = PolicyEngine.from_yaml(path=pf)
+    assert engine.evaluate({"tool": "anything"}).allowed is False
+    # An explicit tools section still enables blocklist mode (allow non-denied).
+    pf.write_text("tools:\n  denied: [run_security_scan]\n")
+    engine = PolicyEngine.from_yaml(path=pf)
+    assert engine.evaluate({"tool": "call_llm"}).allowed is True

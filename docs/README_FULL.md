@@ -17,13 +17,13 @@
 It contains:
 - **180+ Skills** (specialized capabilities)
 - **85+ Templates** (standardized documents)
-- **72 Guides** (language & domain expertise)
+- **73 Guides** (language & domain expertise)
 - **34 Personas** (specialized roles)
 - **40+ MCP servers** (configuration and guides for AI tools)
 - **Brain Mode** (meta-cognitive orchestration)
 - **Loki Mode** (multi-agent swarm engineering personas team for large projects)
 
-> **180+ Skills · 85+ Templates · 72 Guides · 34 Personas · 50+ MCPs · Loki / Brain Mode CLI**
+> **180+ Skills · 85+ Templates · 73 Guides · 34 Personas · 50+ MCPs · Loki / Brain Mode CLI**
 
 ---
 
@@ -1256,7 +1256,7 @@ Loki Mode activates a multi-agent swarm for large projects (new product builds, 
 
 ## 24. What's Inside?
 
-> **Stats**: 180+ Skills · 85+ Templates · 34 Personas · 72 Guides
+> **Stats**: 180+ Skills · 85+ Templates · 34 Personas · 73 Guides
 
 | Category | Count | Skills Included |
 |---|---|---|

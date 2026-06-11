@@ -82,3 +82,31 @@ def test_loki_gate_label_not_contradictory():
     """loki S06 must not label '7-Gate' over a 9-item list (the gate-count drift)."""
     t = (AG / "skills" / "brain" / "loki-mode.skill.md").read_text(encoding="utf-8")
     assert "7-Gate Quality Check" not in t, "loki S06 still labels '7-Gate' over a 9-item list"
+
+
+def test_no_dangling_concrete_path_refs():
+    """Every concrete skills/guides/templates path mentioned in any agents/ markdown
+    resolves on disk. Catches in-text dangling refs that validate_links (markdown
+    links only) misses — the class behind the wrong-directory/old-path drift."""
+    pat = re.compile(
+        r"\b((?:skills|guides|templates)/[A-Za-z0-9][A-Za-z0-9/_.\-]*\.(?:skill\.md|md|json|yaml))\b"
+    )
+    bad = set()
+    for f in AG.rglob("*.md"):
+        for m in pat.findall(f.read_text(encoding="utf-8")):
+            if "*" in m or "PLACEHOLDER" in m or "<" in m:
+                continue
+            if not (AG / m).exists():
+                bad.add(f"{m}  <- {f.relative_to(ROOT)}")
+    assert not bad, f"Dangling concrete path references: {sorted(bad)}"
+
+
+def test_guides_index_count_matches_filesystem():
+    """The guides index 'Total Guides: N' must match the actual guide file count
+    (this number drifted 72->73 when the loki phase guide was added)."""
+    idx = (AG / "guides" / "00-index.md").read_text(encoding="utf-8")
+    m = re.search(r"Total Guides\*\*:\s*(\d+)", idx)
+    assert m, "guides 00-index.md missing a 'Total Guides: N' line"
+    stated = int(m.group(1))
+    actual = sum(1 for _ in (AG / "guides").rglob("*.md") if _.name != "00-index.md")
+    assert stated == actual, f"guides index says {stated} but {actual} guide files exist"

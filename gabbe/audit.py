@@ -219,7 +219,7 @@ class AuditTracer:
             db_otel_span = otel_tracer.start_span(f"{event_type}:{node_name}")
             db_otel_span.set_attribute("gabbe.run_id", self.run_id)
             db_otel_span.set_attribute("gabbe.span_id", span_id)
-            db_otel_span.set_attribute("gabbe.input", json.dumps(input_data))
+            db_otel_span.set_attribute("gabbe.input", json.dumps(_redact(input_data), default=str))
 
         return {
             "span_id": span_id,
@@ -325,7 +325,7 @@ class AuditTracer:
             otel_span = span_ctx["_otel_span"]
             if status != "ok":
                 otel_span.set_status(Status(StatusCode.ERROR))
-            otel_span.set_attribute("gabbe.output", json.dumps(output_data))
+            otel_span.set_attribute("gabbe.output", json.dumps(_redact(output_data), default=str))
             otel_span.set_attribute("gabbe.cost_usd", cost_usd)
             otel_span.end()
 

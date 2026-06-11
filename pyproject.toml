@@ -52,11 +52,12 @@ gabbe = "gabbe.main:main"
 [tool.setuptools.packages.find]
 include = ["gabbe*"]
 
-# Ship the Markdown agentic kit alongside the importable `gabbe` package so
-# pip / pipx / uvx users get the full kit. The kit content (agents/, docs/,
-# scripts/init.py) lives outside `gabbe*` and is bundled via MANIFEST.in into
-# the sdist; include-package-data carries those sdist files into installs.
-# Additive: does NOT alter the existing packages.find selection above.
+# The Markdown agentic kit (agents/, docs/, scripts/init.py) lives OUTSIDE the
+# importable `gabbe*` package, so MANIFEST.in bundles it into the **sdist** only —
+# a source/`--no-binary` install (and the GitHub release tarball) carries the kit,
+# but a plain wheel install does NOT include it. For a Python-independent kit
+# install use `npx gabbe init` or `curl … | sh`. Additive: does NOT alter the
+# packages.find selection above.
 [tool.setuptools]
 include-package-data = true
 

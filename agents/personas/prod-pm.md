@@ -28,7 +28,7 @@ Load on activation:
 
 ## Primary Outputs
 
-- `docs/requirements/PRD.md` (using templates/PRD_TEMPLATE.md)
+- `docs/requirements/PRD.md` (using templates/product/PRD_TEMPLATE.md)
 - `docs/requirements/EARS_REQUIREMENTS.md` (formal EARS syntax requirements)
 - Clarifying question log (ambiguity layer output)
 - User story map (optional)

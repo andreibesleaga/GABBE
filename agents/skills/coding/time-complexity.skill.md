@@ -2,7 +2,6 @@
 name: time-complexity
 description: Estimate Big-O time complexity of code via static analysis (tree-sitter MCP).
 triggers: [complexity, big-o, performance, hotspot, time complexity, analyze complexity]
-when_to_use: "Use this when the task involves: complexity; big-o; performance; hotspot; time complexity; analyze complexity."
 tags: [coding, performance, analysis]
 context_cost: medium
 ---

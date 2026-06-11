@@ -2,8 +2,8 @@
 name: cost-benefit-router
 description: Intelligent routing of tasks between Local (OS) and Remote (Cloud) resources based on complexity, privacy, and cost constraints.
 triggers: [route task, optimize cost, choose model, local or remote]
-when_to_use: "Use this when the task involves: route task; optimize cost; choose model; local or remote."
 tags: [brain]
+core: true
 context_cost: low
 ---
 # Cost-Benefit Router

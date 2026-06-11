@@ -1,9 +1,9 @@
 ---
 name: req-elicitation
-description: Structured requirements elicitation for new products or features. Derives complete, verifiable requirements from stakeholder goals using IEEE 29148, IREB, and EARS standards. Handles both greenfield products and additions to existing systems.
+description: Structured requirements elicitation — derive complete, verifiable requirements from stakeholder goals (IEEE 29148, IREB, EARS).
 triggers: [elicit requirements, gather requirements, what are the requirements, new product requirements, user needs, stakeholder goals, write PRD, requirements from scratch]
-when_to_use: "Use this when the task involves: elicit requirements; gather requirements; what are the requirements; new product requirements; user needs; stakeholder goals; write PRD; requirements from scratch."
 tags: [product]
+core: true
 context_cost: medium
 ---
 # Requirements Elicitation Skill

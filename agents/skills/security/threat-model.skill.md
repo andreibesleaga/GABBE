@@ -2,8 +2,8 @@
 name: threat-model
 description: STRIDE threat modeling before implementing security-sensitive features
 triggers: [threat, STRIDE, attack surface, security design, new API, new feature security, threat model]
-when_to_use: "Use this when the task involves: threat; STRIDE; attack surface; security design; new API; new feature security; threat model."
 tags: [security]
+core: true
 context_cost: medium
 ---
 # Threat Model Skill

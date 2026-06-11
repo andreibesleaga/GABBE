@@ -1,9 +1,9 @@
 ---
 name: final-review
-description: Expert end-of-work review from a senior coding-agent perspective — catch errors, gaps, and risks, and propose optimizations/simplifications before declaring done
+description: Expert end-of-work review — catch errors/gaps/risks and propose optimizations before declaring done.
 triggers: [final review, expert review, review everything, anything missing, make it better, optimize, simplify, sanity check, ship check, is it good]
-when_to_use: "Use this when the task involves: final review; expert review; review everything; anything missing; make it better; optimize; simplify; sanity check; ship check; is it good."
 tags: [core]
+core: true
 context_cost: medium
 ---
 # Final-Review Skill

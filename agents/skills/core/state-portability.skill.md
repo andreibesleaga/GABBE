@@ -1,9 +1,9 @@
 ---
 name: state-portability
-description: Dehydrate/hydrate the full working state into a portable, agent-agnostic bundle so the user can switch coding agent or LLM and continue continuously, with fully compatible memory + instructions + state export/import
+description: Dehydrate/hydrate full working state into a portable, agent-agnostic bundle — switch coding agent or LLM and continue.
 triggers: [hydrate, dehydrate, export state, import state, switch agent, switch llm, portable state, handoff, migrate session, take my work elsewhere, continue on another agent]
-when_to_use: "Use this when the task involves: hydrate; dehydrate; export state; import state; switch agent; switch llm; portable state; handoff; migrate session; take my work elsewhere; continue on another agent."
 tags: [core]
+core: true
 context_cost: low
 ---
 # State-Portability Skill

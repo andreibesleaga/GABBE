@@ -2,7 +2,6 @@
 name: design-patterns
 description: Identifies, implements, and refactors code using standard Design Patterns (GoF + Modern).
 triggers: [design pattern, refactor pattern, strategy pattern, observer pattern, factory pattern, singleton]
-when_to_use: "Use this when the task involves: design pattern; refactor pattern; strategy pattern; observer pattern; factory pattern; singleton."
 tags: [architecture]
 context_cost: low
 ---

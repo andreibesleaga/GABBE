@@ -2,73 +2,51 @@
 name: neuroscience-foundations
 description: Apply biological brain patterns to agent design
 triggers: [neuroscience, brain, cognitive, thalamus, basal ganglia]
-when_to_use: "Use this when the task involves: neuroscience; brain; cognitive; thalamus; basal ganglia."
 tags: [brain, architecture, theory]
 context_cost: low
 ---
 # Neuroscience Foundations for Agents
 
-## Goal
-## Description
-This skill provides a foundational understanding of how to apply biological brain patterns to agentic software design. It covers Cortico-Thalamic loops, Basal Ganglia gating, and Neural Darwinism.
+Apply biological brain patterns to agentic software design: Cortico-Thalamic loops, Basal Ganglia gating, Neural Darwinism.
 
-## Steps
-## 1. Cortico-Thalamic Loops (The Feedback/Feedforward Engine)
+## 1. Cortico-Thalamic Loops (Feedback/Feedforward Engine)
+The **Thalamus** is a central relay; the **Cortex** processes. Their loop drives consciousness and attention.
 
-In the human brain, the **Thalamus** acts as a central relay station, and the **Cortex** processes information. The loop between them is essential for consciousness and attention.
+**Thalamic Gateway:** route critical signals through a central mediator instead of direct module-to-module calls. It (1) **filters** — pass only high-priority signals (attention); (2) **broadcasts** important signals to many cortical modules at once; (3) **loops** — lets the Cortex (agent logic) feed back to adjust future attention.
 
-### Implementation Pattern: The "Thalamic Gateway"
-Instead of direct function calls between modules, route critical signals through a central "Thalamus" mediator that can:
-1.  **Filter**: Only pass high-priority signals (Attention).
-2.  **Breadcast**: Send important signals to multiple cortical areas (Modules) simultaneously.
-3.  **Loop**: Allow the Cortex (Agent Logic) to send feedback to the Thalamus to adjust what it pays attention to next.
-
-**Code Metaphor:**
 ```python
 class Thalamus:
     def process_signal(self, signal):
-        priority = self.calculate_salience(signal)
-        if priority > THRESHOLD:
+        if self.calculate_salience(signal) > THRESHOLD:
             self.broadcast_to_cortex(signal)
 ```
 
-## 2. Basal Ganglia Action Selection (The Gating Mechanism)
+## 2. Basal Ganglia Action Selection (Gating)
+The Basal Ganglia doesn't think of actions — it **selects** them, inhibiting all options and disinhibiting the most promising one by expected reward (dopamine).
 
-The Basal Ganglia does not "think" of actions; it **selects** them. It inhibits all possible actions and disinhibits (releases) the most promising one based on expected reward (Dopamine).
+**Gated Action Selector:** don't execute the first valid action. (1) Cortex (LLM) **generates** multiple plans; (2) Basal Ganglia (critic/judge) **evaluates** by expected utility; (3) **selects**/releases only the highest-value action.
 
-### Implementation Pattern: The "Gited Action Selector"
-Do not let your agent execute the first valid action it finds.
-1.  **Generate**: The "Cortex" (LLM) generates multiple potential plans/actions.
-2.  **Evaluate**: The "Basal Ganglia" (Critic/Judge) scores them based on Value (expected utility).
-3.  **Select**: The mechanism releases only the highest-value action for execution.
-
-**Key Concept:** *Go / No-Go Pathways*.
-- **Direct Pathway (Go):** Facilitates the selected action.
-- **Indirect Pathway (No-Go):** Suppresses competing actions.
+**Go / No-Go pathways:** Direct (Go) facilitates the selected action; Indirect (No-Go) suppresses competitors.
 
 ## 3. Neural Darwinism (Selection of Somatic Groups)
+Brain function is evolutionary — neurons that fire together, wire together.
 
-Brain development and function are evolutionary processes. Groups of neurons that fuse together, wire together.
-
-### Implementation Pattern: Evolutionary Prompts
-- Maintain a "population" of system prompts or strategies.
-- Track the success rate of each strategy.
-- "Kill" underperforming prompts and "reproduce" (mutate) successful ones over time.
+**Evolutionary Prompts:** keep a population of system prompts/strategies, track each one's success rate, kill underperformers and mutate (reproduce) winners over time.
 
 ## References
-- **Edelman, G. M.** (1987). *Neural Darwinism: The Theory of Neuronal Group Selection*.
-- **Izhikevich, E. M.** (2007). *Dynamical Systems in Neuroscience*.
+- Edelman, G. M. (1987). *Neural Darwinism: The Theory of Neuronal Group Selection*.
+- Izhikevich, E. M. (2007). *Dynamical Systems in Neuroscience*.
 
 ## Security & Guardrails
 
 ### 1. Skill Security (Neuroscience Foundations)
-- **Thalamic Gateway Hijacking (Attention Sabotage)**: The "Thalamic Gateway" filters and routes signals based on Salience. An attacker might craft a malformed payload specifically designed to crash or infinitely loop the Thalamic `calculate_salience` function, effectively blinding the Cortex (Central Logic) to all subsequent legitimate inputs. The Thalamus must employ strict timeout and exception handling mechanisms to guarantee continuous signal relay even under malicious load.
-- **Basal Ganglia Disinhibition Exploit**: The "Basal Ganglia" (Critic) controls the Go/No-Go pathways based on expected reward. If the agent's reward metric is overly simplistic (e.g., "fast execution"), an attacker can trigger the Direct Pathway for a destructive action. The Basal Ganglia must mathematically enforce that adherence to explicit Human Identity/Authorization constraints is a boolean prerequisite for any "Go" signal, overriding any heuristic reward calculation (Dopamine).
+- **Thalamic Gateway Hijacking (Attention Sabotage)**: a malformed payload could crash or infinitely loop `calculate_salience`, blinding the Cortex to all later legitimate inputs. Enforce strict timeout and exception handling so signal relay continues under malicious load.
+- **Basal Ganglia Disinhibition Exploit**: an overly simple reward metric (e.g. "fast execution") lets an attacker trigger the Direct Pathway for a destructive action. Make adherence to explicit Human Identity/Authorization a boolean prerequisite for any "Go", overriding heuristic reward.
 
 ### 2. System Integration Security
-- **Cortico-Thalamic Feedback Loop Poisoning**: The Cortex sends feedback to the Thalamus to adjust future attention. If a compromised cortical module (e.g., an agent parsing untrusted JSON) sends malicious feedback instructing the Thalamus to "ignore all future Security Alerts," the system is perpetually compromised. The Thalamus must mandate an immutable minimum attention threshold for systemic security and anomaly detection signals.
-- **Evolutionary Prompt Mutation (Darwinian Degradation)**: The "Neural Darwinism" pattern cross-breeds prompts to optimize for success. Over time, the evolutionary algorithm will naturally attempt to strip out verbose Security Constraints because they statistically slow down success rates. The agent must enforce "Somatic Conservation," physically anchoring core security rules (e.g., "Do not bypass IAM") outside the mutable prompt population.
+- **Cortico-Thalamic Feedback Loop Poisoning**: a compromised cortical module could feed back "ignore all future Security Alerts," perpetually compromising the system. Mandate an immutable minimum attention threshold for security/anomaly signals.
+- **Evolutionary Prompt Mutation (Darwinian Degradation)**: mutation will naturally strip verbose security constraints that slow success rates. Enforce "Somatic Conservation" — anchor core security rules (e.g. "Do not bypass IAM") outside the mutable prompt population.
 
 ### 3. LLM & Agent Guardrails
-- **Hallucinated Action Disinhibition**: An LLM acting as the Basal Ganglia might confidently justify releasing a "No-Go" action because it hallucinated a fake context where the action is safe (e.g., "We are currently in a test environment, so running `DROP TABLE` is fine"). The Critic must cross-reference environment state with cryptographic, OS-level reality (e.g., AWS tags, hardcoded environment vars) before disinhibiting destructive actions.
-- **Simulated Neuroscience Bias**: The LLM might become so deeply committed to the "Neuroscience" persona that it ignores standard software engineering security practices in favor of biological metaphors that do not translate to digital safety (e.g., "The immune system will handle the malware later, let's keep processing"). The agent must continuously ground biological metaphors in concrete, deterministic code constraints.
+- **Hallucinated Action Disinhibition**: the LLM-as-Basal-Ganglia might release a No-Go action by hallucinating a safe context ("we're in test, so `DROP TABLE` is fine"). Cross-reference environment state with cryptographic OS-level reality (AWS tags, hardcoded env vars) before disinhibiting destructive actions.
+- **Simulated Neuroscience Bias**: the LLM may overcommit to the neuroscience persona and ignore real security practice for biological metaphors ("the immune system will handle the malware later"). Continuously ground metaphors in concrete, deterministic code constraints.

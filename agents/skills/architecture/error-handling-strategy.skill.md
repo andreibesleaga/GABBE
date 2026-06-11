@@ -2,7 +2,6 @@
 name: error-handling-strategy
 description: Centralized error handling (RFC 7807), circuit breakers, and user-facing fallbacks.
 triggers: [error handling strategy]
-when_to_use: "Use this when the task involves: error handling strategy."
 tags: [architecture]
 role: prod-architect, eng-backend
 context_cost: low

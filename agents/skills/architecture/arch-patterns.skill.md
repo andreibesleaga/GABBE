@@ -2,7 +2,6 @@
 name: arch-patterns
 description: Recommends and analyzes system architecture patterns (Microservices, EDA, Serverless, etc.) based on requirements.
 triggers: [architecture, system design, scalability, microservices, event-driven, serverless]
-when_to_use: "Use this when the task involves: architecture; system design; scalability; microservices; event-driven; serverless."
 tags: [architecture]
 context_cost: medium
 ---

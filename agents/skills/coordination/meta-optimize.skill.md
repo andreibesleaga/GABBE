@@ -1,8 +1,7 @@
 ---
 name: meta-optimize
-description: The "Self-Refining" Engine. Analyzes failure patterns in other skills (e.g., `ci-autofix` failing repeatedly) and rewrites their prompts/logic to improve future performance.
+description: Self-refining engine — analyze repeated failures in other skills and rewrite their prompts/logic to improve future runs.
 triggers: [optimize skill, refine prompt, improve agent, meta-learning, self-evolution, fix recurring error]
-when_to_use: "Use this when the task involves: optimize skill; refine prompt; improve agent; meta-learning; self-evolution; fix recurring error."
 tags: [coordination]
 context_cost: high
 ---

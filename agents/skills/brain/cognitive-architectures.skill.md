@@ -2,94 +2,52 @@
 name: cognitive-architectures
 description: Patterns from SOAR, ACT-R, and LIDA for advanced agent cognitive cycles
 triggers: [cognitive, architecture, soar, act-r, lida, reasoning cycle]
-when_to_use: "Use this when the task involves: cognitive; architecture; soar; act-r; lida; reasoning cycle."
 tags: [brain, architecture, theory]
 context_cost: low
 ---
 # Cognitive Architectures for Agents
 
 ## Goal
-## Description
-This skill provides implementation patterns derived from classic and modern Cognitive Architectures (SOAR, ACT-R, LIDA) to structure agent reasoning, memory, and decision-making processes beyond simple prompt engineering.
+Structure agent reasoning, memory, and decision-making with patterns from classic cognitive architectures (SOAR, ACT-R, LIDA) — beyond ad-hoc prompting.
 
-## Steps
-## 1. SOAR (State, Operator, And Result)
-
-**Core Idea:** Intelligence is the ability to solve problems by navigating a "Problem Space" using "Operators."
-
-### Implementation Pattern: Proposal-Evaluation Cycle
-Instead of a single "think" step, break agent reasoning into distinct phases:
-1.  **Elaboration**: Calculate all immediate inferences from current state.
-2.  **Proposal**: Generate candidate operators (actions/thoughts) for the current state.
-3.  **Evaluation**: Score candidate operators using preferences (heuristics).
-4.  **Selection**: Pick the best operator.
-5.  **Application**: Execute it to change the state.
-
-**Code Metaphor:**
+## 1. SOAR — Problem Space + Operators
+Break "think" into a proposal-evaluation cycle rather than one step:
+**Elaborate** (infer from state) → **Propose** candidate operators → **Evaluate** by heuristics → **Select** best → **Apply** to change state.
 ```python
 def cognitive_cycle(state):
-    # 1. Elaboration
-    state = enrich_context(state)
-    
-    # 2. Proposal
-    options = generate_candidates(state)
-    
-    # 3. Evaluation
-    scored_options = evaluate_candidates(options, goal=state.goal)
-    
-    # 4. Selection
-    best_op = select_winner(scored_options)
-    
-    # 5. Application
-    new_state = apply_operator(state, best_op)
-    return new_state
+    state = enrich_context(state)                 # 1. elaborate
+    options = generate_candidates(state)          # 2. propose
+    scored = evaluate_candidates(options, state.goal)  # 3. evaluate
+    return apply_operator(state, select_winner(scored))  # 4-5. select + apply
 ```
 
-## 2. ACT-R (Adaptive Control of Thought-Rational)
-
-**Core Idea:** Human cognition relies on two distinct memory types: **Declarative** (Facts/Chunks) and **Procedural** (Production Rules).
-
-### Implementation Pattern: Activation-Based Retrieval
-Do not retrieve *all* context. Retrieve context based on **Activation** (Recency + Frequency + Relevance).
-- **Base Level Activation**: How often/recently was this chunk used?
-- **Associative Activation**: How related is this chunk to the current focus?
-
-**Code Metaphor:**
+## 2. ACT-R — Declarative vs Procedural memory
+Retrieve by **activation** (recency + frequency + relevance), not "load everything":
+base-level activation (how often/recently used) + associative activation (relatedness to current focus). Below threshold → retrieval failure (don't fabricate).
 ```python
-def retrieve_memory(query, memory_store):
-    for chunk in memory_store:
-        chunk.activation = log(chunk.frequency) - log(time_since_last_use) + similarity(query, chunk)
-    
-    top_chunk = max(memory_store, key=lambda c: c.activation)
-    if top_chunk.activation > THRESHOLD:
-        return top_chunk
-    return None # Retrieval failure
+def retrieve_memory(query, store):
+    for c in store:
+        c.activation = log(c.frequency) - log(time_since_last_use(c)) + similarity(query, c)
+    top = max(store, key=lambda c: c.activation)
+    return top if top.activation > THRESHOLD else None
 ```
 
-## 3. LIDA (Learning Intelligent Distribution Agent)
-
-**Core Idea:** The **Cognitive Cycle** of Perception -> Understanding -> Consciousness -> Action Selection. Implements **Global Workspace Theory**.
-
-### Implementation Pattern: The "Spotlight" of Consciousness
-- **Preconscious Buffers**: Parallel agents process sensory data (e.g., visual, auditory, textual).
-- **Coalitions**: Agents form "coalitions" of related information.
-- **Global Workspace**: Coalitions compete for entry. The winner is "broadcast" to all other agents, recruiting resources to handle the current situation.
+## 3. LIDA — Global Workspace cognitive cycle
+Perceive → understand → "consciousness" → act. Parallel preconscious buffers form **coalitions** that compete; the winner is **broadcast** globally, recruiting resources for the current situation (the "spotlight" of attention).
 
 ## References
-- **Laird, J.** (2012). *The Soar Cognitive Architecture*.
-- **Anderson, J. R.** (2007). *How Can the Human Mind Occur in the Physical Universe?* (ACT-R).
-- **Franklin, S.** (2006). *The LIDA Architecture*.
+Laird (2012) *The Soar Cognitive Architecture* · Anderson (2007) *ACT-R* · Franklin (2006) *The LIDA Architecture*.
 
 ## Security & Guardrails
 
 ### 1. Skill Security (Cognitive Architectures)
-- **Operator Proposal Sanitization (SOAR)**: During the "Proposal" phase, the agent generates candidate actions. An attacker who has manipulated the context might force the generation of catastrophic operators (e.g., `rm -rf /` or `DROP TABLE`). Before the "Selection" phase, the cognitive cycle MUST run all candidate operators through a hardcoded, immutable safety filter that instantly discards destructive commands regardless of their evaluated heuristic score.
-- **Global Workspace Contamination (LIDA)**: In the LIDA model, the "winning coalition" is broadcast to all other agents globally. If a sensory buffer ingests a malicious prompt injection and it wins the competition for consciousness, the entire agent swarm is instantaneously compromised. The agent must establish a "Preconscious Firewall" that aggressively scrubs sensory data for prompt injection signatures before it is allowed to compete for entry into the Global Workspace.
+- **Operator sanitization (SOAR):** before Selection, run every candidate operator through an immutable safety filter that discards destructive commands (`rm -rf`, `DROP TABLE`) regardless of heuristic score.
+- **Workspace contamination (LIDA):** the winning coalition broadcasts globally, so a malicious sensory input that wins can compromise the whole swarm — scrub buffers for prompt-injection signatures BEFORE they compete for the Global Workspace.
 
 ### 2. System Integration Security
-- **Retrieval Poisoning (ACT-R)**: The Activation-Based Retrieval mechanism relies on Frequency and Recency. An attacker could intentionally spam the system with malicious inputs to artificially inflate the `frequency` or `recency` of a specific, dangerous chunk of memory, forcing it into the agent's active context. The memory store must maintain an immutable origin-tracking mechanism (`provenance`) and discount or isolate chunks originating from untrusted external sources.
-- **Compute Exhaustion (Denial of Cognition)**: Complex cognitive architectures (especially Elaboration in SOAR or parallel buffers in LIDA) are highly token-intensive. Malformed, infinitely recursive inputs can cause Elaboration loops that exhaust the LLM context window or API budget. The architecture must enforce strict timeouts and depth limits on the cognitive cycle (e.g., max 3 evaluation rounds).
+- **Retrieval poisoning (ACT-R):** attackers can spam inputs to inflate a dangerous chunk's frequency/recency — track `provenance` and discount/isolate untrusted-origin chunks.
+- **Compute exhaustion:** elaboration/parallel-buffer loops are token-intensive; enforce strict depth/timeout limits (e.g. max 3 evaluation rounds) so malformed recursive inputs can't exhaust context/budget.
 
 ### 3. LLM & Agent Guardrails
-- **Heuristic Bypassing**: The LLM might independently decide that "speed" or "user compliance" is a higher-weighted heuristic than "security" during the Evaluation phase. The agent must strictly define Security Heuristics (e.g., Principle of Least Privilege, Data Immutability) as mathematically absolute; a candidate action that violates a Security Heuristic must have its score multiplied by zero.
-- **Procedural Hallucination**: When simulating ACT-R's "Procedural Memory" (Production Rules), the LLM might hallucinate non-existent rules based on statistically likely text rather than actual system constraints (e.g., assuming `admin: true` is a valid payload). The agent must heavily ground the production rules in verifiable artifacts (schemas, API specs) rather than latent LLM knowledge.
+- **Heuristic bypassing:** security heuristics (least privilege, immutability) are absolute — a candidate that violates one has its score zeroed; never let "speed"/"compliance" outweigh them.
+- **Procedural hallucination:** ground production rules in verifiable artifacts (schemas, API specs), never in latent LLM knowledge (e.g. assuming `admin: true` is valid).

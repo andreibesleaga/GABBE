@@ -1,8 +1,7 @@
 ---
 name: req-review
-description: Systematic review of existing requirements documents for quality, completeness, consistency, and alignment. Applies IEEE 29148 / ISO 25010 quality criteria and EARS compliance. Produces a structured review report with gap list and recommendations.
+description: Review requirements docs for quality/completeness/consistency (IEEE 29148, ISO 25010, EARS); produce a gap list + fixes.
 triggers: [review requirements, audit requirements, check requirements, requirements quality, are requirements complete, requirements analysis, requirements gap, existing requirements]
-when_to_use: "Use this when the task involves: review requirements; audit requirements; check requirements; requirements quality; are requirements complete; requirements analysis; requirements gap; existing requirements."
 tags: [product]
 context_cost: medium
 ---

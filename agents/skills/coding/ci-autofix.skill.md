@@ -1,8 +1,7 @@
 ---
 name: ci-autofix
-description: Autonomous CI/CD Remediation. Parses failure logs from GitHub Actions/GitLab CI, identifies the root cause (Lint, Type Error, Test Failure), and attempts to generate and commit a fix.
+description: Autonomous CI/CD remediation — parse GitHub/GitLab failure logs, find the root cause (lint/type/test), generate and commit a fix.
 triggers: [ci failed, build broken, test failed, lint error, fix ci, auto-fix]
-when_to_use: "Use this when the task involves: ci failed; build broken; test failed; lint error; fix ci; auto-fix."
 tags: [coding]
 context_cost: high
 ---

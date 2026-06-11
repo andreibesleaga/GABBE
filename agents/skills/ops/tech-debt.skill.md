@@ -2,7 +2,6 @@
 name: tech-debt
 description: Identify, document, score, and prioritize technical debt into an actionable backlog
 triggers: [tech debt, code smell, TODO, FIXME, legacy, refactor backlog, quality decay, debt]
-when_to_use: "Use this when the task involves: tech debt; code smell; TODO; FIXME; legacy; refactor backlog; quality decay; debt."
 tags: [ops]
 context_cost: medium
 ---

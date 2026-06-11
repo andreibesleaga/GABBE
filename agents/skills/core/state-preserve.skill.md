@@ -1,9 +1,9 @@
 ---
 name: state-preserve
-description: Continuously persist working state and a resume pointer so a token limit, time cutoff, or crash never loses progress — the next session resumes losslessly
+description: Continuously persist working state + a resume pointer so a token/time/crash cutoff never loses progress — resume losslessly.
 triggers: [save state, preserve state, checkpoint, dont lose progress, running out of tokens, time limit, flush state, persist, before stopping, resume pointer]
-when_to_use: "Use this when the task involves: save state; preserve state; checkpoint; dont lose progress; running out of tokens; time limit; flush state; persist; before stopping; resume pointer."
 tags: [core]
+core: true
 context_cost: low
 ---
 # State-Preserve Skill

@@ -2,7 +2,6 @@
 name: healthcare-fhir
 description: Design RESTful clinical data exchanges using HL7 FHIR standards
 triggers: [fhir, hl7, healthcare api, clinical data, snomed, loinc]
-when_to_use: "Use this when the task involves: fhir; hl7; healthcare api; clinical data; snomed; loinc."
 tags: [healthcare, data, fhir, standards]
 context_cost: high
 ---

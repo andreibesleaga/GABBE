@@ -2,7 +2,6 @@
 name: adaptive-architecture
 description: Design systems that evolve and work offline (Local-First, WASM, CRDTs).
 triggers: [local-first, offline-first, crdt, automerge, yjs, wasm, webassembly, edge ai, resiliency]
-when_to_use: "Use this when the task involves: local-first; offline-first; crdt; automerge; yjs; wasm; webassembly; edge ai; resiliency."
 tags: [architecture]
 context_cost: medium
 ---

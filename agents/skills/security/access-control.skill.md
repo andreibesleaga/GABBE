@@ -2,7 +2,6 @@
 name: access-control
 description: Design RBAC/ABAC models, Principle of Least Privilege, Identity Management.
 triggers: [access control]
-when_to_use: "Use this when the task involves: access control."
 tags: [security]
 role: ops-security, eng-backend
 context_cost: low

@@ -2,8 +2,8 @@
 name: documentation
 description: Generate docstrings, JSDoc, API docs, and README updates that reflect current code
 triggers: [docs, docstring, JSDoc, README, API docs, document this, add documentation]
-when_to_use: "Use this when the task involves: docs; docstring; JSDoc; README; API docs; document this; add documentation."
 tags: [coding]
+core: true
 context_cost: medium
 ---
 # Documentation Skill

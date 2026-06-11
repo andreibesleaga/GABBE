@@ -2,8 +2,8 @@
 name: agentic-linter
 description: Enforce architecture layer boundaries defined in AGENTS.md — detect and fix import violations
 triggers: [architecture lint, boundary, import violation, layer check, ADD, circular dependency, dependency check]
-when_to_use: "Use this when the task involves: architecture lint; boundary; import violation; layer check; ADD; circular dependency; dependency check."
 tags: [coordination]
+core: true
 context_cost: medium
 ---
 # Agentic Linter Skill

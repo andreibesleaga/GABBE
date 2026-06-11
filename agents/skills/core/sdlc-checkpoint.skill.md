@@ -2,8 +2,8 @@
 name: sdlc-checkpoint
 description: Save SDLC milestone snapshot, verify phase gates, advance tracking, and tag git commit
 triggers: [checkpoint, milestone, end of phase, requirements approved, design done, ready to code, sprint done, phase complete]
-when_to_use: "Use this when the task involves: checkpoint; milestone; end of phase; requirements approved; design done; ready to code; sprint done; phase complete."
 tags: [core]
+core: true
 context_cost: low
 ---
 # SDLC Checkpoint Skill

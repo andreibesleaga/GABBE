@@ -2,7 +2,6 @@
 name: blockchain-dlt
 description: Architect and audit Distributed Ledger/Blockchain systems and Smart Contracts
 triggers: [design blockchain, write smart contract, dlt architecture, web3 integration, ethereum, solidity, ledger]
-when_to_use: "Use this when the task involves: design blockchain; write smart contract; dlt architecture; web3 integration; ethereum; solidity; ledger."
 tags: [blockchain, web3, security, dlt]
 context_cost: high
 ---

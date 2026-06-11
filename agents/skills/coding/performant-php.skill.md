@@ -1,8 +1,7 @@
 ---
 name: performant-php
-description: "Strategies for high-performance, modern PHP across the ecosystem (PHP 8.4/8.5, OPcache+JIT, FrankenPHP worker mode, Composer, Symfony & Laravel, PHPStan/Psalm, Pest/PHPUnit)."
+description: High-performance modern PHP — PHP 8.4/8.5, OPcache+JIT, FrankenPHP workers, Composer, Symfony/Laravel, PHPStan/Psalm, Pest.
 triggers: [php, php 8.4, php 8.5, composer, symfony, laravel, frankenphp, opcache, jit, phpstan, psalm, pest, phpunit, php performance]
-when_to_use: "Use this when the task involves: php; php 8.4; php 8.5; composer; symfony; laravel; frankenphp; opcache; jit; phpstan."
 tags: [coding, php, architecture]
 context_cost: medium
 ---

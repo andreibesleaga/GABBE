@@ -2,7 +2,6 @@
 name: testing-strategy
 description: Formulates a comprehensive testing strategy (Pyramid vs Trophy) and selects appropriate tools.
 triggers: [test plan, testing strategy, qa strategy, e2e testing, integration testing, contract testing]
-when_to_use: "Use this when the task involves: test plan; testing strategy; qa strategy; e2e testing; integration testing; contract testing."
 tags: [coding]
 context_cost: medium
 ---

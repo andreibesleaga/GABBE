@@ -2,7 +2,6 @@
 name: log-analysis
 description: Parsing structured logs, finding patterns in noise, and ELK/Splunk querying.
 triggers: [log analysis]
-when_to_use: "Use this when the task involves: log analysis."
 tags: [security]
 role: ops-monitor
 context_cost: low

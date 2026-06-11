@@ -2,7 +2,6 @@
 name: state-management
 description: Manage client-side state, side effects, and data flow.
 triggers: [state management]
-when_to_use: "Use this when the task involves: state management."
 tags: [architecture]
 role: eng-frontend
 context_cost: low

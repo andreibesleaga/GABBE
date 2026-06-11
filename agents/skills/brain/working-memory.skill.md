@@ -2,7 +2,6 @@
 name: working-memory
 description: Manage Short-Term 'Working Memory' using Cognitive Chunking and Attention.
 triggers: [working memory]
-when_to_use: "Use this when the task involves: working memory."
 tags: [brain]
 context_cost: low
 tools: [read_file, write_to_file]

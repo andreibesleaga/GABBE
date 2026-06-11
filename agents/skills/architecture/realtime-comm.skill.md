@@ -2,7 +2,6 @@
 name: realtime-comm
 description: WebSocket handling, Pub/Sub patterns, and persistent connections.
 triggers: [realtime comm]
-when_to_use: "Use this when the task involves: realtime comm."
 tags: [architecture]
 role: eng-backend
 context_cost: low

@@ -2,7 +2,6 @@
 name: network-security
 description: Firewall rules, VPC design, TLS config, and subnet isolation.
 triggers: [network security]
-when_to_use: "Use this when the task involves: network security."
 tags: [security]
 role: ops-security
 context_cost: low

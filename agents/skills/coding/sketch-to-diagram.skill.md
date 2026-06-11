@@ -2,7 +2,6 @@
 name: sketch-to-diagram
 description: Convert hand-drawn sketches and photos into formal digital diagrams using image recognition + diagram generation.
 triggers: [sketch, hand-drawn, whiteboard photo, napkin, wireframe scan, recognize diagram]
-when_to_use: "Use this when the task involves: sketch; hand-drawn; whiteboard photo; napkin; wireframe scan; recognize diagram."
 tags: [coding, architecture, visual, recognition, AI]
 context_cost: high
 ---

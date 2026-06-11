@@ -2,7 +2,6 @@
 name: api-standards
 description: Enforce REST/GraphQL API design and governance standards
 triggers: [design api, review api standards, enforce api governance]
-when_to_use: "Use this when the task involves: design api; review api standards; enforce api governance."
 tags: [architecture]
 context_cost: medium
 ---

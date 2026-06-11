@@ -2,7 +2,6 @@
 name: episodic-consolidation
 description: Consolidate short-term events into long-term 'Semantic' memory.
 triggers: [episodic consolidation]
-when_to_use: "Use this when the task involves: episodic consolidation."
 tags: [brain]
 context_cost: high
 tools: [write_to_file, grep_search]

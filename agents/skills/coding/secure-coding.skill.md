@@ -2,8 +2,8 @@
 name: secure-coding
 description: Implementing OWASP Proactive Controls (Input Validation, Output Encoding, AuthZ/AuthN).
 triggers: [secure coding]
-when_to_use: "Use this when the task involves: secure coding."
 tags: [coding]
+core: true
 role: ops-security, eng-backend
 context_cost: low
 ---

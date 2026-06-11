@@ -1,6 +1,6 @@
 ---
 name: visual-whiteboarding
-description: Teaches the agent how to interact with spatial canvases (Miro, Draw.io, Figma) via MCP servers to map out architectures, user flows, and wireframes.
+description: Use spatial-canvas MCP servers (Miro, Draw.io, Figma) to map architectures, user flows, and wireframes.
 version: 1.0
 author: GABBE-Kit
 context_cost: low

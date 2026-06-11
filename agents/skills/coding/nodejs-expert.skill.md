@@ -2,7 +2,6 @@
 name: nodejs-expert
 description: Deep expertise in Node.js internals, Fastify architecture, and advanced TypeScript
 triggers: [node internals, fastify, advanced typescript, v8, libuv, backend performance, event loop]
-when_to_use: "Use this when the task involves: node internals; fastify; advanced typescript; v8; libuv; backend performance; event loop."
 tags: [nodejs, fastify, typescript, backend]
 context_cost: low
 ---

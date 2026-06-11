@@ -2,7 +2,6 @@
 name: system-scalability
 description: Audit and architect scaling boundaries and bottlenecks
 triggers: [scale up, scale out, horizontal scalability, vertical scaling, load balancing, analyze scalability]
-when_to_use: "Use this when the task involves: scale up; scale out; horizontal scalability; vertical scaling; load balancing; analyze scalability."
 tags: [architecture, ops, scale, performance]
 context_cost: medium
 ---

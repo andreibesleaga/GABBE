@@ -2,7 +2,6 @@
 name: stakeholder-management
 description: Matrices for managing expectations and communication plans.
 triggers: [stakeholder management]
-when_to_use: "Use this when the task involves: stakeholder management."
 tags: [product]
 role: prod-pm
 context_cost: low

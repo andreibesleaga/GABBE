@@ -1,9 +1,9 @@
 ---
 name: clarify
-description: Generate high-quality clarifying questions (and questions the user should ask you) for any task or step, escalating when self-estimated uncertainty is high
+description: Generate high-quality clarifying questions for any task/step, escalating when self-estimated uncertainty is high.
 triggers: [clarify, clarifying questions, what should I ask, ambiguous, unclear, questions for you, are you sure, confirm requirements, what do you mean]
-when_to_use: "Use this when the task involves: clarify; clarifying questions; what should I ask; ambiguous; unclear; questions for you; are you sure; confirm requirements; what do you mean."
 tags: [core]
+core: true
 context_cost: low
 ---
 # Clarify Skill

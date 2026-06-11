@@ -2,7 +2,6 @@
 name: actor-agent-frameworks
 description: Implement and manage Actor and Agent Frameworks (e.g. LangGraph)
 triggers: [setup langgraph, implement actor framework, configure agent framework]
-when_to_use: "Use this when the task involves: setup langgraph; implement actor framework; configure agent framework."
 tags: [ai]
 context_cost: high
 ---

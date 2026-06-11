@@ -1,9 +1,9 @@
 ---
 name: persona-selector
-description: Dynamically rank and select the best Loki persona(s) per task, enable contractor-style persona-to-persona delegation and persona-to-skill use, consensus voting for high-stakes calls, and bounded self-refinement — all cost-gated
+description: Rank/select the best Loki persona(s) per task; persona delegation, consensus voting, bounded self-refinement — cost-gated.
 triggers: [persona selector, best persona, which agent, pick persona, delegate to persona, route task, assign persona, who should do this, persona voting]
-when_to_use: "Use this when the task involves: persona selector; best persona; which agent; pick persona; delegate to persona; route task; assign persona; who should do this; persona voting."
 tags: [coordination]
+core: true
 context_cost: medium
 ---
 # Persona-Selector Skill

@@ -2,7 +2,6 @@
 name: cost-optimization
 description: Cloud cost analysis and optimization (FinOps)
 triggers: [Reduce AWS bill, Analyze cloud costs, Find unused resources, Optimize instance types, finops]
-when_to_use: "Use this when the task involves: Reduce AWS bill; Analyze cloud costs; Find unused resources; Optimize instance types; finops."
 tags: [ops, cloud, finops, cost]
 context_cost: medium
 ---

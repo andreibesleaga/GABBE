@@ -2,7 +2,6 @@
 name: incident-response
 description: Manage production incidents, SEV levels, and post-mortems
 triggers: [Production is down, Handle this incident, Write a post-mortem, Manage SEV1]
-when_to_use: "Use this when the task involves: Production is down; Handle this incident; Write a post-mortem; Manage SEV1."
 tags: [ops]
 context_cost: high
 ---

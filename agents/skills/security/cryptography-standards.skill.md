@@ -2,7 +2,6 @@
 name: cryptography-standards
 description: Enforce correct cryptographic algorithms, hashing, and TLS standards
 triggers: [encrypt data, hash passwords, set tls policy]
-when_to_use: "Use this when the task involves: encrypt data; hash passwords; set tls policy."
 tags: [security]
 context_cost: low
 ---

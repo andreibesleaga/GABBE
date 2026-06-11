@@ -1,9 +1,9 @@
 ---
 name: safety-scan
-description: Active Security Enforcement. Scans code for vulnerabilities (SAST), secrets (Gitleaks), and insecure dependencies (SCA) before commit/deployment.
+description: Active security enforcement — scan for vulnerabilities (SAST), secrets (Gitleaks), insecure deps (SCA) before commit/deploy.
 triggers: [scan security, check vulnerabilities, audit code, gitleaks, semgrep, finding secrets]
-when_to_use: "Use this when the task involves: scan security; check vulnerabilities; audit code; gitleaks; semgrep; finding secrets."
 tags: [security]
+core: true
 context_cost: medium
 ---
 # Safety Scan Skill

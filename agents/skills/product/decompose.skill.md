@@ -1,9 +1,9 @@
 ---
 name: decompose
-description: Decompose technical specifications or plans into atomic, testable tasks. Enforces the "15-Minute Rule" and populates project/TASKS.md.
+description: Decompose specs/plans into atomic, testable tasks — enforces the 15-Minute Rule and populates project/TASKS.md.
 triggers: [decompose, break down tasks, create task list, task decomposition, 15 minute rule]
-when_to_use: "Use this when the task involves: decompose; break down tasks; create task list; task decomposition; 15 minute rule."
 tags: [product]
+core: true
 context_cost: medium
 ---
 # Task Decomposition Skill

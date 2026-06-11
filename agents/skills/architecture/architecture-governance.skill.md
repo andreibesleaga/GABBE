@@ -2,7 +2,6 @@
 name: architecture-governance
 description: Automated fitness functions (ArchUnit) to prevent architectural drift.
 triggers: [architecture governance]
-when_to_use: "Use this when the task involves: architecture governance."
 tags: [architecture]
 role: prod-architect
 context_cost: low

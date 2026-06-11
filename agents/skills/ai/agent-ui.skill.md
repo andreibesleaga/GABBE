@@ -2,7 +2,6 @@
 name: agent-ui
 description: Build specialized user interfaces for interacting with Agents
 triggers: [build agent ui, create tracing dashboard, implement agent front-end]
-when_to_use: "Use this when the task involves: build agent ui; create tracing dashboard; implement agent front-end."
 tags: [ai]
 context_cost: low
 ---

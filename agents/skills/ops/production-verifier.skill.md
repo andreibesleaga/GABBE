@@ -2,7 +2,6 @@
 name: production-verifier
 description: Post-deployment smoke tests, synthetic user checks, and "Canary" validation in Prod.
 triggers: [production verifier]
-when_to_use: "Use this when the task involves: production verifier."
 tags: [ops]
 role: ops-sre
 context_cost: low

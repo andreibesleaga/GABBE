@@ -2,8 +2,8 @@
 name: security-audit
 description: OWASP Top 10 security audit, SAST/DAST/SCA scanning, secrets detection, and dependency vulnerability check
 triggers: [security, vulnerability, OWASP, secrets, CVE, security audit, security scan, penetration]
-when_to_use: "Use this when the task involves: security; vulnerability; OWASP; secrets; CVE; security audit; security scan; penetration."
 tags: [security]
+core: true
 context_cost: high
 ---
 # Security Audit Skill

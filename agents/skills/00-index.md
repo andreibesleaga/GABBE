@@ -48,6 +48,13 @@ ln -sf /path/to/agents/skills/*/*.skill.md ~/.agent/skills/
 > **Total Skills**: 180
 > *Registry auto-updated by init.py logic*
 
+> **This index is the canonical skill catalog.** Native skill menus (e.g. Claude
+> Code) cap how many skills they show by token budget, so they may not list all
+> 180 — always consult THIS file to discover any skill, then invoke it by trigger
+> or by reading its file. For a clean native menu, emit only the curated core set
+> with `compile_skills.py --native-subset core` (37 skills flagged `core: true`);
+> the full catalog stays here.
+
 ## Skills Registry
 
 ### 1. Coding & Development (`coding/`)

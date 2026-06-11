@@ -1,9 +1,9 @@
 ---
 name: preflight
-description: Mandated first action of every session/task — auto-checks, load skill/guide/template/persona + memory + cost summary, recommend the optimal set, then clarify
+description: Mandated first action — auto-check, load index summaries + memory + cost, recommend the optimal set, then clarify.
 triggers: [preflight, session start, before anything, start, begin, kickoff, what should I use, load context, orient, first step]
-when_to_use: "Use this when the task involves: preflight; session start; before anything; start; begin; kickoff; what should I use; load context; orient; first step."
 tags: [core]
+core: true
 context_cost: medium
 ---
 # Preflight Skill

@@ -2,7 +2,6 @@
 name: compatibility-design
 description: Manage breaking changes, migrations, and API evolution.
 triggers: [compatibility, migration, versioning, breaking change, deprecation, legacy support, expand contract]
-when_to_use: "Use this when the task involves: compatibility; migration; versioning; breaking change; deprecation; legacy support; expand contract."
 tags: [architecture]
 context_cost: medium
 ---

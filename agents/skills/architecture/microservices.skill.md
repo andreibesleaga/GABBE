@@ -2,7 +2,6 @@
 name: microservices
 description: Design and implement microservices architecture
 triggers: [design microservices, split monolith, architect distributed system]
-when_to_use: "Use this when the task involves: design microservices; split monolith; architect distributed system."
 tags: [architecture]
 context_cost: high
 ---

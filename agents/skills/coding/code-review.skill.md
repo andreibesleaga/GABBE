@@ -2,8 +2,8 @@
 name: code-review
 description: Systematic code review covering security, performance, architecture, and style
 triggers: [review, PR, audit, code quality, pull request, check this code]
-when_to_use: "Use this when the task involves: review; PR; audit; code quality; pull request; check this code."
 tags: [coding]
+core: true
 context_cost: medium
 ---
 # Code Review Skill

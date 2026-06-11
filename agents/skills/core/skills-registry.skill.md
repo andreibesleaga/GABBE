@@ -1,9 +1,9 @@
 ---
 name: skills-registry
-description: Discover, import (draw), and publish skills to/from universal SKILL.md registries (Agent Garden / google-skills, skills.sh, Agensi, agent-skills-hub) — validated, security-scanned, cost + permission gated
+description: Discover, import, and publish skills to/from universal SKILL.md registries (Agent Garden, skills.sh, …) — validated + gated.
 triggers: [skills registry, import skill, publish skill, agent garden, skills marketplace, draw skill, share skills, external skill, skills.sh]
-when_to_use: "Use this when the task involves: skills registry; import skill; publish skill; agent garden; skills marketplace; draw skill; share skills; external skill; skills.sh."
 tags: [core]
+core: true
 context_cost: medium
 ---
 # Skills-Registry Skill

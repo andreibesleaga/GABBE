@@ -235,3 +235,14 @@ def test_present_policy_file_without_tools_section_is_fail_closed(tmp_path):
     pf.write_text("tools:\n  denied: [run_security_scan]\n")
     engine = PolicyEngine.from_yaml(path=pf)
     assert engine.evaluate({"tool": "call_llm"}).allowed is True
+
+
+def test_empty_or_null_tools_section_is_fail_closed_not_crash(tmp_path):
+    """An explicit but empty/null `tools:` (parses to None) or a non-mapping value must
+    fail-closed (deny-all), not raise AttributeError on `None.get()` (robustness +
+    predictable security default)."""
+    pf = tmp_path / "policies.yml"
+    for body in ("tools:\n", "tools: null\n", "tools: []\n", "tools: 5\n"):
+        pf.write_text(body)
+        engine = PolicyEngine.from_yaml(path=pf)  # must not raise
+        assert engine.evaluate({"tool": "anything"}).allowed is False, body

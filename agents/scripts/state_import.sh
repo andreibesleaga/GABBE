@@ -23,7 +23,9 @@ KIT_ROOT=${2:-$(CDPATH= cd -- "$SCRIPT_DIR/../.." && pwd)}
 
 # mktemp must succeed — a predictable fixed fallback (/tmp/gabbe-import-stage) is a
 # symlink/pre-seed target an attacker could exploit, then rm -rf would follow it.
-STAGE=$(mktemp -d) || { echo "ERROR: mktemp failed; refusing to use a predictable temp dir." >&2; exit 1; }
+# Use an explicit template: bare `mktemp -d` is non-portable under BSD/macOS sh,
+# which requires a template (the XXXXXX keeps the dir name unpredictable).
+STAGE=$(mktemp -d "${TMPDIR:-/tmp}/gabbe-import.XXXXXX") || { echo "ERROR: mktemp failed; refusing to use a predictable temp dir." >&2; exit 1; }
 
 # Fail the link/path checks if any stage of the pipeline errors (e.g. corrupt archive).
 set -o pipefail 2>/dev/null || true

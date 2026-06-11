@@ -88,15 +88,21 @@ def test_no_dangling_concrete_path_refs():
     """Every concrete skills/guides/templates path mentioned in any agents/ markdown
     resolves on disk. Catches in-text dangling refs that validate_links (markdown
     links only) misses — the class behind the wrong-directory/old-path drift."""
+    # Match both kit-root-relative (`skills/x.skill.md`) and repo-relative
+    # (`agents/skills/x.skill.md`) forms explicitly. The optional `agents/` prefix is
+    # stripped before resolving against AG, so a ref never mis-resolves to
+    # `agents/agents/...` and `agents/`-prefixed refs are checked rather than slipping
+    # through on the bare-suffix coincidence.
     pat = re.compile(
-        r"\b((?:skills|guides|templates)/[A-Za-z0-9][A-Za-z0-9/_.\-]*\.(?:skill\.md|md|json|yaml))\b"
+        r"\b((?:agents/)?(?:skills|guides|templates)/[A-Za-z0-9][A-Za-z0-9/_.\-]*\.(?:skill\.md|md|json|yaml))\b"
     )
     bad = set()
     for f in AG.rglob("*.md"):
         for m in pat.findall(f.read_text(encoding="utf-8")):
             if "*" in m or "PLACEHOLDER" in m or "<" in m:
                 continue
-            if not (AG / m).exists():
+            rel = m[len("agents/") :] if m.startswith("agents/") else m
+            if not (AG / rel).exists():
                 bad.add(f"{m}  <- {f.relative_to(ROOT)}")
     assert not bad, f"Dangling concrete path references: {sorted(bad)}"
 

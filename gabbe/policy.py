@@ -127,10 +127,13 @@ class PolicyEngine:
                 version = data.get("version", "1")
 
                 # Fail-closed: a present policy file with NO `tools` section denies all
-                # (matching the no-file default). Only an explicit `tools` section may
-                # opt into blocklist mode (allowed defaults to ["*"] when present).
-                if "tools" in data:
-                    tools = data["tools"]
+                # (matching the no-file default). Only an explicit `tools` *mapping* may
+                # opt into blocklist mode (allowed defaults to ["*"] when present). An
+                # empty/null `tools:` (parses to None) or a non-mapping value is a
+                # misconfig — fail-closed (deny-all) rather than crash on `None.get()`.
+                tools_section = data.get("tools")
+                if isinstance(tools_section, dict):
+                    tools = tools_section
                     allowed_default = ["*"]
                 else:
                     tools = {}

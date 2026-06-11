@@ -96,7 +96,12 @@ def _redact(obj):
         return {k: _redact(v) for k, v in obj.items()}
     if isinstance(obj, (list, tuple)):
         return [_redact(v) for v in obj]
-    return obj
+    if isinstance(obj, (int, float, bool)) or obj is None:
+        return obj  # JSON primitives carry no free text to redact
+    # Any other type is not guaranteed JSON-serializable. Stringify THEN redact here,
+    # so a later json.dumps(..., default=str) can't smuggle PII/secrets through an
+    # object's __str__ output without passing through _redact_text().
+    return _redact_text(str(obj))
 
 
 def should_capture_content() -> bool:

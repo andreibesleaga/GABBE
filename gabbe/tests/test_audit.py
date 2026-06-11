@@ -145,3 +145,19 @@ def test_audit_jsonl_redacts_secrets(tmp_project, tmp_path):
     assert "Bearer abc123" not in blob
     assert "[REDACTED]" in blob
     assert rec["count"] == 7  # non-string values preserved
+
+
+def test_redact_stringifies_and_redacts_non_serializable_objects():
+    """A non-JSON-serializable object's __str__ must be redacted by _redact itself,
+    so a later json.dumps(default=str) can't smuggle PII/secrets past redaction."""
+    from gabbe.audit import _redact
+
+    class Leaky:
+        def __str__(self):
+            return "email leak@evil.com token sk-or-v1-deadbeefdeadbeef12"
+
+    out = _redact({"obj": Leaky(), "n": 3, "ok": None})
+    assert isinstance(out["obj"], str) and "[REDACTED]" in out["obj"]
+    assert "leak@evil.com" not in out["obj"] and "sk-or-v1-" not in out["obj"]
+    assert out["n"] == 3 and out["ok"] is None  # JSON primitives untouched
+    json.dumps(out)  # fully JSON-able after redaction

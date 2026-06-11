@@ -69,7 +69,7 @@ def test_referenced_guide_and_template_paths_resolve():
     bad = []
     for rel in ("AGENTS.md", "skills/brain/loki-mode.skill.md"):
         t = (AG / rel).read_text(encoding="utf-8")
-        for m in re.findall(r"\b((?:templates|guides)/[a-z0-9/_-]+\.(?:md|json))\b", t):
+        for m in re.findall(r"\b((?:templates|guides)/[A-Za-z0-9/_-]+\.(?:md|json))\b", t):
             if not (AG / m).exists():
                 bad.append(f"{rel} -> agents/{m} (missing)")
     assert not bad, f"Dangling guide/template references: {bad}"

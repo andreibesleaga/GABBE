@@ -185,6 +185,9 @@ orch-judge Tasks:
     Gate 8: E2E          → e2e-test-suite (Playwright/Cypress) → all critical flows PASS
     Gate 9: EARS         → All acceptance criteria have passing tests
 
+  (Numbering note: Gates 1–6 + EARS are orch-judge's canonical 7-gate set — EARS is
+   orch-judge's Gate 7, shown here as Gate 9; Loki adds Architecture + E2E as the two
+   extra checks. Same checks, Loki-local numbering. orch-judge.md remains the 7-gate authority.)
   If any gate fails: assign remediation task to eng-* persona → loop
 
 Gate:    All 9 gates PASS
@@ -219,7 +222,7 @@ Checkpoint: sdlc-checkpoint.skill S07
 ### PHASE S08 — Human Review
 
 ```
-Personas: prod-tech-lead (review prep), orch-judge (EARS compliance)
+Personas: prod-tech-lead (review prep), orch-judge (EARS compliance), prod-ethicist (safety)
 
 Prep:
   - prod-tech-lead generates review summary:

@@ -237,7 +237,7 @@ Current position: Phase S0X, Task T-NNN
 ### Steps
 ## 1. Skill Security (Loki Mode)
 - **Swarm Blast Radius**: Because `loki-mode` orchestrates multiple autonomous personas concurrently, a compromised sub-agent can execute tasks rapidly without individual human oversight. Loki must enforce mathematically rigid boundaries for each persona: a `prod-pm` persona must physical lack the kernel-level permissions to execute code, and an `eng-qa` persona must lack permissions to deploy or merge to the `main` branch.
-- **Gate Override Protection**: The 10-Phase SDLC contains mandatory "HUMAN APPROVAL REQUIRED" gates (S01, S02, S08). Loki is strictly prohibited from autonomously advancing `PROJECT_STATE.md` to the next phase without cryptographically verifying a Human-In-The-Loop interaction. The LLM must not be allowed to "hallucinate" human approval based on implicit context.
+- **Gate Override Protection**: The 10-Phase SDLC contains mandatory "HUMAN APPROVAL REQUIRED" gates (S01, S02, S07, S08). Loki is strictly prohibited from autonomously advancing `PROJECT_STATE.md` to the next phase without cryptographically verifying a Human-In-The-Loop interaction. The LLM must not be allowed to "hallucinate" human approval based on implicit context.
 
 ### 2. System Integration Security
 - **Check-Point Integrity**: Loki utilizes `sdlc-checkpoint.skill` to save state. If an attacker manipulates the filesystem to alter `SESSION_SNAPSHOT` or `CONTINUITY.md` between phases, Loki will reboot into a compromised state. The orchestrator must generate hashes of critical checkpoints and verify them upon resumption to prevent rollback or state-tampering attacks.

@@ -20,6 +20,14 @@ would otherwise exceed a single agent's context limits.
 ## Cost & Budget Optimization Mandate
 **CRITICAL**: Loki Mode natively orchestrates swarms which can become extremely expensive. All sub-personas must assume a frugal posture, choosing efficient context retrieval over "load everything" approaches. If a specific atomic task requires heavy compute, remote SOTA reasoning, or large API cost spikes, the orchestrator **must present the cost-tradeoff and ask the human user for explicit approval** before delegating that task.
 
+## Dynamic Persona Selection & Delegation
+The per-phase persona assignments below are the **safe default**, not a straitjacket. Use `coordination/persona-selector.skill` to adapt:
+- **Select the best persona(s)** per task by relevance + scope + past success, and **tier by cost** — route to the cheapest persona + model tier that clears the task's complexity bar (keep persona, drop model tier, for simple work; reserve SOTA for hard/critical tasks). Biggest cost lever in swarm work.
+- **Persona→persona delegation is a contract** (task spec, constraints, eval metric = the existing quality gates, output schema, budget) with a negotiation phase that may early-reject ambiguous work. Personas may invoke skills directly as needed.
+- **Consensus voting (k-threshold)** is available for high-stakes/ambiguous decisions (security/compliance/architecture) — cost-gated; default to deterministic single-persona execution otherwise.
+- **Bounded self-refinement:** personas may improve from *successful* outcomes only (misaligned-replay guard), reversibly and audited; core mandate + security scope stay immutable. (DB-backed `persona_genes` evolution is v2.)
+- **Validate every target** against the approved persona registry — never delegate to a hallucinated persona.
+
 ---
 
 ## Pre-Start Check

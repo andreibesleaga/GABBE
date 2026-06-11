@@ -15,15 +15,15 @@
 - The system features a **Multi-Agent Swarm "Loki" Engineering Team** (30+ specialized agent roles for large projects), providing episodic and semantic memory, project history auditing and checkpoints.
 
 It contains:
-- **140+ Skills** (specialized capabilities)
-- **70+ Templates** (standardized documents)
-- **40+ Guides** (language & domain expertise)
-- **30+ Personas** (specialized roles)
+- **180+ Skills** (specialized capabilities)
+- **85+ Templates** (standardized documents)
+- **72 Guides** (language & domain expertise)
+- **34 Personas** (specialized roles)
 - **40+ MCP servers** (configuration and guides for AI tools)
 - **Brain Mode** (meta-cognitive orchestration)
 - **Loki Mode** (multi-agent swarm engineering personas team for large projects)
 
-> **140+ Skills · 70+ Templates · 40+ Guides · 30+ Personas · 40+ MCPs · Loki / Brain Mode CLI**
+> **180+ Skills · 85+ Templates · 72 Guides · 34 Personas · 50+ MCPs · Loki / Brain Mode CLI**
 
 ---
 
@@ -71,13 +71,15 @@ This kit gives AI coding agents the **context, skills, memory, and workflows** t
 
 The kit enforces **Spec-Driven Development (SDD)**, **Test-Driven Development (TDD)**, **Architecture-Driven Development (ADD)**, and structured **human-in-the-loop checkpoints** — so agents build correct, secure, maintainable software the first time.
 
-**Universal Skill Compiler:** The `scripts/init.py` script automatically configures skills for your specific tool:
-- **VS Code / Copilot**: Generates slash commands (e.g. `/code-review`).
-- **Cursor**: Generates optimized `.mdc` rules.
-- **Claude Code**: Enables native skill discovery.
-- **Antigravity / Gemini**: Wires up `.gemini/settings.json`.
+**Universal Skill Compiler:** `npx gabbe init` (Python-independent), `curl -fsSL …/install.sh | sh`, or `scripts/init.py` automatically configures skills for your specific tool:
+- **VS Code / Copilot**: `.github/skills/<slug>/SKILL.md` (slash commands e.g. `/code-review`).
+- **Cursor**: optimized `.cursor/rules/*.mdc`.
+- **Claude Code**: `.claude/skills/<slug>/SKILL.md` (native skill discovery).
+- **Gemini**: `.gemini/settings.json` + `GEMINI.md`.
+- **Antigravity / OpenCode**: the universal `.agents/skills/<slug>/SKILL.md` tree (+ `opencode.json`).
+- **Zed / Continue / Roo Code / Kilo Code**: root `AGENTS.md` + each tool's rules file.
 
-**Compatible with:** Claude Code, Cursor, GitHub Copilot, Antigravity, Gemini CLI, OpenAI Codex, any tool reading markdown context files.
+**Compatible with:** Claude Code, Cursor, Windsurf, Cline, Aider, Devin, Gemini, Antigravity, OpenCode, Zed, Continue, Roo Code, Kilo Code, OpenAI/Codex, GitHub Copilot, VS Code — and any tool reading the `AGENTS.md` / agentskills.io standards.
 
 **Repositories using this kit should see reduction in agent runtime and token usage** through explicit context, cached decisions, and SDLC memory.
 
@@ -188,6 +190,9 @@ gabbe --help
 | `gabbe audit <run-id> [--format json\|table]` | **Audit Trace**: Display structured span-level audit trace for a past run. |
 | `gabbe replay <run-id> [--from-step N]` | **Deterministic Replay**: Replay a past run from its checkpoints. |
 | `gabbe resume <run-id>` | **Escalation Resume**: Approve or reject pending escalations for a paused run. |
+| `gabbe registry publish [--out DIR]` | **Publish Skills**: Export skills as a publish-ready agentskills.io bundle (manifest + agent-card) for universal registries. |
+| `gabbe registry add <source>` | **Import Skills**: Draw an external skill/bundle (validated + security-scanned + namespaced). |
+| `gabbe setup` | **Install Wizard**: Wire the kit into your coding agents (also `npx gabbe init`). |
 
 ### Platform Control Layer
 The experimental `gabbe` CLI supports a **platform control layer**. It covers budget enforcement, cost and token controls, hard stops, policy rules, the tool gateway, audit tracing, human escalation, and deterministic replay. Detailed documentation is available in [`PLATFORM_CONTROLS.md`](PLATFORM_CONTROLS.md).
@@ -864,7 +869,7 @@ Resources for binding Requirements to Code and Tests (The Golden Thread).
 
 ## 19. Skills Reference
 
-All 120+ skills live in `skills/` subdirectories. Invoke by mentioning the trigger keyword or using slash commands in VS Code.
+All 180+ skills live in `skills/` subdirectories. Invoke by mentioning the trigger keyword or using slash commands in VS Code.
 
 ### 1. Coding & Development (`coding/`)
 | Skill | Slash Command (VS Code) | Triggers | Purpose |
@@ -1250,7 +1255,7 @@ Loki Mode activates a multi-agent swarm for large projects (new product builds, 
 
 ## 24. What's Inside?
 
-> **Stats**: 120+ Skills · 60+ Templates · 30+ Personas · 30+ Guides
+> **Stats**: 180+ Skills · 85+ Templates · 34 Personas · 72 Guides
 
 | Category | Count | Skills Included |
 |---|---|---|

@@ -1,11 +1,11 @@
 usage: main.py [-h] [--version] [--debug]
-               {init,db,sync,verify,status,route,brain,serve-mcp,forecast,runs,audit,replay,resume}
+               {init,db,sync,verify,status,route,brain,serve-mcp,forecast,runs,audit,replay,resume,registry,setup}
                ...
 
 [1mGABBE CLI (experimental) - Agentic Engineering Platform[0m
 
 positional arguments:
-  {init,db,sync,verify,status,route,brain,serve-mcp,forecast,runs,audit,replay,resume}
+  {init,db,sync,verify,status,route,brain,serve-mcp,forecast,runs,audit,replay,resume,registry,setup}
                         Available commands
     init                Initialize GABBE in the current directory
     db                  Database management
@@ -20,6 +20,8 @@ positional arguments:
     audit               Display structured trace for a run
     replay              Replay a past run from checkpoints
     resume              Resume a paused/escalated run
+    registry            Publish/import skills to/from universal registries
+    setup               Run the interactive install wizard (wire agents + skills)
 
 options:
   -h, --help            show this help message and exit

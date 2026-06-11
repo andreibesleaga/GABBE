@@ -59,6 +59,8 @@ check_help brain_activate brain activate; check_help brain_evolve brain evolve
 check_help brain_heal brain heal; check_help serve-mcp serve-mcp
 check_help forecast forecast; check_help runs runs; check_help audit audit
 check_help replay replay; check_help resume resume
+check_help registry registry; check_help registry_publish registry publish
+check_help registry_add registry add; check_help setup setup
 [ "$G2" -eq 0 ] && note "  PASS"
 
 note "== Gate 3: Config schema superset-only =="

@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import json
 import logging
+import os
 import re
 import sqlite3
 import time
@@ -15,6 +16,56 @@ from .database import get_db
 
 # Set up local text logger
 logger = logging.getLogger("gabbe.audit")
+
+# ---------------------------------------------------------------------------
+# OpenTelemetry GenAI semantic conventions (book idea 9).
+#
+# These are the canonical OTel `gen_ai.*` attribute names. Exposing them as
+# module-level constants (and a flat dict) keeps observability standards-aligned
+# and lets budget/llm callers attach standard attributes without hard-coding
+# magic strings. See:
+#   https://opentelemetry.io/docs/specs/semconv/gen-ai/
+# ---------------------------------------------------------------------------
+
+# Identity / request / response attributes.
+GEN_AI_SYSTEM = "gen_ai.system"
+GEN_AI_OPERATION_NAME = "gen_ai.operation.name"
+GEN_AI_REQUEST_MODEL = "gen_ai.request.model"
+GEN_AI_RESPONSE_MODEL = "gen_ai.response.model"
+
+# Token usage attributes.
+GEN_AI_USAGE_INPUT_TOKENS = "gen_ai.usage.input_tokens"
+GEN_AI_USAGE_OUTPUT_TOKENS = "gen_ai.usage.output_tokens"
+GEN_AI_USAGE_TOTAL_TOKENS = "gen_ai.usage.total_tokens"
+# Reasoning tokens (o1/o3-class "thinking" tokens) are a subset of the output
+# tokens; reported separately for cost attribution.
+GEN_AI_USAGE_REASONING_TOKENS = "gen_ai.usage.reasoning_tokens"
+# Cached input tokens — a subset of input tokens served from a prompt cache
+# (OpenAI prompt_tokens_details.cached_tokens / Anthropic cache_read_input_tokens).
+GEN_AI_USAGE_CACHED_INPUT_TOKENS = "gen_ai.usage.cached_input_tokens"
+
+# Optional content attributes (only set when content capture is enabled).
+GEN_AI_PROMPT = "gen_ai.prompt"
+GEN_AI_COMPLETION = "gen_ai.completion"
+
+# Flat registry of every GenAI attribute name we emit, keyed by a short logical
+# name. Reusable by callers that want to iterate or validate attribute keys.
+GEN_AI_ATTRIBUTES: dict[str, str] = {
+    "system": GEN_AI_SYSTEM,
+    "operation": GEN_AI_OPERATION_NAME,
+    "request_model": GEN_AI_REQUEST_MODEL,
+    "response_model": GEN_AI_RESPONSE_MODEL,
+    "input_tokens": GEN_AI_USAGE_INPUT_TOKENS,
+    "output_tokens": GEN_AI_USAGE_OUTPUT_TOKENS,
+    "total_tokens": GEN_AI_USAGE_TOTAL_TOKENS,
+    "reasoning_tokens": GEN_AI_USAGE_REASONING_TOKENS,
+    "cached_input_tokens": GEN_AI_USAGE_CACHED_INPUT_TOKENS,
+    "prompt": GEN_AI_PROMPT,
+    "completion": GEN_AI_COMPLETION,
+}
+
+# Default GenAI system identifier for spans we emit. Callers may override.
+GEN_AI_DEFAULT_SYSTEM = "gabbe"
 
 # Extra secret patterns beyond config.PII_PATTERNS (which covers email/phone/
 # SSN/credit-card/credential-assignments) — common bearer/API-key token shapes.
@@ -46,6 +97,71 @@ def _redact(obj):
     if isinstance(obj, (list, tuple)):
         return [_redact(v) for v in obj]
     return obj
+
+
+def should_capture_content() -> bool:
+    """Whether prompt/response *content* may be captured on GenAI spans.
+
+    Privacy-first: defaults to OFF. Prompts and completions can contain PII or
+    secrets, so per the OTel GenAI conventions content capture is opt-in. Enable
+    by setting ``GABBE_OTEL_CAPTURE_CONTENT`` to a truthy value (1/true/yes).
+
+    Read from ``os.environ`` directly (not a new config global) so this addition
+    stays self-contained inside audit.py and backward-compatible.
+    """
+    return os.environ.get("GABBE_OTEL_CAPTURE_CONTENT", "false").lower() in (
+        "1",
+        "true",
+        "yes",
+    )
+
+
+def genai_usage_attributes(
+    model: str | None,
+    usage_dict: dict | None,
+    system: str | None = None,
+    operation: str | None = None,
+    response_model: str | None = None,
+) -> dict:
+    """Map a usage dict into OTel GenAI semantic-convention attributes.
+
+    ``usage_dict`` follows the same shape ``budget.record_llm_usage`` consumes:
+        - total_tokens / prompt_tokens / completion_tokens
+        - completion_tokens_details.reasoning_tokens
+        - prompt_tokens_details.cached_tokens OR cache_read_input_tokens
+
+    Returns a flat dict keyed by the canonical ``gen_ai.*`` attribute names,
+    suitable for ``span.set_attribute`` calls. Pure and easily unit-tested; no
+    content is ever included here (only identity + token counts).
+    """
+    usage_dict = usage_dict or {}
+
+    prompt_tokens = usage_dict.get("prompt_tokens", 0)
+    completion_tokens = usage_dict.get("completion_tokens", 0)
+    total_tokens = usage_dict.get("total_tokens", 0)
+    # Reasoning tokens are reported inside completion_tokens for o1/o3-class models.
+    reasoning_tokens = usage_dict.get("completion_tokens_details", {}).get("reasoning_tokens", 0)
+    # Cached input tokens: OpenAI -> prompt_tokens_details.cached_tokens;
+    # Anthropic-style -> cache_read_input_tokens. Support both (mirrors budget.py).
+    cached_input_tokens = usage_dict.get("prompt_tokens_details", {}).get(
+        "cached_tokens", 0
+    ) or usage_dict.get("cache_read_input_tokens", 0)
+
+    attrs: dict = {
+        GEN_AI_SYSTEM: system or GEN_AI_DEFAULT_SYSTEM,
+        GEN_AI_USAGE_INPUT_TOKENS: prompt_tokens,
+        GEN_AI_USAGE_OUTPUT_TOKENS: completion_tokens,
+        GEN_AI_USAGE_TOTAL_TOKENS: total_tokens,
+        GEN_AI_USAGE_REASONING_TOKENS: reasoning_tokens,
+        GEN_AI_USAGE_CACHED_INPUT_TOKENS: cached_input_tokens,
+    }
+    if model is not None:
+        attrs[GEN_AI_REQUEST_MODEL] = model
+    if response_model is not None:
+        attrs[GEN_AI_RESPONSE_MODEL] = response_model
+    if operation is not None:
+        attrs[GEN_AI_OPERATION_NAME] = operation
+    return attrs
 
 
 if GABBE_OTEL_ENABLED:
@@ -234,6 +350,66 @@ class AuditTracer:
             self.db_conn.commit()
         except sqlite3.Error as e:
             logger.error(f"Failed to snapshot budget: {e}")
+
+    def record_genai_usage(
+        self,
+        run_id: str,
+        model: str | None,
+        usage_dict: dict | None,
+        system: str | None = None,
+        operation: str | None = None,
+        response_model: str | None = None,
+        span: object | None = None,
+        prompt: str | None = None,
+        completion: str | None = None,
+    ) -> dict:
+        """Attach OTel GenAI semantic-convention attributes for an LLM call.
+
+        Additive companion to ``end_span`` — does NOT alter existing span
+        recording. Computes the canonical ``gen_ai.*`` attributes via
+        ``genai_usage_attributes`` and, when an OTel span object is available
+        (the ``span`` arg, or the ``_otel_span`` of a span context returned by
+        ``start_span``), sets them on that span. Prompt/response *content* is
+        only attached when ``should_capture_content()`` is True (privacy-first,
+        off by default).
+
+        Returns the flat attribute dict so callers (budget/llm) can also use it
+        even when no live OTel backend is configured. ``run_id`` is accepted for
+        symmetry with other tracer methods and span correlation.
+        """
+        attrs = genai_usage_attributes(
+            model,
+            usage_dict,
+            system=system,
+            operation=operation,
+            response_model=response_model,
+        )
+
+        # Resolve a live OTel span: accept either a raw OTel span or a span
+        # context dict (as produced by start_span) carrying "_otel_span".
+        otel_span = None
+        if isinstance(span, dict):
+            otel_span = span.get("_otel_span")
+        elif span is not None:
+            otel_span = span
+
+        capture = should_capture_content()
+        if capture:
+            if prompt is not None:
+                attrs[GEN_AI_PROMPT] = _redact_text(prompt)
+            if completion is not None:
+                attrs[GEN_AI_COMPLETION] = _redact_text(completion)
+
+        if otel_span is not None:
+            try:
+                otel_span.set_attribute("gabbe.run_id", run_id)
+                for key, value in attrs.items():
+                    if value is not None:
+                        otel_span.set_attribute(key, value)
+            except Exception as e:  # pragma: no cover - defensive, backend-specific
+                logger.warning(f"Failed to set GenAI attributes on OTel span: {e}")
+
+        return attrs
 
     def get_run_trace(self, run_id: str) -> list:
         """Return all audit spans for a run as a list of dicts, ordered by timestamp."""

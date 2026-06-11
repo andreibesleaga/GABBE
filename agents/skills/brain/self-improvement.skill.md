@@ -59,6 +59,13 @@ def optimize_prompt(task_history):
         update_skill_file(new_instruction)
 ```
 
+## Cost & Permission Gating
+Self-improvement (prompt/gene evolution) only runs inside `GABBE_AUTONOMY` + budget bounds:
+- **A2 paradigm only:** evolve from **successful** trajectories. Apply the misaligned-replay guard — never integrate a mutation derived from a failed/known-bad run, or one that ingested external text, without sanitizing first (see Security below).
+- **Cost-gated:** do not spend budget evolving when a cheaper static choice already meets the bar. Evolution that needs expensive search/SOTA models requires human approval (Article X).
+- **Canary + rollback:** prefer shadow/canary adoption of an evolved gene with easy revert; version it so a regression is reproducible (`brain/learning-adaptation.skill`).
+- **Auditable:** log every adopted/rejected mutation to `AUDIT_LOG.md`; humans must be able to see and revert what evolved (`update-scan.skill`).
+
 ## Security & Guardrails
 
 ### 1. Skill Security (Self-Improvement)

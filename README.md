@@ -7,25 +7,27 @@
 
 ## What is this?
 
-- Universal kit for Software and AI coding agents: Claude Code, Cursor, GitHub Copilot, Antigravity/Gemini, Codex.
+- Universal kit for Software and AI coding agents: Claude Code, Cursor, Windsurf, Cline, Aider, Devin, Gemini, **Antigravity**, **OpenCode**, **Zed**, **Continue**, **Roo Code**, **Kilo Code**, OpenAI/Codex, GitHub Copilot, VS Code.
 - Drop-in context kit that turns any AI coding agent into a governed engineering team for developing software.
 - Based on Software Engineering & Architecture Practices and Procedures.
 - Works for any project type, new or existing, any language, any team size.
-- **Write Once, Run Everywhere**: SKILLS for Cursor (`.mdc`), VS Code (`folder/skill`), Claude (`.skill.md`), Gemini.
+- **Write Once, Run Everywhere**: SKILLS for Cursor (`.mdc`), VS Code / Copilot (`folder/SKILL.md`), Claude (`.claude/skills`), Gemini, and the universal `.agents/skills/` tree read by Antigravity, OpenCode, and any agentskills.io tool.
+- **Trivially installable**: `npx gabbe init` (Python-independent) or `curl -fsSL …/install.sh | sh`, plus the Python wizard / PyPI. Move work between agents anytime (portable state export/import).
+- **First-class** Observability (decision/cost traces, OTel GenAI conventions), Spec-Driven development (spec → evals → test → code), and a manager-not-operator human↔agent collaboration model.
 - The system features an experimental **Meta-Cognitive Orchestrator "Brain"** (Neurocognitive based architecture derived from Neuroscience, Cognitive Psychology, Epistemology, treating the Software System not as a machine, but as a **Cognitive Entity**), using Active Inference to plan, route, and optimize work.
 - The system features a **Multi-Agent Swarm "Loki" Engineering Team** (30+ specialized agent roles for large projects), providing episodic and semantic memory, project history auditing and checkpoints.
 - Experimental support for budget enforcement, tokens, hard stops, policy rules, cli tool gateway (via MCP server), audit tracing and logs, human escalation, and deterministic replay, with built-in rules for agents to select the best specialized skills/guides, proactively recommend necessary MCP servers, and default to continuous cost & budget optimization—always requiring human approval for expensive operations.
 
 It contains:
-- **140+ Skills** (specialized capabilities)
-- **70+ Templates** (standardized documents)
-- **40+ Guides** (language & domain expertise)
-- **30+ Personas** (specialized roles)
+- **180+ Skills** (specialized capabilities)
+- **85+ Templates** (standardized documents)
+- **72 Guides** (language & domain expertise)
+- **34 Personas** (specialized roles)
 - **50+ MCP servers** (configuration and guides for AI tools)
 - **Brain Mode** (meta-cognitive orchestration)
 - **Loki Mode** (multi-agent swarm engineering personas team for large projects)
 
-> **140+ Skills · 70+ Templates · 40+ Guides · 30+ Personas · 50+ MCPs · Loki / Brain Mode CLI**
+> **180+ Skills · 85+ Templates · 72 Guides · 34 Personas · 50+ MCPs · Loki / Brain Mode CLI**
 
 ---
 
@@ -42,27 +44,42 @@ It contains:
 ---
 
 ### ⚡ Automated Setup (Recommended)
-The `init.py` script is a **Universal Skill Compiler**. It generates the correct formats for your AI tools:
-- **Cursor**: Generates `.cursor/rules/*.mdc` (agent-requested rules, intelligently selected by description)
-- **VS Code / Copilot**: Generates `.github/skills/` with `config.json`
-- **Claude Code**: Symlinks `.claude/skills` for instant updates
-- **Gemini**: Wires up `.gemini/settings.json`
 
-1. Run the Wizard
+**Universal, Python-independent (one command):**
 ```bash
-python3 scripts/init.py
+npx gabbe init                       # Node installer — bundles the kit, wires every agent
+npx gabbe init --agents claude,cursor,antigravity,opencode --yes   # non-interactive
+# or, without npm:
+curl -fsSL https://raw.githubusercontent.com/andreibesleaga/GABBE/main/install.sh | sh
 ```
 
-2. **Verify Context**
+**Python wizard (full interactive, also via PyPI):**
+```bash
+python3 scripts/init.py     # from a checkout
+gabbe setup                 # if the optional gabbe CLI is installed (pipx/uvx/pip)
+```
+
+The installer is a **Universal Skill Compiler** — it generates the correct format for each AI tool:
+- **Cursor**: `.cursor/rules/*.mdc` (agent-requested rules, intelligently selected by description)
+- **VS Code / Copilot**: `.github/skills/<slug>/SKILL.md`
+- **Claude Code**: `.claude/skills/<slug>/SKILL.md`
+- **Gemini**: `.gemini/settings.json` + `GEMINI.md`
+- **Antigravity / OpenCode** (and any agentskills.io tool): the universal `.agents/skills/<slug>/SKILL.md` tree (+ `opencode.json` for OpenCode)
+- **Zed / Continue / Roo Code / Kilo Code**: root `AGENTS.md` (agents.md standard) + each tool's rules file
+- Every install also writes a root `AGENTS.md` (the agents.md open standard).
+
+Steps after running the wizard:
+
+1. **Verify Context**
    - Open `agents/AGENTS.md` and check the `Tech Stack` section and other [PLACEHOLDER] or Optional sections.
    - Open `agents/CONSTITUTION.md` and review project laws.
 
-3. **Feed the Mission**
+2. **Feed the Mission**
    - The script generates `BOOTSTRAP_MISSION.md` (or `SETUP_MISSION.md` if dynamic setup is disabled) in your root.
    - **Copy its content** and paste it into your AI Agent's chat window.
    - This aligns the agent with your project context immediately.
 
-4. **Git Tracking**
+3. **Git Tracking**
    - If you want to keep the initial structure of `agents/memory/` and `project/` in your repository but prevent Git from tracking the continuous autonomous modifications your agents will make to them locally, run:
      ```bash
      git ls-files agents/memory/ project/ | xargs git update-index --skip-worktree
@@ -281,9 +298,9 @@ graph TB
     end
 
     subgraph Tools ["Capability Layer"]
-        S[120+ Skills]
-        T[60+ Templates]
-        G[30+ Guides]
+        S[180+ Skills]
+        T[85+ Templates]
+        G[72 Guides]
     end
 
     subgraph Memory ["Memory System"]
@@ -408,7 +425,7 @@ flowchart TD
 agents/
 ├── AGENTS.md                 # Universal config (edit per project)
 ├── CONSTITUTION.md           # Immutable project law
-├── skills/                   # 120+ .skill.md files
+├── skills/                   # 180+ .skill.md files
 │   ├── 00-index.md           # Full skills registry
 │   ├── coding/               # tdd, review, debug, refactor, git...
 │   ├── architecture/         # arch-design, patterns, api-design...
@@ -638,7 +655,7 @@ Task → Knowledge gap? → research.skill → Execute → Verify
 
 ## 🛡️ Security & Guardrails
 
-All 120+ skills in the GABBE kit feature a heavily enforced **"Security & Guardrails"** section that binds agents to the project's CONSTITUTION.md. The 3-layer security constraints include:
+All 180+ skills in the GABBE kit feature a heavily enforced **"Security & Guardrails"** section that binds agents to the project's CONSTITUTION.md. The 3-layer security constraints include:
 
 1.  **Skill Security**: Tool-specific protection (e.g., preventing command injection or sandbox escapes).
 2.  **System Integration Security**: Safe external integration (e.g., verifying boundary enforcement or ensuring test coverage).
@@ -707,6 +724,9 @@ gabbe --help
 | `gabbe audit <run-id>` | **Audit Trace**: Display structured span-level trace for a past run (`--format json\|table`). |
 | `gabbe replay <run-id>` | **Deterministic Replay**: Replay a past run from its checkpoints (`--from-step N`). |
 | `gabbe resume <run-id>` | **Escalation Resume**: Approve or reject pending escalations for a paused run. |
+| `gabbe registry publish` | **Publish Skills**: Export the kit's skills as a publish-ready agentskills.io bundle (manifest + agent-card) for universal registries. |
+| `gabbe registry add <source>` | **Import Skills**: Draw an external skill/bundle (path, `.tar.gz`, or URL) — validated + security-scanned + landed namespaced for review. |
+| `gabbe setup` | **Install Wizard**: Run the interactive installer to wire the kit into your coding agents (see also `npx gabbe init`). |
 
 ### Platform Control Layer
 The experimental `gabbe` CLI supports a **platform control layer**. It covers budget enforcement, cost and token controls, hard stops, policy rules, the tool gateway, audit tracing, human escalation, and deterministic replay. Detailed documentation is available in [`PLATFORM_CONTROLS.md`](docs/PLATFORM_CONTROLS.md).

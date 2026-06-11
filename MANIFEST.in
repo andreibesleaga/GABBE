@@ -1,0 +1,35 @@
+# MANIFEST.in -- ship the Markdown agentic kit in the sdist (and, via
+# include-package-data, in installs) so pip / pipx / uvx users get the full kit,
+# not just the importable `gabbe` package.
+#
+# The wheel's [tool.setuptools.packages.find] only picks up `gabbe*`; this file
+# additively bundles the kit content that lives outside that package.
+
+# The Markdown kit (skills, guides, templates, personas, memory, scripts).
+recursive-include agents *
+
+# Documentation tree shipped with the kit.
+recursive-include docs *
+
+# The Python-independent installers and the wizard.
+include scripts/init.py
+include install.sh
+include install.ps1
+include bin/install.js
+include package.json
+
+# Licensing and top-level docs.
+include LICENSE
+include LICENSE-CODE
+include README.md
+include CHANGELOG.md
+
+# Prune caches / build artifacts that should never reach the sdist.
+global-exclude __pycache__
+global-exclude *.py[cod]
+prune .venv
+prune build
+prune dist
+prune **/.mypy_cache
+prune **/.pytest_cache
+prune **/.ruff_cache

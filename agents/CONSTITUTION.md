@@ -28,6 +28,7 @@
 - Minimum test coverage: **99% line coverage** for all non-trivial code
 - Integration points (database, external APIs, message queues) must have integration tests
 - Violations: No PR merges without this — ever
+- **Spec-Driven (first-class):** work flows **spec → test → code**. Non-trivial features start from an **EARS** spec (`WHEN [event] THE SYSTEM SHALL [response]`); maintain a **golden thread** of traceability (requirement → spec → test → code → audit). No requirement without a test; resolve ambiguity in the spec, not the code.
 
 <!-- OPTIONAL: EARS Example -> WHEN [event] THE SYSTEM SHALL [response] -->
 
@@ -101,9 +102,11 @@
 
 - **Bias Audits:** All logic affecting human users must pass a bias review (`ai-ethics-compliance`) before release.
 - **Transparency:** AI-generated content must be clearly labeled as such to the end-user.
+- **Observability (first-class):** Every run, decision, model call, and tool call must be observable — a decision/span trace with token usage and **cost attribution** per step, tagged with the OpenTelemetry GenAI semantic conventions. No black-box actions. Prompt/response content is redacted by default (privacy); the Markdown audit trail (`AUDIT_LOG.md`) is authoritative even without the CLI.
 - **Sustainability:** Architecture choices must minimize carbon footprint. Scale to zero when idle.
 - **Safety Measures:** Input guardrails (`ai-safety-guardrails`) are mandatory for all LLM integration points.
 - **Human-in-the-Loop:** High-stakes decisions (financial, legal, health) require human confirmation.
+- **Human–Agent Collaboration (Manager, not Operator):** The human is a **manager, not an operator** — delegate the objective, observe progress, intervene on exceptions. The system must keep the human able to answer three questions at all times: **Purpose** (bounded goal + non-goals — via spec/scope), **Transparency** (legible reasoning/tools/cost — via observability), **Control** (affordances to pause/correct/approve — via HITL gates). No autonomy is trustworthy without all three. See `guides/principles/human-agent-collaboration.md`.
 
 ---
 
@@ -153,6 +156,9 @@
 - **Default to Frugality**: Agents must continuously optimize for cost and token budget across all planning and execution phases. Choose the lowest-cost model, tool, or path that reliably meets the technical requirements of the task.
 - **Human Approval for High Cost**: If a subtask strictly requires a more expensive SOTA (State of the Art) model, extensive search, elevated token contexts, or otherwise significantly increased costs, agents *must explicitly ask the human user for approval* before proceeding.
 - **Explain Trade-offs**: When requesting a budget increase or expensive resource allocation, briefly explain why the cheaper approach will fail or carry unacceptable risk.
+- **Configurable Autonomy (`GABBE_AUTONOMY`)**: Operate under the configured posture — `ask` | `auto` | `hybrid` (default **hybrid**: auto-select the best option within budget; pause and ask for expensive / SOTA / irreversible choices). Regardless of posture, expensive, SOTA, irreversible, or externally-sourced-code actions **always** require human approval.
+- **Bounded Self-Evolution**: The system may keep itself current and improve (new/better skills, tools, MCPs, models) only within cost + permission bounds, learning from **successful** outcomes only (never amplifying failed trajectories), with validation, audit logging, and easy rollback. Never auto-edit protected files (build/IaC/CI/dependency manifests, CONSTITUTION) outside the explicit self-heal allowlist.
+- **State Preservation & Portability**: Progress must never be lost to a token limit, time cutoff, or crash. Agents must persist working state continuously (resume pointer + memory) so any future session — in this or **any other** coding agent/LLM — can resume losslessly via a fully compatible state export/import.
 
 ---
 
@@ -178,5 +184,5 @@
 *Amended by: [team member name]*
 *Reason for amendment: [brief explanation]*
 
-*GABBE Kit version: 0.8.0*
+*GABBE Kit version: 0.9.6*
 *This file is maintained by the team and updated when project conventions change.*

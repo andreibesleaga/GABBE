@@ -41,6 +41,13 @@ Ask the **Meta-Architect Persona**:
 *   **Limit**: Max 1 optimization per skill per day (prevent "drift").
 *   **Human Review**: Flag the optimization for human review in `project/TASKS.md`.
 
+## Cost & Permission Gating
+Self-optimization runs inside `GABBE_AUTONOMY` + budget bounds:
+- **Cost ceiling:** the 1-optimization-per-skill-per-day limit is also a spend cap; do not run expensive optimization passes when a cheaper static tuning suffices (Article X). Expensive/SOTA optimization requires human approval.
+- **Evolve from success only:** apply the misaligned-replay guard — base optimizations on successful outcomes, never on failed/known-bad runs.
+- **Reversible:** the mandatory backup + human-review flag are the rollback path; never optimize without them. Never modify protected/immutable files (CONSTITUTION, safety guardrails — see below).
+- **Auditable:** log each optimization to `meta-evolution.log` and `AUDIT_LOG.md` (`update-scan.skill`).
+
 ## Security & Guardrails (Extended)
 
 ### 1. Skill Security (Meta-Optimize)

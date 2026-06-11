@@ -33,6 +33,8 @@ PLATFORMS = {
     "copilot": ["GitHub Copilot"],
     "gemini": ["Gemini / Antigravity"],
     "codex": ["OpenAI / Codex"],
+    "antigravity": ["Antigravity"],
+    "opencode": ["OpenCode"],
 }
 
 

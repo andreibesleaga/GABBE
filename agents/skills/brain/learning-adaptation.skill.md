@@ -43,6 +43,13 @@ Biological brains consolidate short-term memories into long-term structures duri
 2.  **Extract:** Extract key facts and successful code patterns.
 3.  **Consolidate:** Update the Knowledge Graph and clear the raw logs.
 
+## Cost & Permission Gating
+Adaptation is bounded by `GABBE_AUTONOMY` + budget:
+- **Potentiate from success, not frequency:** strengthen patterns that demonstrably succeeded; never reinforce a pattern just because it recurred (misaligned-replay guard) — especially for security-sensitive flows, which need explicit validation.
+- **Reversible by design:** every adaptation is a canary with an auto-revert path; version it so a regression rolls back cleanly. This is the rollback substrate `update-scan.skill` / `self-improvement.skill` rely on.
+- **Cost-aware consolidation:** the "nightly build" consolidation must itself respect budget — summarize cheaply; don't run an expensive model over raw logs when a cheaper pass suffices.
+- **Auditable:** record adaptations + reverts in `AUDIT_LOG.md`.
+
 ## References
 - **Sutton, R. S., & Barto, A. G.** (2018). *Reinforcement Learning: An Introduction*.
 - **Hebb, D. O.** (1949). *The Organization of Behavior*.

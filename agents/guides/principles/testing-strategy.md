@@ -48,6 +48,16 @@ Verify the whole system as a user sees it.
 -   **Cost**: High (Slow, Flaky).
 -   **Strategy**: Smoke tests only. Test "Critical User Journeys" (Login, Checkout).
 
+### Level 5: Evaluation-Driven (for agentic / LLM work)
+When the system *is* an agent (or uses one), correctness is probabilistic, so the
+acceptance bar must be defined **before** the agent is built and must **co-evolve**
+with it.
+-   **Evals before implementation**: write the success criteria / eval set at the spec stage (S01–S02), not after — they are the executable form of the spec (golden thread).
+-   **Component-level evals**: evaluate each persona/gate/sub-step on its own, not only end-to-end. One sub-agent's slightly-wrong output becomes the next one's hopelessly-wrong input, so end-to-end checks alone hide where it broke.
+-   **Regression evals**: keep a growing fixture set of past failures; re-run on every change (ties to `CONTINUITY.md` and `self-heal`).
+-   **Judge/verifier pass**: for high-stakes output, an independent verifier/judge persona scores against the rubric before human sign-off (see `coordination/persona-selector.skill` voting + `core/final-review.skill`).
+-   **Metric shift**: measure decision quality, cost-efficiency, and reliability — not lines of code.
+
 ## 3. Visual Regression Testing
 For frontend, "code correctness" doesn't mean "visual correctness".
 -   **Tools**: Percy, Chromatic, Playwright visual comparisons.

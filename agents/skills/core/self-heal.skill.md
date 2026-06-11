@@ -140,6 +140,14 @@ Once human provides direction:
 ## Output Format
 Either: "SELF-HEALED — fixed on attempt [N]. All tests passing." OR "ESCALATION REQUIRED — [report]"
 
+## Cost & Permission Gating
+Self-healing is bounded by `GABBE_AUTONOMY` + budget (AGENTS.md §8, Article X):
+- **Cost-aware retries:** each attempt costs tokens. Try the cheapest diagnosis→fix path first; do not escalate to expensive reasoning or SOTA models for a simple lint/type fix. If a fix genuinely needs an expensive approach, **ask first** (hybrid *and* auto pause for expensive/SOTA/irreversible).
+- **Protected files:** never edit build/IaC/CI/dependency manifests during a heal loop unless the failure is specifically dependency/build-related and within the §8 allowlist — otherwise escalate.
+- **Bounded loop = cost ceiling:** the 5-attempt cap also caps spend; on exhaustion STOP and escalate rather than burning budget.
+- **Persist around each attempt:** refresh `RESUME_POINTER.md` and append to `AUDIT_LOG.md` (`state-preserve.skill`) so a cutoff mid-heal is recoverable.
+- **Misaligned-replay guard:** learn only from the *successful* fix; never feed a failed attempt back as a pattern to repeat (`update-scan.skill`).
+
 ## Security & Guardrails
 
 ### 1. Skill Security (Self-Heal)

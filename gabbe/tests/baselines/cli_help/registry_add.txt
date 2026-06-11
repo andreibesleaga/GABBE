@@ -1,0 +1,10 @@
+usage: main.py registry add [-h] [--namespace NAMESPACE] [--apply] source
+
+positional arguments:
+  source                Local path, .tar.gz, or http(s) URL
+
+options:
+  -h, --help            show this help message and exit
+  --namespace NAMESPACE
+                        Land under agents/skills/<namespace>/
+  --apply               Write imports (default: dry run)

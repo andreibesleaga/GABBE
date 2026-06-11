@@ -1,6 +1,5 @@
 agents/memory/
 project/
-CHANGELOG.md
 
 __pycache__
 *.pyc

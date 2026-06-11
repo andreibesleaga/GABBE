@@ -6,7 +6,7 @@
 
 ---
 
-> **Total Templates**: 75+
+> **Total Templates**: 85
 > *Registry categorized by domain.*
 
 ## Templates Registry

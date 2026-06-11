@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "gabbe"
-version = "0.9.0"
+version = "0.9.6"
 description = "Generative Architectural Brain Base Engine - Agentic Engineering Kit"
 readme = "README.md"
 requires-python = ">=3.9"
@@ -51,6 +51,14 @@ gabbe = "gabbe.main:main"
 
 [tool.setuptools.packages.find]
 include = ["gabbe*"]
+
+# Ship the Markdown agentic kit alongside the importable `gabbe` package so
+# pip / pipx / uvx users get the full kit. The kit content (agents/, docs/,
+# scripts/init.py) lives outside `gabbe*` and is bundled via MANIFEST.in into
+# the sdist; include-package-data carries those sdist files into installs.
+# Additive: does NOT alter the existing packages.find selection above.
+[tool.setuptools]
+include-package-data = true
 
 [tool.pytest.ini_options]
 testpaths = ["gabbe/tests", "scripts/tests"]

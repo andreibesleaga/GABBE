@@ -6,7 +6,7 @@
 
 ---
 
-> **Total Guides**: 70
+> **Total Guides**: 72
 > *Registry categorized by domain.*
 
 ## Guides Registry
@@ -17,6 +17,7 @@
 | A2UI Protocols | `ai/a2ui-protocols.md` | Agent-to-User Interface protocols |
 | Actor Frameworks | `ai/actor-agent-frameworks.md` | Multi-agent framework comparison |
 | Agent Comm. | `ai/agent-communication.md` | Protocols for agent communication |
+| Agent Ergonomics | `ai/agent-operating-ergonomics.md` | How a coding agent works optimally with GABBE + failure modes |
 | Agent UI | `ai/agent-ui.md` | Designing UIs for autonomous agents |
 | AI Agentic | `ai/ai-agentic.md` | Core principles of agentic engineering |
 | Beyond LLMs | `ai/beyond-llms.md` | Advanced AI paradigms beyond text gen |
@@ -106,6 +107,7 @@
 | Guide | File | Purpose |
 |---|---|---|
 | Clean Code | `principles/clean-code-standards.md` | SOLID, DRY, KISS standards |
+| Human–Agent Collab | `principles/human-agent-collaboration.md` | Manager-not-operator stance; purpose/transparency/control |
 | Diagramming | `principles/diagramming-standards.md` | C4, UML, and Mermaid guidelines |
 | Future Tech | `principles/future-tech.md` | Integrating cutting-edge frameworks |
 | Legacy Tech | `principles/legacy-tech.md` | Handling deprecated codebases |

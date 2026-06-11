@@ -74,13 +74,21 @@ def _fetch(source: str, stage: Path) -> Path:
 
 
 def _safe_extract(tf: tarfile.TarFile, dest: Path):
-    """Extract a tarball, refusing any member that escapes dest (path traversal)."""
+    """Extract a tarball, refusing any member that escapes dest or is a link.
+
+    Defends against path traversal (absolute paths / ``..``) AND symlink/hardlink
+    members, which can otherwise redirect a write outside the staging dir during
+    extraction. The containment test uses real path-ancestry (a plain string
+    prefix would wrongly accept ``/tmp/xx`` as inside ``/tmp/x``).
+    """
     dest = dest.resolve()
     for member in tf.getmembers():
+        if member.issym() or member.islnk():
+            raise SystemExit(f"refusing link member (symlink/hardlink): {member.name}")
         target = (dest / member.name).resolve()
-        if not str(target).startswith(str(dest)):
+        if target != dest and dest not in target.parents:
             raise SystemExit(f"refusing path-traversal member: {member.name}")
-    tf.extractall(dest)  # noqa: S202 - members validated above
+    tf.extractall(dest)  # noqa: S202 - members validated above (no links, contained paths)
 
 
 def _scan(text: str):

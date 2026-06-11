@@ -26,7 +26,10 @@ def test_code_fences_are_balanced():
     """No unclosed/doubled code fences (the bug class fixed in AGENTS.md/QUICK_GUIDE)."""
     bad = []
     for f in _md_files(AG, ROOT / "docs") + [ROOT / "README.md"]:
-        n = sum(1 for ln in f.read_text(encoding="utf-8").splitlines() if ln.startswith("```"))
+        # lstrip() so indented fences (inside list items) are counted too, not just col-0.
+        n = sum(
+            1 for ln in f.read_text(encoding="utf-8").splitlines() if ln.lstrip().startswith("```")
+        )
         if n % 2 != 0:
             bad.append(f"{f.relative_to(ROOT)} (odd fence count {n})")
     assert not bad, f"Unbalanced markdown code fences: {bad}"

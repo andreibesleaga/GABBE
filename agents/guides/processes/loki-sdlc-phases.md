@@ -66,7 +66,8 @@ Tasks:   - Fill templates/product/SPEC_TEMPLATE.md
          - Define testing strategy
 Output:  SPEC.md, docs/api/openapi.yaml, docs/db/schema-changes.md
 
-Gate:    HUMAN APPROVAL REQUIRED (lighter — may be async review)
+Gate:    HUMAN APPROVAL — lighter / may be async (the tech spec IS human-approved, but it
+         is not a hard *blocking* stop like the S01, S02, S07, S08 gates)
 
 Checkpoint: sdlc-checkpoint.skill S03
 ```

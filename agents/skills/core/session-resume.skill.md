@@ -84,22 +84,25 @@ Allow ANY agent at ANY time to load the complete project state and continue as i
 
 10. **Continue from next pending task**
     - Pick up from the first TODO or IN_PROGRESS task in project/TASKS.md
-    - Apply RARV cycle (loki/RARV_CYCLE.md)
+    - Apply RARV cycle (guides/processes/RARV_CYCLE.md)
 
 ## Memory Loading Order (critical — load in this sequence)
 
 ```
-1. PROJECT_STATE.md    → SDLC phase, last checkpoint
-2. CONTINUITY.md       → past failures (MOST IMPORTANT — read before anything)
-3. AUDIT_LOG.md        → last 50 entries (recent decisions)
-4. SESSION_SNAPSHOT/   → latest milestone snapshot
-5. semantic/           → crystallized project knowledge
-6. project/TASKS.md            → current task status
-7. integrity-check     → verify state is consistent
+1. RESUME_POINTER.md   → the single "where am I" lifeline: current task + NEXT ACTION (read FIRST)
+2. PROJECT_STATE.md    → SDLC phase, last checkpoint
+3. CONTINUITY.md       → past failures (MOST IMPORTANT — read before anything)
+4. AUDIT_LOG.md        → last 50 entries (recent decisions)
+5. SESSION_SNAPSHOT/   → latest milestone snapshot
+6. semantic/           → crystallized project knowledge
+7. project/TASKS.md            → current task status
+8. integrity-check     → verify state is consistent
 ```
+`RESUME_POINTER.md` is written first on every save by `state-preserve.skill`, so it
+is the minimal lifeline and is read first here. Continue from its `NEXT ACTION`.
 
 ## Constraints
-- NEVER start new work without first completing all 7 loading steps
+- NEVER start new work without first completing all loading steps above (incl. RESUME_POINTER)
 - NEVER skip the integrity check — it catches silent state corruption
 - If CONTINUITY.md mentions a failed approach: do NOT repeat it
 - If human decisions are pending in AUDIT_LOG: surface them before starting new work

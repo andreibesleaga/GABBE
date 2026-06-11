@@ -30,14 +30,27 @@ The per-phase persona assignments below are the **safe default**, not a straitja
 
 ---
 
+## Operating-Spine Integration (run the spine, don't bypass it)
+Loki orchestrates, but it MUST use the same operating spine as every other agent
+(AGENTS.md Step 0 + §13) — do not rely only on the older Pre-Start/Memory/Interruption
+sections below:
+- **First action:** run `core/preflight.skill` (auto-checks + load index summaries +
+  memory headers + cost posture + recommend the optimal set), then `core/update-scan.skill`
+  (gated discovery), then `core/clarify.skill`. Only then do the Pre-Start Check.
+- **State preservation:** maintain `agents/memory/RESUME_POINTER.md` via `core/state-preserve.skill`
+  continuously — refresh it at every checkpoint and before any interruption (see Interruption Handling).
+- **Before sign-off:** run `core/final-review.skill` as part of S08 (and after S06) — an
+  independent expert pass (correctness/security/observability/spec/cost) before any human gate.
+
 ## Pre-Start Check
 
-Before doing anything else:
+Before doing anything else (after preflight above):
 
 ```
-1. Check: does agents/memory/PROJECT_STATE.md exist AND phase != S00_INITIALIZED?
+1. Check: does agents/memory/PROJECT_STATE.md exist AND phase is a real S01–S10 phase
+   (i.e. NOT one of: absent, NOT_STARTED, S00_INITIALIZED)?
    - YES → This is a RESUMED project → invoke session-resume.skill first
-           Load all memory, then continue from the current phase
+           Load all memory (RESUME_POINTER first), then continue from the current phase
    - NO  → This is a NEW project → proceed with INIT below
 ```
 
@@ -72,7 +85,7 @@ Before doing anything else:
 Persona: prod-pm
 Task:    Write PRD.md using EARS syntax
          Ask user clarifying questions (ambiguity layer)
-         Fill templates/PRD_TEMPLATE.md
+         Fill templates/product/PRD_TEMPLATE.md
          Run ai-ethics-compliance.skill (Mandatory Bias Check)
          IF CRITICAL (Health/Aviation):
            - Engage prod-safety-engineer
@@ -117,7 +130,7 @@ Checkpoint: sdlc-checkpoint.skill S02
 
 ```
 Persona: prod-tech-lead (with prod-architect review)
-Tasks:   - Fill templates/SPEC_TEMPLATE.md
+Tasks:   - Fill templates/product/SPEC_TEMPLATE.md
          - Define all API contracts (OpenAPI YAML)
          - Define Event Topology (AsyncAPI) & Schemas (event-governance.skill)
          - Define database schema changes
@@ -137,7 +150,7 @@ Checkpoint: sdlc-checkpoint.skill S03
 Persona: prod-tech-lead (with orch-planner)
 Tasks:   - Read SPEC.md + PLAN.md
          - Decompose into atomic tasks (15-minute rule enforced)
-         - Fill templates/TASKS_TEMPLATE.md
+         - Fill templates/core/TASKS_TEMPLATE.md
          - Assign each task to the appropriate eng-* persona
          - Identify dependencies (DAG) AND Independent tasks
          - **Parallelism**: Mark independent tasks with `[PARALLEL]` tag
@@ -234,7 +247,7 @@ eng-qa Tasks:
   - Fill any gaps via tdd-cycle.skill
 
 orch-judge Tasks:
-  - 7-Gate Quality Check:
+  - Quality Gate Check (orch-judge's 7-gate system, extended here with E2E + EARS):
     Gate 1: Lint/Syntax  → ESLint/PHP-CS-Fixer → zero errors
     Gate 2: Type Safety  → tsc/PHPStan         → zero errors
     Gate 3: Coverage     → Vitest/Pest          → ≥ 99%
@@ -263,7 +276,7 @@ ops-security Tasks:
   - privacy-audit.skill → PII scan (if applicable)
   - ai-safety-guardrails.skill → Verify protection against prompt injection
   - compliance-review.skill → if regulated (SOC2/PCI/HIPAA)
-  - Fill: templates/SECURITY_CHECKLIST.md
+  - Fill: templates/security/SECURITY_CHECKLIST.md
   - Document all findings in: docs/security/SECURITY_REVIEW.md
 
 Acceptance:
@@ -296,6 +309,8 @@ Prep:
     1. orch-judge verifies logic & specs (Automated)
     2. prod-tech-lead verifies code quality & patterns (Human-Proxy)
     3. prod-ethicist verifies final safety check (Safety)
+  - Run **core/final-review.skill** (independent expert pass: correctness, security,
+    observability, spec/golden-thread, cost, simplicity) — must be SHIP before the human gate.
 
 Gate:    DOUBLE VERIFICATION + HUMAN APPROVAL REQUIRED
          This is a mandatory stop — no autonomous continuation.
@@ -359,29 +374,37 @@ Checkpoint: sdlc-checkpoint.skill S10
 
 ## Interruption Handling
 
-At any point during S05 (implementation), save state:
+Use `core/state-preserve.skill` — save state CONTINUOUSLY (assume a cutoff can happen
+at any moment), not only at a graceful exit:
 
 ```
+CONTINUOUSLY (after each meaningful step):
+  - Refresh agents/memory/RESUME_POINTER.md (current task + the precise NEXT ACTION)
+  - Append the outcome to AUDIT_LOG.md
+  - Pre-exhaustion flush: when budget/tokens/turns run low, write a full snapshot FIRST
+
 On graceful exit:
   1. Complete current task if < 50% remaining work
   2. sdlc-checkpoint.skill → save mid-phase snapshot
-  3. Update PROJECT_STATE.md with exact position
+  3. Update PROJECT_STATE.md + RESUME_POINTER.md with exact position + NEXT ACTION
   4. Log: AUDIT_LOG.md → SESSION_END
 
 On unexpected interruption (context limit, crash):
-  - Next session: session-resume.skill will detect incomplete tasks
-  - Any BLOCKED task will appear in resume report
-  - Resume from last DONE task
+  - Next session: session-resume.skill reads RESUME_POINTER.md first, then detects
+    incomplete tasks; any BLOCKED task appears in the resume report
+  - Resume from the RESUME_POINTER NEXT ACTION / last DONE task
 ```
 
 ---
 
 ## Human-in-the-Loop Protocol
 
-Loki Mode requires human approval at these gates:
-- **S01**: Requirements approval (PRD.md)
-- **S02**: Architecture approval (PLAN.md + threat model)
-- **S08**: Final code review before deployment
+Loki Mode requires human approval at these gates (consistent with `sdlc-checkpoint.skill`):
+- **S01**: Requirements approval (PRD.md) — hard stop
+- **S02**: Architecture approval (PLAN.md + threat model) — hard stop
+- **S07**: Security sign-off (SECURITY_REVIEW.md — accepted risks / no HIGH findings)
+- **S08**: Final code review before deployment — hard stop
+- (**S03** is a lighter, may-be-async review — not a hard stop.)
 
 Loki Mode escalates to human when:
 - Self-heal loop exhausted (5 attempts, still failing)

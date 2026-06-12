@@ -23,6 +23,17 @@ REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 BASELINE = Path(__file__).resolve().parent / "baselines" / "api-surface.json"
 
 
+def _sig(func):
+    """Stringify a signature, normalized to be Python-version-independent.
+
+    Evaluated annotations can render private module paths that move between
+    versions (e.g. 3.13 renders pathlib.Path as pathlib._local.Path), which
+    would make the baseline comparison fail on some CI matrix legs only.
+    """
+    s = str(inspect.signature(func))
+    return s.replace("pathlib._local.", "pathlib.")
+
+
 def describe(obj):
     """Return a stable string description of a public object."""
     if inspect.isclass(obj):
@@ -32,13 +43,13 @@ def describe(obj):
                 continue
             if inspect.isfunction(member):
                 try:
-                    methods[name] = str(inspect.signature(member))
+                    methods[name] = _sig(member)
                 except (ValueError, TypeError):
                     methods[name] = "<signature unavailable>"
         return {"kind": "class", "methods": methods}
     if inspect.isfunction(obj):
         try:
-            return {"kind": "function", "signature": str(inspect.signature(obj))}
+            return {"kind": "function", "signature": _sig(obj)}
         except (ValueError, TypeError):
             return {"kind": "function", "signature": "<signature unavailable>"}
     return {"kind": type(obj).__name__}

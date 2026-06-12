@@ -1,5 +1,8 @@
 # SPDX-License-Identifier: Apache-2.0
+from __future__ import annotations
+
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any, Dict, List
 
 import yaml
@@ -117,8 +120,10 @@ class PolicyEngine:
         return [p.check(context) for p in self.policies]
 
     @classmethod
-    def from_yaml(cls, path: Any = None) -> "PolicyEngine":
-        path = path or GABBE_POLICY_FILE
+    def from_yaml(cls, path: Path | str | None = None) -> "PolicyEngine":
+        # Accept str for caller convenience; normalize so .exists()/open() always
+        # operate on a Path. None falls back to the configured policy file.
+        path = Path(path) if path is not None else GABBE_POLICY_FILE
         policies: List[Policy] = []
         version = "1"
         if path.exists():

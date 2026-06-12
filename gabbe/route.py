@@ -1,4 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
+from __future__ import annotations
+
 import json
 
 from .config import PII_PATTERNS, ROUTE_COMPLEXITY_THRESHOLD, Colors

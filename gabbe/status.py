@@ -1,4 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
+from __future__ import annotations
+
 from .config import PROGRESS_BAR_LEN, Colors
 from .database import get_db
 

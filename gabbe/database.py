@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 import sqlite3
+import time
 
 from .config import DB_PATH, GABBE_DIR, Colors
 
@@ -7,16 +8,18 @@ from .config import DB_PATH, GABBE_DIR, Colors
 SCHEMA_VERSION = 3
 
 
-def _migrate(conn):
+def _migrate(conn: sqlite3.Connection) -> None:
     """Apply pending schema migrations in order."""
     c = conn.cursor()
     # Prevent migration race conditions by locking the database immediately
-    try:
-        conn.execute("BEGIN IMMEDIATE")
-    except sqlite3.OperationalError:
-        # If already in a transaction or locked, we proceed but log a warning if possible,
-        # or we rely on the fact that this is usually the first call.
-        pass
+    for attempt in range(10):
+        try:
+            conn.execute("BEGIN IMMEDIATE")
+            break
+        except sqlite3.OperationalError:
+            if attempt == 9:
+                raise
+            time.sleep(0.2)
 
     c.execute("CREATE TABLE IF NOT EXISTS schema_version (version INTEGER)")
     c.execute("SELECT version FROM schema_version")
@@ -160,7 +163,7 @@ def _migrate(conn):
     conn.commit()
 
 
-def init_db():
+def init_db() -> None:
     """Initialize (or migrate) the SQLite database schema."""
     if not GABBE_DIR.exists():
         GABBE_DIR.mkdir(parents=True, exist_ok=True)
@@ -174,7 +177,7 @@ def init_db():
     print(f"{Colors.GREEN}✓ Database initialized at {DB_PATH}{Colors.ENDC}")
 
 
-def get_db():
+def get_db() -> sqlite3.Connection:
     """Return a database connection with row_factory set."""
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row

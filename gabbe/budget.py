@@ -2,6 +2,7 @@
 import sqlite3
 import time
 from dataclasses import dataclass, field
+from typing import Any
 
 from .config import (
     GABBE_MAX_COST_USD,
@@ -14,7 +15,7 @@ from .database import get_db
 
 
 class BudgetExceeded(Exception):
-    def __init__(self, reason, snapshot):
+    def __init__(self, reason: str, snapshot: dict[str, Any]) -> None:
         super().__init__(f"Budget Exceeded: {reason}")
         self.reason = reason
         self.snapshot = snapshot
@@ -34,12 +35,12 @@ class Budget:
     iterations: int = 0
     cost_usd: float = 0.0
     _start_time: float = field(default_factory=time.monotonic)
-    _cached_prices: dict = field(default_factory=dict)
+    _cached_prices: dict[str, dict[str, float]] = field(default_factory=dict)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         self._load_prices()
 
-    def _load_prices(self):
+    def _load_prices(self) -> None:
         try:
             conn = get_db()
             cursor = conn.cursor()
@@ -57,7 +58,7 @@ class Budget:
         except sqlite3.Error:
             pass  # Fallback to 0 if db fails
 
-    def _get_price(self, model_id: str):
+    def _get_price(self, model_id: str) -> dict[str, float]:
         # Default empty pricing
         return self._cached_prices.get(
             model_id,
@@ -70,7 +71,7 @@ class Budget:
             },
         )
 
-    def check(self):
+    def check(self) -> None:
         wall_time = time.monotonic() - self._start_time
         if self.tokens_used > self.max_tokens:
             raise BudgetExceeded("Max tokens reached", self.snapshot())
@@ -83,7 +84,7 @@ class Budget:
         if wall_time > self.max_wall_seconds:
             raise BudgetExceeded("Max wall time reached", self.snapshot())
 
-    def record_llm_usage(self, model_id: str, usage_dict: dict):
+    def record_llm_usage(self, model_id: str, usage_dict: dict[str, Any]) -> None:
         total_tokens = usage_dict.get("total_tokens", 0)
         prompt_tokens = usage_dict.get("prompt_tokens", 0)
         completion_tokens = usage_dict.get("completion_tokens", 0)
@@ -121,15 +122,15 @@ class Budget:
         self.cost_usd += cost
         self.check()
 
-    def record_tool_call(self):
+    def record_tool_call(self) -> None:
         self.tool_calls_used += 1
         self.check()
 
-    def record_iteration(self):
+    def record_iteration(self) -> None:
         self.iterations += 1
         self.check()
 
-    def snapshot(self) -> dict:
+    def snapshot(self) -> dict[str, Any]:
         return {
             "tokens_used": self.tokens_used,
             "tool_calls_used": self.tool_calls_used,
@@ -138,7 +139,7 @@ class Budget:
             "wall_time_sec": time.monotonic() - self._start_time,
         }
 
-    def remaining(self) -> dict:
+    def remaining(self) -> dict[str, Any]:
         wall_time = time.monotonic() - self._start_time
         return {
             "tokens": max(0, self.max_tokens - self.tokens_used),
@@ -163,23 +164,12 @@ class Budget:
             return False
         return True
 
-    def reserve(self, estimated_tokens: int = 0, estimated_cost_usd: float = 0.0) -> bool:
-        """Reserve budget for a step before executing it (financial middleware).
-
-        Estimate the worst-case cost of the next step and check it against the
-        remaining budget. Returns True if the step fits and may proceed; False if
-        it would exceed budget (the caller should choose a cheaper path or
-        escalate to a human). Does not consume budget — reconciliation happens via
-        record_llm_usage after the step actually runs.
-        """
-        return self.can_afford(estimated_tokens, estimated_cost_usd)
-
     @classmethod
-    def from_config(cls):
+    def from_config(cls) -> "Budget":
         return cls()
 
     @classmethod
-    def from_dict(cls, d: dict) -> "Budget":
+    def from_dict(cls, d: dict[str, Any]) -> "Budget":
         """Reconstruct a Budget from a snapshot dict (used for replay)."""
         b = cls(
             max_tokens=d.get("max_tokens", GABBE_MAX_TOKENS_PER_RUN),

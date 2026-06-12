@@ -3,8 +3,12 @@ import hashlib
 import logging
 import os
 import re
+import sqlite3
 import tempfile
+import time
 from datetime import datetime
+from pathlib import Path
+from typing import Any
 
 from .config import TASKS_FILE, Colors
 from .database import get_db
@@ -15,7 +19,7 @@ _MARKER_START = "<!-- GABBE:TASKS:START -->"
 _MARKER_END = "<!-- GABBE:TASKS:END -->"
 
 
-def parse_markdown_tasks(content):
+def parse_markdown_tasks(content: str) -> list[dict[str, str]]:
     """Parse project/TASKS.md content into a list of dicts.
 
     Supports both legacy full-file parsing and new marker-based parsing.
@@ -54,7 +58,7 @@ def parse_markdown_tasks(content):
     return tasks
 
 
-def _generate_task_lines(tasks):
+def _generate_task_lines(tasks: list[dict[str, str]]) -> str:
     """Generate just the list of task lines."""
     lines = []
     for task in tasks:
@@ -67,7 +71,7 @@ def _generate_task_lines(tasks):
     return "\n".join(lines)
 
 
-def generate_markdown_tasks(tasks):
+def generate_markdown_tasks(tasks: list[dict[str, str]]) -> str:
     """Generate project/TASKS.md content from DB tasks (Legacy / Full overwrite)."""
     # This is kept for backward compatibility or if we decide to force overwrite
     lines = ["# Project Tasks", "", _MARKER_START]
@@ -77,7 +81,7 @@ def generate_markdown_tasks(tasks):
     return "\n".join(lines)
 
 
-def _parse_db_timestamp(value):
+def _parse_db_timestamp(value: Any) -> float:
     """Parse a SQLite datetime string to a Unix timestamp.
 
     Handles both 'YYYY-MM-DD HH:MM:SS' (SQLite default) and ISO-8601
@@ -91,7 +95,7 @@ def _parse_db_timestamp(value):
         return 0
 
 
-def get_db_timestamp(c):
+def get_db_timestamp(c: sqlite3.Cursor) -> float:
     """Get the latest update timestamp from DB."""
     c.execute("SELECT MAX(updated_at) FROM tasks")
     res = c.fetchone()
@@ -100,14 +104,23 @@ def get_db_timestamp(c):
     return 0
 
 
-def _atomic_write(path, content):
+def _atomic_write(path: Path, content: str) -> None:
     """Write *content* to *path* atomically using a temp file + rename."""
     dir_ = path.parent
     fd, tmp_path = tempfile.mkstemp(dir=dir_, prefix=".tmp_tasks_")
     try:
         with os.fdopen(fd, "w", encoding="utf-8") as f:
             f.write(content)
-        os.replace(tmp_path, path)
+
+        # Fallback loop for Windows where os.replace can fail with PermissionError if the file is locked
+        for attempt in range(5):
+            try:
+                os.replace(tmp_path, path)
+                break
+            except PermissionError:
+                if attempt == 4:
+                    raise
+                time.sleep(0.2)
     except Exception:
         try:
             os.unlink(tmp_path)
@@ -116,7 +129,7 @@ def _atomic_write(path, content):
         raise
 
 
-def _calculate_state_hash(tasks):
+def _calculate_state_hash(tasks: list[dict[str, str]]) -> str:
     """Calculate a single hash for the entire list of tasks."""
     if not tasks:
         return "0"
@@ -135,15 +148,15 @@ class _SyncLock:
     POSIX and Windows.
     """
 
-    def __init__(self, timeout=10.0, poll=0.1):
+    def __init__(self, timeout: float = 10.0, poll: float = 0.1) -> None:
         from .config import GABBE_DIR
 
         self.path = GABBE_DIR / ".sync.lock"
         self.timeout = timeout
         self.poll = poll
-        self._fd = None
+        self._fd: int | None = None
 
-    def __enter__(self):
+    def __enter__(self) -> "_SyncLock":
         import time
 
         try:
@@ -169,7 +182,7 @@ class _SyncLock:
                 # Any other OS/mocked-environment issue: skip locking.
                 return self
 
-    def __exit__(self, *exc):
+    def __exit__(self, *exc: Any) -> None:
         if self._fd is not None:
             try:
                 os.close(self._fd)
@@ -180,17 +193,16 @@ class _SyncLock:
             self.path.unlink()
         except OSError:
             pass
-        return False
 
 
-def sync_tasks():
+def sync_tasks() -> None:
     """Bidirectional sync for project/TASKS.md based on content changes."""
     print(f"{Colors.HEADER}🔄 Syncing Tasks...{Colors.ENDC}")
     with _SyncLock():
         return _sync_tasks_locked()
 
 
-def _sync_tasks_locked():
+def _sync_tasks_locked() -> None:
     conn = get_db()
     try:
         c = conn.cursor()
@@ -247,7 +259,7 @@ def _sync_tasks_locked():
         conn.close()
 
 
-def import_from_md(c, tasks_or_content):
+def import_from_md(c: sqlite3.Cursor, tasks_or_content: str | list[dict[str, str]]) -> None:
     if isinstance(tasks_or_content, str):
         tasks = parse_markdown_tasks(tasks_or_content)
     else:
@@ -286,7 +298,7 @@ def import_from_md(c, tasks_or_content):
     )
 
 
-def export_to_md(c):
+def export_to_md(c: sqlite3.Cursor) -> None:
     c.execute("SELECT * FROM tasks ORDER BY id")
     db_tasks = c.fetchall()
 

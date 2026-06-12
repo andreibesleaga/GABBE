@@ -80,7 +80,6 @@ Loki allows delegation to external specialized swarms:
 -   **External**: "Audit for vulnerabilities" -> Delegates to `Sec-Swarm-1` via `agent-interop.skill`.
 
 ### D. Cognitive Architectures (Global Workspace)
-For highly dynamic environments, use the **Global Workspace** pattern ([`brain/global-workspace.skill.md`](../skills/brain/global-workspace.skill.md)).
+For highly dynamic environments, use the **Global Workspace** pattern ([`global-workspace.skill`](../../skills/brain/global-workspace.skill.md)).
 -   **Concept**: Agents "compete" for attention rather than following a rigid pipeline.
 -   **Use Case**: When the next step is ambiguous and requires the "most confident" agent to take over.
-

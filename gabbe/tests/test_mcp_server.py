@@ -115,7 +115,6 @@ def _run_serve_with_input(lines, tmp_project):
         patch("sys.stdin", io.StringIO(stdin_data)),
         patch("builtins.print", side_effect=lambda s, **kw: outputs.append(s)),
     ):
-
         mock_ctx = MagicMock()
         MockCtx.return_value.__enter__ = MagicMock(return_value=mock_ctx)
         MockCtx.return_value.__exit__ = MagicMock(return_value=False)
@@ -172,7 +171,6 @@ def test_serve_tools_call_dispatches_to_gateway(tmp_project, mcp_insecure):
         patch("sys.stdin", io.StringIO(call_req)),
         patch("builtins.print", side_effect=lambda s, **kw: outputs.append(s)),
     ):
-
         mock_ctx = MagicMock()
         MockCtx.return_value.__enter__ = MagicMock(return_value=mock_ctx)
         MockCtx.return_value.__exit__ = MagicMock(return_value=False)
@@ -207,7 +205,6 @@ def test_serve_tools_call_gateway_error_returns_json_error(tmp_project, mcp_inse
         patch("sys.stdin", io.StringIO(call_req)),
         patch("builtins.print", side_effect=lambda s, **kw: outputs.append(s)),
     ):
-
         mock_ctx = MagicMock()
         MockCtx.return_value.__enter__ = MagicMock(return_value=mock_ctx)
         MockCtx.return_value.__exit__ = MagicMock(return_value=False)
@@ -235,7 +232,6 @@ def test_serve_malformed_json_returns_parse_error(tmp_project):
         patch("sys.stdin", io.StringIO("not json at all\n")),
         patch("builtins.print", side_effect=lambda s, **kw: outputs.append(s)),
     ):
-
         mock_ctx = MagicMock()
         MockCtx.return_value.__enter__ = MagicMock(return_value=mock_ctx)
         MockCtx.return_value.__exit__ = MagicMock(return_value=False)

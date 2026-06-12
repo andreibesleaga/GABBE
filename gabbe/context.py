@@ -5,6 +5,8 @@ import json
 import logging
 import time
 import uuid
+from types import TracebackType
+from typing import Any, Optional, Type
 
 from .audit import AuditTracer
 from .budget import Budget
@@ -29,7 +31,7 @@ class RunContext:
         hard_stop: HardStop | None = None,
         policy: PolicyEngine | None = None,
         gateway: ToolGateway | None = None,
-    ):
+    ) -> None:
         self.run_id = run_id or str(uuid.uuid4())
         self.command = command
         self.initiator = initiator
@@ -48,7 +50,7 @@ class RunContext:
         self._start_time = time.monotonic()
         self._is_active = False
 
-    def __enter__(self):
+    def __enter__(self) -> "RunContext":
         try:
             cursor = self.db_conn.cursor()
 
@@ -83,7 +85,12 @@ class RunContext:
             logger.error(f"Failed to activate RunContext {self.run_id}: {e}")
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_val: Optional[BaseException],
+        exc_tb: Optional[TracebackType],
+    ) -> None:
         if not self._is_active:
             return
 
@@ -120,7 +127,7 @@ class RunContext:
         self.db_conn.close()
 
     @classmethod
-    def from_config(cls, command: str = "brain activate", **kwargs):
+    def from_config(cls, command: str = "brain activate", **kwargs: Any) -> "RunContext":
         return cls(command=command, **kwargs)
 
     @classmethod

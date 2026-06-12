@@ -3,6 +3,8 @@ from __future__ import annotations
 
 import json
 import logging
+import sqlite3
+from typing import Any
 
 from .database import get_db
 
@@ -10,7 +12,7 @@ logger = logging.getLogger("gabbe.replay")
 
 
 class CheckpointStore:
-    def __init__(self, db_conn=None):
+    def __init__(self, db_conn: sqlite3.Connection | None = None) -> None:
         self._owns_db = False
         if db_conn is None:
             self.db_conn = get_db()
@@ -18,7 +20,7 @@ class CheckpointStore:
         else:
             self.db_conn = db_conn
 
-    def __del__(self):
+    def __del__(self) -> None:
         if self._owns_db and self.db_conn:
             self.db_conn.close()
 
@@ -27,7 +29,7 @@ class CheckpointStore:
         run_id: str,
         step: int,
         node_name: str,
-        state_snapshot: dict,
+        state_snapshot: dict[str, Any],
         policy_version: str,
         parent_id: int | None = None,
     ) -> int | None:
@@ -47,7 +49,7 @@ class CheckpointStore:
             logger.error(f"Failed to save checkpoint: {e}")
             return None
 
-    def get_history(self, run_id: str) -> list:
+    def get_history(self, run_id: str) -> list[dict[str, Any]]:
         try:
             cursor = self.db_conn.cursor()
             cursor.execute(
@@ -62,7 +64,7 @@ class CheckpointStore:
             logger.error(f"Failed to fetch checkpoint history: {e}")
             return []
 
-    def load(self, checkpoint_id: int) -> dict | None:
+    def load(self, checkpoint_id: int) -> dict[str, Any] | None:
         try:
             cursor = self.db_conn.cursor()
             cursor.execute(
@@ -86,7 +88,7 @@ class ReplayRunner:
     def __init__(self, store: CheckpointStore):
         self.store = store
 
-    def replay(self, run_id: str, from_step: int = 0) -> list:
+    def replay(self, run_id: str, from_step: int = 0) -> list[dict[str, Any]]:
         """
         Replay a run from its checkpoints, substituting recorded tool outputs from
         audit_spans instead of calling live tools.
@@ -112,7 +114,7 @@ class ReplayRunner:
             """,
                 (run_id,),
             )
-            node_occurrence: dict = {}
+            node_occurrence: dict[str, int] = {}
             for row in cursor.fetchall():
                 nn = row["node_name"]
                 idx = node_occurrence.get(nn, 0)
@@ -123,7 +125,7 @@ class ReplayRunner:
 
         # Track per-node occurrence index during replay to align with the index used
         # when recorded_outputs was built (sequential per node, not by step number).
-        node_replay_occurrence: dict = {}
+        node_replay_occurrence: dict[str, int] = {}
         replayed = []
         for ckpt in checkpoints:
             if ckpt["step"] < from_step:
@@ -147,7 +149,7 @@ class ReplayRunner:
 
         return replayed
 
-    def diff(self, run_id_a: str, run_id_b: str) -> list:
+    def diff(self, run_id_a: str, run_id_b: str) -> list[dict[str, Any]]:
         """
         Compare two runs step by step by their checkpoint node sequences.
         Returns list of dicts with step, node_name and match status.

@@ -777,6 +777,8 @@ class TestPlatformControls(unittest.TestCase):
     # ----- Gateway (PLATFORM_CONTROLS § Tool Gateway) -----
     def test_gateway_register_and_execute(self):
         """ToolGateway.execute dispatches to registered handler."""
+        from unittest.mock import MagicMock, patch
+
         from gabbe.context import RunContext
         from gabbe.gateway import ToolDefinition, ToolGateway
 
@@ -794,8 +796,12 @@ class TestPlatformControls(unittest.TestCase):
         )
 
         with RunContext(command="test", initiator="test") as ctx:
-            result = gw.execute("test_tool", {}, role="agent", run_context=ctx)
-            self.assertEqual(result["result"], "ok")
+            with (
+                patch("gabbe.gateway.HAS_JSONSCHEMA", True),
+                patch("gabbe.gateway.jsonschema", MagicMock(), create=True),
+            ):
+                result = gw.execute("test_tool", {}, role="agent", run_context=ctx)
+                self.assertEqual(result["result"], "ok")
 
     # ----- Escalation (PLATFORM_CONTROLS § Escalation Handler) -----
     def test_escalation_silent_auto_rejects(self):

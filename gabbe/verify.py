@@ -1,26 +1,27 @@
 # SPDX-License-Identifier: Apache-2.0
 import shlex
 import subprocess
+from pathlib import Path
 
 from .config import GABBE_DIR, PROJECT_ROOT, REQUIRED_FILES, SUBPROCESS_TIMEOUT, Colors
 
 
-def check_files():
+def check_files() -> list[Path]:
     """Verify presence of critical files."""
-    missing = []
+    missing: list[Path] = []
     for f in REQUIRED_FILES:
         if not f.exists():
             missing.append(f)
     return missing
 
 
-def parse_agents_config():
+def parse_agents_config() -> dict[str, str]:
     """Extract commands from the '## Commands' section of AGENTS.md.
 
     This version uses a state machine approach to reliably find the key-value pairs
     within the target section, handling quotes and whitespace more gracefully.
     """
-    config = {}
+    config: dict[str, str] = {}
     agents_path = PROJECT_ROOT / "agents/AGENTS.md"
 
     if not agents_path.exists():
@@ -69,7 +70,7 @@ def parse_agents_config():
     return config
 
 
-def run_command(cmd, name):
+def run_command(cmd: str, name: str) -> bool:
     """Run a shell command safely without shell=True."""
     print(f"  Running {name}: {Colors.BLUE}{cmd}{Colors.ENDC}")
     try:
@@ -91,7 +92,7 @@ def run_command(cmd, name):
         return False
 
 
-def run_verification():
+def run_verification() -> bool:
     """Run all integrity checks."""
     print(f"{Colors.HEADER}Running Integrity Checks...{Colors.ENDC}")
     all_passed = True

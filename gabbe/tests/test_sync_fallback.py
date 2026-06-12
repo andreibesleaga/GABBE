@@ -35,7 +35,6 @@ def test_sync_preserves_preamble_no_markers(tmp_path):
         patch("gabbe.sync.get_db_timestamp", return_value=200.0),
         patch("pathlib.Path.stat") as mock_stat,
     ):
-
         # Mock file mtime to be older than DB (100.0 < 200.0)
         mock_stat.return_value.st_mtime = 100.0
 
@@ -89,7 +88,6 @@ def test_sync_appends_if_no_tasks_found(tmp_path):
         patch("gabbe.sync.get_db_timestamp", return_value=200.0),
         patch("pathlib.Path.stat") as mock_stat,
     ):
-
         mock_stat.return_value.st_mtime = 100.0
 
         mock_cursor.fetchone.side_effect = [(1,), (200.0,)]

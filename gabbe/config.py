@@ -6,13 +6,14 @@ import os
 import re
 import warnings
 from pathlib import Path
+from typing import Any
 
 logger = logging.getLogger("gabbe.config")
 
 
 # Paths — PROJECT_ROOT is determined by looking for marker files (project, .git, pyproject.toml)
 # upwards from the current working directory.
-def _find_project_root(start_path):
+def _find_project_root(start_path: Path) -> Path:
     current = start_path.resolve()
     for _ in range(10):  # Limit recursion depth
         if (
@@ -45,7 +46,6 @@ TASKS_FILE = PROJECT_ROOT / "project/TASKS.md"
 
 # Agent Config
 AGENTS_DIR = PROJECT_ROOT / "agents"
-SKILLS_DIR = AGENTS_DIR / "skills"
 
 
 # Dynamic Configuration Loading
@@ -79,7 +79,7 @@ if GABBE_CONFIG_FILE.exists():
 
 
 # LLM Config
-def _load_env_file(env_file):
+def _load_env_file(env_file: Path) -> None:
     """Load KEY=VALUE pairs from a .env file into os.environ (real env wins).
 
     Wrapped in a function so loop variables do not leak into the module's
@@ -103,7 +103,7 @@ GABBE_API_KEY = os.environ.get("GABBE_API_KEY")
 GABBE_API_MODEL = os.environ.get("GABBE_API_MODEL", "gpt-4o")
 
 
-def _safe_float(env_var, default):
+def _safe_float(env_var: str, default: float) -> float:
     raw = os.environ.get(env_var, str(default))
     try:
         return float(raw)
@@ -112,7 +112,7 @@ def _safe_float(env_var, default):
         return default
 
 
-def _safe_int(env_var, default):
+def _safe_int(env_var: str, default: int) -> int:
     raw = os.environ.get(env_var, str(default))
     try:
         return int(raw)
@@ -144,7 +144,6 @@ GABBE_MAX_TOOL_CALLS_PER_RUN = _safe_int("GABBE_MAX_TOOL_CALLS_PER_RUN", 50)
 GABBE_MAX_ITERATIONS = _safe_int("GABBE_MAX_ITERATIONS", 25)
 GABBE_MAX_WALL_TIME = _safe_int("GABBE_MAX_WALL_TIME", 300)
 GABBE_MAX_RECURSION_DEPTH = _safe_int("GABBE_MAX_RECURSION_DEPTH", 5)
-GABBE_MAX_RETRIES_PER_TOOL = _safe_int("GABBE_MAX_RETRIES_PER_TOOL", 3)
 GABBE_MAX_COST_USD = _safe_float("GABBE_MAX_COST_USD", 5.0)
 GABBE_POLICY_FILE = PROJECT_ROOT / os.environ.get("GABBE_POLICY_FILE", "project/policies.yml")
 GABBE_ESCALATION_MODE = os.environ.get("GABBE_ESCALATION_MODE", "cli")  # cli, file, silent
@@ -154,7 +153,9 @@ GABBE_OTEL_ENABLED = os.environ.get("GABBE_OTEL_ENABLED", "false").lower() == "t
 # Per-project policy the agent + CLI read (runtime-agnostic). project/gabbe.config.json
 # may set: autonomy posture, budgets, preferred model tiers, enabled MCPs, registries.
 # Loaded best-effort; a malformed file warns and falls back to defaults (never raises).
-def _load_project_config(path):
+
+
+def _load_project_config(path: Path) -> dict[str, Any]:
     if not path.exists():
         return {}
     try:
@@ -171,24 +172,6 @@ def _load_project_config(path):
 GABBE_PROJECT_CONFIG_FILE = GABBE_DIR / "gabbe.config.json"
 GABBE_PROJECT_CONFIG = _load_project_config(GABBE_PROJECT_CONFIG_FILE)
 
-
-def _resolve_autonomy():
-    """Autonomy posture precedence: env > project config > default 'hybrid'.
-
-    Valid values: ask | auto | hybrid. Invalid values warn and fall back to hybrid.
-    """
-    valid = {"ask", "auto", "hybrid"}
-    raw = os.environ.get("GABBE_AUTONOMY") or GABBE_PROJECT_CONFIG.get("autonomy") or "hybrid"
-    raw = str(raw).strip().lower()
-    if raw not in valid:
-        logger.warning("Invalid GABBE_AUTONOMY=%r; using 'hybrid'", raw)
-        return "hybrid"
-    return raw
-
-
-# ask = always clarify; auto = act when cheap+reversible (still ask for expensive/SOTA/
-# irreversible); hybrid (default) = auto-when-cheap, ask-when-expensive.
-GABBE_AUTONOMY = _resolve_autonomy()
 
 # Task status constants — single source of truth used across brain, sync, status
 TASK_STATUS_TODO = "TODO"
@@ -208,4 +191,3 @@ class Colors:
     FAIL = "\033[91m"
     ENDC = "\033[0m"
     BOLD = "\033[1m"
-    UNDERLINE = "\033[4m"

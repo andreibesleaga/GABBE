@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 import logging
+import random
 import sqlite3
 
 from .config import (
@@ -27,14 +28,23 @@ _DEFAULT_BRAIN_SYSTEM_PROMPT = (
 )
 
 
-def _get_best_gene(conn, skill_name: str):
-    """Return (gene_id, prompt_content) for the best gene, or (None, None) if none exist."""
+def _get_best_gene(conn: sqlite3.Connection, skill_name: str) -> tuple[int | None, str | None]:
+    """Return (gene_id, prompt_content) using epsilon-greedy selection (20% exploration)."""
     try:
         c = conn.cursor()
-        c.execute(
-            "SELECT id, prompt_content FROM genes WHERE skill_name=? ORDER BY success_rate DESC, generation DESC LIMIT 1",
-            (skill_name,),
-        )
+
+        # Epsilon-greedy: 20% of the time, explore the newest generation regardless of success rate
+        if random.random() < 0.2:
+            c.execute(
+                "SELECT id, prompt_content FROM genes WHERE skill_name=? ORDER BY generation DESC LIMIT 1",
+                (skill_name,),
+            )
+        else:
+            c.execute(
+                "SELECT id, prompt_content FROM genes WHERE skill_name=? ORDER BY success_rate DESC, generation DESC LIMIT 1",
+                (skill_name,),
+            )
+
         row = c.fetchone()
         if row:
             return row["id"], row["prompt_content"]
@@ -43,7 +53,7 @@ def _get_best_gene(conn, skill_name: str):
     return None, None
 
 
-def _update_gene_success_rate(conn, gene_id: int, delta: float = 0.1):
+def _update_gene_success_rate(conn: sqlite3.Connection, gene_id: int, delta: float = 0.1) -> None:
     """Increment success_rate for a gene by delta, capped at 1.0."""
     try:
         conn.execute(
@@ -55,7 +65,7 @@ def _update_gene_success_rate(conn, gene_id: int, delta: float = 0.1):
         logger.warning("Could not update gene success_rate for id=%s: %s", gene_id, e)
 
 
-def activate_brain(run_context=None):
+def activate_brain(run_context: RunContext | None = None) -> None:
     """Run the Active Inference Loop with Real LLM using MVA Platform Rules."""
     print(f"{Colors.HEADER}🧠 Brain Mode: Active Inference Loop{Colors.ENDC}")
 
@@ -150,7 +160,7 @@ def activate_brain(run_context=None):
             print(f"  {Colors.FAIL}Execution Interrupted by Platform Controls: {e}{Colors.ENDC}")
 
 
-def evolve_prompts(skill_name):
+def evolve_prompts(skill_name: str) -> None:
     """Evolutionary Prompt Optimization (EPO) with Real LLM."""
     print(f"{Colors.HEADER}🧬 Evolutionary Prompt Optimization: {skill_name}{Colors.ENDC}")
     conn = get_db()
@@ -218,7 +228,7 @@ def evolve_prompts(skill_name):
         conn.close()
 
 
-def run_healer():
+def run_healer() -> None:
     """Self-Healing Watchdog: checks DB connectivity and required files."""
     print(f"{Colors.HEADER}🚑 Self-Healing Watchdog{Colors.ENDC}")
     issues = []

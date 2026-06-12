@@ -3,10 +3,10 @@ import logging
 import time
 from collections import deque
 from dataclasses import dataclass
-from typing import Any, Callable, Dict
+from typing import Any, Callable, Dict, Set
 
 try:
-    import jsonschema  # type: ignore
+    import jsonschema
 
     HAS_JSONSCHEMA = True
 except ImportError:
@@ -31,25 +31,25 @@ class CircuitOpen(Exception):
 class ToolDefinition:
     name: str
     description: str
-    parameters: dict  # JSON Schema
-    handler: Callable
-    allowed_roles: set
+    parameters: Dict[str, Any]  # JSON Schema
+    handler: Callable[..., Any]
+    allowed_roles: Set[str]
     rate_limit_per_min: int = 60
     circuit_breaker_threshold: int = 3
 
 
 class ToolGateway:
-    def __init__(self):
+    def __init__(self) -> None:
         self.registry: Dict[str, ToolDefinition] = {}
-        self._call_times: Dict[str, deque] = {}
+        self._call_times: Dict[str, deque[float]] = {}
         self._failure_counts: Dict[str, int] = {}
 
-    def register(self, tool_def: ToolDefinition):
+    def register(self, tool_def: ToolDefinition) -> None:
         self.registry[tool_def.name] = tool_def
         self._call_times[tool_def.name] = deque()
         self._failure_counts[tool_def.name] = 0
 
-    def _check_rate_limit(self, name: str):
+    def _check_rate_limit(self, name: str) -> None:
         tool = self.registry[name]
         now = time.monotonic()
         q = self._call_times[name]
@@ -63,12 +63,12 @@ class ToolGateway:
 
         q.append(now)
 
-    def _check_circuit_breaker(self, name: str):
+    def _check_circuit_breaker(self, name: str) -> None:
         tool = self.registry[name]
         if self._failure_counts[name] >= tool.circuit_breaker_threshold:
             raise CircuitOpen(f"Circuit open for tool {name} due to consecutive failures.")
 
-    def execute(self, name: str, arguments: dict, role: str, run_context) -> Any:
+    def execute(self, name: str, arguments: Dict[str, Any], role: str, run_context: Any) -> Any:
         span_ctx = run_context.tracer.start_span(
             "tool_call", name, {"arguments": arguments, "role": role}
         )
@@ -96,7 +96,11 @@ class ToolGateway:
             self._check_circuit_breaker(name)
 
             # Schema Validation
-            if HAS_JSONSCHEMA and tool_def.parameters:
+            if tool_def.parameters:
+                if not HAS_JSONSCHEMA:
+                    raise RuntimeError(
+                        "jsonschema package is required for tool argument validation but is not installed."
+                    )
                 try:
                     jsonschema.validate(instance=arguments, schema=tool_def.parameters)
                 except jsonschema.ValidationError as e:

@@ -233,7 +233,7 @@ def test_sync_unicode_task_titles(tmp_project):
     tasks_file = tmp_project / "project" / "TASKS.md"
     tasks_file.parent.mkdir(parents=True, exist_ok=True)
     tasks_file.write_text(
-        "- [ ] Добавить поддержку 🚀\n" "- [x] Tâche complétée ✅\n" "- [ ] 任务：测试中文\n"
+        "- [ ] Добавить поддержку 🚀\n- [x] Tâche complétée ✅\n- [ ] 任务：测试中文\n"
     )
 
     sync_mod.sync_tasks()
@@ -256,7 +256,7 @@ def test_sync_task_with_special_markdown_chars(tmp_project):
 
     tasks_file = tmp_project / "project" / "TASKS.md"
     tasks_file.parent.mkdir(parents=True, exist_ok=True)
-    tasks_file.write_text("- [ ] Fix `config.py` edge case\n" "- [ ] Handle [brackets] in names\n")
+    tasks_file.write_text("- [ ] Fix `config.py` edge case\n- [ ] Handle [brackets] in names\n")
 
     sync_mod.sync_tasks()
 
@@ -281,7 +281,7 @@ def test_evolve_multi_generation(tmp_project):
     from gabbe.database import get_db
 
     for i in range(5):
-        with patch("gabbe.brain.call_llm", return_value=f"Prompt v{i+1}"):
+        with patch("gabbe.brain.call_llm", return_value=f"Prompt v{i + 1}"):
             evolve_prompts("stress-skill")
 
         # Bump success_rate of the latest gene so it becomes the 'best' for next iteration

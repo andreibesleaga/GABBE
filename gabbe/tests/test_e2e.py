@@ -15,7 +15,6 @@ from gabbe.database import get_db, init_db
 
 
 class TestGabbeE2E(unittest.TestCase):
-
     def setUp(self):
         # Temporary project directory
         self.test_dir = tempfile.mkdtemp()

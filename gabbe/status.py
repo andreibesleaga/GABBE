@@ -3,7 +3,7 @@ from .config import PROGRESS_BAR_LEN, Colors
 from .database import get_db
 
 
-def show_dashboard():
+def show_dashboard() -> None:
     """Render the CLI Dashboard."""
     conn = get_db()
     try:

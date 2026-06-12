@@ -18,11 +18,12 @@ import hashlib
 import json
 import logging
 from pathlib import Path
+from typing import Any
 
 logger = logging.getLogger("gabbe.cache")
 
 
-def content_key(*parts) -> str:
+def content_key(*parts: Any) -> str:
     """Stable sha256 over the canonical JSON of the given parts."""
     payload = json.dumps(parts, sort_keys=True, ensure_ascii=False, default=str)
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()
@@ -47,7 +48,7 @@ class ContentCache:
         assert self.dir is not None  # callers guard on self.dir before calling
         return self.dir / f"{key}.json"
 
-    def get(self, key: str):
+    def get(self, key: str) -> Any:
         """Return the cached value for *key*, or None on miss / error."""
         if self.dir is None:
             return None
@@ -59,7 +60,7 @@ class ContentCache:
         except (OSError, ValueError, KeyError):
             return None
 
-    def set(self, key: str, value) -> None:
+    def set(self, key: str, value: Any) -> None:
         """Store *value* under *key* (best-effort; errors are swallowed)."""
         if self.dir is None:
             return

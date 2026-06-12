@@ -3,7 +3,9 @@ from __future__ import annotations
 
 import json
 import logging
+import sqlite3
 from enum import Enum
+from typing import Any
 
 from .config import GABBE_ESCALATION_MODE
 from .database import get_db
@@ -26,7 +28,7 @@ class EscalationResult:
 
 
 class EscalationHandler:
-    def __init__(self, run_id: str, db_conn=None):
+    def __init__(self, run_id: str, db_conn: sqlite3.Connection | None = None) -> None:
         self.run_id = run_id
         # Single connection context usually passed in runtime
         self._owns_db = False
@@ -37,12 +39,12 @@ class EscalationHandler:
             self.db_conn = db_conn
         self.mode = GABBE_ESCALATION_MODE.lower()  # cli, file, silent
 
-    def __del__(self):
+    def __del__(self) -> None:
         if self._owns_db and self.db_conn:
             self.db_conn.close()
 
     def escalate(
-        self, trigger: EscalationTrigger, context_dict: dict, step: int = 0
+        self, trigger: EscalationTrigger, context_dict: dict[str, Any], step: int = 0
     ) -> EscalationResult:
         logger.warning(f"Escalation Triggered: {trigger.value}")
 
@@ -108,7 +110,7 @@ class EscalationHandler:
                 self.resolve(esc_id, "rejected", "auto-rejected by silent mode")
             return EscalationResult("rejected", None)
 
-    def resolve(self, esc_id: int, status: str, response: str | None = None):
+    def resolve(self, esc_id: int, status: str, response: str | None = None) -> None:
         try:
             cursor = self.db_conn.cursor()
             cursor.execute(

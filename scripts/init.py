@@ -107,7 +107,7 @@ def ask(question, default=None):
 def select_index(question, options):
     print(f"\n{question}")
     for i, opt in enumerate(options):
-        print(f"  {i+1}) {opt}")
+        print(f"  {i + 1}) {opt}")
     while True:
         choice = input(f"Select (1-{len(options)}): ").strip()
         if choice.isdigit():
@@ -124,7 +124,7 @@ def select(question, options):
 def ask_multiselect(question, options):
     print(f"\n{question} (comma separated, e.g. 1,3)")
     for i, opt in enumerate(options):
-        print(f"  {i+1}) {opt}")
+        print(f"  {i + 1}) {opt}")
     choice = input("Select: ").strip()
     selected = []
     if not choice:
@@ -939,8 +939,8 @@ def main():
 ## Context
 - **Problem**: {problem_statement}
 - **Stack**: {language} / {framework}
-- **Constraints**: {', '.join(compliance) if compliance else 'None'}
-- **Missing Skills**: {', '.join(missing_skills) if missing_skills else 'Standard Set'}
+- **Constraints**: {", ".join(compliance) if compliance else "None"}
+- **Missing Skills**: {", ".join(missing_skills) if missing_skills else "Standard Set"}
 
 ## Agent instructions
 - Read AGENTS.md and CONSTITUTION.md for more information on this agentic system.
@@ -994,9 +994,9 @@ Here is your mission to finalize the setup:
     - Read agents/guides/ skills/ templates/ for any relevant information discovered during research and added by you or other agents.
 
 1.  **Analyze the Gap**: We are using {language} and {framework}.
-    -   Missing Skills: {', '.join(missing_skills) if missing_skills else 'None detected'}.
+    -   Missing Skills: {", ".join(missing_skills) if missing_skills else "None detected"}.
     -   Project Type: {project_type}.
-    -   Compliance: {', '.join(compliance) if compliance else 'None'}.
+    -   Compliance: {", ".join(compliance) if compliance else "None"}.
 
 2.  **MCP Configuration**:
     -   Review `agents/templates/core/MCP_CONFIG_TEMPLATE.json`.

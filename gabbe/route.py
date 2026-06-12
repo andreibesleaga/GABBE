@@ -5,7 +5,7 @@ from .config import PII_PATTERNS, ROUTE_COMPLEXITY_THRESHOLD, Colors
 from .llm import call_llm
 
 
-def calculate_complexity(prompt):
+def calculate_complexity(prompt: str) -> tuple[int, str]:
     """Estimate complexity score (0-100). Uses heuristics first, then LLM."""
     # Heuristics (save money/time)
     if len(prompt) < 100 and "```" not in prompt:
@@ -41,7 +41,7 @@ def calculate_complexity(prompt):
         return score, "Fallback Heuristic (LLM Error)"
 
 
-def detect_pii(prompt):
+def detect_pii(prompt: str) -> bool:
     """Detect common PII patterns using local regex (no external calls)."""
     for pattern in PII_PATTERNS:
         if pattern.search(prompt):
@@ -49,7 +49,7 @@ def detect_pii(prompt):
     return False
 
 
-def route_request(prompt):
+def route_request(prompt: str) -> str:
     """Arbitrate between Local and Remote LLM."""
     print(f"{Colors.HEADER}🔀 Cost-Effective Router{Colors.ENDC}")
     print(f'  Prompt: "{prompt[:50]}..."')

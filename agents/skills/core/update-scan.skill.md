@@ -40,6 +40,16 @@ The kit's evolution is **A2-style** — learn from *good* outcomes, not bad ones
 ## Protected files (self-healing guardrail)
 When self-healing or auto-adopting, **never edit** build files, IaC, CI/CD config, or dependency manifests (`package.json`, `pyproject.toml`, lockfiles, Dockerfiles, workflow YAML) **unless** the failure is specifically classified as dependency/build-related and the change is within the self-heal allowlist (AGENTS.md §8). Otherwise escalate. This keeps an auto-fix loop from silently rewriting the project's foundations.
 
+## Self-Evolution Workflow (Git Branching)
+Whenever the agent attempts to update its own core logic or configurations (`agents/`, `gabbe/`), the following strict workflow MUST be followed:
+1. **Branching**: Never mutate files directly on the main branch. Create a new branch named `evolve/{feature-name}`.
+2. **Analysis**: Scan the proposed changes for regression risks.
+3. **Drafting**: Write the proposed changes on the isolated branch.
+4. **Validation**: Run the test suite (`pytest` or equivalent) to ensure no core system failures.
+5. **Review**: Submit the branch for human review (e.g., Pull Request) or wait for manual approval before merging.
+> [!WARNING]
+> Bypassing these steps risks unrecoverable corruption of the agent's capabilities.
+
 ## Output Format
 ```markdown
 ## UPDATE_SCAN

@@ -1,6 +1,9 @@
 # SPDX-License-Identifier: Apache-2.0
+from __future__ import annotations
+
 from dataclasses import dataclass
-from typing import Dict, List
+from pathlib import Path
+from typing import Any, Dict, List
 
 import yaml
 
@@ -17,7 +20,7 @@ class PolicyResult:
 class Policy:
     name: str = "BasePolicy"
 
-    def check(self, context: dict) -> PolicyResult:
+    def check(self, context: Dict[str, Any]) -> PolicyResult:
         raise NotImplementedError
 
 
@@ -28,7 +31,7 @@ class ToolAllowlistPolicy(Policy):
         self.allowed = set(allowed_tools)
         self.denied = set(denied_tools)
 
-    def check(self, context: dict) -> PolicyResult:
+    def check(self, context: Dict[str, Any]) -> PolicyResult:
         tool_name = context.get("tool")
         if not tool_name:
             return PolicyResult(True, "No tool to check", self.name)
@@ -48,7 +51,7 @@ class RolePolicy(Policy):
     def __init__(self, roles: Dict[str, List[str]]):
         self.roles = roles
 
-    def check(self, context: dict) -> PolicyResult:
+    def check(self, context: Dict[str, Any]) -> PolicyResult:
         tool_name = context.get("tool")
         role_name = context.get("role")
 
@@ -67,7 +70,7 @@ class ContentSafetyPolicy(Policy):
 
     name = "ContentSafetyPolicy"
 
-    def check(self, context: dict) -> PolicyResult:
+    def check(self, context: Dict[str, Any]) -> PolicyResult:
         text = context.get("input", "")
         if not text:
             # Also check arguments dict values
@@ -88,7 +91,7 @@ class ParameterRangePolicy(Policy):
         # bounds = {"param_name": {"min": 0, "max": 100}, ...}
         self.bounds = bounds
 
-    def check(self, context: dict) -> PolicyResult:
+    def check(self, context: Dict[str, Any]) -> PolicyResult:
         args = context.get("arguments", {})
         for param, value in args.items():
             if param in self.bounds and isinstance(value, (int, float)):
@@ -106,20 +109,22 @@ class PolicyEngine:
         self.policies = policies
         self.version = "unknown"
 
-    def evaluate(self, context: dict) -> PolicyResult:
+    def evaluate(self, context: Dict[str, Any]) -> PolicyResult:
         for p in self.policies:
             res = p.check(context)
             if not res.allowed:
                 return res
         return PolicyResult(True, "All policies passed", "PolicyEngine")
 
-    def evaluate_all(self, context: dict) -> List[PolicyResult]:
+    def evaluate_all(self, context: Dict[str, Any]) -> List[PolicyResult]:
         return [p.check(context) for p in self.policies]
 
     @classmethod
-    def from_yaml(cls, path=None):
-        path = path or GABBE_POLICY_FILE
-        policies = []
+    def from_yaml(cls, path: Path | str | None = None) -> "PolicyEngine":
+        # Accept str for caller convenience; normalize so .exists()/open() always
+        # operate on a Path. None falls back to the configured policy file.
+        path = Path(path) if path is not None else GABBE_POLICY_FILE
+        policies: List[Policy] = []
         version = "1"
         if path.exists():
             with open(path, "r") as f:

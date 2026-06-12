@@ -6,10 +6,11 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
-## [0.9.6] — 2026-06-10 — Operating spine, universal install, more agents, registry interop
+## [0.9.6] — 2026-06-12 — Operating spine, universal install, more agents, registry interop
 
-Strictly backward-compatible (6 gates + golden + validators green). All new
-behavior is additive.
+Strictly backward-compatible with the last released tag, v0.8.0-beta (6 gates +
+golden + validators green). All new behavior is additive; the only removals are
+pre-release internals that never shipped in any tagged release (see Removed).
 
 ### Added — operating spine (markdown, runtime-agnostic)
 - **`core/preflight`** (mandated Step 0): auto-check + load index summaries + memory
@@ -46,6 +47,44 @@ behavior is additive.
 - **Per-project policy**: `GABBE_AUTONOMY` + `project/gabbe.config.json`
   (`gabbe/config.py`); pre-step cost reservation `budget.reserve()`/`can_afford()`.
 - **`scripts/verify_all.sh` + `TESTING.md`**: one-stop verification + how-to-test.
+
+### Security — release-hardening sweeps (PRs #13–15)
+- **Policy engine fail-closed**: a present `policies.yml` with no/empty/null
+  `tools` section now denies all (was allow-all / crashed on `tools:` null).
+- **Audit redaction closure**: OTel `gabbe.input`/`gabbe.output` span attributes
+  are redacted like the JSONL path; non-JSON-serializable objects are
+  stringified-then-redacted so `__str__` output can't smuggle PII/secrets past
+  `json.dumps(default=str)`.
+- **`state_import.sh` hardening**: fatal portable `mktemp` template (no
+  predictable temp dir), `pipefail`, `--no-same-owner --no-same-permissions`
+  extraction; symlink/hardlink + traversal members already rejected.
+- **`setup-context.ps1`**: link detection by `LinkType` (SymbolicLink / Junction /
+  HardLink) — never moves a real file/dir mistaken for a link.
+- **Consistency gate** grown to 8 invariants (dangling concrete-path scan with
+  `agents/` prefix handling, guides-count parity, fence balance, persona
+  resolution, gate-label drift, …).
+
+### Changed — typing + hardening pass (Gemini/Antigravity audit + follow-ups)
+- **`gabbe/` core fully typed**: `mypy --strict` clean across all 21 core modules.
+- **`brain.py`**: gene selection now implements the documented epsilon-greedy
+  policy (20% exploration of the newest generation) instead of pure greedy.
+- **`sync.py`**: Windows-safe atomic writes (`os.replace` PermissionError retry).
+- **`gateway.py`**: tool-argument validation is fail-closed — a parameterized
+  tool refuses to execute when `jsonschema` is unavailable (and `jsonschema>=4`
+  is now a required dependency, so it always is available on a normal install).
+- **`llm.py`**: opt-in `GABBE_LLM_CACHE` (cache identical deterministic LLM
+  calls locally; 0 tokens on a hit; off by default) + malformed-JSON handling.
+- **New checks**: `scripts/tests/test_capability_layer.py` (kit-wide link +
+  frontmatter CI test); `scripts/fill_placeholders.py` interactive setup utility.
+- **`update-scan.skill.md`**: self-evolution git-branching workflow (never
+  mutate `main`; `evolve/{feature}` branch + tests + human review before merge).
+- New regression tests: `GABBE_AUTONOMY` precedence (env > project config >
+  `hybrid`), `budget.reserve()` semantics, real-jsonschema gateway validation.
+
+### Removed — pre-release internals (never shipped in a tagged release)
+- `gabbe.audit.traced` decorator, `gabbe.config.SKILLS_DIR`,
+  `gabbe.config.UNDERLINE` (unused internals; the public span API is
+  `start_span`/`end_span`).
 
 ## [0.9.0] — 2026-06-10 — Audit Hardening (strict backward-compatible)
 
@@ -151,7 +190,7 @@ behavior is additive.
 - **`gabbe/hardstop.py`**: `HardStop` — absolute iteration/depth/timeout guards with `tick()`, `remaining_steps()`, and `should_wrap_up()`.
 - **`gabbe/policy.py`**: `PolicyEngine` with YAML-driven `ToolAllowlistPolicy`, `RolePolicy`, `ContentSafetyPolicy`, `ParameterRangePolicy`; deny-all secure default when policy file is absent.
 - **`gabbe/gateway.py`**: `ToolGateway` — single mediated execution point with rate limiting, circuit breaker, JSON Schema validation, and audit integration.
-- **`gabbe/audit.py`**: `AuditTracer` — structured spans to SQLite `audit_spans` + JSONL + optional OTel; `@traced` decorator; `snapshot_budget()`.
+- **`gabbe/audit.py`**: `AuditTracer` — structured spans to SQLite `audit_spans` + JSONL + optional OTel; `snapshot_budget()`.
 - **`gabbe/escalation.py`**: `EscalationHandler` — three modes (`cli`, `file`, `silent`); `EscalationPaused` exception for `file` mode; `[e]dit context` option in CLI mode.
 - **`gabbe/replay.py`**: `CheckpointStore` + `ReplayRunner` — deterministic replay from `checkpoints` table; `diff()` to compare two runs.
 - **`gabbe/context.py`**: `RunContext` context manager wiring all platform controls together; `from_checkpoint()` for replay.

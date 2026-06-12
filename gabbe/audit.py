@@ -9,7 +9,7 @@ import sqlite3
 import time
 import uuid
 from datetime import datetime, timezone
-from functools import wraps
+from typing import Any
 
 from .config import GABBE_DIR, GABBE_OTEL_ENABLED
 from .database import get_db
@@ -79,7 +79,7 @@ _SECRET_PATTERNS = [
 _REDACTION = "[REDACTED]"
 
 
-def _redact_text(value):
+def _redact_text(value: str) -> str:
     from .config import PII_PATTERNS
 
     for pat in list(PII_PATTERNS) + _SECRET_PATTERNS:
@@ -87,7 +87,7 @@ def _redact_text(value):
     return value
 
 
-def _redact(obj):
+def _redact(obj: Any) -> Any:
     """Recursively redact PII/secret-looking strings in a JSON-able structure
     before it is written to the audit log (honors CONSTITUTION 'no PII logged')."""
     if isinstance(obj, str):
@@ -123,11 +123,11 @@ def should_capture_content() -> bool:
 
 def genai_usage_attributes(
     model: str | None,
-    usage_dict: dict | None,
+    usage_dict: dict[str, Any] | None,
     system: str | None = None,
     operation: str | None = None,
     response_model: str | None = None,
-) -> dict:
+) -> dict[str, Any]:
     """Map a usage dict into OTel GenAI semantic-convention attributes.
 
     ``usage_dict`` follows the same shape ``budget.record_llm_usage`` consumes:
@@ -152,7 +152,7 @@ def genai_usage_attributes(
         "cached_tokens", 0
     ) or usage_dict.get("cache_read_input_tokens", 0)
 
-    attrs: dict = {
+    attrs: dict[str, Any] = {
         GEN_AI_SYSTEM: system or GEN_AI_DEFAULT_SYSTEM,
         GEN_AI_USAGE_INPUT_TOKENS: prompt_tokens,
         GEN_AI_USAGE_OUTPUT_TOKENS: completion_tokens,
@@ -171,8 +171,8 @@ def genai_usage_attributes(
 
 if GABBE_OTEL_ENABLED:
     try:
-        from opentelemetry import trace  # type: ignore
-        from opentelemetry.trace import Status, StatusCode  # type: ignore
+        from opentelemetry import trace
+        from opentelemetry.trace import Status, StatusCode
 
         otel_tracer = trace.get_tracer("gabbe.tracer")
     except ImportError:
@@ -183,7 +183,7 @@ else:
 
 
 class AuditTracer:
-    def __init__(self, run_id: str, db_conn=None):
+    def __init__(self, run_id: str, db_conn: sqlite3.Connection | None = None) -> None:
         self.run_id = run_id
         # We use a new connection if none provided
         self._owns_db = False
@@ -197,11 +197,11 @@ class AuditTracer:
         self.log_dir.mkdir(parents=True, exist_ok=True)
         self.jsonl_path = self.log_dir / f"run_{self.run_id}.jsonl"
 
-    def __del__(self):
+    def __del__(self) -> None:
         if getattr(self, "_owns_db", False) and getattr(self, "db_conn", None):
             self.db_conn.close()
 
-    def _log_jsonl(self, record):
+    def _log_jsonl(self, record: dict[str, Any]) -> None:
         try:
             with open(self.jsonl_path, "a", encoding="utf-8") as f:
                 f.write(json.dumps(_redact(record), default=str) + "\n")
@@ -209,8 +209,12 @@ class AuditTracer:
             logger.error(f"Failed to write JSONL log: {e}")
 
     def start_span(
-        self, event_type: str, node_name: str, input_data: dict, parent_span_id: str | None = None
-    ):
+        self,
+        event_type: str,
+        node_name: str,
+        input_data: dict[str, Any],
+        parent_span_id: str | None = None,
+    ) -> dict[str, Any]:
         span_id = uuid.uuid4().hex[:16]
         start_time = time.monotonic()
         # Capture wall-clock start time so the DB timestamp reflects when the span began.
@@ -239,15 +243,15 @@ class AuditTracer:
 
     def end_span(
         self,
-        span_ctx: dict,
-        output_data: dict | None = None,
+        span_ctx: dict[str, Any],
+        output_data: dict[str, Any] | None = None,
         reasoning_content: str | None = None,
         model_name: str | None = None,
-        token_usage: dict | None = None,
+        token_usage: dict[str, Any] | None = None,
         cost_usd: float = 0.0,
         status: str = "ok",
-        metadata: dict | None = None,
-    ):
+        metadata: dict[str, Any] | None = None,
+    ) -> None:
 
         duration_ms = (time.monotonic() - span_ctx["start_time"]) * 1000
         # Use the wall-clock time captured at span start so the DB timestamp reflects
@@ -334,7 +338,7 @@ class AuditTracer:
             otel_span.set_attribute("gabbe.cost_usd", cost_usd)
             otel_span.end()
 
-    def snapshot_budget(self, step: int, budget):
+    def snapshot_budget(self, step: int, budget: Any) -> None:
         try:
             cursor = self.db_conn.cursor()
             cursor.execute(
@@ -360,14 +364,14 @@ class AuditTracer:
         self,
         run_id: str,
         model: str | None,
-        usage_dict: dict | None,
+        usage_dict: dict[str, Any] | None,
         system: str | None = None,
         operation: str | None = None,
         response_model: str | None = None,
         span: object | None = None,
         prompt: str | None = None,
         completion: str | None = None,
-    ) -> dict:
+    ) -> dict[str, Any]:
         """Attach OTel GenAI semantic-convention attributes for an LLM call.
 
         Additive companion to ``end_span`` — does NOT alter existing span
@@ -416,7 +420,7 @@ class AuditTracer:
 
         return attrs
 
-    def get_run_trace(self, run_id: str) -> list:
+    def get_run_trace(self, run_id: str) -> list[dict[str, Any]]:
         """Return all audit spans for a run as a list of dicts, ordered by timestamp."""
         try:
             cursor = self.db_conn.cursor()
@@ -435,35 +439,3 @@ class AuditTracer:
     def export_json(self, run_id: str) -> str:
         """Return the full run trace as a JSON string."""
         return json.dumps(self.get_run_trace(run_id), default=str, indent=2)
-
-
-def traced(event_type: str, node_name: str | None = None):
-    """Decorator that wraps a function in an audit span if run_context is passed as kwarg."""
-
-    def decorator(func):
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            run_context = kwargs.get("run_context")
-            if run_context is None:
-                # Try positional arg that has a .tracer attribute
-                for a in args:
-                    if hasattr(a, "tracer"):
-                        run_context = a
-                        break
-            if run_context is not None:
-                name = node_name or func.__name__
-                span = run_context.tracer.start_span(event_type, name, {})
-                try:
-                    result = func(*args, **kwargs)
-                    run_context.tracer.end_span(span, output_data={"ok": True}, status="ok")
-                    return result
-                except Exception as exc:
-                    run_context.tracer.end_span(
-                        span, output_data={"error": str(exc)}, status="error"
-                    )
-                    raise
-            return func(*args, **kwargs)
-
-        return wrapper
-
-    return decorator

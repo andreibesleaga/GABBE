@@ -24,6 +24,7 @@ Entry point: `gabbe` (defined in `pyproject.toml → [project.scripts]`)
 | `GABBE_LLM_TIMEOUT` | `30` | HTTP timeout for LLM calls (seconds) |
 | `GABBE_ROUTE_THRESHOLD` | `50` | Complexity score above which a prompt routes REMOTE |
 | `GABBE_LLM_MAX_RETRIES`| `3` | (Internal) Number of retry attempts for LLM calls |
+| `GABBE_LLM_CACHE` | `false` | Opt-in: cache identical LLM calls locally (0 tokens on a hit; only for deterministic calls) |
 | `GABBE_LOG_LEVEL` | `INFO` | Logging level (DEBUG, INFO, WARNING, ERROR) |
 | `GABBE_MAX_COST_USD` | `5.0` | Maximum cost (USD) budget per run |
 | `GABBE_MAX_TOKENS_PER_RUN` | `100000` | Maximum token limit per run |

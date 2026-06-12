@@ -82,3 +82,47 @@ def test_progress_bar_len_positive():
     from gabbe.config import PROGRESS_BAR_LEN
 
     assert PROGRESS_BAR_LEN > 0
+
+
+# Regression: GABBE_AUTONOMY resolution (env > project config > 'hybrid') is the
+# documented contract in docs/SCHEMA.md and 14+ kit skills; GABBE_MAX_RETRIES_PER_TOOL
+# is documented in 4 env tables. Their removal once slipped through untested.
+def test_autonomy_env_overrides_project_config():
+    import importlib
+
+    import gabbe.config as cfg
+
+    with patch.dict(os.environ, {"GABBE_AUTONOMY": "ask"}):
+        with patch.object(cfg, "GABBE_PROJECT_CONFIG", {"autonomy": "auto"}):
+            assert cfg._resolve_autonomy() == "ask"
+    importlib.reload(cfg)
+
+
+def test_autonomy_project_config_used_when_no_env():
+    import gabbe.config as cfg
+
+    env = {k: v for k, v in os.environ.items() if k != "GABBE_AUTONOMY"}
+    with patch.dict(os.environ, env, clear=True):
+        with patch.object(cfg, "GABBE_PROJECT_CONFIG", {"autonomy": "auto"}):
+            assert cfg._resolve_autonomy() == "auto"
+        with patch.object(cfg, "GABBE_PROJECT_CONFIG", {}):
+            assert cfg._resolve_autonomy() == "hybrid"
+
+
+def test_autonomy_invalid_value_falls_back_to_hybrid():
+    import gabbe.config as cfg
+
+    with patch.dict(os.environ, {"GABBE_AUTONOMY": "yolo"}):
+        assert cfg._resolve_autonomy() == "hybrid"
+
+
+def test_max_retries_per_tool_documented_var_exists():
+    from gabbe.config import GABBE_MAX_RETRIES_PER_TOOL
+
+    assert isinstance(GABBE_MAX_RETRIES_PER_TOOL, int) and GABBE_MAX_RETRIES_PER_TOOL >= 1
+
+
+def test_autonomy_module_constant_is_valid():
+    from gabbe.config import GABBE_AUTONOMY
+
+    assert GABBE_AUTONOMY in {"ask", "auto", "hybrid"}

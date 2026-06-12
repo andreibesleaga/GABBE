@@ -21,7 +21,7 @@ RunContext
 └── CheckpointStore   — state snapshots enabling replay
 ```
 
-All state persists to `project/state.db` (schema v3). Zero new required dependencies (PyYAML was already required; `jsonschema` is optional).
+All state persists to `project/state.db` (schema v3). Required dependencies: `requests`, `PyYAML`, and `jsonschema` (tool-argument validation is fail-closed — the gateway refuses to execute a parameterized tool without schema validation).
 
 ---
 
@@ -60,6 +60,8 @@ b.record_llm_usage("gpt-4o", usage_dict)  # tokens + cost
 snap = b.snapshot()             # current state dict
 rem  = b.remaining()            # remaining per dimension
 b.check()                       # raise BudgetExceeded if any limit exceeded
+b.can_afford(estimated_tokens=2000)   # pre-step check (non-mutating)
+b.reserve(estimated_cost_usd=0.10)    # pre-step reservation gate (returns bool)
 
 # Replay reconstruction
 b2 = Budget.from_dict({"max_tokens": 500, "tokens_used": 100})
@@ -141,7 +143,7 @@ All tool execution flows through `ToolGateway.execute()`, which enforces:
 3. Budget check (`record_tool_call()`)
 4. Rate limiting (sliding 60s window, configurable per tool)
 5. Circuit breaker (open after N consecutive failures)
-6. JSON Schema validation (if `jsonschema` is installed)
+6. JSON Schema validation (fail-closed: parameterized tools refuse to execute if `jsonschema` is unavailable)
 7. Handler execution
 8. Audit span recorded (start + end)
 
@@ -181,14 +183,16 @@ trace = tracer.get_run_trace("abc123")  # list of span dicts
 json_str = tracer.export_json("abc123") # full trace as JSON
 ```
 
-**`@traced` decorator:** Wrap any function to auto-create a start/end span pair:
+**Wrapping a function in a span:** use the explicit start/end pair around the call:
 
 ```python
-from gabbe.audit import traced
-
-@traced("tool_call", "my_tool", tracer=tracer)
-def my_tool_handler(args):
-    ...
+span = tracer.start_span("tool_call", "my_tool", {"args": args})
+try:
+    result = my_tool_handler(args)
+    tracer.end_span(span, output_data={"result": result}, status="ok")
+except Exception as e:
+    tracer.end_span(span, output_data={"error": str(e)}, status="error")
+    raise
 ```
 
 **Storage destinations:**

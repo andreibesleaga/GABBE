@@ -1,11 +1,13 @@
 # SPDX-License-Identifier: Apache-2.0
+from __future__ import annotations
+
 import sqlite3
 
 from .config import Colors
 from .database import get_db
 
 
-def run_forecast():
+def run_forecast() -> None:
     """Evaluate done vs remaining work, and forecast remaining budget costs based on historical run data."""
     print(f"{Colors.HEADER}📈 GABBE Strategic Forecast{Colors.ENDC}")
     conn = None

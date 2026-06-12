@@ -1,4 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
+from __future__ import annotations
+
 __version__ = "0.9.6"
 
 # Lazy imports: do not import submodules at package level to avoid side effects

@@ -116,3 +116,27 @@ def test_guides_index_count_matches_filesystem():
     stated = int(m.group(1))
     actual = sum(1 for _ in (AG / "guides").rglob("*.md") if _.name != "00-index.md")
     assert stated == actual, f"guides index says {stated} but {actual} guide files exist"
+
+
+def test_documented_env_vars_exist_in_source():
+    """Every GABBE_* env var documented in a doc table row must be read somewhere in
+    the Python source. Catches the doc-rot class where a documented variable (e.g.
+    GABBE_MAX_RETRIES_PER_TOOL) is deleted from config.py but its doc rows remain —
+    the var silently becomes a no-op for users who set it."""
+    doc_files = [
+        ROOT / "README.md",
+        ROOT / "docs" / "QUICK_GUIDE.md",
+        ROOT / "docs" / "CLI_REFERENCE.md",
+        ROOT / "docs" / "PLATFORM_CONTROLS.md",
+    ]
+    documented = set()
+    for f in doc_files:
+        for ln in f.read_text(encoding="utf-8").splitlines():
+            # only table rows — prose may name hypothetical/example vars
+            if ln.lstrip().startswith("|"):
+                documented |= set(re.findall(r"`(GABBE_[A-Z0-9_]+)`", ln))
+    source = ""
+    for py in list((ROOT / "gabbe").glob("*.py")) + [ROOT / "scripts" / "init.py"]:
+        source += py.read_text(encoding="utf-8")
+    missing = sorted(v for v in documented if v not in source)
+    assert not missing, f"Env vars documented in tables but absent from source: {missing}"

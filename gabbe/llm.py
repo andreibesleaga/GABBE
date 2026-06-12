@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import logging
 import time
+from typing import Any, Dict, Optional, Tuple
 
 import requests
 
@@ -20,7 +21,9 @@ logger = logging.getLogger("gabbe.llm")
 _LLM_RETRY_DELAY = 1  # seconds
 
 
-def _create_payload(prompt, system_prompt, temperature):
+def _create_payload(
+    prompt: str, system_prompt: str, temperature: Optional[float]
+) -> Dict[str, Any]:
     return {
         "model": GABBE_API_MODEL,
         "messages": [
@@ -31,7 +34,7 @@ def _create_payload(prompt, system_prompt, temperature):
     }
 
 
-def _handle_response(response):
+def _handle_response(response: requests.Response) -> Tuple[Optional[str], Dict[str, Any]]:
     response.raise_for_status()
     data = response.json()
     usage = data.get("usage", {})
@@ -45,11 +48,13 @@ def _handle_response(response):
     return None, usage
 
 
-def _call_with_retry(prompt, system_prompt, temperature, timeout):
+def _call_with_retry(
+    prompt: str, system_prompt: str, temperature: Optional[float], timeout: Optional[float]
+) -> Tuple[Optional[str], Dict[str, Any]]:
     """Shared retry loop. Returns (content, usage) tuple."""
     if not GABBE_API_KEY:
         raise EnvironmentError(
-            "GABBE_API_KEY is not set. " "Set the environment variable before using LLM features."
+            "GABBE_API_KEY is not set. Set the environment variable before using LLM features."
         )
 
     temperature = temperature if temperature is not None else LLM_TEMPERATURE
@@ -90,6 +95,9 @@ def _call_with_retry(prompt, system_prompt, temperature, timeout):
             logger.error("LLM request failed: %s", e)
             return None, {}
 
+        except ValueError as e:
+            logger.warning("LLM returned malformed JSON (ValueError): %s", e)
+
         # Backoff logic
         if attempt < LLM_MAX_RETRIES:
             sleep_time = _LLM_RETRY_DELAY * (2 ** (attempt - 1))
@@ -101,7 +109,12 @@ def _call_with_retry(prompt, system_prompt, temperature, timeout):
     return None, {}
 
 
-def call_llm(prompt, system_prompt="You are a helpful assistant.", temperature=None, timeout=None):
+def call_llm(
+    prompt: str,
+    system_prompt: str = "You are a helpful assistant.",
+    temperature: Optional[float] = None,
+    timeout: Optional[float] = None,
+) -> Optional[str]:
     """
     Call an LLM via an OpenAI-compatible API.
 
@@ -114,8 +127,11 @@ def call_llm(prompt, system_prompt="You are a helpful assistant.", temperature=N
 
 
 def call_llm_with_usage(
-    prompt, system_prompt="You are a helpful assistant.", temperature=None, timeout=None
-):
+    prompt: str,
+    system_prompt: str = "You are a helpful assistant.",
+    temperature: Optional[float] = None,
+    timeout: Optional[float] = None,
+) -> Tuple[Optional[str], Dict[str, Any]]:
     """
     Like call_llm() but also returns the token usage dict for budget tracking.
     Returns (str|None, dict) where dict contains prompt_tokens, completion_tokens, total_tokens.

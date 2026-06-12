@@ -46,7 +46,6 @@ def test_brain_subcommands_match_docs():
     registered = _brain_subcommands_registered()
     documented = _documented_brain_subcommands()
     assert registered, "expected brain subcommands in main.py"
-    assert registered == documented, (
-        f"brain subcommand drift: registered={sorted(registered)} "
-        f"documented={sorted(documented)}"
-    )
+    assert (
+        registered == documented
+    ), f"brain subcommand drift: registered={sorted(registered)} documented={sorted(documented)}"

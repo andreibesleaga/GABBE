@@ -1,10 +1,13 @@
 # SPDX-License-Identifier: Apache-2.0
+from __future__ import annotations
+
 import json
 import logging
 import os
 import shlex
 import subprocess
 import sys
+from typing import Any
 
 from .context import RunContext
 from .gateway import ToolDefinition
@@ -22,13 +25,13 @@ def _insecure_mode() -> bool:
     return os.environ.get("GABBE_MCP_INSECURE", "").strip().lower() in ("1", "true", "yes")
 
 
-def _mcp_token():
+def _mcp_token() -> str | None:
     # Token clients must send in initialize params. When unset the server is
     # fail-closed (refuses tool calls) unless insecure mode is on.
     return os.environ.get("GABBE_MCP_TOKEN")
 
 
-def _allowed_commands() -> list:
+def _allowed_commands() -> list[str]:
     raw = os.environ.get("GABBE_MCP_ALLOWED_COMMANDS", "")
     return [c.strip() for c in raw.split(",") if c.strip()]
 
@@ -43,7 +46,7 @@ def _command_timeout() -> int:
 _authenticated = False  # per-process session flag
 
 
-def run_command_handler(command: str):
+def run_command_handler(command: str) -> dict[str, Any]:
     tokens = shlex.split(command)
     if not tokens:
         return {"stdout": "", "stderr": "Empty command", "returncode": 1}
@@ -84,7 +87,7 @@ def run_command_handler(command: str):
     return {"stdout": result.stdout, "stderr": result.stderr, "returncode": result.returncode}
 
 
-def serve():
+def serve() -> None:
     """Zero-dependency JSON-RPC server implementing the MCP Protocol endpoints."""
     global _authenticated
     insecure = _insecure_mode()

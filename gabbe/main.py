@@ -1,4 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
+from __future__ import annotations
+
 import argparse
 import logging
 import sys
@@ -8,7 +10,7 @@ from .config import LOG_LEVEL, Colors
 from .database import init_db
 
 
-def main():
+def main() -> None:
     logging.basicConfig(
         level=getattr(logging, LOG_LEVEL, logging.INFO),
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
@@ -267,7 +269,7 @@ def main():
 
             scripts_dir = Path(__file__).resolve().parent.parent / "scripts"
 
-            def _run_script(name, extra):
+            def _run_script(name: str, extra: list[str]) -> None:
                 script = scripts_dir / name
                 if not script.exists():
                     print(

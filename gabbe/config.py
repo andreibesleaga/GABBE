@@ -144,6 +144,7 @@ GABBE_MAX_TOOL_CALLS_PER_RUN = _safe_int("GABBE_MAX_TOOL_CALLS_PER_RUN", 50)
 GABBE_MAX_ITERATIONS = _safe_int("GABBE_MAX_ITERATIONS", 25)
 GABBE_MAX_WALL_TIME = _safe_int("GABBE_MAX_WALL_TIME", 300)
 GABBE_MAX_RECURSION_DEPTH = _safe_int("GABBE_MAX_RECURSION_DEPTH", 5)
+GABBE_MAX_RETRIES_PER_TOOL = _safe_int("GABBE_MAX_RETRIES_PER_TOOL", 3)
 GABBE_MAX_COST_USD = _safe_float("GABBE_MAX_COST_USD", 5.0)
 GABBE_POLICY_FILE = PROJECT_ROOT / os.environ.get("GABBE_POLICY_FILE", "project/policies.yml")
 GABBE_ESCALATION_MODE = os.environ.get("GABBE_ESCALATION_MODE", "cli")  # cli, file, silent
@@ -171,6 +172,25 @@ def _load_project_config(path: Path) -> dict[str, Any]:
 
 GABBE_PROJECT_CONFIG_FILE = GABBE_DIR / "gabbe.config.json"
 GABBE_PROJECT_CONFIG = _load_project_config(GABBE_PROJECT_CONFIG_FILE)
+
+
+def _resolve_autonomy() -> str:
+    """Autonomy posture precedence: env > project config > default 'hybrid'.
+
+    Valid values: ask | auto | hybrid. Invalid values warn and fall back to hybrid.
+    """
+    valid = {"ask", "auto", "hybrid"}
+    raw = os.environ.get("GABBE_AUTONOMY") or GABBE_PROJECT_CONFIG.get("autonomy") or "hybrid"
+    raw = str(raw).strip().lower()
+    if raw not in valid:
+        logger.warning("Invalid GABBE_AUTONOMY=%r; using 'hybrid'", raw)
+        return "hybrid"
+    return raw
+
+
+# ask = always clarify; auto = act when cheap+reversible (still ask for expensive/SOTA/
+# irreversible); hybrid (default) = auto-when-cheap, ask-when-expensive.
+GABBE_AUTONOMY = _resolve_autonomy()
 
 
 # Task status constants — single source of truth used across brain, sync, status

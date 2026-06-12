@@ -103,6 +103,7 @@
         "record_llm_usage": "(self, model_id: str, usage_dict: dict[str, typing.Any]) -> None",
         "record_tool_call": "(self) -> None",
         "remaining": "(self) -> dict[str, typing.Any]",
+        "reserve": "(self, estimated_tokens: int = 0, estimated_cost_usd: float = 0.0) -> bool",
         "snapshot": "(self) -> dict[str, typing.Any]"
       }
     },
@@ -156,6 +157,9 @@
     "GABBE_API_URL": {
       "kind": "str"
     },
+    "GABBE_AUTONOMY": {
+      "kind": "str"
+    },
     "GABBE_ESCALATION_MODE": {
       "kind": "str"
     },
@@ -169,6 +173,9 @@
       "kind": "int"
     },
     "GABBE_MAX_RECURSION_DEPTH": {
+      "kind": "int"
+    },
+    "GABBE_MAX_RETRIES_PER_TOOL": {
       "kind": "int"
     },
     "GABBE_MAX_TOKENS_PER_RUN": {

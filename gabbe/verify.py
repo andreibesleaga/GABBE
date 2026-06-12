@@ -72,6 +72,13 @@ def parse_agents_config() -> dict[str, str]:
 
 def run_command(cmd: str, name: str) -> bool:
     """Run a shell command safely without shell=True."""
+    if "[PLACEHOLDER" in cmd:
+        print(
+            f"  {Colors.FAIL}x {name} command is an unfilled placeholder: {cmd!r}\n"
+            f"    Fill it in agents/AGENTS.md (or run: python scripts/fill_placeholders.py)"
+            f"{Colors.ENDC}"
+        )
+        return False
     print(f"  Running {name}: {Colors.BLUE}{cmd}{Colors.ENDC}")
     try:
         args = shlex.split(cmd)

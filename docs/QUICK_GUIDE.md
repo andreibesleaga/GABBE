@@ -90,6 +90,7 @@ GABBE contains a **Zero-Dependency CLI** (`gabbe`) CLI which powers the "Hybrid 
 | `GABBE_LLM_TEMPERATURE` | `0.7` | Sampling temperature (0.0–1.0) |
 | `GABBE_LLM_TIMEOUT` | `30` | HTTP timeout in seconds |
 | `GABBE_LLM_MAX_RETRIES` | `3` | Number of LLM retry attempts on transient errors |
+| `GABBE_LLM_CACHE` | `false` | Opt-in: cache identical LLM calls locally (0 tokens on a hit; only for deterministic calls) |
 | `GABBE_LOG_LEVEL` | `INFO` | Logging verbosity (`DEBUG`, `INFO`, `WARNING`, `ERROR`) |
 | `GABBE_ROUTE_THRESHOLD` | `50` | Complexity score above which prompts route REMOTE |
 | `GABBE_MAX_COST_USD` | `5.0` | Maximum cost (USD) budget per run |
@@ -113,6 +114,10 @@ pip install -e .
 
 # 2. Verify installation
 gabbe --help
+
+# 3. (Optional) Interactively fill the kit's [PLACEHOLDER: ...] markers
+#    (project name, stack, conventions) across agents/ in one pass
+python scripts/fill_placeholders.py
 ```
 
 ### Core Commands

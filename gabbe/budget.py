@@ -164,6 +164,17 @@ class Budget:
             return False
         return True
 
+    def reserve(self, estimated_tokens: int = 0, estimated_cost_usd: float = 0.0) -> bool:
+        """Reserve budget for a step before executing it (financial middleware).
+
+        Estimate the worst-case cost of the next step and check it against the
+        remaining budget. Returns True if the step fits and may proceed; False if
+        it would exceed budget (the caller should choose a cheaper path or
+        escalate to a human). Does not consume budget — reconciliation happens via
+        record_llm_usage after the step actually runs.
+        """
+        return self.can_afford(estimated_tokens, estimated_cost_usd)
+
     @classmethod
     def from_config(cls) -> "Budget":
         return cls()

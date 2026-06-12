@@ -776,9 +776,8 @@ class TestPlatformControls(unittest.TestCase):
 
     # ----- Gateway (PLATFORM_CONTROLS § Tool Gateway) -----
     def test_gateway_register_and_execute(self):
-        """ToolGateway.execute dispatches to registered handler."""
-        from unittest.mock import MagicMock, patch
-
+        """ToolGateway.execute dispatches to registered handler with REAL jsonschema
+        validation (jsonschema is a required dependency — no mocking)."""
         from gabbe.context import RunContext
         from gabbe.gateway import ToolDefinition, ToolGateway
 
@@ -796,12 +795,65 @@ class TestPlatformControls(unittest.TestCase):
         )
 
         with RunContext(command="test", initiator="test") as ctx:
-            with (
-                patch("gabbe.gateway.HAS_JSONSCHEMA", True),
-                patch("gabbe.gateway.jsonschema", MagicMock(), create=True),
-            ):
-                result = gw.execute("test_tool", {}, role="agent", run_context=ctx)
-                self.assertEqual(result["result"], "ok")
+            result = gw.execute("test_tool", {}, role="agent", run_context=ctx)
+            self.assertEqual(result["result"], "ok")
+
+    def test_gateway_real_schema_validation_rejects_bad_arguments(self):
+        """Real jsonschema validation: arguments violating the tool schema raise
+        ValueError before the handler runs (fail-closed argument validation)."""
+        from gabbe.context import RunContext
+        from gabbe.gateway import ToolDefinition, ToolGateway
+
+        init_db()
+
+        gw = ToolGateway()
+        gw.register(
+            ToolDefinition(
+                name="strict_tool",
+                description="Tool with a typed required parameter",
+                parameters={
+                    "type": "object",
+                    "properties": {"count": {"type": "integer"}},
+                    "required": ["count"],
+                },
+                handler=lambda **kw: {"result": kw["count"]},
+                allowed_roles={"agent"},
+            )
+        )
+
+        with RunContext(command="test", initiator="test") as ctx:
+            result = gw.execute("strict_tool", {"count": 3}, role="agent", run_context=ctx)
+            self.assertEqual(result["result"], 3)
+            with self.assertRaises(ValueError):
+                gw.execute("strict_tool", {"count": "three"}, role="agent", run_context=ctx)
+            with self.assertRaises(ValueError):
+                gw.execute("strict_tool", {}, role="agent", run_context=ctx)
+
+    def test_gateway_fails_closed_when_jsonschema_unavailable(self):
+        """If jsonschema were ever missing, executing a parameterized tool must raise
+        RuntimeError (fail-closed) rather than silently skipping validation."""
+        from unittest.mock import patch
+
+        from gabbe.context import RunContext
+        from gabbe.gateway import ToolDefinition, ToolGateway
+
+        init_db()
+
+        gw = ToolGateway()
+        gw.register(
+            ToolDefinition(
+                name="param_tool",
+                description="Parameterized tool",
+                parameters={"type": "object", "properties": {}},
+                handler=lambda **kw: {"result": "ok"},
+                allowed_roles={"agent"},
+            )
+        )
+
+        with RunContext(command="test", initiator="test") as ctx:
+            with patch("gabbe.gateway.HAS_JSONSCHEMA", False):
+                with self.assertRaises(RuntimeError):
+                    gw.execute("param_tool", {}, role="agent", run_context=ctx)
 
     # ----- Escalation (PLATFORM_CONTROLS § Escalation Handler) -----
     def test_escalation_silent_auto_rejects(self):

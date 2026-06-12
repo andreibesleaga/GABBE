@@ -31,6 +31,10 @@ classifiers = [
 dependencies = [
     "requests>=2.28,<3.0",
     "PyYAML>=6.0",
+    # Required for fail-closed tool-argument validation in the gateway: executing a
+    # parameterized tool without schema validation is a security gap, so the gateway
+    # raises rather than silently skipping when jsonschema is absent.
+    "jsonschema>=4.0",
 ]
 
 [project.optional-dependencies]

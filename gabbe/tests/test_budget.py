@@ -211,3 +211,19 @@ def test_budget_anthropic_cache_read_field_supported():
     )
     # 400 cached @1/M + 100 fresh @10/M = 0.0004 + 0.001 = 0.0014
     assert abs(b.cost_usd - (400 * 1e-6 + 100 * 10e-6)) < 1e-12
+
+
+# Regression: reserve() is public API documented in the agent-operating-ergonomics
+# guide (pre-step cost reservation). Its removal once slipped through because no
+# test covered it — these lock it in.
+def test_reserve_allows_step_within_budget():
+    b = Budget(max_tokens=10_000, max_cost_usd=5.0)
+    assert b.reserve(estimated_tokens=1_000, estimated_cost_usd=0.5) is True
+
+
+def test_reserve_denies_step_exceeding_budget_without_consuming():
+    b = Budget(max_tokens=1_000, max_cost_usd=0.01)
+    assert b.reserve(estimated_tokens=5_000) is False
+    assert b.reserve(estimated_cost_usd=1.0) is False
+    # Non-mutating: denial must not consume any budget.
+    assert b.tokens_used == 0 and b.cost_usd == 0.0

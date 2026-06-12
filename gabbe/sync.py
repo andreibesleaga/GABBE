@@ -185,12 +185,17 @@ class _SyncLock:
                 return self
 
     def __exit__(self, *exc: Any) -> None:
-        if self._fd is not None:
-            try:
-                os.close(self._fd)
-            except OSError:
-                pass
-            self._fd = None
+        if self._fd is None:
+            # Lock was never acquired (best-effort early return in __enter__).
+            # Do NOT unlink: a lock file present here belongs to ANOTHER process,
+            # and deleting it would let two syncs interleave — the exact race
+            # this lock exists to prevent.
+            return
+        try:
+            os.close(self._fd)
+        except OSError:
+            pass
+        self._fd = None
         try:
             self.path.unlink()
         except OSError:

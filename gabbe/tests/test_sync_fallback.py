@@ -101,3 +101,32 @@ def test_sync_appends_if_no_tasks_found(tmp_path):
         assert content in new_content
         assert _MARKER_START in new_content
         assert "- [ ] Task A" in new_content
+
+
+def test_sync_lock_exit_does_not_delete_foreign_lock(tmp_path):
+    """Regression (Copilot #16): if __enter__ never acquired the lock (best-effort
+    early return), __exit__ must NOT unlink the lock file — it belongs to another
+    process, and deleting it would defeat the cross-process advisory lock."""
+    from gabbe.sync import _SyncLock
+
+    lock = _SyncLock()
+    lock.path = tmp_path / ".sync.lock"
+    lock.path.write_text("99999")  # a FOREIGN process's lock
+    lock._fd = None  # simulate: we never acquired it
+
+    lock.__exit__(None, None, None)
+    assert lock.path.exists(), "foreign lock file must survive our __exit__"
+
+
+def test_sync_lock_normal_acquire_release_removes_lock(tmp_path):
+    """Happy path: an acquired lock is released and its file removed."""
+    import os as _os
+
+    from gabbe.sync import _SyncLock
+
+    lock = _SyncLock()
+    lock.path = tmp_path / ".sync.lock"
+    lock._fd = _os.open(str(lock.path), _os.O_CREAT | _os.O_EXCL | _os.O_WRONLY)
+
+    lock.__exit__(None, None, None)
+    assert not lock.path.exists()

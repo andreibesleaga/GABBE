@@ -48,7 +48,7 @@ jobs:
       - name: Generate CycloneDX 1.6 SBOM
         run: |
           pip install -e .
-          cyclonedx-py environment --output-format JSON --spec-version 1.6 --outfile sbom.json
+          cyclonedx-py environment --output-format JSON --spec-version 1.6 --output-file sbom.json
 
       - name: Attach artifacts to release
         uses: softprops/action-gh-release@v2

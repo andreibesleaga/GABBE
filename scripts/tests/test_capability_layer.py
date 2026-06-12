@@ -47,15 +47,22 @@ def test_skills_have_required_frontmatter():
                 )
                 continue
 
-            frontmatter = content.split("---")[1]
-            if "name:" not in frontmatter:
+            # The block must be properly terminated by a closing '---' line.
+            end = content.find("\n---", 3)
+            if end == -1:
                 missing_frontmatter.append(
-                    f"{filepath.relative_to(AGENTS_DIR)}: Missing 'name:' in frontmatter"
+                    f"{filepath.relative_to(AGENTS_DIR)}: Unterminated YAML frontmatter"
                 )
-            if "triggers:" not in frontmatter:
-                missing_frontmatter.append(
-                    f"{filepath.relative_to(AGENTS_DIR)}: Missing 'triggers:' in frontmatter"
-                )
+                continue
+
+            frontmatter = content[3:end]
+            # Required keys match agents/scripts/validate_skills.py (name + description)
+            # plus triggers, which every kit skill carries for activation routing.
+            for key in ("name:", "description:", "triggers:"):
+                if key not in frontmatter:
+                    missing_frontmatter.append(
+                        f"{filepath.relative_to(AGENTS_DIR)}: Missing '{key[:-1]}' in frontmatter"
+                    )
 
     assert not missing_frontmatter, "Skill frontmatter errors:\n" + "\n".join(missing_frontmatter)
 

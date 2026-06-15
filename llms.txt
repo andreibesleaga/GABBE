@@ -1,0 +1,61 @@
+# GABBE (Generative Architectural Brain Base Engine)
+
+> GABBE is a universal, runtime-agnostic Markdown "agentic engineering kit" that turns any AI coding agent (Claude Code, Cursor, Windsurf, Cline, Aider, Gemini, Antigravity, OpenCode, Zed, Continue, Roo Code, Kilo Code, GitHub Copilot, OpenAI/Codex, VS Code) into a governed software engineering team. It ships 180 skills, 73 guides, 34 personas, and 85 templates, plus an optional experimental Python CLI (`gabbe`) providing budget/policy/audit/MCP controls. Versioned 0.9.x at the time of writing (the Releases link below is the source of truth for the latest tag). License: Apache-2.0 (code) AND CC-BY-SA-4.0 (content).
+
+This file follows the llms.txt convention (https://llmstxt.org). It gives an agent the essential technical facts to use or integrate GABBE as body text, then links to the deeper docs in the sections below. Links point to the GABBE GitHub repository and are fetchable.
+
+**How GABBE works (read this first if you are an agent operating inside a GABBE-enabled repo).** The kit lives under `agents/`. The operating contract is `agents/AGENTS.md` (the every-session operating loop) governed by `agents/CONSTITUTION.md` (hard invariants, Articles I–X: security, cost, spec-driven, observability, human-in-the-loop). On install, the kit is emitted into each agent's native location: `.claude/skills/<slug>/SKILL.md` (Claude), `.cursor/rules/*.mdc` (Cursor), `.github/skills/` (VS Code/Copilot), `.gemini/`, and the universal `.agents/skills/<slug>/SKILL.md` tree (read by Antigravity, OpenCode, and any agentskills.io-compatible tool). `AGENTS.md` is also linked as `.claude/CLAUDE.md`, `.cursorrules`, and `.github/copilot-instructions.md`.
+
+- Operating spine each session: **preflight → clarify → act → state-preserve → final-review**. `agents/memory/RESUME_POINTER.md` is the lifeline (current task + NEXT ACTION) so a token/time/crash cutoff never loses progress.
+- State is portable: `agents/scripts/state_export.sh` / `state_import.sh` move full working state (memory, tasks, config) between agents/LLMs so work continues seamlessly in another tool.
+- Two cognition modes: **Brain Mode** (System 2 — Active Inference + evolutionary prompt optimization, meta-cognitive orchestration) wraps **Loki Mode** (System 1 — a 10-phase SDLC state machine, S01–S10, with human approval gates) run by 30+ specialized personas.
+- Autonomy posture `GABBE_AUTONOMY` ∈ `ask | auto | hybrid` (default `hybrid`; precedence: env var > `project/gabbe.config.json` > default). Levels L0–L3 scale how much the agent acts vs. asks; expensive/irreversible/SOTA actions always require human approval.
+
+**Install.** Choose any path:
+
+- Node (Python-independent, recommended): `npx gabbe init` — bundles the kit and wires every agent. Non-interactive: `npx gabbe init --agents claude,cursor,antigravity,opencode --yes`.
+- Shell: `curl -fsSL https://raw.githubusercontent.com/andreibesleaga/GABBE/main/install.sh | sh` (PowerShell: `install.ps1`).
+- Python: `pip install gabbe` (or pipx/uvx), then `gabbe setup`. The full Markdown kit ships in the **sdist** only (it lives outside the importable `gabbe` package); a plain wheel install gets the CLI but not the kit — use `npx gabbe init` for the kit without Python.
+- Fill kit placeholders interactively: `python scripts/fill_placeholders.py`.
+
+**Optional CLI (`gabbe`) — experimental platform control layer.** The Markdown kit works with zero Python; the optional CLI adds enforcement. Verbs:
+
+- `gabbe init` (init SQLite state), `gabbe db`, `gabbe sync` (bidirectional `project/TASKS.md` ↔ DB), `gabbe verify` (programmable integrity: files/tests/lint), `gabbe status` (dashboard), `gabbe setup` (install wizard).
+- `gabbe brain activate | evolve | heal` (Active Inference loop / evolutionary prompt optimization / self-heal; needs an API key), `gabbe route` (cost router local vs remote), `gabbe forecast` (cost/token projection).
+- `gabbe serve-mcp` (fail-closed JSON-RPC MCP gateway: requires a token + command allowlist), `gabbe runs`, `gabbe audit <run-id>` (span trace), `gabbe replay <run-id>` (deterministic replay), `gabbe resume <run-id>` (approve/reject escalations).
+- `gabbe registry publish | add` (agentskills.io interop).
+- Control surfaces: Budget (tokens/cost/tool-calls/iterations/wall-time + `can_afford()`/`reserve()`), HardStop (absolute guards), PolicyEngine (YAML RBAC + allowlists, **fail-closed** — deny-all when no/empty policy), ToolGateway (single mediated execution point; **fail-closed** schema validation via required `jsonschema`), AuditTracer (SQLite + JSONL + optional OTel GenAI spans, PII/secret redaction by default), EscalationHandler, CheckpointStore.
+
+**Configuration (environment variables).** Read at runtime from `.env` or the OS environment (defined in `gabbe/config.py`; the MCP-server vars are consumed in `gabbe/mcp_server.py`). Key vars: `GABBE_API_KEY`, `GABBE_API_URL`, `GABBE_API_MODEL`, `GABBE_AUTONOMY`, `GABBE_MAX_TOKENS_PER_RUN`, `GABBE_MAX_COST_USD`, `GABBE_MAX_TOOL_CALLS_PER_RUN`, `GABBE_MAX_ITERATIONS`, `GABBE_MAX_WALL_TIME`, `GABBE_MAX_RECURSION_DEPTH`, `GABBE_MAX_RETRIES_PER_TOOL`, `GABBE_LLM_TEMPERATURE`, `GABBE_LLM_TIMEOUT`, `GABBE_LLM_MAX_RETRIES`, `GABBE_LLM_CACHE` (opt-in deterministic response cache), `GABBE_POLICY_FILE`, `GABBE_ESCALATION_MODE`, `GABBE_OTEL_ENABLED`, `GABBE_MCP_TOKEN`, `GABBE_MCP_ALLOWED_COMMANDS`, `GABBE_ROUTE_THRESHOLD`, `GABBE_SUBPROCESS_TIMEOUT`, `GABBE_LOG_LEVEL`. Per-project config: `project/gabbe.config.json` (autonomy, budgets, model tiers, enabled MCPs, registries).
+
+**Repository layout.** `agents/` is the kit: `AGENTS.md`, `CONSTITUTION.md`, `skills/` (180 `*.skill.md`), `guides/` (73), `personas/` (34), `templates/` (85), `memory/`, `scripts/` (install + state export/import + skill compilation). `gabbe/` is the optional Python CLI (fully typed, `mypy --strict` clean): `main.py`, `brain.py`, `budget.py`, `policy.py`, `gateway.py`, `audit.py`, `sync.py`, `route.py`, `escalation.py`, `replay.py`, `config.py`. `bin/install.js` is the Node installer; `install.sh` / `install.ps1` are shell installers; `scripts/` holds `init.py`, `registry_export.py`, `registry_import.py`, gates, and tests. `docs/` is the full documentation; `project/` is runtime state (DB, TASKS.md, policies).
+
+**Quality & compatibility guarantees.** 480+ tests (`pytest`); `scripts/verify_all.sh` runs up to 13 checks (toolchain-dependent ones such as the Node install smoke are skipped with a note when unavailable); `mypy --strict` clean on the 21 core modules; ruff + black clean. Six backward-compatibility gates on every change: API surface, CLI `--help` byte-equal, config schema superset, DB schema superset, emitter golden vault, CVE delta (`osv-scanner`/`pip-audit`). Drift-prevention consistency gates (9 invariants) + capability-layer validators (skills/links/use-cases/frontmatter). Security defaults: fail-closed policy + gateway, redacted observability, hardened untrusted-archive import, SBOM (CycloneDX 1.6) attached to every release.
+
+## Documentation
+
+- [README](https://github.com/andreibesleaga/GABBE/blob/main/README.md): Project overview, quick reference, install, command table, env vars.
+- [Full README](https://github.com/andreibesleaga/GABBE/blob/main/docs/README_FULL.md): Expanded narrative documentation of the whole system.
+- [Quick Guide](https://github.com/andreibesleaga/GABBE/blob/main/docs/QUICK_GUIDE.md): Installation, core commands, platform control layer, env tables.
+- [CLI Reference](https://github.com/andreibesleaga/GABBE/blob/main/docs/CLI_REFERENCE.md): Every `gabbe` command and environment variable.
+- [Quick Commands](https://github.com/andreibesleaga/GABBE/blob/main/docs/QUICK_COMMANDS.md): Copy-paste command cheatsheet.
+- [Platform Controls](https://github.com/andreibesleaga/GABBE/blob/main/docs/PLATFORM_CONTROLS.md): Budget, hard stops, policy engine, tool gateway, audit tracer, escalation, replay.
+- [Config Schema](https://github.com/andreibesleaga/GABBE/blob/main/docs/SCHEMA.md): Emitted-format contract + `project/gabbe.config.json` schema (autonomy precedence, budgets).
+- [MCP Configurations](https://github.com/andreibesleaga/GABBE/blob/main/docs/MCP_CONFIGURATIONS.md): 50+ recommended MCP servers with verified configs.
+- [Verification Guide](https://github.com/andreibesleaga/GABBE/blob/main/docs/VERIFICATION_GUIDE.md): How GABBE verifies work end-to-end.
+
+## Agent contract
+
+- [AGENTS.md](https://github.com/andreibesleaga/GABBE/blob/main/agents/AGENTS.md): The every-session operating loop — mandates (skill-selection, cost, spec-driven, observability, collaboration), Steps 0–7, self-evolve, HITL, continuity/portability, tool overrides.
+- [CONSTITUTION.md](https://github.com/andreibesleaga/GABBE/blob/main/agents/CONSTITUTION.md): Hard invariants (Articles I–X) that override task objectives — security, no destructive ops without approval, budget limits, no silent failures.
+- [Skills index](https://github.com/andreibesleaga/GABBE/blob/main/agents/skills/00-index.md): 180 specialized `*.skill.md` capabilities (each with `name`/`description`/`triggers` frontmatter).
+- [Guides index](https://github.com/andreibesleaga/GABBE/blob/main/agents/guides/00-index.md): 73 language/domain/process guides (incl. the Loki 10-phase SDLC).
+- [Personas index](https://github.com/andreibesleaga/GABBE/blob/main/agents/personas/00-index.md): 34 specialized roles (architect, implementer, security auditor, QA, orchestrators).
+
+## Optional
+
+- [CHANGELOG](https://github.com/andreibesleaga/GABBE/blob/main/CHANGELOG.md): Per-version history (the top entry is the latest release).
+- [TESTING](https://github.com/andreibesleaga/GABBE/blob/main/TESTING.md): One-stop verification and how-to-test.
+- [CONTRIBUTING](https://github.com/andreibesleaga/GABBE/blob/main/CONTRIBUTING.md): Contribution workflow and the 6 backward-compat gates.
+- [SECURITY](https://github.com/andreibesleaga/GABBE/blob/main/SECURITY.md): Security policy and disclosure.
+- [Releases](https://github.com/andreibesleaga/GABBE/releases): Tagged releases with wheel, sdist, npm tarball, kit tarball, and SBOM.

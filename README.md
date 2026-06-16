@@ -7,8 +7,8 @@
 
 ## What is this?
 
-- The first published open-source project world-wide that features a complete agentic coding kit/framework with cognitive brain loop, skills, SDLC workflow, etc.
 - Agentic code development and governance via capability layers and software development cycle gates verifications and alignment (including best practices for security and human-in-the-loop, complete framework).
+- The first published open-source project world-wide that features a complete agentic coding kit/framework with cognitive brain loop, skills, SDLC workflow, etc.
 - Universal kit for Software and AI coding agents: Claude Code, Cursor, Windsurf, Cline, Aider, Devin, Gemini, **Antigravity**, **OpenCode**, **Zed**, **Continue**, **Roo Code**, **Kilo Code**, OpenAI/Codex, GitHub Copilot, VS Code.
 - Drop-in context kit that turns any AI coding agent into a governed engineering team for developing software.
 - Based on Software Engineering & Architecture Practices and Procedures.

@@ -51,7 +51,7 @@ jobs:
           cyclonedx-py environment --output-format JSON --spec-version 1.6 --output-file sbom.json
 
       - name: Attach artifacts to release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           files: |
             dist/*
@@ -79,7 +79,7 @@ jobs:
           tar -czf "dist/gabbe-kit.tar.gz" agents docs scripts/init.py install.sh install.ps1 bin/install.js package.json README.md LICENSE LICENSE-CODE
 
       - name: Attach npm + kit tarballs to release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           files: |
             ./*.tgz

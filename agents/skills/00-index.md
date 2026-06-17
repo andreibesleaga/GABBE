@@ -89,6 +89,13 @@ ln -sf /path/to/agents/skills/*/*.skill.md ~/.agent/skills/
 | Excalidraw | `coding/excalidraw.skill.md` | excalidraw, whiteboard, visual | medium | Excalidraw diagram creation via MCP |
 | Sketch-to-Diagram | `coding/sketch-to-diagram.skill.md` | sketch, hand-drawn, recognize | high | Hand-drawn sketch → formal diagram |
 | tldraw Canvas | `coding/tldraw-canvas.skill.md` | tldraw, canvas, wireframe, UI sketch | medium | Visual canvas for wireframing and design |
+| Eval-Driven Dev | `coding/eval-driven-development.skill.md` | eval suite, golden dataset, prompt regression, pass@k | medium | Score probabilistic LLM/agent quality |
+| Agent Trajectory Eval | `coding/agent-trajectory-eval.skill.md` | trajectory eval, tool-use eval, tau-bench, swe-bench | medium | Evaluate tool-call trajectories |
+| Output Validation | `coding/output-validation.skill.md` | schema validation, structured output, pii masking | medium | Validate + mask LLM output |
+| Property-Based Testing | `coding/pbt-strategy.skill.md` | property test, hypothesis, invariant, stateful | medium | PBT invariants via Hypothesis |
+| Metamorphic Testing | `coding/metamorphic-testing.skill.md` | metamorphic, paraphrase invariance, oracle problem | medium | Metamorphic relations for LLM/NLP |
+| Chaos & Fault Injection | `coding/chaos-fault-injection.skill.md` | chaos, fault injection, resilience, fallback | medium | Fault recipes to expected recovery |
+| Spec-Driven Development | `coding/spec-driven-development.skill.md` | spec-first, spec kit, executable spec | medium | Spec-first workflow S01 to S04 |
 
 ### 2. Architecture & Design (`architecture/`)
 | Skill | File | Triggers | Purpose |
@@ -123,6 +130,8 @@ ln -sf /path/to/agents/skills/*/*.skill.md ~/.agent/skills/
 | Scalability | `architecture/system-scalability.skill.md` | horizontal, scale | Auditing system bottlenecks |
 | Blockchain DLT | `architecture/blockchain-dlt.skill.md` | dlt, web3 | Smart contracts & Ledgers |
 | Visual Whiteboard | `architecture/visual-whiteboarding.skill.md` | drawio, miro, figma | Map spatial architecture |
+| Attribute-Driven Design | `architecture/attribute-driven-design.skill.md` | add 3.0, quality attributes, drivers | Iterative ADD 3.0 design |
+| Fitness Functions | `architecture/fitness-functions.skill.md` | fitness function, evolutionary architecture | Continuous arch governance |
 
 ### 3. Operations & SRE (`ops/`)
 | Skill | File | Triggers | Purpose |
@@ -152,6 +161,11 @@ ln -sf /path/to/agents/skills/*/*.skill.md ~/.agent/skills/
 | Troubleshooting | `ops/troubleshooting-guide.skill.md` | troubleshoot | Incident diagnosis |
 | Cost Optimization | `ops/cost-optimization.skill.md` | finops, costs | Analyze cloud spend |
 | Dev Workflow | `ops/dev-workflow.skill.md` | git workflow, gh cli, docs | Git & Diátaxis docs |
+| Observability Setup | `ops/observability-stack-setup.skill.md` | opentelemetry, otel, traces, dashboards | OTel instrumentation + dashboards |
+| Feature Flags | `ops/feature-flag-management.skill.md` | feature flag, kill switch, canary | Flag lifecycle + progressive delivery |
+| Runbook Authoring | `ops/runbook-authoring.skill.md` | runbook, alert response, remediation | Operational runbooks per alert |
+| Dependency Lifecycle | `ops/dependency-lifecycle.skill.md` | dependency upgrade, sbom, cve triage, eol | Patch/upgrade cadence + SBOM |
+| Decommission & Sunset | `ops/decommission-sunset.skill.md` | decommission, sunset, deprecation, retention | Sunset + data retention |
 
 ### 4. Security & Compliance (`security/`)
 | Skill | File | Triggers | Purpose |
@@ -177,6 +191,7 @@ ln -sf /path/to/agents/skills/*/*.skill.md ~/.agent/skills/
 | Crypto Standards | `security/cryptography-standards.skill.md` | encrypt | Crypto algorithms |
 | Privacy Protection | `security/privacy-data-protection.skill.md` | gdpr, pii | Data privacy |
 | Secure Arch | `security/secure-architecture.skill.md` | zero trust | Defense-in-depth |
+| Prompt Injection Defense | `security/prompt-injection-defense.skill.md` | prompt injection, indirect injection, lethal trifecta, jailbreak | Defense-in-depth vs injection |
 
 ### 5. Data & Analytics (`data/`)
 | Skill | File | Triggers | Purpose |
@@ -206,6 +221,13 @@ ln -sf /path/to/agents/skills/*/*.skill.md ~/.agent/skills/
 | Green Software | `product/green-software.skill.md` | green, carbon | medium | Sustainable Software |
 | Sustainability | `product/sustainability-checks.skill.md` | esg, sustain | ESG & Sustainability checks |
 | Visual Specs | `product/visual-specs.skill.md` | visual spec, diagram spec | Visual inputs → spec package |
+| Ideation Facilitation | `product/ideation-facilitation.skill.md` | brainstorm, how-might-we, scamper, crazy-8s | Divergent/convergent ideation |
+| User Research Synthesis | `product/user-research-synthesis.skill.md` | affinity map, jtbd, persona synthesis, journey | Synthesize research into personas |
+| Opportunity Assessment | `product/opportunity-assessment.skill.md` | wardley, north-star, rice, opportunity sizing | Opportunity brief + RICE |
+| Change Management | `product/change-management.skill.md` | adkar, adoption, rollout comms | ADKAR change plan |
+| Estimation & Sizing | `product/estimation-sizing.skill.md` | estimation, reference-class, story points | Probabilistic sizing |
+| Product Analytics | `product/product-analytics.skill.md` | funnel, a/b test, dora, space, retention | Analytics + delivery metrics |
+| Financial Governance | `product/financial-governance.skill.md` | budget, roi, unit economics, cost allocation | Budget + unit economics |
 
 ### 7. Coordination & Agents (`coordination/`)
 | Skill | File | Triggers | Purpose |
@@ -242,6 +264,7 @@ ln -sf /path/to/agents/skills/*/*.skill.md ~/.agent/skills/
 | Emerging | `core/emerging-tech.skill.md` | future | Tech radar |
 | Analytics | `core/agent-analytics.skill.md` | token usage | Agent metrics |
 | Connectors | `core/knowledge-connect.skill.md` | rag, doc | RAG ingestion |
+| Retrospective | `core/retrospective.skill.md` | retro, blameless, lessons learned | Blameless retrospective |
 
 ### 9. Neuro-Architecture (`brain/`)
 *See separate index in `brain/README.md`*
@@ -271,6 +294,9 @@ ln -sf /path/to/agents/skills/*/*.skill.md ~/.agent/skills/
 | Sensory Motor | `brain/sensory-motor.skill.md` | med | Embodied tool use |
 | Sequential Thinking | `brain/sequential-thinking.skill.md` | think, reason | medium | Step-by-step reasoning |
 | Working Memory | `brain/working-memory.skill.md` | high | Session state management |
+| LLM-as-Judge | `ai/llm-as-judge.skill.md` | llm judge, rubric scoring, eval bias | Score outputs with an LLM judge |
+| RAG Evaluation | `ai/rag-evaluation.skill.md` | rag eval, faithfulness, context precision | Reference-free RAG metrics |
+| Cognitive Testing | `brain/cognitive-testing.skill.md` | cognitive test, invariant, convergence, shadow test | Test cognitive loops by invariants |
 
 ### 10. Activation Modes (`brain/`)
 | Skill | File | Triggers | Context | Purpose |

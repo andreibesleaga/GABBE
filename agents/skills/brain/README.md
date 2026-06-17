@@ -67,5 +67,4 @@ graph TD
 | **Theory** | [`epistemology-knowledge.skill.md`](epistemology-knowledge.skill.md) | Epistemological foundations for AI knowledge. |
 | **Plasticity** | [`learning-adaptation.skill.md`](learning-adaptation.skill.md) | Neuroplasticity and path strengthening. |
 
-
 ---

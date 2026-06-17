@@ -19,6 +19,7 @@ Updated by:    [agent/human]
 
 | Phase | Name | Status | Started | Completed | Approver | Gate Criteria |
 |---|---|---|---|---|---|---|
+| S00 | Strategy & Discovery (Day-0) | NOT_STARTED | — | — | — | Problem statement + opportunity assessment + RICE, human GO/NO-GO |
 | S01 | Requirements | NOT_STARTED | — | — | — | PRD.md with EARS, human approval |
 | S02 | Design | NOT_STARTED | — | — | — | Architecture + ADRs + threat model |
 | S03 | Specification | NOT_STARTED | — | — | — | Tech spec + API contracts |
@@ -29,12 +30,25 @@ Updated by:    [agent/human]
 | S08 | Review | NOT_STARTED | — | — | — | Human code review approved |
 | S09 | Staging | NOT_STARTED | — | — | — | Deployed + smoke tests passing |
 | S10 | Production | NOT_STARTED | — | — | — | Deployed + rollback documented |
+| S11 | Operate & Maintain (Day-2) | NOT_STARTED | — | — | — | SLOs met, runbooks live, no critical CVEs, spend within budget |
+| S12 | Evolve & Improve (Day-2) | NOT_STARTED | — | — | — | Retrospective actions logged, experiments decided, DORA/SPACE reviewed |
+| S13 | Decommission & Sunset (Day-2) | NOT_STARTED | — | — | — | Deprecation approved, data archived/migrated, users notified |
 
 **Status values:** `NOT_STARTED` | `IN_PROGRESS` | `BLOCKED` | `COMPLETED`
 
 ---
 
 ## Definition of Done — Per Phase
+
+### S00 — Strategy & Discovery (Day-0)
+```
+[ ] Problem statement drafted (job-to-be-done, who hurts, why now)
+[ ] Opportunity assessment complete (sizing, risks, North-Star + HEART metrics)
+[ ] Market/competitive scan + Wardley map captured
+[ ] Candidate bets prioritized with RICE
+[ ] Human GO/NO-GO decision recorded (GO required to start S01)
+[ ] SESSION_SNAPSHOT/S00_discovery.md created
+```
 
 ### S01 — Requirements
 ```
@@ -143,6 +157,36 @@ Updated by:    [agent/human]
 [ ] No error spike in first 30 minutes post-deploy
 [ ] SESSION_SNAPSHOT/S10_production.md created
 [ ] Git tag: v[semver] created
+```
+
+### S11 — Operate & Maintain (Day-2)
+```
+[ ] Observability stack live (metrics/logs/traces, dashboards, SLOs)
+[ ] Runbooks authored per service (RUNBOOK_TEMPLATE.md)
+[ ] On-call rotation + error-budget policy defined
+[ ] Dependency/patch cadence running; 0 open critical CVEs
+[ ] SLO adherence report green; cost within budget
+[ ] SESSION_SNAPSHOT/S11_operate.md created
+```
+
+### S12 — Evolve & Improve (Day-2)
+```
+[ ] Blameless retrospective held; action items logged
+[ ] Product analytics reviewed (funnels, retention, North-Star movement)
+[ ] A/B experiments planned and each has a decision (ship/iterate/kill)
+[ ] Tech-debt paydown items fed back into the backlog/S04
+[ ] DORA + SPACE metrics reviewed; stale feature flags retired
+[ ] SESSION_SNAPSHOT/S12_evolve.md created
+```
+
+### S13 — Decommission & Sunset (Day-2)
+```
+[ ] Deprecation policy + timeline approved
+[ ] Data retention/migration executed; archives + final backups taken
+[ ] Users notified; migration paths communicated
+[ ] Infra torn down safely; no live dependents remain
+[ ] License/contract/vendor wind-down confirmed
+[ ] SESSION_SNAPSHOT/S13_sunset.md created
 ```
 
 ---

@@ -10,7 +10,6 @@ context_cost: high
 ## Goal
 Design robust, fault-tolerant architectures for safety-critical systems (e.g., medical, automotive, aerospace) conforming to standards like DO-178C or IEC 62304.
 
-
 ## Steps
 1. **Hazard Analysis**: Perform a rigorous failure modes analysis (FMEA) or system-theoretic process analysis (STPA).
 2. **Fault Tolerance**: Design N-modular redundancy, watchdog timers, or explicitly separated safety silos.

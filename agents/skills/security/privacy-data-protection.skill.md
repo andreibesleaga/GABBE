@@ -10,7 +10,6 @@ context_cost: medium
 ## Goal
 Implement Data Privacy by Design. Ensure PII and PCI data are properly isolated, encrypted, minimal, and subject to Data Subject Access Requests (DSARs).
 
-
 ## Steps
 1. **Data Mapping**: Scan schemas using the `DATA_PIPELINE_TEMPLATE.md` to map exactly where PII resides.
 2. **Minimization**: Flag unnecessary PII collection fields and suggest removal.

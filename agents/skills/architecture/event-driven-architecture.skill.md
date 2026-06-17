@@ -10,7 +10,6 @@ context_cost: medium
 ## Goal
 Architect distributed, decoupled systems using Event-Driven Architecture (EDA) patterns like Pub/Sub, Event Sourcing, and CQRS.
 
-
 ## Steps
 1. **Event Modeling**: Identify domain events and map out producer/consumer relationships.
 2. **Broker Design**: Select the appropriate messaging tech (Kafka, RabbitMQ, SQS) based on throughput and ordering constraints.

@@ -15,6 +15,8 @@ Standard agents are goal-directed (maximize reward); **Active Inference** agents
 - **Goal:** not just to "win" but to understand and control.
 - **Surprise:** the gap between *expectation* and *observation*.
 
+> **Implementation note:** the production `gabbe/brain.py` uses epsilon-greedy gene selection plus a monotonic `success_rate` reward (effectively a bandit over prompt variants); the free-energy / active-inference framing here is conceptual, not implemented math.
+
 ## 2. The Feedback Loop
 1. **Predict:** "Running `go test` will output PASS."
 2. **Act/Sense:** run the command, read output.

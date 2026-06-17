@@ -10,7 +10,6 @@ context_cost: high
 ## Goal
 Implement advanced autonomous swarm patterns (e.g., ant-colony optimization, particle swarm, or self-organizing agent clusters) for decentralized problem-solving.
 
-
 ## Steps
 1. **Pheromone/Marker Design**: Define how agents leave structural markers (like `CONTINUITY.md` or git commits) to influence other agents asynchronously.
 2. **Behavioral Rules**: Give each agent simple, localized rules rather than complex global knowledge.

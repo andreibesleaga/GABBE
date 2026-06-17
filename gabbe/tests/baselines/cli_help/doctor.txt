@@ -1,0 +1,4 @@
+usage: main.py doctor [-h]
+
+options:
+  -h, --help  show this help message and exit

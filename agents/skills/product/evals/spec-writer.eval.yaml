@@ -1,0 +1,22 @@
+# Golden eval suite for the `spec-writer` skill (Track E2).
+description: Spec-writer skill produces testable EARS-style acceptance criteria
+skill: product/spec-writer.skill.md
+prompts:
+  - |
+    Apply the spec-writer skill to draft acceptance criteria for: "{{feature}}".
+providers:
+  - id: gabbe:llm
+tests:
+  - description: Login feature yields testable criteria
+    vars:
+      feature: user can reset their password via an emailed link
+    assert:
+      - { type: min-length, value: 60 }
+      - type: llm-rubric
+        value: Produces testable acceptance criteria (EARS-style WHEN/THEN or GIVEN/WHEN/THEN), including an error/expiry path, not just a happy path.
+  - description: Criteria cover boundary and failure conditions
+    vars:
+      feature: upload a profile photo up to 5 MB
+    assert:
+      - type: llm-rubric
+        value: Specifies the size boundary and at least one failure condition (oversized file / wrong type), each independently verifiable.

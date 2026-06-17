@@ -10,7 +10,6 @@ context_cost: medium
 ## Goal
 Ensure APIs are fortified against common vulnerabilities like BOLA/IDOR, broken authentication, rate limiting bypasses, and massive assignment.
 
-
 ## Steps
 1. **Audit Endpoints**: Scan all exposed controllers and routers.
 2. **Enforce OWASP API Top 10**: Check for Broken Object Level Auth (BOLA), excessive data exposure, and security misconfigurations.

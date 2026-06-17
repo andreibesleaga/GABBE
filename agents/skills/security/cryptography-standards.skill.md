@@ -10,7 +10,6 @@ context_cost: low
 ## Goal
 Apply, enforce, and maintain robust cryptographic strategies to protect data at rest and data in transit across all services.
 
-
 ## Steps
 1. **Identify Requirement**: Determine if data requires at-rest hashing, symmetric encryption, or transit protection.
 2. **Algorithm Selection**: Utilize modern, enterprise-approved primitives (e.g., Argon2id, AES-256-GCM, TLS 1.3).

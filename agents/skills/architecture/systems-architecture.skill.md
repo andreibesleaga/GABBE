@@ -10,7 +10,6 @@ context_cost: high
 ## Goal
 Maintain the holistic, high-level structural map of the software system using the C4 model (Context, Container, Component, Code).
 
-
 ## Steps
 1. **Context Mapping**: Define the System Context (users and external systems).
 2. **Container Design**: Break the system into deployable containers (Web apps, APIs, Databases).

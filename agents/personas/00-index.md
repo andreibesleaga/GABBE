@@ -90,6 +90,8 @@
 | `prod-ethicist` | [prod-ethicist.md](prod-ethicist.md) | AI Ethics & Sustainability Officer | Ethical Impact Assessments, Governance |
 | `prod-safety-engineer` | [prod-safety-engineer.md](prod-safety-engineer.md) | Safety Officer (Hazel) - Hazard Analysis & Compliance | Hazard Analysis Reports, Safety Compliance Docs |
 | `prod-research` | [prod-research.md](prod-research.md) | User Research, Market Analysis, Competitive Intel | Research Reports, User Personas |
+| `prod-product-ops` | [prod-product-ops.md](prod-product-ops.md) | Day-2 metrics, A/B experiments, DORA/SPACE, flag rollouts | Analytics + experiment plans |
+| `prod-integration` | [prod-integration.md](prod-integration.md) | Third-party integration, vendor SLA, contract testing | Integration specs, contract tests |
 | `biz-compliance` | [biz-compliance.md](biz-compliance.md) | Business compliance, policies, audit | Business compliance report |
 | `biz-legal` | [biz-legal.md](biz-legal.md) | Legal review, licenses, contracts | Legal approval, license report |
 

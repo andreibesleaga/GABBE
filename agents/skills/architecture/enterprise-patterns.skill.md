@@ -10,7 +10,6 @@ context_cost: medium
 ## Goal
 Implement widespread architectural patterns (BFF, API Gateway, Saga Pattern, Circuit Breaker) for scalable and resilient enterprise operations.
 
-
 ## Steps
 1. **Identify Constraint**: Select the pattern that solves the specific distributed computing constraint (e.g., Saga for distributed transactions).
 2. **Component Implementation**: Generate the boilerplate (e.g., Spring/Go libraries) for the specific pattern.

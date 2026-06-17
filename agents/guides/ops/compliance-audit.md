@@ -126,7 +126,7 @@ activity()
    ->causedBy($user)
    ->withProperties(['amount' => 100])
    ->log('Order placed');
-   
+
 // In model
 protected $logAttributes = ['status', 'total']; // Only log safe attributes
 protected $logOnlyDirty = true;

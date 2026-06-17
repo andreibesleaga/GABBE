@@ -4,10 +4,23 @@ from __future__ import annotations
 import argparse
 import logging
 import sys
+from pathlib import Path
 
 from . import __version__
 from .config import LOG_LEVEL, Colors
 from .database import init_db
+
+
+def _resolve_install_target(args: argparse.Namespace) -> Path:
+    """Resolve the install target: --dir > --global > project (cwd)."""
+    import os
+
+    if getattr(args, "dir", None):
+        return Path(args.dir).resolve()
+    if getattr(args, "global_scope", False):
+        base = os.environ.get("XDG_DATA_HOME") or str(Path.home() / ".local" / "share")
+        return Path(base) / "gabbe"
+    return Path.cwd()
 
 
 def main() -> None:
@@ -40,7 +53,12 @@ def main() -> None:
     subparsers.add_parser("sync", help="Sync Markdown <-> SQLite")
 
     # --- COMMAND: verify ---
-    subparsers.add_parser("verify", help="Run integrity checks")
+    verify_parser = subparsers.add_parser("verify", help="Run integrity checks")
+    verify_parser.add_argument(
+        "--chaos",
+        action="store_true",
+        help="Run fault-injection self-checks (fail-closed tools, hard-stop, escalation)",
+    )
 
     # --- COMMAND: status ---
     subparsers.add_parser("status", help="Show project dashboard")
@@ -109,6 +127,52 @@ def main() -> None:
     # --- COMMAND: setup ---
     subparsers.add_parser("setup", help="Run the interactive install wizard (wire agents + skills)")
 
+    # --- COMMAND: eval ---
+    eval_parser = subparsers.add_parser(
+        "eval", help="Run skill eval suites (deterministic self-check; --live scores via the model)"
+    )
+    eval_parser.add_argument(
+        "--live",
+        action="store_true",
+        help="Score skill outputs against the model (nightly; needs GABBE_LIVE_LLM=1)",
+    )
+    eval_parser.add_argument("--out", help="Write the JSON scorecard to this path")
+
+    # --- COMMAND: doctor ---
+    subparsers.add_parser(
+        "doctor", help="Auto-detect OS, runtimes, and agent clients; print an install report"
+    )
+
+    # --- COMMAND: uninstall ---
+    uninstall_parser = subparsers.add_parser(
+        "uninstall", help="Reverse a GABBE install from its manifest (restores backups)"
+    )
+    uninstall_parser.add_argument(
+        "--agents", help="Comma-separated agents to deselect (default: all)"
+    )
+    uninstall_parser.add_argument(
+        "--dry-run", action="store_true", help="Print the plan; change nothing"
+    )
+    uninstall_parser.add_argument(
+        "--purge", action="store_true", help="Also remove the agents/ kit + .gabbe/"
+    )
+    uninstall_parser.add_argument(
+        "--global", dest="global_scope", action="store_true", help="Target the global install"
+    )
+    uninstall_parser.add_argument("--dir", help="Target a custom install directory")
+
+    # --- COMMAND: update ---
+    update_parser = subparsers.add_parser(
+        "update", help="Additively refresh kit files; prune orphans; preserve user files"
+    )
+    update_parser.add_argument(
+        "--agents", help="Comma-separated agents to refresh (default: manifest set)"
+    )
+    update_parser.add_argument(
+        "--global", dest="global_scope", action="store_true", help="Target the global install"
+    )
+    update_parser.add_argument("--dir", help="Target a custom install directory")
+
     # Parse arguments
     args = parser.parse_args()
 
@@ -134,9 +198,15 @@ def main() -> None:
             sync_tasks()
 
         elif args.command == "verify":
-            from .verify import run_verification
+            if getattr(args, "chaos", False):
+                from .verify import run_chaos_checks
 
-            run_verification()
+                if not run_chaos_checks():
+                    sys.exit(1)
+            else:
+                from .verify import run_verification
+
+                run_verification()
 
         elif args.command == "status":
             from .status import show_dashboard
@@ -309,6 +379,46 @@ def main() -> None:
                     f"use 'npx gabbe init' or the repo's scripts/init.py.{Colors.ENDC}"
                 )
                 sys.exit(2)
+
+        elif args.command == "eval":
+            from .evals import run_evals
+
+            rc = run_evals(live=args.live, out=args.out)
+            if rc != 0:
+                sys.exit(rc)
+
+        elif args.command == "doctor":
+            from .doctor import run_doctor
+
+            rc = run_doctor()
+            if rc != 0:
+                sys.exit(rc)
+
+        elif args.command == "uninstall":
+            from .installer import uninstall as _uninstall
+
+            target = _resolve_install_target(args)
+            agents = args.agents.split(",") if args.agents else None
+            removed = _uninstall(target, agents=agents, dry_run=args.dry_run, purge=args.purge)
+            verb = "Would remove" if args.dry_run else "Removed"
+            print(f"{verb} {len(removed)} path(s) from {target}")
+
+        elif args.command == "update":
+            from pathlib import Path as _Path
+
+            from .installer import update_kit
+
+            source = _Path(__file__).resolve().parent.parent / "agents"
+            if not source.exists():
+                print(
+                    f"{Colors.WARNING}Kit source not found (packaged install): run "
+                    f"'npx gabbe init' / 'gabbe setup' to refresh.{Colors.ENDC}"
+                )
+                sys.exit(2)
+            target = _resolve_install_target(args)
+            agents = args.agents.split(",") if args.agents else None
+            manifest = update_kit(target, source, agents=agents)
+            print(f"Updated kit at {target} ({len(manifest['entries'])} artifacts)")
 
         else:
             parser.print_help()

@@ -50,6 +50,16 @@ Comprehensive installation, configuration, and usage guide for every MCP (Model 
 
 ---
 
+> **GABBE's own MCP server (`gabbe serve-mcp`) hardens its tool inputs.** The
+> `run_command` tool input is a single bounded JSON Schema contract: the `command`
+> string is constrained by **charset** (a `pattern` forbidding control characters
+> and NUL) and **length** (`maxLength`), with `additionalProperties: false`. This
+> defends against injection-via-tool-feedback and oversized payloads (MCP-38
+> threat taxonomy / NSA MCP guidance) and is regression-tested by
+> `gabbe/tests/test_mcp_contract.py`. When authoring downstream MCP tool schemas,
+> apply the same rule: never expose a `type: "string"` input without bounding its
+> length and character set.
+
 ## 1. Essential Servers
 
 These servers are recommended for **every project**.

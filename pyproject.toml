@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "gabbe"
-version = "0.9.6"
+version = "1.0.0"
 description = "Generative Architectural Brain Base Engine - Agentic Engineering Kit"
 readme = "README.md"
 requires-python = ">=3.9"
@@ -42,9 +42,21 @@ dev = [
     "pytest>=7.0",
     "pytest-cov",
     "hypothesis>=6.0",
+    "hypothesis-jsonschema>=0.23",
+    "mutmut>=2.4",
     "ruff>=0.6",
     "black>=24.0",
     "mypy>=1.8",
+]
+# Optional eval tooling (Track E). NOT required by GABBE's home-grown skill-eval
+# harness (agents/scripts/eval_skills.py reuses gabbe/llm.py). Kept out of core
+# and [dev] so these heavy libraries never enter the audited dependency set and
+# the CVE-delta gate stays clean. Install explicitly to run Ragas/DeepEval/
+# Langfuse alongside the harness; promptfoo is a separate external Node CLI.
+evals = [
+    "ragas>=0.2",
+    "deepeval>=1.0",
+    "langfuse>=2.0",
 ]
 
 [project.scripts]
@@ -67,6 +79,11 @@ include-package-data = true
 
 [tool.pytest.ini_options]
 testpaths = ["gabbe/tests", "scripts/tests"]
+markers = [
+    "slow: long-running tests (excluded from per-commit CI)",
+    "live_llm: calls a real LLM; mocked by default, real only when GABBE_LIVE_LLM=1",
+    "mutation: targeted by mutmut mutation testing (non-blocking nightly)",
+]
 
 [tool.ruff]
 line-length = 100

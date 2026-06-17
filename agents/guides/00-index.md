@@ -6,7 +6,7 @@
 
 ---
 
-> **Total Guides**: 73
+> **Total Guides**: 79
 > *Registry categorized by domain.*
 
 ## Guides Registry
@@ -49,13 +49,11 @@
 | Scalability | `architecture/system-scalability.md` | Vertical and Horizontal scaling |
 | Blockchain | `architecture/blockchain-dlt.md` | DLT and Decentralized Systems |
 
-
 ### 3. Data Engineering (`data/`)
 | Guide | File | Purpose |
 |---|---|---|
 | SQL vs NoSQL | `data/sql-nosql.md` | Database selection criteria |
 | Semantic Web | `data/semantic-web.md` | RDF, SPARQL, and Ontology usage |
-
 
 ### 4. Language Stacks (`languages/`)
 | Guide | File | Purpose |
@@ -80,7 +78,6 @@
 | Dev Workflow | `ops/dev-workflow.md` | Git/GitHub ops + Diátaxis docs |
 | GABBE CLI Workflows | `ops/gabbe-cli-workflows.md` | Using the gabbe CLI platform controls |
 
-
 ### 6. Implementation Patterns (`patterns/`)
 | Guide | File | Purpose |
 |---|---|---|
@@ -103,7 +100,6 @@
 | Green Software | `planning/green-software.md` | Sustainable engineering (SCI) |
 | Sustainability | `planning/sustainability-checks.md` | Checklist for green software |
 
-
 ### 8. Principles & Standards (`principles/`)
 | Guide | File | Purpose |
 |---|---|---|
@@ -114,6 +110,7 @@
 | Legacy Tech | `principles/legacy-tech.md` | Handling deprecated codebases |
 | No-Code Integ. | `principles/no-code-integration.md` | Connecting no-code platforms |
 | Testing Strat. | `principles/testing-strategy.md` | The testing pyramid and mocks |
+| Evaluation Strat. | `principles/evaluation-strategy.md` | Evals vs tests; eval pyramid; eval-driven CI |
 | Visual Design | `principles/visual-design-system.md` | Design tokens and accessibility |
 
 ### 9. Security & Privacy (`security/`)
@@ -124,6 +121,7 @@
 | Privacy Data | `security/privacy-data-protection.md` | GDPR, HIPAA handling |
 | Secure Arch. | `security/secure-architecture.md` | Defense in depth |
 | Threat Modeling | `security/threat-modeling.md` | STRIDE analysis methodology |
+| AI Risk Standards Map | `security/ai-risk-standards-map.md` | OWASP LLM Top 10 / NIST AI RMF / MITRE ATLAS / ISO 42001 / EU AI Act mapping |
 
 ### 10. Industry Domains (`industry/`)
 | Guide | File | Purpose |

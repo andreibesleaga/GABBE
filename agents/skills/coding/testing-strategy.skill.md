@@ -29,6 +29,19 @@ To help the user or agent define *what* to test, *how* to test it, and *where* t
 -   **Focus**: Verifying API contracts between Consumer and Provider.
 -   **Tools**: Pact.
 
+## Advanced Tiers (Beyond the Pyramid)
+
+Example-based unit/integration tests only exercise the cases a human thought to write.
+The following four tiers attack the gaps — covering input spaces, relations, failure
+modes, and the quality of the tests themselves.
+
+-   **Property-Based Testing** (`pbt-strategy.skill`): Instead of asserting on hand-picked examples, declare *properties* (invariants) that must hold for all inputs, then let a generator (Hypothesis, fast-check) throw thousands of randomized cases at the function and **shrink** any counterexample to its minimal form. Best for parsers, serializers, encoders/decoders (round-trip properties), and pure business logic where you can state "for all X, this must be true."
+-   **Metamorphic Testing** (`metamorphic-testing.skill`): For systems with no easy oracle (ML models, search ranking, numerical/optimization code, LLM pipelines), you cannot assert the exact output — but you *can* assert **relations between related inputs**. E.g. "translating A→B→A preserves meaning," "adding an irrelevant doc must not change the top result," "scaling all prices by 2x doubles the total." Metamorphic relations turn an unknowable correct answer into a checkable consistency rule.
+-   **Chaos / Fault-Injection** (`chaos-fault-injection.skill`): Verify resilience by *deliberately injecting failures* — kill processes, drop network packets, inject latency, exhaust disk/memory, return 500s from dependencies — and assert the system degrades gracefully (circuit breakers trip, retries back off, no data loss). Tests the failure paths that happy-path suites never touch; tools include Toxiproxy, Chaos Mesh, and `pytest`-level dependency stubs that raise on demand.
+-   **Mutation Testing**: Measures *test-suite quality* rather than code behavior. A mutation tool (e.g. **mutmut** for Python, Stryker for JS) introduces small faults ("mutants") into the source — flip a `<` to `<=`, swap `+` for `-`, drop a statement — and re-runs the tests. A mutant that survives means no test detected the change, exposing a coverage blind spot. The **mutation score** (killed mutants ÷ total mutants) is a far stronger signal of test effectiveness than line coverage, which the "100% Coverage" Fallacy below warns against.
+
+Tests verify determinism; **evals** score probabilistic quality — see `eval-driven-development.skill`.
+
 ## Steps
 1.  **Analyze Project**:
     -   Is it a monolith or microservices?

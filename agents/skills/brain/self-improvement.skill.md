@@ -46,13 +46,13 @@ To prevent "Cancer" (Runaway bad mutations):
 def optimize_prompt(task_history):
     # 1. Analyze Failure
     failure_pattern = find_pattern(task_history, status="failed")
-    
+
     # 2. Propose Mutation
     new_instruction = llm.generate_fix(failure_pattern)
-    
+
     # 3. Simulate (Mental Sandbox)
     predicted_success = llm.simulate(new_instruction)
-    
+
     # 4. Integrate
     if predicted_success > threshold:
         update_skill_file(new_instruction)

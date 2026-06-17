@@ -22,7 +22,7 @@
 ### Target Schema (Warehouse)
 ```sql
 CREATE TABLE marts.dim_customers (
-  customer_sk STRING, 
+  customer_sk STRING,
   ...
 )
 ```

@@ -19,7 +19,7 @@ You have been invoked to refine project documentation, execute complex git workf
    - Author the documentation keeping strictly to the constraints of that quadrant.
 4. If managing git:
    - Use `git status`, `git log`, and `gh pr status` to orient yourself.
-   - Use interactive rebase if history needs cleaning. 
+   - Use interactive rebase if history needs cleaning.
    - Ensure all commits use Conventional Commits formatting.
 
 ## Security & Guardrails

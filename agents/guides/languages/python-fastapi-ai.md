@@ -178,7 +178,7 @@ class CreateUserUseCase:
         existing = await self.repo.find_by_email(command.email)
         if existing:
             raise ValueError("Email already exists")
-        
+
         user = User(email=command.email, name=command.name)
         await self.repo.save(user)
         return user

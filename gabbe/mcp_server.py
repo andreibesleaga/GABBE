@@ -17,6 +17,29 @@ logger = logging.getLogger("gabbe.mcp")
 # Current MCP protocol revision this server negotiates against.
 MCP_PROTOCOL_VERSION = "2025-11-25"
 
+# Hardened input contract for the run_command tool (Track E5). A single source of
+# truth used by BOTH the registered ToolDefinition (gateway-enforced via
+# jsonschema) and the tools/list inputSchema (what the client sees), so they can
+# never drift. The bounds defend against injection-via-tool-feedback and oversized
+# payloads (MCP-38 threat taxonomy / NSA MCP guidance):
+#   - charset bound: pattern forbids C0 control chars (incl. NUL) and DEL
+#   - length bound: maxLength caps the payload
+#   - additionalProperties: False rejects unexpected/smuggled fields
+_MAX_COMMAND_LEN = 4096
+_RUN_COMMAND_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        "command": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": _MAX_COMMAND_LEN,
+            "pattern": "^[^\\x00-\\x1f\\x7f]+$",
+        }
+    },
+    "required": ["command"],
+    "additionalProperties": False,
+}
+
 
 def _insecure_mode() -> bool:
     """Legacy permissive behavior (no auth, allow-all commands). Opt in ONLY on a
@@ -114,11 +137,7 @@ def serve() -> None:
             ToolDefinition(
                 name="run_command",
                 description="Run a shell command on the host.",
-                parameters={
-                    "type": "object",
-                    "properties": {"command": {"type": "string"}},
-                    "required": ["command"],
-                },
+                parameters=_RUN_COMMAND_SCHEMA,
                 handler=run_command_handler,
                 allowed_roles={"external_agent"},
             )
@@ -172,11 +191,7 @@ def serve() -> None:
                                 {
                                     "name": "run_command",
                                     "description": "Run a shell command",
-                                    "inputSchema": {
-                                        "type": "object",
-                                        "properties": {"command": {"type": "string"}},
-                                        "required": ["command"],
-                                    },
+                                    "inputSchema": _RUN_COMMAND_SCHEMA,
                                 }
                             ]
                         },

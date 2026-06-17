@@ -112,13 +112,13 @@ async def receive_message(msg: AgentMessage):
     # 1. Validate Sender
     if not is_authorized(msg.sender):
         return {"error": "Unauthorized"}
-    
+
     # 2. Process Protocol
     if msg.type == "request":
         # ... trigger internal reasoning ...
         response = agent_core.think(msg.content)
         return {"status": "success", "response": response}
-    
+
     return {"status": "received"}
 ```
 

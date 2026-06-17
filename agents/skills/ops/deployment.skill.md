@@ -114,7 +114,7 @@ Ensure software is deployed safely, securely, and repeatably. Verify CI/CD pipel
    ```dockerfile
    FROM python:3.12-slim-bookworm AS base
    WORKDIR /app
-   
+
    # Security: non-root user
    RUN addgroup --system appgroup && adduser --system --group appuser
 
@@ -125,7 +125,7 @@ Ensure software is deployed safely, securely, and repeatably. Verify CI/CD pipel
    RUN uv sync --frozen --no-dev
 
    COPY --chown=appuser:appgroup . .
-   
+
    USER appuser
    CMD ["uv", "run", "fastapi", "run", "src/main/main.py", "--port", "8000"]
    ```

@@ -6,7 +6,7 @@
 
 ---
 
-> **Total Templates**: 85
+> **Total Templates**: 97
 > *Registry categorized by domain.*
 
 ## Templates Registry
@@ -23,12 +23,18 @@
 | Design Tokens | `coding/DESIGN_TOKENS_TEMPLATE.json` | UI Design colors/typography |
 | Time Complexity Report | `coding/TIME_COMPLEXITY_REPORT_TEMPLATE.md` | Big-O analysis and hotspot tracking |
 | Sketch-to-Diagram Report | `coding/SKETCH_TO_DIAGRAM_TEMPLATE.md` | Hand-drawn sketch recognition output |
+| Eval Plan | `coding/EVAL_PLAN_TEMPLATE.md` | Offline eval suite plan (golden dataset + assertion tiers) |
+| Golden Dataset | `coding/GOLDEN_DATASET_TEMPLATE.md` | Promptfoo-compatible eval cases + assertions |
+| Eval Rubric | `coding/EVAL_RUBRIC_TEMPLATE.md` | LLM-as-judge scoring rubric + debiasing checklist |
+| Property Test Checklist | `coding/PROPERTY_TEST_CHECKLIST.md` | PBT + metamorphic test readiness checklist |
 
 ### 2. Architecture & Design (`architecture/`)
 | Template | File | Purpose |
 |---|---|---|
 | ADR | `architecture/ADR_TEMPLATE.md` | Architecture Decision Record |
 | Decision Matrix | `architecture/ARCH_DECISION_FRAMEWORK.md` | Critical decision matrix |
+| Fitness Functions | `architecture/FITNESS_FUNCTION_TEMPLATE.md` | Evolutionary-architecture fitness functions |
+| ADD Workbook | `architecture/ADD_WORKBOOK_TEMPLATE.md` | Attribute-Driven Design 3.0 workbook |
 | Architecture Decision Matrix | `architecture/ARCHITECTURE_DECISION_MATRIX.md` | Comparing 3+ options (weighted) |
 | Architecture Review | `architecture/ARCHITECTURE_REVIEW_TEMPLATE.md` | Structured architecture audit |
 | Architecture Views | `architecture/ARCHITECTURE_VIEWS_TEMPLATE.md` | C4/UML View documentation |
@@ -45,11 +51,12 @@
 | Scalability Analysis | `architecture/SCALABILITY_ANALYSIS_TEMPLATE.md` | Bottleneck analysis |
 | Smart Contract | `architecture/SMART_CONTRACT_TEMPLATE.md` | Web3 logic & Security |
 
-
 ### 3. Operations & SRE (`ops/`)
 | Template | File | Purpose |
 |---|---|---|
 | Incident Postmortem | `ops/INCIDENT_POSTMORTEM_TEMPLATE.md` | Incident Root Cause Analysis |
+| Runbook | `ops/RUNBOOK_TEMPLATE.md` | Operational runbook (alert → remediation) |
+| Decommission Plan | `ops/DECOMMISSION_PLAN_TEMPLATE.md` | Sunset + data retention/migration plan |
 | Capacity Plan | `ops/CAPACITY_PLAN_TEMPLATE.md` | Scaling & Load planning |
 | Cost Optimization | `ops/COST_OPTIMIZATION_REPORT_TEMPLATE.md` | FinOps analysis |
 | Benchmark Report | `ops/BENCHMARK_REPORT_TEMPLATE.md` | System Benchmark results |
@@ -73,6 +80,8 @@
 |---|---|---|
 | PRD | `product/PRD_TEMPLATE.md` | Product Requirements (EARS) |
 | Tech Spec | `product/SPEC_TEMPLATE.md` | Technical Specification |
+| Experiment Plan | `product/EXPERIMENT_PLAN_TEMPLATE.md` | A/B experiment design (hypothesis, MDE, power) |
+| Change Management Plan | `product/CHANGE_MANAGEMENT_PLAN_TEMPLATE.md` | ADKAR adoption + comms plan |
 | User Story Map | `product/USER_STORY_MAP_TEMPLATE.md` | User Journey Mapping |
 | Business Case | `product/BUSINESS_CASE_TEMPLATE.md` | ROI and project justification |
 | Empathy Map | `product/EMPATHY_MAP_TEMPLATE.md` | User persona analysis |
@@ -84,14 +93,12 @@
 | Green Software Report | `product/GREEN_SOFTWARE_REPORT_TEMPLATE.md` | Sustainability Audit |
 | Visual Spec Package | `product/VISUAL_SPEC_PACKAGE_TEMPLATE.md` | Visual design artifacts + readiness gate |
 
-
 ### 6. Data & Analytics (`data/`)
 | Template | File | Purpose |
 |---|---|---|
 | Data Pipeline | `data/DATA_PIPELINE_TEMPLATE.md` | ETL/ELT Design |
 | Database Schema | `data/DATABASE_SCHEMA_TEMPLATE.md` | Physical database schema documentation |
 | Ontology Map | `data/ONTOLOGY_TEMPLATE.md` | RDF/OWL Semantic data |
-
 
 ### 7. Coordination & Agents (`coordination/`)
 | Template | File | Purpose |
@@ -106,6 +113,9 @@
 | Template | File | Purpose |
 |---|---|---|
 | Implementation Plan | `core/PLAN_TEMPLATE.md` | High-level roadmap |
+| Estimation | `core/ESTIMATION_TEMPLATE.md` | Probabilistic estimation worksheet (P50/P90) |
+| Project Retrospective | `core/PROJECT_RETROSPECTIVE_TEMPLATE.md` | Blameless retro with owned actions |
+| Dependency Graph | `core/DEPENDENCY_GRAPH_TEMPLATE.md` | Task dependency + parallelism worksheet |
 | Tasks Breakdown | `core/TASKS_TEMPLATE.md` | Atomic Task decomposition |
 | Audit Log | `core/AUDIT_LOG_TEMPLATE.md` | Project Audit Trail |
 | SDLC Tracker | `core/SDLC_TRACKER.md` | Phase progress board |
@@ -136,7 +146,6 @@
 | Telecom API | `industry/TELECOM_API_TEMPLATE.md` | TMF Open API standards |
 | Global Standards Audit | `industry/GLOBAL_STANDARDS_AUDIT_TEMPLATE.md` | UN SDG/SDLC Compliance |
 | Engineering Review | `industry/ENGINEERING_STANDARDS_REVIEW_TEMPLATE.md` | ISO/IEEE standard audit |
-
 
 ### 11. Memory & Continuity (`agents/memory/`)
 | Template | File | Purpose |

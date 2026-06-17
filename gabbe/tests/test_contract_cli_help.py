@@ -44,6 +44,10 @@ COMMANDS = {
     "audit": ["audit"],
     "replay": ["replay"],
     "resume": ["resume"],
+    "eval": ["eval"],
+    "doctor": ["doctor"],
+    "uninstall": ["uninstall"],
+    "update": ["update"],
 }
 
 

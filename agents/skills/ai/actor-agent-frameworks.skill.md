@@ -10,7 +10,6 @@ context_cost: high
 ## Goal
 Implement, configure, and maintain robust Agent and Actor-based frameworks (such as LangGraph, Akka, or custom implementations).
 
-
 ## Steps
 1. **Topology Definition**: Define the nodes, edges, and state schema for the agent graph.
 2. **Actor Implementation**: Define the explicit behaviors, inbox/message queues, and lifecycle of individual actors.

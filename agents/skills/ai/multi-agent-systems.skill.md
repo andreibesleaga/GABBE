@@ -10,7 +10,6 @@ context_cost: high
 ## Goal
 Design and orchestrate multi-agent architectures using standard topologies (hierarchical, network, swarm) to solve complex, distributed tasks.
 
-
 ## Steps
 1. **Topology Selection**: Identify the optimal Multi-Agent System (MAS) architecture for the problem.
 2. **Role Definition**: Use `coordination/AGENT_PROFILE_TEMPLATE.md` to define strict roles, inputs, and outputs for each sub-agent.

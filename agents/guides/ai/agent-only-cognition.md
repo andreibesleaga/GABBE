@@ -68,6 +68,6 @@ If you are using a local LLM or a cheaper model on Copilot and encounter a hyper
 
 ## The "Pure Markdown AI" Philosophy
 
-GABBE's core principle is that **System Logic == Markdown**. 
+GABBE's core principle is that **System Logic == Markdown**.
 
 By treating specialized `.skill.md` files as executable functions, you gain Enterprise-grade reliability out of simple chat boxes. You are effectively using English as the compiler for an autonomous development lifecycle.

@@ -6,6 +6,36 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [1.0.1] — 2026-06-17 — Registry publish (`gabbe-kit` on npm) + install-doc accuracy
+
+Patch release. Registry publishing is now live and all install channels were
+audited end-to-end. Strictly additive — no public API / CLI / config / DB / emit
+change; the 6 backward-compat gates stay green.
+
+### Changed
+- **npm package is now `gabbe-kit`** — `npx gabbe-kit init`. npm's name-similarity
+  policy refuses the unscoped `gabbe`, so the npm channel ships as `gabbe-kit`. The
+  **PyPI package and the installed command stay `gabbe`**; the package exposes both
+  `gabbe` and `gabbe-kit` bins, so the `gabbe` command is unchanged.
+
+### Fixed
+- **Shell / PowerShell bootstrap** (`install.sh`, `install.ps1`) `exec`'d
+  `npx --yes gabbe init` (404) — corrected to `gabbe-kit`, restoring the
+  `curl … | sh` install channel.
+- CLI hints in `gabbe/main.py` (and the `MANIFEST.in` / `pyproject.toml` comments)
+  now point to `npx gabbe-kit init`.
+
+### Docs
+- README documents all four install channels explicitly (npm / PyPI / shell / git).
+- Corrected install-channel claims to match audited behavior: manifest-backed
+  `update` / `uninstall` is scoped to the Python `gabbe` CLI path — the
+  `npx` / `curl` / `scripts/init.py` installs are not manifest-tracked (remove
+  manually); `pip install gabbe` installs the **CLI only** (the kit lands via
+  `npx gabbe-kit init` / `curl … | sh` / a checkout, and `gabbe setup` wires the
+  kit only from a checkout).
+
+---
+
 ## [1.0.0] — 2026-06-17 — Cradle-to-grave ADLC, evals & guardrails, advanced testing, reversible multi-OS install
 
 The v1.0 release. Strictly **additive and backward-compatible**: all 6 CI gates

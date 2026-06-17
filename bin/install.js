@@ -3,7 +3,7 @@
 //
 // GABBE installer (Python-independent).
 //
-// This is the PRIMARY installer for `npx gabbe init`. It bundles the Markdown
+// This is the PRIMARY installer for `npx gabbe-kit init`. It bundles the Markdown
 // kit (agents/, docs/) and wires it into the current project using only the
 // Node standard library -- no npm dependencies, no Python required.
 //
@@ -406,8 +406,8 @@ What it does (Node path, no Python required):
   - Wires per-agent rule files for any agents passed via --agents.
 
 Examples:
-  npx gabbe init --agents claude,cursor --yes
-  npx gabbe init --wizard
+  npx gabbe-kit init --agents claude,cursor --yes
+  npx gabbe-kit init --wizard
 `;
 
 function parseArgs(argv) {

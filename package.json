@@ -1,5 +1,5 @@
 {
-  "name": "gabbe",
+  "name": "gabbe-kit",
   "version": "1.0.0",
   "description": "GABBE - Generative Architectural Brain Base Engine. A Markdown agentic engineering kit installer (Python-independent). Wires AGENTS.md, skills, and per-agent rule files into any project.",
   "keywords": [
@@ -26,7 +26,8 @@
   },
   "type": "commonjs",
   "bin": {
-    "gabbe": "bin/install.js"
+    "gabbe": "bin/install.js",
+    "gabbe-kit": "bin/install.js"
   },
   "scripts": {
     "test": "node bin/install.js --help"

@@ -83,12 +83,12 @@ gabbe verify --chaos                                 # all fault-injection self-
 ```bash
 # For each supported client (claude, cursor, copilot, gemini, codex, + new additive ones):
 python3 agents/scripts/compile_skills.py --platform <client> --skills-dir agents/skills --target-dir /tmp/gabbe-<client>
-python3 scripts/init.py     # (or: npx gabbe init) — clean init succeeds end-to-end with new content
+python3 scripts/init.py     # (or: npx gabbe-kit init) — clean init succeeds end-to-end with new content
 ```
 
 - [ ] `compile_skills.py` emits successfully for every supported client (claude, cursor, copilot, gemini, codex, and each additive client)
 - [ ] New skills / personas / templates appear in each client's emitted output
-- [ ] Clean `python3 scripts/init.py` (or `npx gabbe init`) succeeds end-to-end with the new content
+- [ ] Clean `python3 scripts/init.py` (or `npx gabbe-kit init`) succeeds end-to-end with the new content
 
 ## 6. Release mechanics complete
 
@@ -111,7 +111,7 @@ pytest scripts/tests/test_install_manifest.py scripts/tests/test_uninstall.py \
 
 - [ ] Install-manifest, uninstall, isolation, and remove-agents tests pass
 - [ ] Manual matrix (tmp dirs) for scope ∈ {project, custom-dir, global}: install → only target written (zero writes outside target except `--global`) → `update` (user/preserve files intact) → `uninstall --dry-run` (no change) → `uninstall` → target byte-identical to pre-install state, `.bak` restored
-- [ ] Install verified from each channel (`npx gabbe init` / `pipx install gabbe` / `curl -fsSL …/install.sh | sh` / `git clone` + `python3 scripts/init.py`)
+- [ ] Install verified from each channel (`npx gabbe-kit init` / `pipx install gabbe` / `curl -fsSL …/install.sh | sh` / `git clone` + `python3 scripts/init.py`)
 - [ ] Unselected agents get zero files; `--remove-agents` removes only the named agent
 - [ ] CI `install-matrix` green on {ubuntu, macos, windows} × {npx / pip|pipx / curl|sh | install.ps1}: install → `gabbe doctor` (detects OS/arch, runtimes, agents, scope; all checks PASS) → emit for every detected agent → `update` → `uninstall` → byte-identical restore
 

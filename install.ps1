@@ -85,6 +85,6 @@ foreach ($py in @('python', 'python3')) {
 
 Write-Error 'Neither Node nor Python was found on PATH.'
 Write-Output 'Install one of the following, then re-run install.ps1:'
-Write-Output '  - Node.js >= 16   (https://nodejs.org)  then: npx gabbe init'
+Write-Output '  - Node.js >= 16   (https://nodejs.org)  then: npx gabbe-kit init'
 Write-Output '  - Python >= 3.9   (https://python.org)   then: python scripts/init.py'
 exit 1

@@ -84,6 +84,6 @@ fi
 
 echo "Error: neither Node nor python3 was found on PATH." >&2
 echo "Install one of the following, then re-run $PROG:" >&2
-echo "  - Node.js >= 16   (https://nodejs.org)  then: npx gabbe init" >&2
+echo "  - Node.js >= 16   (https://nodejs.org)  then: npx gabbe-kit init" >&2
 echo "  - Python >= 3.9   (https://python.org)   then: python3 scripts/init.py" >&2
 exit 1

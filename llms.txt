@@ -15,9 +15,9 @@ This file follows the llms.txt convention (https://llmstxt.org). It gives an age
 
 **Install.** Choose any path:
 
-- Node (Python-independent, recommended): `npx gabbe init` — bundles the kit and wires every agent. Non-interactive: `npx gabbe init --agents claude,cursor,antigravity,opencode --yes`.
+- Node (Python-independent, recommended): `npx gabbe-kit init` — bundles the kit and wires every agent. Non-interactive: `npx gabbe-kit init --agents claude,cursor,antigravity,opencode --yes`.
 - Shell: `curl -fsSL https://raw.githubusercontent.com/andreibesleaga/GABBE/main/install.sh | sh` (PowerShell: `install.ps1`).
-- Python: `pip install gabbe` (or pipx/uvx), then `gabbe setup`. The full Markdown kit ships in the **sdist** only (it lives outside the importable `gabbe` package); a plain wheel install gets the CLI but not the kit — use `npx gabbe init` for the kit without Python.
+- Python: `pip install gabbe` (or pipx/uvx), then `gabbe setup`. The full Markdown kit ships in the **sdist** only (it lives outside the importable `gabbe` package); a plain wheel install gets the CLI but not the kit — use `npx gabbe-kit init` for the kit without Python.
 - Fill kit placeholders interactively: `python scripts/fill_placeholders.py`.
 
 **Optional CLI (`gabbe`) — experimental platform control layer.** The Markdown kit works with zero Python; the optional CLI adds enforcement. Verbs:

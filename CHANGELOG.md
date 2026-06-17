@@ -26,6 +26,10 @@ uninstall path.
 > certification**. v1.0 claims best-in-class coverage, not mathematically guaranteed
 > 100% correctness.
 
+> **Distribution note:** the npm package ships as **`gabbe-kit`** (`npx gabbe-kit init`)
+> because npm's name-similarity policy refuses the unscoped `gabbe`. The installed
+> command and the PyPI package remain **`gabbe`** (`pip install gabbe`, then `gabbe …`).
+
 ### Added — Methodology layer
 - **Cradle-to-grave ADLC.** New **Day-0 phase S00 — Strategy & Discovery** (opportunity
   framing, ideation, Wardley mapping, market scan, North-Star/HEART, RICE; go/no-go
@@ -139,7 +143,7 @@ uninstall path.
   (`$XDG_DATA_HOME/gabbe`, refcounted), and `--dir <abs-path>` custom scope, with a
   tested isolation invariant (nothing written outside the chosen target unless
   `--global`).
-- **`uninstall` / `update`** (`npx gabbe …`, `gabbe …`, plus `uninstall.sh`/`uninstall.ps1`):
+- **`uninstall` / `update`** (`npx gabbe-kit …`, `gabbe …`, plus `uninstall.sh`/`uninstall.ps1`):
   manifest-driven, idempotent, restores `.bak` backups, never touches preserve files
   (`memory/*`, `project/*`, `policies.yml`, `AGENTS.md`/`CONSTITUTION.md` edits);
   `--dry-run`, `--purge`, `--remove-agents <list>` deselection.
@@ -194,7 +198,7 @@ pre-release internals that never shipped in any tagged release (see Removed).
 - **Six more coding agents**: Antigravity, OpenCode, Zed, Continue, Roo Code,
   Kilo Code (Gemini split out, backward-compatible); universal `.agents/skills/`
   emitter; new golden platforms `antigravity` + `opencode`.
-- **Universal install**: `npx gabbe init` (`bin/install.js`), `install.sh` /
+- **Universal install**: `npx gabbe-kit init` (`bin/install.js`), `install.sh` /
   `install.ps1`, `MANIFEST.in` (kit in sdist), `release.yml` (wheel + npm + tarball).
 - **Skills-registry interop**: `scripts/registry_export.py` / `registry_import.py`;
   `gabbe registry publish|add` + `gabbe setup` CLI verbs.

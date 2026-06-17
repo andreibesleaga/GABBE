@@ -441,7 +441,7 @@ gabbe registry add https://example/skill.skill.md --apply
 ### `gabbe setup`
 
 Run the interactive install wizard (`scripts/init.py`) to wire the kit into your
-coding agents. (For a Python-independent install, use `npx gabbe init` or
+coding agents. (For a Python-independent install, use `npx gabbe-kit init` or
 `curl -fsSL .../install.sh | sh`.)
 
 ```bash

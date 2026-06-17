@@ -14,7 +14,7 @@
 - Based on Software Engineering & Architecture Practices and Procedures.
 - Works for any project type, new or existing, any language, any team size.
 - **Write Once, Run Everywhere**: SKILLS for Cursor (`.mdc`), VS Code / Copilot (`folder/SKILL.md`), Claude (`.claude/skills`), Gemini, and the universal `.agents/skills/` tree read by Antigravity, OpenCode, and any agentskills.io tool.
-- **Trivially installable**: `npx gabbe init` (Python-independent) or `curl -fsSL …/install.sh | sh`, plus the Python wizard / PyPI. Move work between agents anytime (portable state export/import).
+- **Trivially installable**: `npx gabbe-kit init` (Python-independent) or `curl -fsSL …/install.sh | sh`, plus the Python wizard / PyPI. Move work between agents anytime (portable state export/import).
 - **First-class** Observability (decision/cost traces, OTel GenAI conventions), Spec-Driven development (spec → evals → test → code), and a manager-not-operator human↔agent collaboration model.
 - The system features an experimental **Meta-Cognitive Orchestrator "Brain"** (Neurocognitive based architecture derived from Neuroscience, Cognitive Psychology, Epistemology, treating the Software System not as a machine, but as a **Cognitive Entity**), using Active Inference to plan, route, and optimize work.
 - The system features a **Multi-Agent Swarm "Loki" Engineering Team** (30+ specialized agent roles for large projects), providing episodic and semantic memory, project history auditing and checkpoints.
@@ -50,8 +50,8 @@ It contains:
 
 **Universal, Python-independent (one command):**
 ```bash
-npx gabbe init                       # Node installer — bundles the kit, wires every agent
-npx gabbe init --agents claude,cursor,antigravity,opencode --yes   # non-interactive
+npx gabbe-kit init                       # Node installer — bundles the kit, wires every agent
+npx gabbe-kit init --agents claude,cursor,antigravity,opencode --yes   # non-interactive
 # or, without npm:
 curl -fsSL https://raw.githubusercontent.com/andreibesleaga/GABBE/main/install.sh | sh
 ```
@@ -730,7 +730,7 @@ gabbe --help
 | `gabbe resume <run-id>` | **Escalation Resume**: Approve or reject pending escalations for a paused run. |
 | `gabbe registry publish` | **Publish Skills**: Export the kit's skills as a publish-ready agentskills.io bundle (manifest + agent-card) for universal registries. |
 | `gabbe registry add <source>` | **Import Skills**: Draw an external skill/bundle (path, `.tar.gz`, or URL) — validated + security-scanned + landed namespaced for review. |
-| `gabbe setup` | **Install Wizard**: Run the interactive installer to wire the kit into your coding agents (see also `npx gabbe init`). |
+| `gabbe setup` | **Install Wizard**: Run the interactive installer to wire the kit into your coding agents (see also `npx gabbe-kit init`). |
 
 ### Platform Control Layer
 The experimental `gabbe` CLI supports a **platform control layer**. It covers budget enforcement, cost and token controls, hard stops, policy rules, the tool gateway, audit tracing, human escalation, and deterministic replay. Detailed documentation is available in [`PLATFORM_CONTROLS.md`](docs/PLATFORM_CONTROLS.md).

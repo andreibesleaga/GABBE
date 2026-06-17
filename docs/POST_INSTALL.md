@@ -1,6 +1,6 @@
 # Post-Install Setup — Full Environment
 
-After `npx gabbe init` (or `gabbe setup` / `curl … | sh`) lands the kit and wires
+After `npx gabbe-kit init` (or `gabbe setup` / `curl … | sh`) lands the kit and wires
 your detected agents, run **`gabbe doctor`** for an environment report, then follow
 these steps to finish a full setup. Steps are safe for a human OR an agent to execute.
 

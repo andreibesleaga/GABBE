@@ -9,7 +9,7 @@ outside the chosen target unless you pass `--global`.
 
 | Channel | Command | Notes |
 |---|---|---|
-| npm / Node | `npx gabbe init` | Python-independent; bundles the kit and wires detected agents |
+| npm / Node | `npx gabbe-kit init` | Python-independent; bundles the kit and wires detected agents |
 | PyPI | `pipx install gabbe && gabbe setup` (or `pip install gabbe`) | adds the `gabbe` CLI |
 | Shell bootstrap | `curl -fsSL https://raw.githubusercontent.com/andreibesleaga/GABBE/main/install.sh \| sh` | picks the best available installer |
 | Git checkout | `git clone … && python3 scripts/init.py` | the interactive wizard |

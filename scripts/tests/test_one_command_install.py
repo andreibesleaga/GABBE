@@ -26,7 +26,7 @@ def test_each_channel_is_a_single_command_in_readme():
     readme = (REPO / "README.md").read_text(encoding="utf-8")
     # Each channel must appear as a one-liner the user can paste.
     single_command_channels = [
-        r"npx gabbe init",  # Node / npm — zero-Python
+        r"npx gabbe-kit init",  # Node / npm — zero-Python
         r"curl -fsSL[^\n]*install\.sh[^\n]*\|\s*sh",  # shell bootstrap
         r"\b(?:pipx|pip install)\b",  # Python / PyPI channel
     ]

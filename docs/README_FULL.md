@@ -71,7 +71,7 @@ This kit gives AI coding agents the **context, skills, memory, and workflows** t
 
 The kit enforces **Spec-Driven Development (SDD)**, **Test-Driven Development (TDD)**, **Architecture-Driven Development (ADD)**, and structured **human-in-the-loop checkpoints** — so agents build correct, secure, maintainable software the first time.
 
-**Universal Skill Compiler:** `npx gabbe init` (Python-independent), `curl -fsSL …/install.sh | sh`, or `scripts/init.py` automatically configures skills for your specific tool:
+**Universal Skill Compiler:** `npx gabbe-kit init` (Python-independent), `curl -fsSL …/install.sh | sh`, or `scripts/init.py` automatically configures skills for your specific tool:
 - **VS Code / Copilot**: `.github/skills/<slug>/SKILL.md` (slash commands e.g. `/code-review`).
 - **Cursor**: optimized `.cursor/rules/*.mdc`.
 - **Claude Code**: `.claude/skills/<slug>/SKILL.md` (native skill discovery).
@@ -196,7 +196,7 @@ gabbe --help
 | `gabbe resume <run-id>` | **Escalation Resume**: Approve or reject pending escalations for a paused run. |
 | `gabbe registry publish [--out DIR]` | **Publish Skills**: Export skills as a publish-ready agentskills.io bundle (manifest + agent-card) for universal registries. |
 | `gabbe registry add <source>` | **Import Skills**: Draw an external skill/bundle (validated + security-scanned + namespaced). |
-| `gabbe setup` | **Install Wizard**: Wire the kit into your coding agents (also `npx gabbe init`). |
+| `gabbe setup` | **Install Wizard**: Wire the kit into your coding agents (also `npx gabbe-kit init`). |
 
 ### Platform Control Layer
 The experimental `gabbe` CLI supports a **platform control layer**. It covers budget enforcement, cost and token controls, hard stops, policy rules, the tool gateway, audit tracing, human escalation, and deterministic replay. Detailed documentation is available in [`PLATFORM_CONTROLS.md`](PLATFORM_CONTROLS.md).

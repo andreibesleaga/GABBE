@@ -1,0 +1,41 @@
+name: Publish npm (manual)
+
+# Manual npm publish for the `gabbe-kit` package, decoupled from the tag-driven
+# Release workflow. The unscoped name `gabbe` is refused by npm's name-similarity
+# policy, so the npm channel ships as `gabbe-kit` (PyPI stays `gabbe`). This lets
+# us (re)publish npm from the current default-branch HEAD without re-tagging a
+# release or re-triggering the PyPI publish (which would fail on a duplicate
+# version). Gated on the NPM_TOKEN secret so it stays a no-op when absent.
+
+on:
+  workflow_dispatch:
+    inputs:
+      dist_tag:
+        description: "npm dist-tag to publish under"
+        required: false
+        default: "latest"
+
+permissions:
+  contents: read
+
+jobs:
+  publish-npm:
+    name: Publish gabbe-kit to npm
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Smoke-test the Node installer
+        run: node bin/install.js --help
+
+      - name: Show package identity
+        run: node -e "const p=require('./package.json');console.log(p.name+'@'+p.version)"
+
+      - name: Publish to npm
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish --access public --tag "${{ github.event.inputs.dist_tag }}"

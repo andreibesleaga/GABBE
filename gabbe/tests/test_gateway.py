@@ -125,3 +125,42 @@ def test_execute_records_audit_span(tmp_project):
     conn.close()
     assert len(spans) >= 1
     assert any(s["node_name"] == "spy" for s in spans)
+
+
+def test_validation_error_does_not_trip_circuit_breaker(tmp_project):
+    """Regression: client-side rejections (schema validation) must NOT count as
+    tool failures — otherwise bad args can wedge a healthy tool offline (DoS)."""
+    from gabbe.context import RunContext
+
+    schema = {"type": "object", "properties": {"x": {"type": "integer"}}, "required": ["x"]}
+    with RunContext.from_config(command="gw-test", policy=_allow_all_policy()) as ctx:
+        ctx.gateway.register(
+            ToolDefinition(
+                "strict", "desc", schema, _simple_tool, {"t"}, circuit_breaker_threshold=2
+            )
+        )
+        # Three calls with invalid args (validation errors, handler never runs).
+        for _ in range(3):
+            with pytest.raises(ValueError):
+                ctx.gateway.execute("strict", {"x": "not-an-int"}, "t", ctx)
+        # The breaker must still be closed: a valid call succeeds.
+        assert ctx.gateway.execute("strict", {"x": 4}, "t", ctx) == 8
+
+
+def test_rejected_call_does_not_consume_tool_budget(tmp_project):
+    """Regression: a call rejected by validation must not burn the run's
+    tool-call budget (budget is consumed only after all gating checks pass)."""
+    from gabbe.context import RunContext
+
+    budget = Budget(max_tool_calls=5)
+    schema = {"type": "object", "properties": {"x": {"type": "integer"}}, "required": ["x"]}
+    with RunContext.from_config(
+        command="gw-test", budget=budget, policy=_allow_all_policy()
+    ) as ctx:
+        ctx.gateway.register(ToolDefinition("strict", "desc", schema, _simple_tool, {"t"}))
+        for _ in range(3):
+            with pytest.raises(ValueError):
+                ctx.gateway.execute("strict", {"x": "bad"}, "t", ctx)
+        assert budget.tool_calls_used == 0  # rejected calls cost nothing
+        ctx.gateway.execute("strict", {"x": 1}, "t", ctx)
+        assert budget.tool_calls_used == 1  # only the accepted call counts

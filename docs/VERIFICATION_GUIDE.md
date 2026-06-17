@@ -271,13 +271,13 @@ Upon passing all elements in this guide, the framework is confirmed 100% operati
 
 | Check | Command | Expected Result |
 |---|---|---|
-| Full test suite | `pytest` | **322 passed** |
+| Full test suite | `pytest` | All pass, 0 failures (550+ tests) |
 | Structural integrity | `python3 agents/scripts/validate_integrity.py` | Project integrity check passed |
-| Link validation | `python3 agents/scripts/validate_links.py` | All links valid (380 files, 196 links) |
-| Skills validation | `python3 agents/scripts/validate_skills.py` | All 170 skills passed |
-| Use cases | `python3 agents/scripts/verify_use_cases.py` | All 456 assertions PASSED |
-| Triggers & MCPs | `python3 agents/scripts/verify_triggers_and_mcps.py` | 66 MCPs, 168 skills, 0 warnings |
-| Skills doc coverage | `python3 agents/scripts/check_skills_docs.py` | 168/170 in index |
+| Link validation | `python3 agents/scripts/validate_links.py` | All links valid |
+| Skills validation | `python3 agents/scripts/validate_skills.py` | All 214 skills passed |
+| Use cases | `python3 agents/scripts/verify_use_cases.py` | All 534 assertions PASSED |
+| Triggers & MCPs | `python3 agents/scripts/verify_triggers_and_mcps.py` | All triggers/skills/MCP bindings chained correctly |
+| Skills doc coverage | `python3 agents/scripts/check_skills_docs.py` | 214/214 in index |
 | Personas & quality | `python3 agents/scripts/comprehensive_checker.py` | No corrupted headers, no outdated CLI versions |
 | Setup simulation | `python3 agents/scripts/verify_setup_simulation.py` | Symlink fallback works |
 | E2E init flows | `python3 agents/scripts/verify_e2e_init_flows.py` | All 12 permutations PASSED |

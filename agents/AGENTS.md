@@ -441,7 +441,7 @@ Project law:          agents/CONSTITUTION.md
 Skills (canonical):   agents/skills/00-index.md   (master: agents/skills/**)
 Guides:               agents/guides/00-index.md
 Templates:            agents/templates/00-index.md
-Personas (Loki):      agents/personas/00-index.md (34 roles)
+Personas (Loki):      agents/personas/00-index.md (36 roles)
 Brain patterns:       agents/skills/brain/README.md
 Quick reference:      docs/QUICK_GUIDE.md
 Project memory:       agents/memory/{PROJECT_STATE,CONTINUITY,AUDIT_LOG,RESUME_POINTER}.md

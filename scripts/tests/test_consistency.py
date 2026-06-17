@@ -140,3 +140,38 @@ def test_documented_env_vars_exist_in_source():
         source += py.read_text(encoding="utf-8")
     missing = sorted(v for v in documented if v not in source)
     assert not missing, f"Env vars documented in tables but absent from source: {missing}"
+
+
+def test_skills_index_count_matches_filesystem():
+    """skills/00-index.md 'Total Skills: N' must match the actual *.skill.md count.
+    (This drifted 180 vs 214 when v1.0 added skills but the index headline lagged.)"""
+    idx = (AG / "skills" / "00-index.md").read_text(encoding="utf-8")
+    m = re.search(r"Total Skills\*\*:\s*(\d+)", idx)
+    assert m, "skills 00-index.md missing a 'Total Skills: N' line"
+    stated = int(m.group(1))
+    actual = sum(1 for _ in (AG / "skills").rglob("*.skill.md"))
+    assert stated == actual, f"skills index says {stated} but {actual} skill files exist"
+
+
+def test_templates_index_count_matches_filesystem():
+    """templates/00-index.md 'Total Templates: N' must match the actual template
+    file count (all non-index files: .md + .json + .yaml)."""
+    idx = (AG / "templates" / "00-index.md").read_text(encoding="utf-8")
+    m = re.search(r"Total Templates\*\*:\s*(\d+)", idx)
+    assert m, "templates 00-index.md missing a 'Total Templates: N' line"
+    stated = int(m.group(1))
+    actual = sum(
+        1 for p in (AG / "templates").rglob("*") if p.is_file() and p.name != "00-index.md"
+    )
+    assert stated == actual, f"templates index says {stated} but {actual} template files exist"
+
+
+def test_personas_index_count_matches_filesystem():
+    """personas/00-index.md 'the full set of **N**' must match the actual persona
+    file count. (This drifted 34 vs 36 when v1.0 added personas.)"""
+    idx = (AG / "personas" / "00-index.md").read_text(encoding="utf-8")
+    m = re.search(r"full set of \*\*(\d+)\*\*", idx)
+    assert m, "personas 00-index.md missing a 'full set of **N**' line"
+    stated = int(m.group(1))
+    actual = sum(1 for p in (AG / "personas").glob("*.md") if p.name != "00-index.md")
+    assert stated == actual, f"personas index says {stated} but {actual} persona files exist"

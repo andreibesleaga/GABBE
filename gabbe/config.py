@@ -40,6 +40,18 @@ PII_PATTERNS = [
     re.compile(r"\b(?:\d{4}[-\s]?){3}\d{4}\b"),  # credit card
     re.compile(r"(?i)\b(?:password|passwd|api[_\-]?key|secret|token)\s*[:=]\s*\S+"),  # credentials
 ]
+
+# Common API-credential / bearer-token shapes (beyond the assignment form above).
+# Shared so that audit redaction, PII routing (route.detect_pii), and the
+# ContentSafetyPolicy all recognize the SAME secret formats — otherwise a raw
+# `sk-…` / bearer / AWS / GitHub token could route to a REMOTE LLM unredacted.
+SECRET_PATTERNS = [
+    re.compile(r"(?i)bearer\s+[A-Za-z0-9._\-]+"),
+    re.compile(r"\bsk-[A-Za-z0-9_\-]{16,}\b"),  # OpenAI-style keys
+    re.compile(r"\bsk-or-v1-[A-Za-z0-9]{16,}\b"),  # OpenRouter keys
+    re.compile(r"\bgh[pousr]_[A-Za-z0-9]{16,}\b"),  # GitHub tokens
+    re.compile(r"\bAKIA[0-9A-Z]{16}\b"),  # AWS access key id
+]
 GABBE_DIR = PROJECT_ROOT / "project"
 DB_PATH = GABBE_DIR / "state.db"
 TASKS_FILE = PROJECT_ROOT / "project/TASKS.md"

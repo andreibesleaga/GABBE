@@ -161,3 +161,30 @@ def test_redact_stringifies_and_redacts_non_serializable_objects():
     assert "leak@evil.com" not in out["obj"] and "sk-or-v1-" not in out["obj"]
     assert out["n"] == 3 and out["ok"] is None  # JSON primitives untouched
     json.dumps(out)  # fully JSON-able after redaction
+
+
+def test_db_span_redacts_pii_and_secrets(tmp_project, db_conn):
+    """Regression: input/output/reasoning/metadata written to the SQLite audit_spans
+    table must be redacted (the durable store), matching the JSONL/OTel paths.
+    Previously the DB write bypassed _redact(), leaking PII/secrets to state.db."""
+    tracer = AuditTracer("redact-db", db_conn=db_conn)
+    span = tracer.start_span(
+        "llm_call", "node", {"prompt": "key sk-or-v1-deadbeefdeadbeef12 mail x@y.com"}
+    )
+    tracer.end_span(
+        span,
+        output_data={"text": "Bearer abc123tokenvalue9999"},
+        reasoning_content="contact a@b.com",
+        metadata={"note": "AKIAIOSFODNN7EXAMPLE"},
+        status="ok",
+    )
+    row = db_conn.execute(
+        "SELECT input_data, output_data, reasoning_content, metadata FROM audit_spans "
+        "WHERE run_id='redact-db'"
+    ).fetchone()
+    blob = " ".join(str(c) for c in row)
+    assert "sk-or-v1-" not in blob
+    assert "x@y.com" not in blob and "a@b.com" not in blob
+    assert "Bearer abc123" not in blob
+    assert "AKIAIOSFODNN7EXAMPLE" not in blob
+    assert "[REDACTED]" in blob

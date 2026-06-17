@@ -79,7 +79,7 @@ def assert_output(assertion: dict[str, Any], output: str) -> tuple[bool, str]:
         except (ValueError, TypeError):
             return False, "is-json"
     if t == "min-length":
-        return len(output) >= int(val), "min-length"
+        return len(output) >= int(str(val)), "min-length"
     raise ValueError(f"not a deterministic assertion type: {t!r}")
 
 
@@ -130,7 +130,7 @@ def lint_suite(path: Path) -> list[str]:
 
 # Built-in fixtures proving the deterministic evaluators behave correctly. Run in
 # the per-commit lane so a regression in the harness itself is caught with no model.
-_SELF_TESTS = [
+_SELF_TESTS: list[tuple[dict[str, Any], str, bool]] = [
     ({"type": "contains", "value": "?"}, "Do you mean X?", True),
     ({"type": "contains", "value": "?"}, "A statement.", False),
     ({"type": "icontains", "value": "ERROR"}, "fatal error here", True),
@@ -204,7 +204,7 @@ def run_live(out_path: Path | None) -> int:
             rendered = _render(prompts[0], test.get("vars", {}))
             output = call_llm(rendered) or ""
             case_passed = True
-            details = []
+            details: list[dict[str, Any]] = []
             for a in test.get("assert", []):
                 atype = a.get("type")
                 if atype in DETERMINISTIC_TYPES:

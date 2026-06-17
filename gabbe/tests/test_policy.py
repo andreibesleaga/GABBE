@@ -249,3 +249,15 @@ def test_empty_or_null_tools_section_is_fail_closed_not_crash(tmp_path):
         pf.write_text(body)
         engine = PolicyEngine.from_yaml(path=pf)  # must not raise
         assert engine.evaluate({"tool": "anything"}).allowed is False, body
+
+
+def test_content_safety_denies_secret_tokens():
+    """Regression: ContentSafetyPolicy must deny raw API-credential/bearer tokens
+    (config.SECRET_PATTERNS), not only the PII_PATTERNS formats."""
+    from gabbe.policy import ContentSafetyPolicy
+
+    p = ContentSafetyPolicy()
+    assert p.check({"input": "key sk-abcdefghijklmnop1234"}).allowed is False
+    assert p.check({"input": "Bearer abc123tokenvalue9999"}).allowed is False
+    assert p.check({"arguments": {"k": "AKIAIOSFODNN7EXAMPLE"}}).allowed is False
+    assert p.check({"input": "totally benign text"}).allowed is True

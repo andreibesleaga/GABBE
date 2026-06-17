@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import json
 
-from .config import PII_PATTERNS, ROUTE_COMPLEXITY_THRESHOLD, Colors
+from .config import PII_PATTERNS, ROUTE_COMPLEXITY_THRESHOLD, SECRET_PATTERNS, Colors
 from .llm import call_llm
 
 
@@ -44,8 +44,12 @@ def calculate_complexity(prompt: str) -> tuple[int, str]:
 
 
 def detect_pii(prompt: str) -> bool:
-    """Detect common PII patterns using local regex (no external calls)."""
-    for pattern in PII_PATTERNS:
+    """Detect common PII / secret patterns using local regex (no external calls).
+
+    Includes API-credential/bearer-token shapes (SECRET_PATTERNS) so raw keys
+    force LOCAL routing instead of leaking to a remote LLM.
+    """
+    for pattern in list(PII_PATTERNS) + list(SECRET_PATTERNS):
         if pattern.search(prompt):
             return True
     return False

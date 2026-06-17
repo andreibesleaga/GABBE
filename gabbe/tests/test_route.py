@@ -78,3 +78,20 @@ class TestRouteRequest:
         # Force complexity score above threshold without calling LLM
         result = route_request("architect a distributed system " * 5)
         assert result == "REMOTE"
+
+
+class TestDetectSecrets:
+    """Regression: API-credential/bearer-token shapes must force LOCAL routing
+    (shared config.SECRET_PATTERNS), not just config.PII_PATTERNS."""
+
+    def test_openai_key_detected(self):
+        assert detect_pii("use sk-abcdefghijklmnop1234 for auth") is True
+
+    def test_bearer_token_detected(self):
+        assert detect_pii("Authorization: Bearer abc123tokenvalue9999") is True
+
+    def test_aws_key_detected(self):
+        assert detect_pii("AKIAIOSFODNN7EXAMPLE in config") is True
+
+    def test_github_token_detected(self):
+        assert detect_pii("token ghp_abcdefghijklmnopqrstuvwxyz0123456789") is True

@@ -353,8 +353,8 @@ Uses Active Inference to plan, route between local/remote models, and learn from
 
 **Using the CLI:**
 > `gabbe brain activate` (Loki may be triggered autonomously by the Brain based on context cost).
-Or explicitly:
-> `gabbe swarm <goal>` (Experimental mapping).
+Or activate the swarm skill explicitly:
+> Activate `agents/skills/brain/loki-mode.skill.md` with your goal.
 
 **Using Pure Agent Mode (No CLI):**
 > "Activate `agents/skills/brain/loki-mode.skill.md`. Goal: [build X]. Do not ask me for permission unless you hit a mandatory Human Approval Gate or a task requires True A2A Delegation."
@@ -1170,7 +1170,7 @@ MCP (Model Context Protocol) servers extend agent capabilities. Configure them i
 | **Canvas** | tldraw MCP | Persistent visual canvas for wireframing |
 | **Filesystem** | Filesystem MCP | Local file access for internal RAG |
 
-**Full coverage matrix** (40 MCP servers in `MCP_CONFIG_TEMPLATE.json`):
+**Full coverage matrix** (76 MCP servers in `MCP_CONFIG_TEMPLATE.json`):
 
 | Integration Domain | Servers Available |
 |---|---|
@@ -1320,8 +1320,8 @@ Copy and paste these exact prompts into your AI chat window to kick off standard
 
 **Using the CLI:**
 > `gabbe brain activate` (Loki may be triggered autonomously by the Brain based on context cost).
-Or explicitly:
-> `gabbe swarm <goal>` (Experimental mapping).
+Or activate the swarm skill explicitly:
+> Activate `agents/skills/brain/loki-mode.skill.md` with your goal.
 
 **Using Pure Agent Mode (No CLI):**
 > "Activate `agents/skills/brain/loki-mode.skill.md`. Goal: [build X]. Do not ask me for permission unless you hit a mandatory Human Approval Gate or a task requires True A2A Delegation."

@@ -10,7 +10,6 @@ context_cost: medium
 ## Goal
 Establish, negotiate, and enforce structured Agent-to-Agent communication channels using emerging standards (MCP, A2A, ACP) alongside enterprise protocols (Kafka, Gossip) to ensure interoperability and secure data exchange.
 
-
 ## Steps
 1. **Protocol Analysis & Selection**: Select the appropriate protocol tier based on the architectural need:
    - **MCP (Model Context Protocol)**: Use Anthropic's universal standard for agents to access external data, context, and tools (Client-Server model).

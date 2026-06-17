@@ -25,7 +25,7 @@ Design and document API contracts before writing implementation code. API-first 
    Resources:
      - /users            -> User resource
      - /orders           -> Order resource
-     
+
    # Operations
    GET    /users          -> list users (pagination required)
    POST   /users          -> create user (idempotency key required)

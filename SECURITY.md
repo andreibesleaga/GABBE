@@ -44,6 +44,14 @@ runs **fail-closed**:
 - **Insecure opt-out.** `GABBE_MCP_INSECURE=1` restores the legacy permissive
   behavior (no auth, allow-all). Use only on a trusted, isolated host. The
   startup banner warns when insecure mode is active.
+- **Bounded tool-input contract.** The `run_command` tool input is a single
+  hardened JSON Schema (`_RUN_COMMAND_SCHEMA`, enforced by the gateway and
+  advertised in `tools/list`): the `command` string is bounded by **charset**
+  (a `pattern` forbidding C0 control characters and NUL) and **length**
+  (`maxLength`), with `additionalProperties: false` to reject smuggled fields.
+  This blunts injection-via-tool-feedback and oversized payloads (per the MCP-38
+  threat taxonomy and NSA MCP security guidance) and is regression-guarded by
+  `gabbe/tests/test_mcp_contract.py`.
 
 Treat `agents/AGENTS.md` `## Commands` (run by `gabbe verify`) and
 `project/policies.yml` as trust boundaries: anything written there is executed.

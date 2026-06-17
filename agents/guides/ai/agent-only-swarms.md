@@ -39,7 +39,7 @@ If you aren't sure if a project is big enough to require a swarm, you can let `b
 
 ## 3. Simulating Swarms vs. Spawning Subagents
 
-When the Orchestrator reaches Phase S05 (Implementation), tasks are partitioned for specific worker Personas (e.g., `eng-qa`, `ops-security`). 
+When the Orchestrator reaches Phase S05 (Implementation), tasks are partitioned for specific worker Personas (e.g., `eng-qa`, `ops-security`).
 
 You can instruct your LLM on *how* to execute these.
 

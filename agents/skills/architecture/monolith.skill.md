@@ -10,7 +10,6 @@ context_cost: medium
 ## Goal
 Design strictly structured Modular Monoliths or enforce clean boundaries within an existing monolithic codebase.
 
-
 ## Steps
 1. **Module Definition**: Identify the core modules and define their public interfaces.
 2. **Dependency Rules**: Establish strict visibility and dependency rules between modules (e.g., using ArchUnit or Dependency Cruiser).

@@ -16,3 +16,6 @@ The Self-Healing Loop is a core autonomous mechanism in GABBE (detailed in `core
 
 ## Agent Execution & Verification
 This loop is triggered automatically during Phase S05 (Implementation) of Loki mode when the `VERIFY` step (tests, typecheck, lint) fails. Agents are instructed to invoke `self-heal.skill` dynamically before escalating. This ensures that the system is resilient to minor regressions and only bothers the human architect with high-level decisions.
+
+## Refresh: The Loop at a Glance
+In short, the capability is a bounded **5-attempt self-heal loop** (diagnose → hypothesize → minimal fix → verify, capped to prevent runaway compute) backed by `self-heal.skill`. In CI it is paired with `ci-autofix.skill`, which applies the same diagnose-and-fix loop to red pipeline runs (lint, type, formatting, simple test breaks). Both honor the same guardrails: a **hardstop** halts autonomous action when an error is classed as high-risk (architecture, security, breaking API, or major version bumps), and **escalation** fires after the 5th failed attempt — generating a report and marking the task `BLOCKED` for human decision rather than guessing further.

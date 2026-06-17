@@ -58,6 +58,16 @@ Analyze the prompt/task:
 }
 ```
 
+## Self-Adaptive Routing
+
+In GABBE the router is self-adaptive end to end: it scores task **complexity**, layers in
+**privacy** (a PII/DLP hit forces `LOCAL`, overriding any complexity score), and weighs
+**context size** to pick the cheapest path that can still do the job. Behavior is gated by
+autonomy level (`GABBE_AUTONOMY` = `ask` | `auto` | `hybrid`): `ask` confirms each route,
+`auto` routes silently, `hybrid` auto-routes the safe cases and asks on the rest. The router
+also **self-corrects** — when a `LOCAL` attempt fails, it escalates up the tier ladder to a
+remote model (re-checking privacy first) and updates its heuristics for next time.
+
 ## Self-Correction
 If a routed task FAILS (e.g., Local model produces garbage):
 1.  Log failure.

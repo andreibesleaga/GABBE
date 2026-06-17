@@ -58,6 +58,28 @@ with it.
 -   **Judge/verifier pass**: for high-stakes output, an independent verifier/judge persona scores against the rubric before human sign-off (see `coordination/persona-selector.skill` voting + `core/final-review.skill`).
 -   **Metric shift**: measure decision quality, cost-efficiency, and reliability — not lines of code.
 
+## 2b. Beyond Examples: Advanced Tiers (2025)
+
+Example-based unit and integration tests only cover the cases a human imagined. Four
+advanced tiers close the remaining gaps and now sit alongside the pyramid/trophy:
+-   **Property-Based Testing (PBT)**: declare invariants and let a generator (Hypothesis,
+    fast-check) fuzz thousands of inputs and shrink failures to a minimal counterexample —
+    ideal for parsers, codecs (round-trips), and pure logic. See `pbt-strategy.skill`.
+-   **Metamorphic Testing**: when there is no exact oracle (ML, ranking, LLM pipelines),
+    assert *relations between related inputs* instead of absolute outputs. See
+    `metamorphic-testing.skill`.
+-   **Chaos / Fault-Injection**: deliberately inject failures (latency, dropped packets,
+    dependency 500s, killed processes) and assert graceful degradation. See
+    `chaos-fault-injection.skill`.
+-   **Mutation Testing**: inject small faults into the source (mutmut, Stryker) and measure
+    the **mutation score** (killed ÷ total mutants) as a test-quality metric far stronger
+    than line coverage.
+
+Crucially, **tests verify determinism; evals score probabilistic quality.** Deterministic
+code earns a green/red test; agentic and LLM-driven behavior is graded by evals against a
+rubric (see Level 5 above and `eval-driven-development.skill`). Use both — never substitute
+a passing test suite for an eval on probabilistic output, or vice versa.
+
 ## 3. Visual Regression Testing
 For frontend, "code correctness" doesn't mean "visual correctness".
 -   **Tools**: Percy, Chromatic, Playwright visual comparisons.

@@ -10,7 +10,6 @@ context_cost: medium
 ## Goal
 Design, enforce, and integrate robust Agent-to-UI (A2UI) communication protocols using Generative UI and HTMX conventions.
 
-
 ## Steps
 1. **Analyze Requirements**: Understand the data exchanged between the agent and the frontend UI.
 2. **Design Protocol**: Define the JSON schema, WebSocket events, or Server-Sent Events (SSE) required for the agent to stream UI components.

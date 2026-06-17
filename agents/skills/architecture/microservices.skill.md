@@ -10,7 +10,6 @@ context_cost: high
 ## Goal
 Design, decouple, and orchestrate microservices architectures using bounded contexts, defining clear API contracts and data segregation.
 
-
 ## Steps
 1. **Domain boundaries**: Identify bounded contexts using Domain-Driven Design (DDD).
 2. **Contract Definition**: Establish rigorous API/gRPC contracts and message schemas for inter-service communication.

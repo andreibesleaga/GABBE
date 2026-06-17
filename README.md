@@ -19,17 +19,18 @@
 - The system features an experimental **Meta-Cognitive Orchestrator "Brain"** (Neurocognitive based architecture derived from Neuroscience, Cognitive Psychology, Epistemology, treating the Software System not as a machine, but as a **Cognitive Entity**), using Active Inference to plan, route, and optimize work.
 - The system features a **Multi-Agent Swarm "Loki" Engineering Team** (30+ specialized agent roles for large projects), providing episodic and semantic memory, project history auditing and checkpoints.
 - Experimental support for budget enforcement, tokens, hard stops, policy rules, cli tool gateway (via MCP server), audit tracing and logs, human escalation, and deterministic replay, with built-in rules for agents to select the best specialized skills/guides, proactively recommend necessary MCP servers, and default to continuous cost & budget optimization—always requiring human approval for expensive operations.
+- **v1.0** extends the framework to a **cradle-to-grave ADLC (S00–S13)** — Day-0 Strategy & Discovery (S00) through the S01–S10 SDLC to Day-2 Operate/Evolve/Decommission (S11–S13), grounded in named industry methods (ADD 3.0, ATAM, Wardley, JTBD, RICE, DORA/SPACE, ADKAR) — and adds an **evals + standards-grounded guardrails layer** (eval-driven development, LLM-as-judge, RAG/trajectory evals, plus prompt-injection-defense and output-validation mapped to OWASP LLM Top 10 / NIST AI RMF / MITRE ATLAS / ISO 42001 / EU AI Act), **advanced testing** (property-based, metamorphic, chaos/fault-injection, and mutation testing; `gabbe verify --chaos`), and **one-command, multi-OS install with autodetect** (`gabbe doctor` reports OS/arch, runtimes, and detected agents; install/update/uninstall are fully reversible via a `.gabbe/manifest.json`). The "world-first" framing stays honest: the **self-evolving "genes" / brain-inference-via-skills** model is a conceptual framing — the production brain is epsilon-greedy with a monotonic success-rate, and evals/PBT **sample and raise confidence, they do not prove**.
 
 It contains:
-- **180+ Skills** (specialized capabilities)
-- **85+ Templates** (standardized documents)
-- **73 Guides** (language & domain expertise)
-- **34 Personas** (specialized roles)
+- **206 Skills** (specialized capabilities)
+- **97 Templates** (standardized documents)
+- **79 Guides** (language & domain expertise)
+- **36 Personas** (specialized roles)
 - **50+ MCP servers** (configuration and guides for AI tools)
 - **Brain Mode** (meta-cognitive orchestration)
 - **Loki Mode** (multi-agent swarm engineering personas team for large projects)
 
-> **180+ Skills · 85+ Templates · 73 Guides · 34 Personas · 50+ MCPs · Loki / Brain Mode CLI**
+> **206 Skills · 97 Templates · 79 Guides · 36 Personas · 50+ MCPs · Loki / Brain Mode CLI**
 
 ---
 

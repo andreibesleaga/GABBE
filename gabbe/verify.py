@@ -146,3 +146,92 @@ def run_verification() -> bool:
     else:
         print(f"\n{Colors.FAIL}Verification FAILED.{Colors.ENDC}")
         return False
+
+
+def run_chaos_checks() -> bool:
+    """Fault-injection self-checks (Track B Phase 4 / `gabbe verify --chaos`).
+
+    Injects faults into GABBE's own resilience mechanisms in-process and asserts
+    each degrades safely — fail-closed tools, hard-stop caps, privacy routing, and
+    graceful escalation under a DB fault. Read-only and side-effect-free (uses a
+    mock DB connection for the escalation check). Returns True only if all pass.
+    """
+    import os
+    import sqlite3
+    from unittest.mock import MagicMock
+
+    print(f"{Colors.HEADER}Running Chaos / Fault-Injection Self-Checks...{Colors.ENDC}")
+    results: list[tuple[str, bool]] = []
+
+    # 1. The MCP tool is fail-closed without an allowlist (no command reaches a shell).
+    try:
+        from .mcp_server import run_command_handler
+
+        saved = {
+            k: os.environ.pop(k, None) for k in ("GABBE_MCP_ALLOWED_COMMANDS", "GABBE_MCP_INSECURE")
+        }
+        try:
+            blocked = run_command_handler("rm -rf /tmp/should-not-run")["returncode"] == 126
+        finally:
+            for k, v in saved.items():
+                if v is not None:
+                    os.environ[k] = v
+        results.append(("MCP tool fail-closed without allowlist", blocked))
+    except Exception as e:  # noqa: BLE001
+        results.append((f"MCP fail-closed (errored: {e})", False))
+
+    # 2. The hard stop caps a runaway loop.
+    try:
+        from .hardstop import HardStop, MaxIterationsExceeded
+
+        hs = HardStop(max_iterations=2, max_depth=100, timeout_sec=60)
+        fired = False
+        try:
+            for _ in range(50):
+                hs.tick()
+        except MaxIterationsExceeded:
+            fired = True
+        results.append(("Hard-stop caps a runaway loop", fired))
+    except Exception as e:  # noqa: BLE001
+        results.append((f"Hard-stop (errored: {e})", False))
+
+    # 3. The privacy override holds (PII forces LOCAL).
+    try:
+        from .route import detect_pii
+
+        results.append(("PII detection forces LOCAL routing", detect_pii("email user@example.com")))
+    except Exception as e:  # noqa: BLE001
+        results.append((f"PII routing (errored: {e})", False))
+
+    # 4. Escalation degrades gracefully under an injected DB fault (silent mode).
+    try:
+        import gabbe.escalation as _esc
+
+        from .escalation import EscalationHandler, EscalationTrigger
+
+        bad = MagicMock()
+        bad.cursor.side_effect = sqlite3.OperationalError("injected disk I/O error")
+        prev_mode = _esc.GABBE_ESCALATION_MODE
+        _esc.GABBE_ESCALATION_MODE = "silent"
+        try:
+            handler = EscalationHandler("chaos-selfcheck", db_conn=bad)
+            graceful = (
+                handler.escalate(EscalationTrigger.POLICY_VIOLATION, {"injected": True}).status
+                == "rejected"
+            )
+        finally:
+            _esc.GABBE_ESCALATION_MODE = prev_mode
+        results.append(("Escalation handles DB fault gracefully", graceful))
+    except Exception as e:  # noqa: BLE001
+        results.append((f"Escalation resilience (errored: {e})", False))
+
+    for name, ok in results:
+        mark = f"{Colors.GREEN}✓ PASS" if ok else f"{Colors.FAIL}x FAIL"
+        print(f"  {mark}{Colors.ENDC} {name}")
+
+    all_ok = all(ok for _, ok in results)
+    if all_ok:
+        print(f"\n{Colors.GREEN}Chaos self-checks PASSED.{Colors.ENDC}")
+    else:
+        print(f"\n{Colors.FAIL}Chaos self-checks FAILED.{Colors.ENDC}")
+    return all_ok

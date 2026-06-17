@@ -10,7 +10,6 @@ context_cost: high
 ## Goal
 Systematically orchestrate complex failure troubleshooting, diagnose state anomalies, isolate root causes, and prescribe safe remediation strategies without causing further system corruption.
 
-
 ## Steps
 1. **Fact Gathering**: Pull recent logs, traces, or explicitly retrieve the `INCIDENT_POSTMORTEM_TEMPLATE.md` context.
 2. **Hypothesis Formation**: List (and explicitly rule out) possible failure modes.

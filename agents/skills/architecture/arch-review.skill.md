@@ -172,6 +172,40 @@ Document all four in templates/architecture/ARCHITECTURE_REVIEW_TEMPLATE.md
 
 ---
 
+## The ATAM Method (Explicit)
+
+The steps above are an agent-adapted run of the **Architecture Tradeoff Analysis
+Method**. For traceability, the canonical ATAM sequence this skill implements is:
+
+1.  **Present the architecture** — Reconstruct and describe the system's structures,
+    styles, and key decisions (maps to Step 1–2). Establish a shared, accurate
+    baseline of what actually exists before evaluating it.
+2.  **Identify architectural approaches** — Catalogue the architectural patterns and
+    tactics in use (layering, event-driven, caching, replication, circuit breakers,
+    etc.). These are the candidate levers that quality attributes hinge on.
+3.  **Build the quality-attribute utility tree** — Decompose broad quality goals
+    (performance, availability, security, modifiability) into concrete, prioritized
+    Quality Attribute Scenarios (stimulus → response → measure). Prioritize each leaf
+    by (business importance, architectural difficulty) so analysis effort targets the
+    high-value, high-risk scenarios first (refines Step 3's QAS work).
+4.  **Analyze the architectural approaches** — For each high-priority scenario, examine
+    how the identified approaches satisfy (or fail) it, gathering evidence from the
+    structure (maps to Step 3–4).
+5.  **Identify sensitivity points, tradeoff points, risks, and non-risks** —
+    -   **Sensitivity point**: a decision with high leverage over one quality attribute.
+    -   **Tradeoff point**: a decision that is a sensitivity point for *two or more*
+        attributes that move in opposite directions.
+    -   **Risk**: a decision (or absence of one) that may cause a quality attribute to
+        go unmet.
+    -   **Non-risk**: a sound, well-justified decision that needs no change.
+    (Maps to Step 5; feeds the recommendations in Step 7.)
+
+In full ATAM these are run in two phases with stakeholders; the single-agent version
+collapses them into the linear Step 1→7 flow above, then reconvenes findings into the
+report's Sensitivity / Tradeoff / Risks sections.
+
+---
+
 ## Step 6 — Architecture Fitness Functions
 
 ```

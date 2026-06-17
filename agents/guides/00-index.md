@@ -6,7 +6,7 @@
 
 ---
 
-> **Total Guides**: 73
+> **Total Guides**: 86
 > *Registry categorized by domain.*
 
 ## Guides Registry
@@ -26,6 +26,8 @@
 | Agent-Only Cognition | `ai/agent-only-cognition.md` | Cognition patterns for agent-only systems |
 | Agent-Only Swarms | `ai/agent-only-swarms.md` | Swarm topologies without humans in the loop |
 | Visual Integration | `ai/visual-mcp-integration.md` | Guide on Mermaid vs Canvas tools |
+| Agent Identity & Trust | `ai/agent-identity-trust.md` | Agent identity, auth, KYA, signed mandates |
+| Model Customization | `ai/model-customization-decisions.md` | Prompt vs RAG vs fine-tune; SLMs; routing |
 
 ### 1b. Processes (`processes/`)
 | Guide | File | Purpose |
@@ -49,13 +51,11 @@
 | Scalability | `architecture/system-scalability.md` | Vertical and Horizontal scaling |
 | Blockchain | `architecture/blockchain-dlt.md` | DLT and Decentralized Systems |
 
-
 ### 3. Data Engineering (`data/`)
 | Guide | File | Purpose |
 |---|---|---|
 | SQL vs NoSQL | `data/sql-nosql.md` | Database selection criteria |
 | Semantic Web | `data/semantic-web.md` | RDF, SPARQL, and Ontology usage |
-
 
 ### 4. Language Stacks (`languages/`)
 | Guide | File | Purpose |
@@ -80,11 +80,12 @@
 | Dev Workflow | `ops/dev-workflow.md` | Git/GitHub ops + Diátaxis docs |
 | GABBE CLI Workflows | `ops/gabbe-cli-workflows.md` | Using the gabbe CLI platform controls |
 
-
 ### 6. Implementation Patterns (`patterns/`)
 | Guide | File | Purpose |
 |---|---|---|
 | Agentic Patterns| `patterns/agentic-patterns.md` | Implementation paths for swarms |
+| Agentic Design Patterns | `patterns/agentic-design-patterns.md` | Full pattern catalog: reasoning/planning/workflow/multi-agent/memory/safety |
+| Software Design Patterns | `patterns/software-design-patterns.md` | Classical catalog: GoF + architectural + DDD + enterprise/distributed |
 | AI Scenarios | `patterns/ai-native-scenarios.md` | Real-world AI integrations |
 | Autonomous Swarm| `patterns/autonomous-swarm-patterns.md` | Inter-agent negotiation |
 | Design Patterns | `patterns/design-patterns.md` | GoF and modern code patterns |
@@ -103,7 +104,6 @@
 | Green Software | `planning/green-software.md` | Sustainable engineering (SCI) |
 | Sustainability | `planning/sustainability-checks.md` | Checklist for green software |
 
-
 ### 8. Principles & Standards (`principles/`)
 | Guide | File | Purpose |
 |---|---|---|
@@ -114,6 +114,10 @@
 | Legacy Tech | `principles/legacy-tech.md` | Handling deprecated codebases |
 | No-Code Integ. | `principles/no-code-integration.md` | Connecting no-code platforms |
 | Testing Strat. | `principles/testing-strategy.md` | The testing pyramid and mocks |
+| Evaluation Strat. | `principles/evaluation-strategy.md` | Evals vs tests; eval pyramid; eval-driven CI |
+| Mathematical Foundations | `principles/mathematical-foundations.md` | Logic, sets, graphs, probability/statistics (SWEBOK v4) |
+| Computing Foundations | `principles/computing-foundations.md` | CS fundamentals → engineering decisions (SWEBOK v4) |
+| Modeling Methods | `principles/modeling-methods.md` | Model types + formal/semi-formal method selection (SWEBOK v4) |
 | Visual Design | `principles/visual-design-system.md` | Design tokens and accessibility |
 
 ### 9. Security & Privacy (`security/`)
@@ -124,6 +128,7 @@
 | Privacy Data | `security/privacy-data-protection.md` | GDPR, HIPAA handling |
 | Secure Arch. | `security/secure-architecture.md` | Defense in depth |
 | Threat Modeling | `security/threat-modeling.md` | STRIDE analysis methodology |
+| AI Risk Standards Map | `security/ai-risk-standards-map.md` | OWASP LLM Top 10 / NIST AI RMF / MITRE ATLAS / ISO 42001 / EU AI Act mapping |
 
 ### 10. Industry Domains (`industry/`)
 | Guide | File | Purpose |

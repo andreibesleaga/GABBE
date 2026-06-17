@@ -1,0 +1,7 @@
+usage: main.py eval [-h] [--live] [--out OUT]
+
+options:
+  -h, --help  show this help message and exit
+  --live      Score skill outputs against the model (nightly; needs
+              GABBE_LIVE_LLM=1)
+  --out OUT   Write the JSON scorecard to this path

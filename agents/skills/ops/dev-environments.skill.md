@@ -10,7 +10,6 @@ context_cost: medium
 ## Goal
 Automate the setup, orchestration, and maintenance of identical development environments across the team (using DevContainers, DevSpace, or Docker Compose).
 
-
 ## Steps
 1. **Analyze Requirements**: Parse the `PLAN.md` to identify all necessary languages, databases, and dependencies.
 2. **Configuration**: Generate `DEVCONTAINER_TEMPLATE.json` or `docker-compose.yml` defining the required services.

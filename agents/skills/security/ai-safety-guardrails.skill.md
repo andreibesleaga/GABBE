@@ -33,6 +33,18 @@ This skill protects the system from its own AI.
 - **Human in the Loop (HITL)**: For high-stakes actions (Transfer Money), AI *proposes*, Human *approves*.
 - **Least Privilege**: The Agent's API Token should NOT have admin access.
 
+## 5. The Rails Taxonomy
+
+Rather than treating guardrails as a single filter, model them as **rails** — NeMo-Guardrails-style middleware that sits around the LLM and intercepts each stage of the interaction. Defense-in-depth means more than one rail is active, so a bypass at one stage is still caught at another.
+
+- **Input rails**: inspect and transform what reaches the model — prompt-injection and jailbreak detection, PII scrubbing, topic/policy gating on the incoming request. See `prompt-injection-defense.skill` for the layered direct/indirect injection defenses these rails enforce.
+- **Output rails**: inspect and transform what the model returns — schema/format validation, PII masking before logs and external APIs, toxicity/tone checks, and system-prompt-leakage prevention. See `output-validation.skill` for the schema-validation + retry-on-failure and PII-masking mechanics.
+- **Dialog rails**: govern conversational flow — allowed topics, refusal/redirect behavior, and keeping multi-turn context on-policy.
+- **Retrieval rails**: vet RAG context before it reaches the model — source provenance, untrusted-content marking, and filtering poisoned or out-of-policy documents.
+- **Execution rails**: gate tool/action invocation — tool allowlisting, parameter validation, egress filtering, and human-approval on high-impact or trifecta-complete actions.
+
+For how these controls map onto named AI-risk standards (OWASP LLM Top 10, NIST AI RMF, MITRE ATLAS, ISO/IEC 42001, EU AI Act), see the guide ai-risk-standards-map.
+
 ## Security & Guardrails
 
 ### 1. Skill Security (AI Safety Guardrails)

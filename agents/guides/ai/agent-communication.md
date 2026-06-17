@@ -38,6 +38,14 @@ Just like the OSI model for networking, Agentic Systems have layers:
 *   **Structure**: Performative (Request/Inform/Propose) + Content.
 *   **Use Case**: "I propose doing X for price Y." -> "Accepted."
 
+### D. Convergence & Governance (2025-2026)
+The protocol landscape consolidated under open governance — design for it:
+*   **A2A** moved to the **Linux Foundation** (2025) as a vendor-neutral open project (150+ orgs); the earlier IBM/BeeAI **ACP** effort converged into A2A. Treat A2A as the standard agent-to-agent task layer.
+*   **AGNTCY / "Internet of Agents"** (Cisco → Linux Foundation, 2025) adds the cross-framework substrate: agent **discovery/directory**, **identity**, **secure messaging**, and **observability** — interoperable with both **A2A** and **MCP**. See `agent-identity-trust.md`.
+*   **MCP authorization**: recent MCP specs define an OAuth **resource-server** model — scope tool access with short-lived, least-privilege tokens (see `agent-sandboxing.skill` and `prompt-injection-defense.skill`).
+
+Practical stance: **MCP** for agent→tool/data, **A2A** for agent→agent tasks, **AGNTCY** for discovery/identity/observability across frameworks. These are evolving; keep bindings additive.
+
 ---
 
 ## 3. Topologies
@@ -112,13 +120,13 @@ async def receive_message(msg: AgentMessage):
     # 1. Validate Sender
     if not is_authorized(msg.sender):
         return {"error": "Unauthorized"}
-    
+
     # 2. Process Protocol
     if msg.type == "request":
         # ... trigger internal reasoning ...
         response = agent_core.think(msg.content)
         return {"status": "success", "response": response}
-    
+
     return {"status": "received"}
 ```
 

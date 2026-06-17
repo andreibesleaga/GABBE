@@ -34,7 +34,7 @@ internal/                    # Private application code (Library pattern)
     grpc/                    # gRPC implementation
 
   config/                    # Configuration struct (Viper/Env)
-  
+
 pkg/                         # Public sharable libraries (Optional)
   logger/                    # structured logger (slog/zap)
   utils/
@@ -179,7 +179,7 @@ func (s *UserService) Register(ctx context.Context, name, email string) error {
     if err != nil {
         return err
     }
-    
+
     // 2. Persist
     return s.repo.Save(ctx, u)
 }
@@ -205,15 +205,15 @@ func (h *UserHandler) Register(c echo.Context) error {
         Name  string `json:"name"`
         Email string `json:"email"`
     }
-    
+
     if err := c.Bind(&req); err != nil {
         return c.JSON(http.StatusBadRequest, echo.Map{"error": "bad request"})
     }
-    
+
     if err := h.svc.Register(c.Request().Context(), req.Name, req.Email); err != nil {
         return c.JSON(http.StatusInternalServerError, echo.Map{"error": err.Error()})
     }
-    
+
     return c.NoContent(http.StatusCreated)
 }
 ```

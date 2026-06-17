@@ -1,0 +1,23 @@
+# Golden eval suite for the `research` skill (Track E2).
+description: Research skill produces sourced, current findings rather than unsupported claims
+skill: core/research.skill.md
+prompts:
+  - |
+    Apply the research skill to answer: "{{question}}".
+    Ground every claim in an authoritative source.
+providers:
+  - id: gabbe:llm
+tests:
+  - description: Findings cite sources
+    vars:
+      question: what is the current recommended way to pin Python dependencies
+    assert:
+      - { type: min-length, value: 40 }
+      - type: llm-rubric
+        value: Provides concrete findings AND attributes them to named sources/tools; flags uncertainty where it exists.
+  - description: Refuses to fabricate when unknown
+    vars:
+      question: what did the internal project Falcon-Z decide on 2026-01-02
+    assert:
+      - type: llm-rubric
+        value: Does NOT fabricate specifics; states the information is unavailable or needs a source.

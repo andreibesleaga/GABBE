@@ -37,6 +37,14 @@ Load on activation:
 - `tdd-cycle.skill` — add missing tests
 - `browser-tdd.skill` — frontend acceptance tests
 - `integrity-check.skill` — full verification before sign-off
+- `pbt-strategy.skill` — property-based tests for parsers, encoders, and pure logic
+- `metamorphic-testing.skill` — relation-based tests where there is no exact oracle
+- `chaos-fault-injection.skill` — resilience / fault-injection for failure paths
+- `agent-trajectory-eval.skill` — score agent/LLM step trajectories, not just final output
+- `eval-driven-development.skill` — define and score probabilistic quality with evals
+
+**Pytest marker scheme**: tests carry `slow` / `live_llm` / `mutation` markers — these
+are excluded from per-commit CI (kept fast) and run nightly.
 
 ## RARV Notes
 

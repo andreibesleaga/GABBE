@@ -85,6 +85,7 @@ on demand when orchestrating.
 
 | Phase | Persona(s) | Output | Gate |
 |---|---|---|---|
+| S00 Strategy & Discovery (Day-0) | prod-research, prod-pm | problem statement, opportunity assessment, North-Star/HEART, RICE | HUMAN GO/NO-GO |
 | S01 Requirements | prod-pm | PRD.md (EARS) | HUMAN APPROVAL |
 | S02 Architecture | prod-architect, ops-security | PLAN.md, C4, ADRs, THREAT_MODEL | HUMAN APPROVAL |
 | S03 Tech Spec | prod-tech-lead | SPEC.md, OpenAPI, schema | approval (lighter/async) |
@@ -94,10 +95,18 @@ on demand when orchestrating.
 | S07 Security Review | ops-security, eng-qa | SECURITY_REVIEW.md, checklist | security sign-off |
 | S08 Human Review | prod-tech-lead, orch-judge, prod-ethicist | review summary | DOUBLE VERIFY + HUMAN APPROVAL |
 | S09 Staging | ops-devops, eng-qa | staging deploy + smoke tests | smoke green |
-| S10 Production | ops-devops, ops-sre | prod deploy (canary) | healthy 15+ min → COMPLETE |
+| S10 Production | ops-devops, ops-sre | prod deploy (canary) | healthy 15+ min → live |
+| S11 Operate & Maintain (Day-2) | ops-sre, ops-monitor, ops-incident, ops-cost | runbooks, SLO report, dependency status | SLOs met + budget healthy |
+| S12 Evolve & Improve (Day-2) | prod-product-ops, prod-pm | retrospective, A/B experiments, improvement backlog | actions logged + DORA/SPACE reviewed |
+| S13 Decommission & Sunset (Day-2) | prod-pm, ops-sre, biz-legal | decommission plan, data retention/migration, user comms | sunset approved + data archived |
+
+> **Day-0 / Day-2 note:** S00 is the Day-0 strategy & discovery phase (runs before S01);
+> S11–S13 are the Day-2 phases (operate, evolve, sunset) that run after the system is live.
+> The core build loop remains S01–S10. Full per-phase detail for all of S00–S13 lives in
+> `agents/guides/processes/loki-sdlc-phases.md`.
 
 Each phase ends with `sdlc-checkpoint.skill` (snapshot + PROJECT_STATE + AUDIT_LOG). Hard
-human-approval gates: S01, S02, S07, S08. Persona selection is dynamic
+human-approval gates: S00 (GO/NO-GO), S01, S02, S07, S08. Persona selection is dynamic
 (`coordination/persona-selector.skill`) on top of these defaults.
 
 ## Interruption Handling

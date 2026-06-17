@@ -1,0 +1,7 @@
+usage: main.py update [-h] [--agents AGENTS] [--global] [--dir DIR]
+
+options:
+  -h, --help       show this help message and exit
+  --agents AGENTS  Comma-separated agents to refresh (default: manifest set)
+  --global         Target the global install
+  --dir DIR        Target a custom install directory

@@ -1,0 +1,10 @@
+usage: main.py uninstall [-h] [--agents AGENTS] [--dry-run] [--purge]
+                         [--global] [--dir DIR]
+
+options:
+  -h, --help       show this help message and exit
+  --agents AGENTS  Comma-separated agents to deselect (default: all)
+  --dry-run        Print the plan; change nothing
+  --purge          Also remove the agents/ kit + .gabbe/
+  --global         Target the global install
+  --dir DIR        Target a custom install directory

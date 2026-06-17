@@ -38,6 +38,27 @@ Provide visibility into the "Black Box" of agent execution by tracking cost (tok
 ## Storage
 *   `agents/memory/metrics/analytics.jsonl` (Append-only log)
 
+## Predictive Cost Admission Control
+
+The metrics above are *reactive* — they detect overruns after tokens are already spent. Admission control is *proactive*: a financial-middleware gate sits in front of every premium-model call, tool call, and subagent spawn and decides, BEFORE the step runs, whether the budget can afford its worst case. A step that cannot be afforded is **rejected at the gate and never enters the loop**, so a runaway plan is stopped before it costs anything rather than after.
+
+### The reserve → execute → reconcile cycle
+1. **Estimate worst-case cost** for the pending step (max output tokens × model rate, plus tool/subagent overhead and any retry budget). Estimate the ceiling, not the average.
+2. **Reserve it from the remaining budget.** Call the budget layer's `reserve(amount)` (backed by `can_afford(amount)`). GABBE's budget layer already exposes `reserve()` / `can_afford()` as the runtime primitive — this is the gate, not advisory.
+3. **If the reservation fails, reject the step at the gate.** The call is never dispatched; surface a structured "budget-denied" outcome (and escalate to human if the goal still needs it). Nothing enters the agent loop on a failed reservation.
+4. **Execute** only the steps whose reservation held.
+5. **Reconcile reservation vs actual** after the call returns: release the unused remainder back to the budget (or debit the overage), then **recompute the forecast** of remaining steps so the next admission decision uses fresh numbers.
+
+### Deterministic floor (counters the LLM cannot reason around)
+Admission estimates are derived from the model's own (non-deterministic, gameable) reasoning, so they MUST sit on top of a deterministic floor — hard runtime counters enforced by the harness, outside the agent's control, that halt execution regardless of what the agent "decides":
+- **Consumption cap** — absolute token/spend ceiling per task and per session.
+- **Wall-clock boundary** — a hard deadline that terminates the run on elapsed time.
+- **Loop / pagination cap** — max iterations of any ReAct/refine loop and max pages fetched per paginated source.
+- **Delegation-depth cap** — max depth of subagent-spawns-subagent chains.
+- **Idempotency / dedup keys** — a key per logical action so a retried or re-reasoned step debits the budget and executes once, not N times.
+
+These counters are authoritative: the agent's non-deterministic logic cannot talk its way past them, because they are checked by the runtime, not the model. The probabilistic estimator decides *whether to attempt* a step; the deterministic floor decides *when to stop no matter what*.
+
 ## Security & Guardrails
 
 ### 1. Skill Security (Agent Analytics)

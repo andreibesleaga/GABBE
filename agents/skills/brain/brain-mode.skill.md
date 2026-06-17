@@ -120,6 +120,6 @@ If `loki` is running:
 - **Meta-Cognitive Hallucination**: The Brain might hallucinate a completely fake "Semantic Memory" (Phase B01) if it encounters a novel technology framework, confidently orchestrating tasks based on fabricated rules. The agent must require explicit citation of grounded files (e.g., `README.md`, official docs) before establishing a new semantic belief state.
 
 ### 4. Experimental CLI Integration & Platform Controls
-- **Optional Enhancement**: The `gabbe` CLI is strictly optional. Brain Mode can be operated entirely as a purely conceptual skill powered exclusively by an LLM reading this markdown file (e.g., inside Cursor, Claude Code, or Copilot). 
+- **Optional Enhancement**: The `gabbe` CLI is strictly optional. Brain Mode can be operated entirely as a purely conceptual skill powered exclusively by an LLM reading this markdown file (e.g., inside Cursor, Claude Code, or Copilot).
 - **Closed-Loop Execution**: To prevent unbounded token utilization and runaway loops when using the *optional* CLI, Brain Mode natively plugs into the experimental `gabbe brain activate` command.
 - **Hard Stops & Budget Constraints**: When running via the CLI as an autonomous background service, the `RunContext` enforces mathematical maximums governed by `PLATFORM_CONTROLS.md`. Agents should strictly track their own consumption to gracefully wrap up tasks before the `EscalationHandler` explicitly force-terminates their loops.

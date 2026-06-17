@@ -1,4 +1,6 @@
-usage: main.py verify [-h]
+usage: main.py verify [-h] [--chaos]
 
 options:
   -h, --help  show this help message and exit
+  --chaos     Run fault-injection self-checks (fail-closed tools, hard-stop,
+              escalation)

@@ -6,6 +6,132 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [1.0.0] — 2026-06-17 — Cradle-to-grave ADLC, evals & guardrails, advanced testing, reversible multi-OS install
+
+The v1.0 release. Strictly **additive and backward-compatible**: all 6 CI gates
+(api-surface, cli-help, config-schema, db-schema, emitter-vault, cve-delta) and
+the additive-only emit pipeline stay green — no public API/CLI/config/DB/emit key
+is removed or retyped, so existing agents, prior-version projects, and existing
+procedures keep working unchanged. v1.0 broadens the methodology layer to the
+**entire** lifecycle (S00–S13), adds an evaluation + standards-grounded guardrails
+layer, deterministic property/fuzz/chaos/mutation testing, hardened self-*
+capabilities, and a fully reversible, autodetecting, multi-OS install/update/
+uninstall path.
+
+> **Honesty note (carried into the skills themselves):** PBT/metamorphic tests and
+> evals **sample** an input space and **raise confidence** — they do **not** prove
+> correctness. LLM-as-judge is biased-but-useful and is calibrated against human
+> labels, never treated as ground truth (`pass^k`/`pass@k` reliability is reported,
+> never "proof"). The AI-risk standards map documents **coverage, not
+> certification**. v1.0 claims best-in-class coverage, not mathematically guaranteed
+> 100% correctness.
+
+### Added — Methodology layer
+- **Cradle-to-grave ADLC.** New **Day-0 phase S00 — Strategy & Discovery** (opportunity
+  framing, ideation, Wardley mapping, market scan, North-Star/HEART, RICE; go/no-go
+  human gate before S01) and **Day-2 phases S11–S13** (S11 Operate & Maintain, S12
+  Evolve & Continuously Improve, S13 Decommission & Sunset) extend the existing
+  S01–S10 SDLC end to end.
+- **~19 new skills** grounded in named industry methods — **ADD 3.0** (`attribute-driven-design`),
+  **ATAM** (explicit in `arch-review`), **Wardley/JTBD/RICE/North-Star** (`opportunity-assessment`,
+  `user-research-synthesis`, `ideation-facilitation`), **DORA/SPACE** (`product-analytics`),
+  **ADKAR** (`change-management`), plus `estimation-sizing`, `financial-governance`,
+  `fitness-functions`, `spec-driven-development`, `retrospective`, and the Day-2 ops
+  set (`observability-stack-setup`, `feature-flag-management`, `runbook-authoring`,
+  `dependency-lifecycle`, `decommission-sunset`). Self-contained prose, no inline
+  citation URLs.
+- **New mid-phase quality gates:** **S02.5** Cost & Feasibility, **S04.5** Parallelism/
+  Dependency feasibility, **S06.5** Performance-regression, **S07.5** Sustainability
+  (green-software) — documented in `loki-sdlc-phases.md` and `orch-judge`.
+- **2 new personas:** `prod-product-ops` (Day-2 metrics/analytics/experimentation owner;
+  wired into S11/S12) and `prod-integration` (third-party integration / vendor-SLA
+  architect; wired into S02/S03/S05).
+- **~13 new templates** (estimation, ADD workbook, fitness function, retrospective,
+  runbook, dependency graph, experiment plan, change-management plan, decommission
+  plan, property-test checklist, eval plan/golden-dataset/rubric), each registered in
+  `agents/templates/00-index.md` and wired to the phase/skill that produces it.
+
+### Added — MCP ecosystem (SWEBOK v4 priority map)
+- **8 new opt-in MCP servers** in `MCP_CONFIG_TEMPLATE.json` (now 65 total): `knowledge-graph-memory`
+  (Anthropic persistent memory), `mcp-evals` (↔ `eval-driven-development.skill`), `mcp-chaos-rig`
+  (↔ `chaos-fault-injection.skill` + `gabbe verify --chaos`), `supabase`, `pagerduty` (Day-2 S11),
+  `cloudflare`, `obsidian`, `discord`, plus `google-genai-toolbox`.
+- **SWEBOK v4 priority map** in `docs/MCP_CONFIGURATIONS.md` — best self-hostable servers mapped to
+  the software-engineering knowledge areas, each tied to a GABBE phase/skill.
+
+### Added — Evaluation & guardrails (Track E)
+- **Eval methodology skills:** `coding/eval-driven-development` (offline eval suites,
+  golden datasets, 3-tier assertions deterministic→semantic→LLM-judge, `pass@k`/`pass^k`
+  statistical gating), `ai/llm-as-judge` (rubric scoring + known-bias mitigations),
+  `ai/rag-evaluation` (Ragas-grounded faithfulness/relevance/context precision-recall),
+  `coding/agent-trajectory-eval` (tool-selection precision/recall/F1, trajectory
+  in-order match; τ-bench / SWE-bench Verified grounding).
+- **Self-eval harness** `agents/scripts/eval_skills.py` (no new core dep; assertions-only
+  per-commit, optional LLM-judge under `live_llm`/nightly; emits a JSON scorecard) +
+  promptfoo-compatible `agents/skills/<cat>/evals/*.eval.yaml` golden datasets; optional
+  **`gabbe eval`** subcommand (new public `run_evals()`).
+- **Standards-grounded guardrails:** `security/prompt-injection-defense` (direct vs.
+  indirect injection, lethal trifecta, dual-LLM/quarantine, spotlighting; OWASP
+  **LLM01:2025**) and `coding/output-validation` (schema-validated output, constrained
+  decoding, PII masking; OWASP **LLM05/LLM02**); `ai-safety-guardrails` upgraded with the
+  input/output/dialog/retrieval/execution rails taxonomy.
+- **`agents/guides/security/ai-risk-standards-map.md`** — coverage map of every GABBE
+  skill/gate/persona to **OWASP LLM Top 10 (2025)**, **NIST AI RMF (+ GenAI Profile)**,
+  **MITRE ATLAS**, **ISO/IEC 42001**, and the **EU AI Act** (documents coverage, not
+  certification).
+- **MCP contract hardening:** every string tool input bounded by charset + length
+  (`pattern` + `maxLength`); `test_mcp_contract.py` proves schemas valid + adversarial
+  payloads fail-closed.
+- **Cognitive-mode tests:** `test_brain_invariants.py` and `test_loki_shadow.py`
+  (mutually-exclusive states, toy convergence, resume-pointer integrity, loop/resource
+  guards, confidence-threshold escalation, self-heal→restore) + new
+  `brain/cognitive-testing` skill.
+- **`agents/scripts/validate_methodology_graph.py`** — lifecycle state-machine DAG +
+  persona-handoff graph + memory state model + skill-shape validator, joining the
+  `validate_*`/`verify_*` suite.
+
+### Added — Advanced testing (Track B)
+- **Hypothesis property-based test suites** for `budget`/`sync`/`route`/`replay`
+  invariants (budget cap never exceeded, sync idempotency/convergence, route
+  PII→LOCAL + complexity threshold, replay round-trip).
+- **MCP fuzzing** (`hypothesis-jsonschema` against the validated `run_command` handler +
+  malformed JSON-RPC envelope fuzzing).
+- **Chaos / fault injection** (subprocess timeout, sqlite `OperationalError` mid-txn,
+  LLM failure → assert escalation/hardstop/rollback).
+- **Mutation testing** (`mutmut`, nightly/non-blocking) and `slow`/`live_llm`/`mutation`
+  pytest markers.
+- **`gabbe verify --chaos`** — new public `run_chaos_checks()` runs the fault-injection
+  self-checks (additive flag; only `cli_help/verify.txt` baseline regenerated).
+
+### Added — Distribution (Track D)
+- **`.gabbe/manifest.json` install manifest** recording exactly what each installer
+  created (path/kind/points_to/agent/hash/backup_of/versions) — the backbone of
+  reversibility.
+- **Multi-target install:** project (default), `--global`
+  (`$XDG_DATA_HOME/gabbe`, refcounted), and `--dir <abs-path>` custom scope, with a
+  tested isolation invariant (nothing written outside the chosen target unless
+  `--global`).
+- **`uninstall` / `update`** (`npx gabbe …`, `gabbe …`, plus `uninstall.sh`/`uninstall.ps1`):
+  manifest-driven, idempotent, restores `.bak` backups, never touches preserve files
+  (`memory/*`, `project/*`, `policies.yml`, `AGENTS.md`/`CONSTITUTION.md` edits);
+  `--dry-run`, `--purge`, `--remove-agents <list>` deselection.
+- **`gabbe doctor`** — single read-only environment + install report that autodetects
+  OS/arch, runtimes, installed agent clients, chosen scope, and manifest integrity, with
+  a PASS/FAIL per check; multi-OS install verification (`{ubuntu, macos, windows}` ×
+  `{npx / pip|pipx / curl|sh | install.ps1}`) plus post-publish `release-verify` of the
+  real published artifact.
+
+### Added — Self-* hardening (Track C)
+- **Honest self-* guides:** `agents/guides/ai/self-evolving-skills.md`,
+  `agents/guides/ai/dynamic-capability-loading.md` (load-or-ask-the-user flow), and
+  `agents/guides/processes/extension-protocol.md` (the canonical additive way to add a
+  skill/template/persona/guide/agent-client/MCP/model without a breaking change).
+- Each self-* capability (self-evolving, self-adaptive, self-healing, dynamic capability
+  loading) is paired with an executable proof scenario, and the **"brain inference via
+  skills" / self-evolving genes** framing is stated honestly: the production
+  `gabbe/brain.py` is epsilon-greedy with a monotonic success-rate, and the free-energy /
+  Active-Inference framing is conceptual, not literal math.
+
 ## [0.9.6] — 2026-06-12 — Operating spine, universal install, more agents, registry interop
 
 Strictly backward-compatible with the last released tag, v0.8.0-beta (6 gates +

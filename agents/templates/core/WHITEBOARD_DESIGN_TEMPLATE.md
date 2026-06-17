@@ -29,7 +29,7 @@ List all entities that need to be drawn. **Crucial:** Approximate the (X, Y) lay
 | `API_2` | Stripe API | Cloud | 1500 | 600 | External Service |
 
 ## 4. Edges (Relationships)
-Define how the nodes connect. 
+Define how the nodes connect.
 
 | Source ID | Target ID | Line Style | Arrow | Label (Action) |
 | :--- | :--- | :--- | :--- | :--- |

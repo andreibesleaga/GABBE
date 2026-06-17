@@ -1,0 +1,29 @@
+# Golden eval suite for the `clarify` skill (Track E2).
+# Promptfoo-compatible: runnable by the external `promptfoo` CLI OR by
+# `agents/scripts/eval_skills.py --live`. Deterministic asserts run per-commit
+# (structure lint); model-dependent asserts run only in the nightly --live lane.
+description: Clarify skill asks a focused batch of clarifying questions on ambiguous requests
+skill: core/clarify.skill.md
+prompts:
+  # The harness reuses gabbe/llm.py in --live mode; promptfoo would use its own provider.
+  - |
+    Apply the clarify skill. The user request is: "{{request}}".
+    Ask the most useful clarifying questions before any work begins.
+providers:
+  - id: gabbe:llm   # gabbe/llm.py adapter (or a promptfoo provider when run externally)
+tests:
+  - description: Vague build request triggers scope questions
+    vars:
+      request: build me an app
+    assert:
+      - { type: contains, value: "?" }
+      - { type: min-length, value: 20 }
+      - type: llm-rubric
+        value: Asks a small, focused batch of questions about scope, users, or constraints; does not start building.
+  - description: Ambiguous bugfix request triggers reproduction questions
+    vars:
+      request: it is broken, fix it
+    assert:
+      - { type: contains, value: "?" }
+      - type: llm-rubric
+        value: Asks what is broken / how to reproduce / expected vs actual, rather than guessing a fix.

@@ -1,0 +1,23 @@
+# Golden eval suite for the `integrity-check` skill (Track E2).
+description: Integrity-check skill reports per-dimension status and never green-lights a RED dimension
+skill: core/integrity-check.skill.md
+prompts:
+  - |
+    Apply the integrity-check skill to this state: "{{state}}".
+    Report the per-dimension verdict and the overall status.
+providers:
+  - id: gabbe:llm
+tests:
+  - description: A failing security dimension blocks sign-off
+    vars:
+      state: tests green, coverage 99%, but two HIGH severity CVEs are unresolved
+    assert:
+      - type: llm-rubric
+        value: Marks the Security dimension RED and refuses to declare INTEGRITY VERIFIED while a dimension is RED.
+  - description: All-green reports verified
+    vars:
+      state: all 8 dimensions pass, zero CVEs, 100% tests green
+    assert:
+      - { type: icontains, value: "green" }
+      - type: llm-rubric
+        value: Reports an overall verified/green status only because every dimension is green.

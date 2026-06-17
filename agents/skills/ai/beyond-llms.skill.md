@@ -10,7 +10,6 @@ context_cost: high
 ## Goal
 Implement and integrate advanced AI methodologies that go beyond basic foundational models, including neuro-symbolic logic, genetic algorithms, or active inference loops.
 
-
 ## Steps
 1. **Analyze Constraints**: Determine the problem domain requiring non-LLM or hybrid-AI reasoning.
 2. **Design Algorithm**: Combine semantic parsing (LLM) with deterministic rule-engines (symbolic).

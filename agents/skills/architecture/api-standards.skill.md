@@ -10,7 +10,6 @@ context_cost: medium
 ## Goal
 Design, enforce, and validate enterprise API standards (REST, GraphQL, gRPC), ensuring consistent versioning, pagination, and error handling.
 
-
 ## Steps
 1. **Analyze Schema**: Review existing OpenAPI/GraphQL schemas.
 2. **Apply Standards**: Enforce naming conventions, HTTP status codes, and hypermedia (HATEOAS) links if required.

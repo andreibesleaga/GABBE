@@ -10,7 +10,6 @@ context_cost: high
 ## Goal
 Enforce robust, defense-in-depth architectural patterns including Zero Trust boundaries, secure access service edge (SASE), network segmentation, and strict IAM.
 
-
 ## Steps
 1. **Perimeter Audit**: Assume breach. Establish micro-perimeters around critical logical domains.
 2. **Access Policy**: Design the Authorization logic (e.g., using OPA or AWS IAM) ensuring least privilege access across all services.

@@ -10,7 +10,6 @@ context_cost: low
 ## Goal
 Elicit, define, and enforce system Quality Attributes (NFRs) such as performance, scalability, reliability, and security metrics.
 
-
 ## Steps
 1. **Elicitation**: Parse the `PRD_TEMPLATE.md` to map business goals to technical NFRs.
 2. **Definition**: Use the `QUALITY_ATTRIBUTES_TEMPLATE.md` to specify exact Service Level Indicators (SLIs) and Service Level Objectives (SLOs).

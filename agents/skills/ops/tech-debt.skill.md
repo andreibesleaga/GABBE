@@ -27,7 +27,7 @@ Surface, document, and prioritize technical debt so it can be systematically pla
 
    # PHP
    vendor/bin/phpmd app/ text codesize,complexity
-   
+
    # Python
    radon cc src/ -a -s  # Cyclomatic complexity
    xenon --max-absolute B --max-modules A --max-average A src/

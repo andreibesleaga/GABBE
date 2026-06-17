@@ -10,7 +10,6 @@ context_cost: high
 ## Goal
 Design and execute large-scale migrations from legacy systems (mainframe/on-prem) to modern, cloud-native architectures without dropping traffic or data.
 
-
 ## Steps
 1. **Audit Legacy**: Parse existing legacy docs using `architecture/LEGACY_AUDIT_TEMPLATE.md`.
 2. **Select Pattern**: Choose migration strategies like Strangler Fig, Anti-Corruption Layer (ACL), or CDC (Change Data Capture).

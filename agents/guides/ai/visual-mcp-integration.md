@@ -25,7 +25,7 @@ Visual canvases are exceptional tools for high-level human collaboration, non-te
 
 ## 3. Operations Guardrails for Visual Tools
 If the agent triggers a Visual tool (Draw.io, Miro, Excalidraw):
-1.  **Coordinate Mapping**: The agent must pre-map the geometry. Use the `WHITEBOARD_DESIGN_TEMPLATE.md` to establish an X/Y grid. LLMs are poor at spatial arrangement; pre-calculating coordinates mathematically guarantees a legible graph. 
+1.  **Coordinate Mapping**: The agent must pre-map the geometry. Use the `WHITEBOARD_DESIGN_TEMPLATE.md` to establish an X/Y grid. LLMs are poor at spatial arrangement; pre-calculating coordinates mathematically guarantees a legible graph.
 2.  **State Syncing**: If an agent updates an architecture in Miro or Excalidraw, it MUST also reflect the structural changes back into the text-based `PLAN.md` or `SYSTEM_ANALYSIS_TEMPLATE.md` to ensure the project's internal semantic memory is updated. A picture is not searchable by default RAG tools; the metadata must stay in text.
 3.  **Authentication Constraints**: Visual MCP servers require OAuth or Bearer Tokens (Miro, Figma). Excalidraw and Draw.io are local-only and need no authentication. The agent must verify connectivity by calling a read operation (e.g., `get_board`) before attempting to dump 50 nodes into a massive write operation.
 
@@ -104,4 +104,3 @@ For a complete end-to-end workflow that processes visual inputs (scanned sketche
 - **Guide:** `planning/visual-product-specs.md` — input catalogue, recognition pipeline, output mapping, design readiness gate
 - **Skill:** `product/visual-specs.skill.md` — 5-phase workflow from visual inputs to Visual Spec Package
 - **Template:** `product/VISUAL_SPEC_PACKAGE_TEMPLATE.md` — collects all visual design artifacts with readiness checklist
-

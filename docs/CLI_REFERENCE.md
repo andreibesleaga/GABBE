@@ -110,13 +110,19 @@ sqlite3 project/state.db "INSERT OR REPLACE INTO project_state (key, value) VALU
 
 ---
 
-### `gabbe verify`
+### `gabbe verify [--chaos]`
 
 Run project integrity checks:
 
 1. Check required files exist (`agents/AGENTS.md`, `agents/CONSTITUTION.md`, `project/TASKS.md`)
 2. Warn if `project/state.db` is missing
 3. Read `## Commands` section of `agents/AGENTS.md` and run `test`, `lint`, `security_scan` commands
+
+`--chaos` instead runs fault-injection self-checks (Track B): it injects faults and
+asserts GABBE's resilience mechanisms recover safely — the MCP tool stays
+fail-closed without an allowlist, the hard-stop caps a runaway loop, PII forces
+LOCAL routing, and escalation degrades gracefully under an injected DB fault.
+Read-only; exits non-zero if any self-check fails.
 
 **`AGENTS.md` Commands section format:**
 ```markdown
@@ -436,6 +442,66 @@ coding agents. (For a Python-independent install, use `npx gabbe init` or
 
 ```bash
 gabbe setup
+```
+
+---
+
+### `gabbe eval [--live] [--out FILE]`
+
+Run the skill eval suites (`agents/skills/<category>/evals/*.eval.yaml`) via the
+kit-layer harness (`agents/scripts/eval_skills.py`). The default deterministic
+self-check lints every suite and self-tests the assertion evaluators with **no
+model** (safe per-commit). `--live` renders each prompt, scores outputs against
+the model, and writes a JSON scorecard (nightly; needs `GABBE_LIVE_LLM=1`).
+
+```bash
+gabbe eval                       # deterministic self-check
+GABBE_LIVE_LLM=1 gabbe eval --live --out scorecard.json
+```
+
+Evals sample the input space and raise confidence — they do not prove correctness.
+
+---
+
+### `gabbe doctor`
+
+Read-only environment & install report. Auto-detects the OS/arch, the available
+runtimes/package managers (`python3`, `pip`, `pipx`, `node`, `npm`, `npx`, `git`,
+`curl`), and which agent clients are present in the target (Claude Code, Cursor,
+Copilot, Gemini, Codex, Windsurf, Cline, Aider, Zed, Antigravity, OpenCode,
+Continue, Roo, Kilo), then prints a PASS/WARN per check. Used by the multi-OS
+`install-matrix` and post-publish `release-verify` CI jobs to confirm a
+one-command install succeeded.
+
+```bash
+gabbe doctor
+```
+
+---
+
+### `gabbe update [--agents LIST] [--global] [--dir PATH]`
+
+Additively refresh the installed kit from source: updates kit files, prunes
+orphaned emitted files, and preserves user/preserve files (`CONSTITUTION.md`,
+`policies.yml`). Target resolution: `--dir` > `--global` > project (cwd).
+
+```bash
+gabbe update
+```
+
+---
+
+### `gabbe uninstall [--agents LIST] [--dry-run] [--purge] [--global] [--dir PATH]`
+
+Reverse a GABBE install using its `.gabbe/manifest.json`: removes exactly what was
+installed, restores any `.bak` backups, prunes now-empty dirs, and never touches
+unrelated files. `--agents` deselects specific agents only; `--dry-run` prints the
+plan without changing anything; `--purge` also removes the `agents/` kit and
+`.gabbe/`. Idempotent and isolated (never writes outside the target).
+
+```bash
+gabbe uninstall --dry-run
+gabbe uninstall
 ```
 
 ---

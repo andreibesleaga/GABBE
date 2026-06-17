@@ -10,7 +10,6 @@ context_cost: low
 ## Goal
 Create specialized, responsive, and intuitive UI elements for tracing, visualizing, and interacting with AI agents.
 
-
 ## Steps
 1. **Component Design**: Design UI components (e.g., using ShadCN) to visualize agent thoughts, tools, and actions.
 2. **State Connection**: Wire components to the backend agent state or streaming endpoints.

@@ -126,6 +126,10 @@ python scripts/fill_placeholders.py
 | `gabbe init` | Initialize the SQLite Database (Run this after `python scripts/init.py`). |
 | `gabbe sync` | **Hybrid Sync**: Bidirectional sync between `project/TASKS.md` and SQLite DB. |
 | `gabbe verify`| **Enforcer**: programmable integrity check (files, tests, lint). |
+| `gabbe verify --chaos` | **Resilience**: fault-injection self-checks (fail-closed tool, hard-stop, escalation). |
+| `gabbe eval` | **Skill evals**: deterministic self-check; `--live` scores via the model. |
+| `gabbe doctor` | **Autodetect**: OS/runtimes/agents + post-install MCP next-steps. |
+| `gabbe update` / `gabbe uninstall` | **Reversible install**: additive refresh / manifest-backed removal. |
 | `gabbe status`| **Dashboard**: Visualizes project phase and task progress. |
 | `gabbe brain` | **Meta-Cognition**: Activates Active Inference loop or Evolutionary Prompt Optimization (Requires API Key). |
 | `gabbe route` | **Cost Router**: Arbitrates between Local and Remote LLMs based on task complexity (Requires API Key). |
@@ -422,7 +426,7 @@ Skills are invoked by mentioning trigger keywords in conversation.
 ```
 
 
-All 180+ skills are listed in `agents/skills/00-index.md`.
+All 214 skills are listed in `agents/skills/00-index.md`.
 
 ---
 
@@ -897,7 +901,7 @@ python3 GABBE/scripts/init.py
 
 ## 🛡️ Security & Guardrails
 
-All 180+ skills in the GABBE kit feature a heavily enforced **"Security & Guardrails"** section that binds agents to the project's CONSTITUTION.md. The 3-layer security constraints include:
+All 214 skills in the GABBE kit feature a heavily enforced **"Security & Guardrails"** section that binds agents to the project's CONSTITUTION.md. The 3-layer security constraints include:
 
 1.  **Skill Security**: Tool-specific protection (e.g., preventing command injection or sandbox escapes).
 2.  **System Integration Security**: Safe external integration (e.g., verifying boundary enforcement or ensuring test coverage).

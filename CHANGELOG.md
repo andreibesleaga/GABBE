@@ -58,6 +58,34 @@ uninstall path.
   `cloudflare`, `obsidian`, `discord`, plus `google-genai-toolbox`.
 - **SWEBOK v4 priority map** in `docs/MCP_CONFIGURATIONS.md` — best self-hostable servers mapped to
   the software-engineering knowledge areas, each tied to a GABBE phase/skill.
+- `time-complexity` documented as a **local-GitHub** MCP server (build from source); `semgrep` and
+  `google-genai-toolbox` annotated with local-install steps.
+
+### Added — SWEBOK v4 alignment, agentic-AI patterns & AI assurance
+- **SWEBOK v4 foundations** — full coverage of all knowledge areas via skills `professional-practice`
+  (ACM/IEEE-CS ethics), `empirical-methods` (measurement/experiment design), `configuration-management`
+  (SCM discipline), and guides `mathematical-foundations`, `computing-foundations`, `modeling-methods`.
+- **Agentic-AI skills** — `context-engineering` (Write/Select/Compress/Isolate, prompt caching),
+  `ai-red-teaming` (offensive testing, ASR gating, PyRIT/Garak/Promptfoo), `agent-sandboxing`
+  (four-domain intrinsic isolation, locked at creation), `reasoning-patterns` (CoT/ToT/ReAct/Reflexion
+  selection), `agent-workflow-patterns` (chaining/routing/parallelization/orchestrator-workers/
+  evaluator-optimizer; workflow-vs-agent decision).
+- **Agentic-AI guides** — `agent-identity-trust` (KYA, OAuth-for-agents, signed mandates, A2A/AGNTCY),
+  `model-customization-decisions` (prompt vs RAG vs fine-tune, SLMs, routing/cascades), plus two
+  catalogs: `agentic-design-patterns` (full agentic taxonomy) and `software-design-patterns`
+  (classical GoF / architectural / DDD / enterprise-integration patterns).
+- **AI-assurance templates** — `MODEL_CARD`, `DATASHEET`, and `SYSTEM_CARD` to make governance concrete.
+- **Standards map expanded** — ISO/IEC 5338 (AI lifecycle), 23894 (AI risk), 25059 (AI quality), 22989,
+  IEEE 7000-series, NIST AI 600-1 (GenAI Profile), EU AI Act GPAI Code of Practice, Google SAIF→CoSAI;
+  `agent-communication` refreshed for the converged protocol stack (A2A→Linux Foundation, AGNTCY /
+  Internet-of-Agents, MCP OAuth authorization).
+- **Post-install workflow** — `gabbe doctor` prints which MCP servers to enable + how; new
+  `docs/POST_INSTALL.md` full environment-setup guide.
+- **Methodology upgrades** — predictive cost admission control (reserve→reconcile), multi-agent
+  topology-selection matrix + named swarm failure modes, and a grounded-self-critique rule (reflection
+  loops require an external anchor) folded into the existing orchestration/patterns skills.
+- **Security hardening** — installer agent-name validation + path-containment (the isolation invariant
+  holds even against a tampered manifest), with regression tests.
 
 ### Added — Evaluation & guardrails (Track E)
 - **Eval methodology skills:** `coding/eval-driven-development` (offline eval suites,

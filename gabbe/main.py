@@ -376,7 +376,7 @@ def main() -> None:
             else:
                 print(
                     f"{Colors.WARNING}Install wizard not found (packaged install): "
-                    f"use 'npx gabbe init' or the repo's scripts/init.py.{Colors.ENDC}"
+                    f"use 'npx gabbe-kit init' or the repo's scripts/init.py.{Colors.ENDC}"
                 )
                 sys.exit(2)
 
@@ -414,7 +414,7 @@ def main() -> None:
             if not source.exists():
                 print(
                     f"{Colors.WARNING}Kit source not found (packaged install): run "
-                    f"'npx gabbe init' / 'gabbe setup' to refresh.{Colors.ENDC}"
+                    f"'npx gabbe-kit init' / 'gabbe setup' to refresh.{Colors.ENDC}"
                 )
                 sys.exit(2)
             target = _resolve_install_target(args)

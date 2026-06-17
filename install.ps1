@@ -5,7 +5,7 @@
 #   irm https://raw.githubusercontent.com/andreibesleaga/GABBE/main/install.ps1 | iex
 #
 # Picks the best available installer:
-#   1. Node present  -> `npx --yes gabbe init` (Python-independent path).
+#   1. Node present  -> `npx --yes gabbe-kit init` (Python-independent path).
 #   2. Else python   -> `python scripts/init.py` (the interactive wizard).
 #
 # No destructive operations: it only runs an installer that copies the kit into
@@ -28,7 +28,7 @@ Usage:
   .\install.ps1 [installer-args...]
 
 Behavior:
-  - If Node is installed, runs:   npx --yes gabbe init [args...]
+  - If Node is installed, runs:   npx --yes gabbe-kit init [args...]
   - Else if Python is installed:  python scripts/init.py
   - Otherwise, prints how to install Node or Python and exits non-zero.
 
@@ -54,14 +54,14 @@ if ($Args) { $passthru = $Args }
 
 if ((Test-Cmd 'node') -and (Test-Cmd 'npx')) {
     $ver = (& node --version)
-    Write-Output "-> Node detected ($ver). Using: npx --yes gabbe init"
-    & npx --yes gabbe init @passthru
+    Write-Output "-> Node detected ($ver). Using: npx --yes gabbe-kit init"
+    & npx --yes gabbe-kit init @passthru
     exit $LASTEXITCODE
 }
 
 if (Test-Cmd 'npx') {
-    Write-Output '-> npx detected. Using: npx --yes gabbe init'
-    & npx --yes gabbe init @passthru
+    Write-Output '-> npx detected. Using: npx --yes gabbe-kit init'
+    & npx --yes gabbe-kit init @passthru
     exit $LASTEXITCODE
 }
 

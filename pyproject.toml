@@ -72,7 +72,7 @@ include = ["gabbe*"]
 # importable `gabbe*` package, so MANIFEST.in bundles it into the **sdist** only —
 # a source/`--no-binary` install (and the GitHub release tarball) carries the kit,
 # but a plain wheel install does NOT include it. For a Python-independent kit
-# install use `npx gabbe init` or `curl … | sh`. Additive: does NOT alter the
+# install use `npx gabbe-kit init` or `curl … | sh`. Additive: does NOT alter the
 # packages.find selection above.
 [tool.setuptools]
 include-package-data = true

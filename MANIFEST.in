@@ -5,7 +5,7 @@
 # IMPORTANT: the kit (agents/, docs/) lives OUTSIDE the `gabbe*` package, so it
 # is bundled into the sdist ONLY — a plain *wheel* install does NOT carry it
 # (include-package-data can only place files that live inside a package). For a
-# Python-independent kit install use `npx gabbe init` or the install scripts.
+# Python-independent kit install use `npx gabbe-kit init` or the install scripts.
 # This matches the packaging note in pyproject.toml and additively bundles the
 # kit alongside the wheel's [tool.setuptools.packages.find] = `gabbe*` selection.
 

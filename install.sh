@@ -6,7 +6,7 @@
 #   curl -fsSL https://raw.githubusercontent.com/andreibesleaga/GABBE/main/install.sh | sh
 #
 # Picks the best available installer for your machine:
-#   1. Node present  -> `npx --yes gabbe init` (Python-independent path).
+#   1. Node present  -> `npx --yes gabbe-kit init` (Python-independent path).
 #   2. Else python3  -> `python3 scripts/init.py` (the interactive wizard).
 #
 # It performs no destructive operations: it only runs an installer that copies
@@ -25,7 +25,7 @@ Usage:
   sh install.sh [installer-args...]
 
 Behavior:
-  - If Node is installed, runs:   npx --yes gabbe init [args...]
+  - If Node is installed, runs:   npx --yes gabbe-kit init [args...]
   - Else if python3 is installed: python3 scripts/init.py
   - Otherwise, prints how to install Node or Python and exits non-zero.
 
@@ -59,13 +59,13 @@ fi
 echo "GABBE installer: detecting runtime..."
 
 if have node && have npx; then
-  echo "→ Node detected ($(node --version)). Using: npx --yes gabbe init"
-  exec npx --yes gabbe init "$@"
+  echo "→ Node detected ($(node --version)). Using: npx --yes gabbe-kit init"
+  exec npx --yes gabbe-kit init "$@"
 fi
 
 if have npx; then
-  echo "→ npx detected. Using: npx --yes gabbe init"
-  exec npx --yes gabbe init "$@"
+  echo "→ npx detected. Using: npx --yes gabbe-kit init"
+  exec npx --yes gabbe-kit init "$@"
 fi
 
 if have python3; then

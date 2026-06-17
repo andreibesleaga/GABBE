@@ -211,8 +211,11 @@ def run_live(out_path: Path | None) -> int:
                     ok, label = assert_output(a, output)
                 elif atype == "llm-rubric":
                     ok, label = _judge(call_llm, a.get("value", ""), output)
-                else:  # similar — needs embeddings we don't ship; record as skipped
-                    ok, label = True, f"{atype} (skipped: needs embeddings)"
+                else:  # similar — needs embeddings we don't ship; SKIP honestly
+                    # passed=None: recorded but NOT counted toward the pass rate
+                    # (skipping must never silently inflate the scorecard).
+                    details.append({"type": f"{atype} (skipped: needs embeddings)", "passed": None})
+                    continue
                 details.append({"type": label, "passed": ok})
                 case_passed = case_passed and ok
             total += 1

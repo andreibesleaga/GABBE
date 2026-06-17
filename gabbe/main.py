@@ -398,7 +398,9 @@ def main() -> None:
             from .installer import uninstall as _uninstall
 
             target = _resolve_install_target(args)
-            agents = args.agents.split(",") if args.agents else None
+            agents = (
+                [a.strip() for a in args.agents.split(",") if a.strip()] if args.agents else None
+            )
             removed = _uninstall(target, agents=agents, dry_run=args.dry_run, purge=args.purge)
             verb = "Would remove" if args.dry_run else "Removed"
             print(f"{verb} {len(removed)} path(s) from {target}")
@@ -416,7 +418,9 @@ def main() -> None:
                 )
                 sys.exit(2)
             target = _resolve_install_target(args)
-            agents = args.agents.split(",") if args.agents else None
+            agents = (
+                [a.strip() for a in args.agents.split(",") if a.strip()] if args.agents else None
+            )
             manifest = update_kit(target, source, agents=agents)
             print(f"Updated kit at {target} ({len(manifest['entries'])} artifacts)")
 

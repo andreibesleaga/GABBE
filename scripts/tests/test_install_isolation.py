@@ -2,7 +2,10 @@
 """Isolation tests (Track D): install writes ONLY inside the target, and an
 unselected agent receives zero files."""
 
+import json
 from pathlib import Path
+
+import pytest
 
 from gabbe import installer
 
@@ -40,3 +43,32 @@ def test_unselected_agent_gets_zero_files(tmp_path):
     installer.install_kit(target, source, ["claude"])
     assert (target / ".gabbe-agents" / "claude.md").exists()
     assert not (target / ".gabbe-agents" / "cursor.md").exists()
+
+
+@pytest.mark.parametrize("bad", ["../../etc/passwd", "a/b", "x..y", "", "Bad Name", ".hidden"])
+def test_malicious_agent_names_are_rejected(tmp_path, bad):
+    """Agent slugs build file paths, so traversal/separator names must be refused."""
+    source = _make_source(tmp_path)
+    with pytest.raises(ValueError):
+        installer.install_kit(tmp_path / "proj", source, [bad])
+
+
+def test_tampered_manifest_path_cannot_escape_target(tmp_path):
+    """A manifest entry pointing outside the target must never be acted on."""
+    source = _make_source(tmp_path)
+    target = tmp_path / "proj"
+    installer.install_kit(target, source, ["claude"])
+
+    # A file outside the target that a malicious manifest tries to delete.
+    outside = tmp_path / "victim.txt"
+    outside.write_text("precious")
+
+    mp = installer.manifest_path(target)
+    manifest = json.loads(mp.read_text())
+    manifest["entries"].append(
+        {"path": "../victim.txt", "kind": "copy", "agent": "claude", "backup_of": None}
+    )
+    mp.write_text(json.dumps(manifest))
+
+    installer.uninstall(target)  # must NOT follow the escaping path
+    assert outside.exists() and outside.read_text() == "precious"

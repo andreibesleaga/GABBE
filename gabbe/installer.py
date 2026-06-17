@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 import shutil
 from pathlib import Path
 from typing import Any
@@ -28,6 +29,32 @@ MANIFEST_SCHEMA_VERSION = 1
 _MANIFEST_REL = ".gabbe/manifest.json"
 # User/preserve files an update or uninstall must never clobber or delete.
 _PRESERVE = {"CONSTITUTION.md", "policies.yml"}
+# Agent slugs are used to build file paths, so they must be strictly bounded
+# (no separators / traversal). Enforces the isolation invariant.
+_AGENT_RE = re.compile(r"^[a-z0-9][a-z0-9_-]{0,63}$")
+
+
+def _empty_manifest() -> dict[str, Any]:
+    return {"schema_version": MANIFEST_SCHEMA_VERSION, "entries": [], "agents": []}
+
+
+def _validate_agents(agents: list[str]) -> None:
+    for agent in agents:
+        if not _AGENT_RE.match(agent):
+            raise ValueError(f"invalid agent name (must match {_AGENT_RE.pattern}): {agent!r}")
+
+
+def _resolve_within(target: Path, rel: str) -> Path:
+    """Resolve `rel` under `target`, refusing any path that escapes the target.
+
+    Hard guarantee for the isolation invariant: a tampered/malicious manifest path
+    (e.g. '../../etc/x') can never make uninstall touch a file outside the target.
+    """
+    base = target.resolve()
+    p = (base / rel).resolve()
+    if p != base and base not in p.parents:
+        raise ValueError(f"refusing path outside target: {rel!r}")
+    return p
 
 
 def manifest_path(target: Path) -> Path:
@@ -41,8 +68,16 @@ def _sha256(path: Path) -> str:
 def read_manifest(target: Path) -> dict[str, Any]:
     mp = manifest_path(target)
     if not mp.exists():
-        return {"schema_version": MANIFEST_SCHEMA_VERSION, "entries": [], "agents": []}
-    return json.loads(mp.read_text())
+        return _empty_manifest()
+    try:
+        m = json.loads(mp.read_text())
+    except (ValueError, OSError):
+        return _empty_manifest()
+    # Defensive: a corrupt manifest must degrade gracefully, not crash callers.
+    if not isinstance(m, dict) or not isinstance(m.get("entries"), list):
+        return _empty_manifest()
+    m.setdefault("agents", [])
+    return m
 
 
 def _write_manifest(target: Path, manifest: dict[str, Any]) -> None:
@@ -69,6 +104,7 @@ def install_kit(
     Returns the manifest. Idempotent (re-install replaces files without duplicate
     manifest entries). Backs up pre-existing non-kit files to `<file>.bak`.
     """
+    _validate_agents(agents)
     target = target.resolve()
     entries: list[dict[str, Any]] = []
 
@@ -162,7 +198,13 @@ def uninstall(
     kept_entries: list[dict[str, Any]] = []
 
     for entry in manifest.get("entries", []):
-        path = target / entry["path"]
+        # Containment guard: never act on a path that escapes the target, even if
+        # the manifest was tampered with. A bad entry is kept (skipped), not crashed.
+        try:
+            path = _resolve_within(target, entry["path"])
+        except (ValueError, KeyError, TypeError):
+            kept_entries.append(entry)
+            continue
         scope_match = agents is None or entry.get("agent") in agents
         is_shared = entry.get("agent") == "shared"
         # When scoping to specific agents, never remove shared kit files.
@@ -177,9 +219,12 @@ def uninstall(
             continue
         if path.exists() or path.is_symlink():
             path.unlink()
-        # Restore a backup if this install shadowed a user file.
+        # Restore a backup if this install shadowed a user file (also containment-checked).
         if entry.get("backup_of"):
-            backup = target / entry["backup_of"]
+            try:
+                backup = _resolve_within(target, entry["backup_of"])
+            except ValueError:
+                continue
             if backup.exists():
                 shutil.move(str(backup), str(path))
 

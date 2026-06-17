@@ -9,25 +9,25 @@ Decision (OODA), and Action with Self-Improvement.
 class CognitiveAgent:
     def __init__(self):
         self.name = "Loki-7"
-        self.dna = {"patience": 5, "curiosity": 0.8} # "Prompts"
+        self.dna = {"patience": 5, "curiosity": 0.8}  # "Prompts"
         self.memory = []
         self.proprioception = {"tools_healthy": True}
 
     def ooda_loop(self, stimulus):
         print(f"\n[{self.name}] Stimulus Received: '{stimulus}'")
-        
+
         # 1. OBSERVE (Sensation)
         sensation = self.sense(stimulus)
-        
+
         # 2. ORIENT (Perception + Orientation)
         perception = self.perceive(sensation)
-        
+
         # 3. DECIDE (Hypothesis)
         decision = self.decide(perception)
-        
+
         # 4. ACT (Motor)
         result = self.act(decision)
-        
+
         # 5. LEARN (Feedback)
         self.learn(result)
 
@@ -45,7 +45,7 @@ class CognitiveAgent:
     def decide(self, perception):
         # Consciousness Loop: Self-Reference
         print(f"  [Meta] I am thinking about '{perception}'...")
-        
+
         if "fail" in perception.lower():
             return "inspect_self"
         else:
@@ -65,14 +65,16 @@ class CognitiveAgent:
             self.dna["patience"] += 1
             print(f"  [Evolution] DNA Updated: Patience = {self.dna['patience']}")
 
+
 def run_simulation():
     bot = CognitiveAgent()
-    
+
     # Stimulus 1: Normal
     bot.ooda_loop("User says Hello")
-    
+
     # Stimulus 2: Failure
     bot.ooda_loop("System Failure Detected")
+
 
 if __name__ == "__main__":
     run_simulation()

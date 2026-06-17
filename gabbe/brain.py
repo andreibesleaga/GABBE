@@ -206,6 +206,14 @@ def evolve_prompts(skill_name: str) -> None:
         new_prompt = call_llm(mutation_request, system_prompt)
 
         if new_prompt:
+            # Redact before persisting: this LLM-generated text is stored in the
+            # genes table AND later re-injected as a system prompt on subsequent
+            # brain activations. If the model echoed PII/secrets into the mutation,
+            # redaction here stops them leaking to the DB and to every future call.
+            from .audit import _redact_text
+
+            new_prompt = _redact_text(new_prompt)
+
             # 3. Selection (Store new candidate).
             # success_rate starts at 0.0. activate_brain() increments it by +0.1 each
             # time a gene produces a successful LLM response, closing the feedback loop.

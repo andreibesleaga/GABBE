@@ -81,13 +81,18 @@ class ToolGateway:
 
             tool_def = self.registry[name]
 
-            # Policy Check
-            if run_context.policy:
-                policy_res = run_context.policy.evaluate(
-                    {"tool": name, "arguments": arguments, "role": role}
-                )
-                if not policy_res.allowed:
-                    raise PolicyDenied(f"Policy denied: {policy_res.reason}")
+            # Policy Check — fail-closed. A missing policy engine is a
+            # misconfiguration, not a license to run every tool unchecked; deny
+            # rather than silently skipping policy. RunContext always installs a
+            # deny-all default (PolicyEngine.from_yaml), so this only triggers
+            # when a caller explicitly passes policy=None.
+            if run_context.policy is None:
+                raise PolicyDenied("No policy engine configured; refusing tool call (fail-closed).")
+            policy_res = run_context.policy.evaluate(
+                {"tool": name, "arguments": arguments, "role": role}
+            )
+            if not policy_res.allowed:
+                raise PolicyDenied(f"Policy denied: {policy_res.reason}")
 
             # Rate Limits & Circuit Breaker (gate BEFORE consuming budget)
             self._check_rate_limit(name)

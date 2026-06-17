@@ -190,6 +190,34 @@ def test_budget_cached_tokens_reduce_cost_not_double_billed():
     assert cost_cached < cost_uncached
 
 
+def test_budget_reasoning_exceeding_completion_never_negative_cost():
+    """Regression (H-4): a malformed usage payload reporting reasoning_tokens >
+    completion_tokens must not drive the output term negative and *reduce* tracked
+    cost (which would let a run slip past max_cost_usd)."""
+    b = Budget(max_tokens=10_000)
+    b._cached_prices["bad-model"] = {
+        "input": 10e-6,
+        "output": 30e-6,
+        "reasoning": 5e-6,
+        "cache_creation": 0.0,
+        "cache_read": 0.0,
+    }
+    b.record_llm_usage(
+        "bad-model",
+        {
+            "total_tokens": 1000,
+            "prompt_tokens": 500,
+            "completion_tokens": 100,
+            # reasoning > completion (impossible, but defend against it):
+            "completion_tokens_details": {"reasoning_tokens": 400},
+        },
+    )
+    # output term clamps to 0; cost = 500*input + 400*reasoning, strictly positive.
+    assert b.cost_usd > 0
+    expected = 500 * 10e-6 + 400 * 5e-6
+    assert abs(b.cost_usd - expected) < 1e-12
+
+
 def test_budget_anthropic_cache_read_field_supported():
     """Anthropic-style cache_read_input_tokens is also honored."""
     b = Budget(max_tokens=10_000)

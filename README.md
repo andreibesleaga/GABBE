@@ -428,7 +428,7 @@ flowchart TD
 agents/
 ├── AGENTS.md                 # Universal config (edit per project)
 ├── CONSTITUTION.md           # Immutable project law
-├── skills/                   # 180+ .skill.md files
+├── skills/                   # 214 .skill.md files
 │   ├── 00-index.md           # Full skills registry
 │   ├── coding/               # tdd, review, debug, refactor, git...
 │   ├── architecture/         # arch-design, patterns, api-design...
@@ -439,7 +439,7 @@ agents/
 │   ├── data/                 # data-engineering, db-migration
 │   ├── coordination/         # multi-agent-orch, agent-protocol
 │   └── brain/                # active-inference, consciousness, memory...
-├── templates/                # 60+ fill-in-the-blank documents
+├── templates/                # 100 fill-in-the-blank documents
 │   ├── 00-index.md           # Full templates registry
 │   ├── coding/               # test plans, checklists, devcontainer
 │   ├── architecture/         # ADR, C4, domain model, integration
@@ -449,8 +449,8 @@ agents/
 │   ├── core/                 # plan, tasks, audit log, traceability
 │   ├── coordination/         # agent profiles, swarm config
 │   └── brain/                # inference loop, episodic memory, OODA
-├── guides/                   # 30+ language & domain guides
-├── personas/                 # 30+ specialized agent roles
+├── guides/                   # 86 language & domain guides
+├── personas/                 # 36 specialized agent roles
 ├── memory/                   # Episodic + semantic + project state
 └── docs/                     # Whitepapers & research
 ```

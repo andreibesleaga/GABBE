@@ -4,8 +4,8 @@
 
 | Version | Supported |
 | ------- | --------- |
-| 0.8.x   | ✅ |
-| < 0.8.0 | ❌ |
+| 1.0.x   | ✅ |
+| < 1.0.0 | ❌ |
 
 ## Reporting a vulnerability
 
@@ -20,7 +20,8 @@ impact, and any suggested mitigation.
 
 ## API key handling (LLM providers)
 
-GABBE talks to OpenAI-compatible LLM endpoints (OpenRouter by default).
+GABBE talks to OpenAI-compatible LLM endpoints (OpenAI by default; any
+OpenAI-compatible provider such as OpenRouter works via `GABBE_API_URL`).
 
 - **Never commit a real key.** Only the `env` template (placeholder, empty
   `GABBE_API_KEY=`) is tracked; real keys belong in a gitignored `.env`.

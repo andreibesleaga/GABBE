@@ -1170,7 +1170,7 @@ MCP (Model Context Protocol) servers extend agent capabilities. Configure them i
 | **Canvas** | tldraw MCP | Persistent visual canvas for wireframing |
 | **Filesystem** | Filesystem MCP | Local file access for internal RAG |
 
-**Full coverage matrix** (76 MCP servers in `MCP_CONFIG_TEMPLATE.json`):
+**Full coverage matrix** (65 MCP servers in `MCP_CONFIG_TEMPLATE.json`):
 
 | Integration Domain | Servers Available |
 |---|---|

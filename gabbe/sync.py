@@ -171,8 +171,6 @@ class _SyncLock:
         while True:
             try:
                 self._fd = os.open(str(self.path), os.O_CREAT | os.O_EXCL | os.O_WRONLY)
-                os.write(self._fd, str(os.getpid()).encode())
-                return self
             except FileExistsError:
                 if time.monotonic() >= deadline:
                     raise TimeoutError(
@@ -180,9 +178,29 @@ class _SyncLock:
                         f"{self.timeout}s; another sync may be in progress."
                     )
                 time.sleep(self.poll)
+                continue
             except Exception:
-                # Any other OS/mocked-environment issue: skip locking.
+                # Couldn't even create the lock file (OS/mocked env): the fd was
+                # never assigned and no file is ours — skip locking, nothing to undo.
+                self._fd = None
                 return self
+
+            # We now OWN the lock file. If writing the PID fails, tear down our own
+            # fd + file here rather than leaving a stale lock that would block every
+            # future sync until manually removed, then fall back to best-effort.
+            try:
+                os.write(self._fd, str(os.getpid()).encode())
+            except Exception:
+                try:
+                    os.close(self._fd)
+                except OSError:
+                    pass
+                try:
+                    self.path.unlink()
+                except OSError:
+                    pass
+                self._fd = None
+            return self
 
     def __exit__(self, *exc: Any) -> None:
         if self._fd is None:

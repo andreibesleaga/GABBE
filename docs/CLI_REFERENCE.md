@@ -34,11 +34,15 @@ Entry point: `gabbe` (defined in `pyproject.toml → [project.scripts]`)
 | `GABBE_MAX_RECURSION_DEPTH` | `5` | Maximum agent recursion depth |
 | `GABBE_MAX_RETRIES_PER_TOOL` | `3` | Maximum retries per tool call |
 | `GABBE_SUBPROCESS_TIMEOUT` | `300` | Timeout for verify shell commands (seconds) |
+| `GABBE_AUTONOMY` | `hybrid` | Autonomy mode: `manual`, `hybrid`, or `autonomous` (env > project config > default; invalid values warn and fall back to `hybrid`) |
 | `GABBE_POLICY_FILE` | `project/policies.yml` | Path to YAML policy file for tool access control |
 | `GABBE_ESCALATION_MODE` | `cli` | Escalation mode: `cli` (interactive), `file` (pause), `silent` (auto-reject) |
 | `GABBE_OTEL_ENABLED` | `false` | Enable OpenTelemetry tracing |
-| `GABBE_MCP_TOKEN` | *(unset)* | If set, MCP clients must send this token in `initialize` params. Leave unset to disable authentication. |
-| `GABBE_MCP_ALLOWED_COMMANDS` | *(unset)* | Comma-separated list of allowed executables for `run_command` via MCP. When unset, all commands are blocked. Example: `pytest,ruff,bandit` |
+| `GABBE_OTEL_CAPTURE_CONTENT` | `false` | Opt-in: capture prompt/response content on GenAI spans (off by default — content may contain PII/secrets) |
+| `GABBE_MCP_TOKEN` | *(unset)* | If set, MCP clients must send this token in `initialize` params (constant-time compared). Leave unset to disable authentication. |
+| `GABBE_MCP_ALLOWED_COMMANDS` | *(unset)* | Comma-separated list of allowed executables for `run_command` via MCP, matched by exact command or basename (a directory entry is **not** a wildcard). When unset, all commands are blocked. Example: `pytest,ruff,bandit` |
+| `GABBE_MCP_INSECURE` | *(unset)* | Set to `1`/`true` to restore legacy permissive MCP mode (no auth, all commands allowed). Trusted, isolated hosts only. |
+| `GABBE_MCP_COMMAND_TIMEOUT` | `300` | Timeout (seconds) for a command executed via the MCP `run_command` tool |
 
 ---
 

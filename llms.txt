@@ -33,7 +33,7 @@ This file follows the llms.txt convention (https://llmstxt.org). It gives an age
 
 **Repository layout.** `agents/` is the kit: `AGENTS.md`, `CONSTITUTION.md`, `skills/` (214 `*.skill.md`), `guides/` (86), `personas/` (36), `templates/` (100), `memory/`, `scripts/` (install + state export/import + skill compilation). `gabbe/` is the optional Python CLI (fully typed, `mypy --strict` clean): `main.py`, `brain.py`, `budget.py`, `policy.py`, `gateway.py`, `audit.py`, `sync.py`, `route.py`, `escalation.py`, `replay.py`, `config.py`. `bin/install.js` is the Node installer; `install.sh` / `install.ps1` are shell installers; `scripts/` holds `init.py`, `registry_export.py`, `registry_import.py`, gates, and tests. `docs/` is the full documentation; `project/` is runtime state (DB, TASKS.md, policies).
 
-**Quality & compatibility guarantees.** 480+ tests (`pytest`); `scripts/verify_all.sh` runs up to 13 checks (toolchain-dependent ones such as the Node install smoke are skipped with a note when unavailable); `mypy --strict` clean on the 21 core modules; ruff + black clean. Six backward-compatibility gates on every change: API surface, CLI `--help` byte-equal, config schema superset, DB schema superset, emitter golden vault, CVE delta (`osv-scanner`/`pip-audit`). Drift-prevention consistency gates (9 invariants) + capability-layer validators (skills/links/use-cases/frontmatter). Security defaults: fail-closed policy + gateway, redacted observability, hardened untrusted-archive import, SBOM (CycloneDX 1.6) attached to every release.
+**Quality & compatibility guarantees.** 570+ tests (`pytest`); `scripts/verify_all.sh` runs up to 13 checks (toolchain-dependent ones such as the Node install smoke are skipped with a note when unavailable); `mypy --strict` clean on the 23 core modules; ruff + black clean. Six backward-compatibility gates on every change: API surface, CLI `--help` byte-equal, config schema superset, DB schema superset, emitter golden vault, CVE delta (`osv-scanner`/`pip-audit`). Drift-prevention consistency gates (9 invariants) + capability-layer validators (skills/links/use-cases/frontmatter). Security defaults: fail-closed policy + gateway, redacted observability, hardened untrusted-archive import, SBOM (CycloneDX 1.6) attached to every release.
 
 ## Documentation
 
@@ -51,9 +51,9 @@ This file follows the llms.txt convention (https://llmstxt.org). It gives an age
 
 - [AGENTS.md](https://github.com/andreibesleaga/GABBE/blob/main/agents/AGENTS.md): The every-session operating loop — mandates (skill-selection, cost, spec-driven, observability, collaboration), Steps 0–7, self-evolve, HITL, continuity/portability, tool overrides.
 - [CONSTITUTION.md](https://github.com/andreibesleaga/GABBE/blob/main/agents/CONSTITUTION.md): Hard invariants (Articles I–X) that override task objectives — security, no destructive ops without approval, budget limits, no silent failures.
-- [Skills index](https://github.com/andreibesleaga/GABBE/blob/main/agents/skills/00-index.md): 180 specialized `*.skill.md` capabilities (each with `name`/`description`/`triggers` frontmatter).
-- [Guides index](https://github.com/andreibesleaga/GABBE/blob/main/agents/guides/00-index.md): 73 language/domain/process guides (incl. the Loki 10-phase SDLC).
-- [Personas index](https://github.com/andreibesleaga/GABBE/blob/main/agents/personas/00-index.md): 34 specialized roles (architect, implementer, security auditor, QA, orchestrators).
+- [Skills index](https://github.com/andreibesleaga/GABBE/blob/main/agents/skills/00-index.md): 214 specialized `*.skill.md` capabilities (each with `name`/`description`/`triggers` frontmatter).
+- [Guides index](https://github.com/andreibesleaga/GABBE/blob/main/agents/guides/00-index.md): 86 language/domain/process guides (incl. the Loki 10-phase SDLC).
+- [Personas index](https://github.com/andreibesleaga/GABBE/blob/main/agents/personas/00-index.md): 36 specialized roles (architect, implementer, security auditor, QA, orchestrators).
 
 ## Optional
 

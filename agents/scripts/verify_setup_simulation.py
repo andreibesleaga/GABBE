@@ -44,26 +44,26 @@ def test_platform_setup():
     print("\nTesting setup_skills_for_platform...")
     with tempfile.TemporaryDirectory() as temp_dir_str:
         temp_dir = Path(temp_dir_str)
-        skills_src = PROJECT_ROOT / "agents" / "skills"
+        # setup_skills_for_platform(platform, agents_dir, target_dir) expects the
+        # AGENTS directory (it looks for agents_dir/scripts/compile_skills.py and
+        # reads agents_dir/skills) — NOT the skills dir itself.
+        agents_dir = PROJECT_ROOT / "agents"
 
-        # Test Claude (Symlinking)
-        # claude_target = temp_dir / "claude_skills"
-        # init.setup_skills_for_platform doesn't handle symlinking logic for Claude,
-        # that's handled in main. But we can test "VS Code" or "Cursor" flows which modify files.
-
-        # Test Cursor (Generation)
+        # Test Cursor (Generation). For Cursor the compiler writes only to
+        # target_dir (no project-root mutation), so a temp target is safe.
         cursor_target = temp_dir / "cursor_rules"
-        init.setup_skills_for_platform("Cursor", skills_src, cursor_target)
+        init.setup_skills_for_platform("Cursor", agents_dir, cursor_target)
 
         if cursor_target.exists() and list(cursor_target.glob("*.mdc")):
             print(f"{GREEN}[PASS] Cursor rules generated{NC}")
-            # Check content of one
+            # Check the real Cursor frontmatter contract emitted by compile_skills.py:
+            # description + `alwaysApply: false` (Agent-Requested rule, no globs).
             mdc_files = list(cursor_target.glob("*.mdc"))
             content = mdc_files[0].read_text()
-            if "globs: *" in content:
-                print(f"{GREEN}[PASS] Cursor globs inserted{NC}")
+            if "alwaysApply: false" in content:
+                print(f"{GREEN}[PASS] Cursor frontmatter (alwaysApply: false) present{NC}")
             else:
-                print(f"{RED}[FAIL] Cursor globs missing{NC}")
+                print(f"{RED}[FAIL] Cursor frontmatter missing alwaysApply: false{NC}")
         else:
             print(f"{RED}[FAIL] Cursor rules not generated{NC}")
 

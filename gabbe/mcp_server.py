@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 from __future__ import annotations
 
+import hmac
 import json
 import logging
 import os
@@ -89,7 +90,14 @@ def run_command_handler(command: str) -> dict[str, Any]:
                 "returncode": 126,
             }
         executable = tokens[0]
-        if not any(executable == a or executable.startswith(a + "/") for a in allowed):
+        # Match by EXACT command string or EXACT basename only. The previous
+        # `startswith(a + "/")` turned any directory entry into a wildcard — e.g.
+        # an allowlist of `/bin` would have permitted /bin/sh, /bin/rm, /bin/wget,
+        # i.e. an unrestricted shell escape from a single innocuous-looking entry.
+        # Name-based matching (allow `git`, run `git`/`/usr/bin/git`) is the
+        # conventional, predictable semantics; directories are never wildcards.
+        exe_base = os.path.basename(executable)
+        if not any(executable == a or exe_base == a for a in allowed):
             logger.warning("MCP command blocked by allowlist: %s", executable)
             return {
                 "stdout": "",
@@ -156,7 +164,11 @@ def serve() -> None:
                     # Validate token if authentication is required.
                     if token:
                         provided = (req.get("params") or {}).get("token", "")
-                        if provided != token:
+                        # Constant-time compare: a short-circuiting `!=` leaks the
+                        # length of the matching prefix via timing, letting a remote
+                        # client recover the token byte-by-byte. compare_digest is
+                        # length- and content-timing-safe.
+                        if not hmac.compare_digest(str(provided), str(token)):
                             res = {
                                 "jsonrpc": "2.0",
                                 "id": req_id,

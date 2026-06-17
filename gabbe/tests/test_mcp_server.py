@@ -356,3 +356,51 @@ def test_serve_initialize_returns_protocol_version(tmp_project, clean_mcp_env):
 
     responses = _run_serve_with_input([_make_request("initialize")], tmp_project)
     assert responses[0]["result"]["protocolVersion"] == MCP_PROTOCOL_VERSION
+
+
+def test_serve_token_accepted_when_correct(tmp_project, clean_mcp_env):
+    """Constant-time auth still accepts the correct token and authorizes the session."""
+    with patch.dict(os.environ, {"GABBE_MCP_TOKEN": "s3cret"}):
+        responses = _run_serve_with_input(
+            [
+                _make_request("initialize", params={"token": "s3cret"}),
+                _make_request("tools/list", req_id=2),
+            ],
+            tmp_project,
+        )
+    # initialize -> ok; tools/list -> authorized (returns the tool list, not -32000)
+    assert "result" in responses[0]
+    assert "result" in responses[1]
+    assert any(t["name"] == "run_command" for t in responses[1]["result"]["tools"])
+
+
+# ---------------------------------------------------------------------------
+# H-1 regression: a directory entry in the allowlist must NOT act as a wildcard
+# ---------------------------------------------------------------------------
+
+
+def test_allowlist_directory_is_not_a_wildcard(tmp_project, clean_mcp_env):
+    """`/bin` in the allowlist must NOT permit /bin/sh, /bin/rm, etc.
+
+    The old `startswith(entry + '/')` rule turned one directory entry into an
+    unrestricted shell escape. Name/exact matching closes that hole.
+    """
+    from gabbe.mcp_server import run_command_handler
+
+    with patch.dict(os.environ, {"GABBE_MCP_ALLOWED_COMMANDS": "/bin"}):
+        with patch("gabbe.mcp_server.subprocess.run") as mock_run:
+            result = run_command_handler("/bin/sh -c whoami")
+    mock_run.assert_not_called()
+    assert result["returncode"] == 126
+
+
+def test_allowlist_matches_basename_of_absolute_path(tmp_project, clean_mcp_env):
+    """An allowlist of `git` permits an absolute path to git (basename match)."""
+    from gabbe.mcp_server import run_command_handler
+
+    mock_result = MagicMock(stdout="", stderr="", returncode=0)
+    with patch.dict(os.environ, {"GABBE_MCP_ALLOWED_COMMANDS": "git"}):
+        with patch("gabbe.mcp_server.subprocess.run", return_value=mock_result) as mock_run:
+            result = run_command_handler("/usr/bin/git status")
+    mock_run.assert_called_once()
+    assert result["returncode"] == 0

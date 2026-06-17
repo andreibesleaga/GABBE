@@ -28,6 +28,18 @@ def _migrate(conn: sqlite3.Connection) -> None:
     row = c.fetchone()
     current = row[0] if row else 0
 
+    # Refuse to operate on a DB written by a NEWER GABBE. Without this guard the
+    # function would run no migration blocks (all gated on current < N) and then
+    # stamp version back down to SCHEMA_VERSION — silently downgrading the recorded
+    # version while newer tables remain, corrupting the version contract.
+    if current > SCHEMA_VERSION:
+        conn.rollback()
+        raise RuntimeError(
+            f"Database schema version {current} is newer than this GABBE supports "
+            f"({SCHEMA_VERSION}). Upgrade GABBE or use a matching version; refusing "
+            "to downgrade the schema."
+        )
+
     if current < 1:
         # v1: initial schema
         c.execute("""CREATE TABLE IF NOT EXISTS tasks

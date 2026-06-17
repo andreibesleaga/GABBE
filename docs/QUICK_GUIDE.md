@@ -322,12 +322,12 @@ GABBE/
       AGENTS.md        <- Universal config template
       CONSTITUTION.md  <- Immutable project law
       scripts/setup-context.sh <- Internal wiring script (wrapped by scripts/init.py)
-      skills/          <- 120+ agent capability packages (💯)
+      skills/          <- 214 agent capability packages (💯)
           core/        <- (tdd, refactor, debug, git...)
           security/    <- (audit, threat-model...)
           arch/        <- (design, review, patterns...)
-      templates/       <- 60+ fill-in-the-blank documents
-      guides/          <- 30+ language-specific guides
+      templates/       <- 100 fill-in-the-blank documents
+      guides/          <- 86 domain & process guides
       loki/
       docs/
 ```

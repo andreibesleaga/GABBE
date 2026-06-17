@@ -28,6 +28,9 @@
 | Visual Integration | `ai/visual-mcp-integration.md` | Guide on Mermaid vs Canvas tools |
 | Agent Identity & Trust | `ai/agent-identity-trust.md` | Agent identity, auth, KYA, signed mandates |
 | Model Customization | `ai/model-customization-decisions.md` | Prompt vs RAG vs fine-tune; SLMs; routing |
+| Dynamic Capability Loading | `ai/dynamic-capability-loading.md` | Loading skills/capabilities at runtime |
+| GABBE Innovations | `ai/gabbe-innovations.md` | Novel techniques introduced by GABBE |
+| Self-Evolving Skills | `ai/self-evolving-skills.md` | Skills that improve themselves over time |
 
 ### 1b. Processes (`processes/`)
 | Guide | File | Purpose |
@@ -36,6 +39,7 @@
 | Loki SDLC Phases | `processes/loki-sdlc-phases.md` | Detailed S01–S10 phase specs (referenced by loki-mode) |
 | System Lifecycle | `processes/full-system-lifecycle.md` | SDLC and traceability |
 | Knowledge Integration | `processes/knowledge-integration.md` | Connectors and RAG overview |
+| Extension Protocol | `processes/extension-protocol.md` | How to extend the kit with new capabilities |
 
 ### 2. Architecture (`architecture/`)
 | Guide | File | Purpose |
@@ -93,16 +97,14 @@
 | Ent. Patterns | `patterns/enterprise-patterns.md` | CQRS, Saga, and bounded contexts |
 | Time Complexity | `patterns/time-complexity-analysis.md` | Big-O detection and remediation |
 
-### 7. Product Planning (`planning/`)
-| Green Software | `product/green-software.md` | Sustainable/green software engineering |
-| Sustainability Checks | `product/sustainability-checks.md` | ESG / carbon-intensity review checklist |
+### 7. Product Planning (`planning/` + `product/`)
 | Guide | File | Purpose |
 |---|---|---|
 | Product Reqs. | `planning/product-requirements.md` | EARS syntax and req. engineering |
 | Visual Product Specs | `planning/visual-product-specs.md` | Visual inputs → specs pipeline |
 | Strategic Anal. | `planning/strategic-analysis.md` | Pre-development strategic analysis |
-| Green Software | `planning/green-software.md` | Sustainable engineering (SCI) |
-| Sustainability | `planning/sustainability-checks.md` | Checklist for green software |
+| Green Software | `product/green-software.md` | Sustainable/green software engineering (SCI) |
+| Sustainability Checks | `product/sustainability-checks.md` | ESG / carbon-intensity review checklist |
 
 ### 8. Principles & Standards (`principles/`)
 | Guide | File | Purpose |

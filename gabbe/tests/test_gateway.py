@@ -164,3 +164,21 @@ def test_rejected_call_does_not_consume_tool_budget(tmp_project):
         assert budget.tool_calls_used == 0  # rejected calls cost nothing
         ctx.gateway.execute("strict", {"x": 1}, "t", ctx)
         assert budget.tool_calls_used == 1  # only the accepted call counts
+
+
+def test_none_policy_fails_closed(tmp_project):
+    """Regression (H-3): a None policy engine must DENY tool calls, never skip the
+    policy check. RunContext always installs a deny-all default, so this models a
+    caller that explicitly nulled the policy out."""
+    with RunContext_none_policy(tmp_project) as ctx:
+        ctx.gateway.register(ToolDefinition("double", "doubles x", {}, _simple_tool, {"tester"}))
+        with pytest.raises(PolicyDenied):
+            ctx.gateway.execute("double", {"x": 5}, "tester", ctx)
+
+
+def RunContext_none_policy(tmp_project):
+    from gabbe.context import RunContext
+
+    ctx = RunContext.from_config(command="gw-none-policy", policy=_allow_all_policy())
+    ctx.policy = None  # simulate an explicitly nulled policy engine
+    return ctx

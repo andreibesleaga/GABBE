@@ -74,6 +74,11 @@ class Budget:
         )
 
     def check(self) -> None:
+        # NOTE on `>` vs `>=`: check() runs AFTER the counter is incremented
+        # (record-then-check), so the limit is the count of units *allowed*.
+        # max_tool_calls=50 must permit exactly 50 calls (the 51st trips) — `>` is
+        # correct here; `>=` would off-by-one and allow only 49 (and forbid all
+        # calls when a limit is 1). Keep `>`.
         wall_time = time.monotonic() - self._start_time
         if self.tokens_used > self.max_tokens:
             raise BudgetExceeded("Max tokens reached", self.snapshot())
@@ -115,10 +120,15 @@ class Budget:
         # silent under-count).
         cache_read_price = prices["cache_read"] if prices["cache_read"] > 0 else prices["input"]
         non_cached_prompt = max(0, prompt_tokens - cache_read_tokens)
+        # reasoning_tokens is documented as a SUBSET of completion_tokens, but a
+        # malformed/adversarial usage payload could report reasoning > completion.
+        # Clamp so the output term can never go negative and silently *reduce*
+        # tracked cost (which would let a run slip past max_cost_usd).
+        non_reasoning_completion = max(0, completion_tokens - reasoning_tokens)
         cost = (
             (non_cached_prompt * prices["input"])
             + (cache_read_tokens * cache_read_price)
-            + ((completion_tokens - reasoning_tokens) * prices["output"])
+            + (non_reasoning_completion * prices["output"])
             + (reasoning_tokens * reasoning_price)
         )
         self.cost_usd += cost

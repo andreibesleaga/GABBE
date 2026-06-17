@@ -219,7 +219,7 @@ pre-release internals that never shipped in any tagged release (see Removed).
   resolution, gate-label drift, …).
 
 ### Changed — typing + hardening pass (Gemini/Antigravity audit + follow-ups)
-- **`gabbe/` core fully typed**: `mypy --strict` clean across all 21 core modules.
+- **`gabbe/` core fully typed**: `mypy --strict` clean across all 23 core modules.
 - **`brain.py`**: gene selection now implements the documented epsilon-greedy
   policy (20% exploration of the newest generation) instead of pure greedy.
 - **`sync.py`**: Windows-safe atomic writes (`os.replace` PermissionError retry).

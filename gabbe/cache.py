@@ -17,6 +17,7 @@ from __future__ import annotations
 import hashlib
 import json
 import logging
+import os
 from pathlib import Path
 from typing import Any
 
@@ -40,9 +41,23 @@ class ContentCache:
         self.dir: Path | None = Path(root) / namespace
         try:
             self.dir.mkdir(parents=True, exist_ok=True)
+            # Cached values can include raw LLM responses (PII/secrets). Restrict
+            # to owner-only so other users on a shared host can't read them. Cache
+            # content is returned verbatim on a hit, so it must NOT be redacted —
+            # confidentiality is enforced at the filesystem layer instead.
+            self._restrict_perms(self.dir, 0o700)
         except OSError as e:  # pragma: no cover - unusual fs failure
             logger.warning("cache dir unavailable (%s); caching disabled", e)
             self.dir = None
+
+    @staticmethod
+    def _restrict_perms(path: Path, mode: int) -> None:
+        """Best-effort owner-only permissions; a no-op on platforms without chmod
+        semantics (e.g. Windows) and never fatal."""
+        try:
+            os.chmod(path, mode)
+        except (OSError, NotImplementedError):  # pragma: no cover - platform dependent
+            pass
 
     def _path(self, key: str) -> Path:
         assert self.dir is not None  # callers guard on self.dir before calling
@@ -65,8 +80,8 @@ class ContentCache:
         if self.dir is None:
             return
         try:
-            self._path(key).write_text(
-                json.dumps({"value": value}, ensure_ascii=False), encoding="utf-8"
-            )
+            p = self._path(key)
+            p.write_text(json.dumps({"value": value}, ensure_ascii=False), encoding="utf-8")
+            self._restrict_perms(p, 0o600)
         except (OSError, TypeError) as e:  # pragma: no cover - serialization/fs failure
             logger.debug("cache write skipped for %s: %s", key[:12], e)

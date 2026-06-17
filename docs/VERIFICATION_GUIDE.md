@@ -35,7 +35,7 @@ export GABBE_API_KEY="sk-..."    # Add remote LLM keys for deep integration
 
 The heart of the GABBE orchestration, database integration, memory access, and MCP translation occurs in the `gabbe/` module. The core tests target its routing (`route.py`), budget control (`budget.py`), orchestration logic (`brain.py`), and subprocess checking logic (`verify.py`).
 
-**Run the Full Suite (322 tests):**
+**Run the Full Suite (570+ tests):**
 ```bash
 # Discovers all tests in gabbe/tests and scripts/tests
 pytest
@@ -271,7 +271,7 @@ Upon passing all elements in this guide, the framework is confirmed 100% operati
 
 | Check | Command | Expected Result |
 |---|---|---|
-| Full test suite | `pytest` | All pass, 0 failures (550+ tests) |
+| Full test suite | `pytest` | All pass, 0 failures (570+ tests) |
 | Structural integrity | `python3 agents/scripts/validate_integrity.py` | Project integrity check passed |
 | Link validation | `python3 agents/scripts/validate_links.py` | All links valid |
 | Skills validation | `python3 agents/scripts/validate_skills.py` | All 214 skills passed |

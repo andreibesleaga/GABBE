@@ -55,8 +55,14 @@ class RolePolicy(Policy):
         tool_name = context.get("tool")
         role_name = context.get("role")
 
+        # Fail-closed: a RolePolicy only exists when the operator has configured
+        # role-based access. A call that omits the role (or the tool) cannot be
+        # affirmatively authorized, so it must be DENIED rather than waved through
+        # — otherwise an empty/None role silently bypasses all role restrictions.
         if not role_name or not tool_name:
-            return PolicyResult(True, "Missing role or tool context", self.name)
+            return PolicyResult(
+                False, "Missing role or tool context — denied (fail-closed)", self.name
+            )
 
         allowed_for_role = self.roles.get(role_name, [])
         if "*" in allowed_for_role or tool_name in allowed_for_role:

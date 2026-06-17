@@ -91,40 +91,55 @@ class RunContext:
         exc_val: Optional[BaseException],
         exc_tb: Optional[TracebackType],
     ) -> None:
-        if not self._is_active:
-            return
-
-        status = "completed"
-        stop_reason = "success"
-
-        if exc_type:
-            status = "error"
-            stop_reason = str(exc_val)
-            # Use isinstance() for reliable type checking regardless of import path.
-            from .budget import BudgetExceeded
-            from .escalation import EscalationPaused
-
-            if isinstance(exc_val, BudgetExceeded):
-                status = "budget_exceeded"
-            elif isinstance(exc_val, EscalationPaused):
-                status = "escalated"
-
+        # The connection is always opened in __init__, so it must always be
+        # closed here — even when activation failed (_is_active is False) and we
+        # skip the run-finalization UPDATE. Otherwise a RunContext whose __enter__
+        # hit a DB error would leak the SQLite connection + WAL lock for the life
+        # of the process. The close() lives in `finally` so it runs on every path.
         try:
-            cursor = self.db_conn.cursor()
-            cursor.execute(
-                """
-                UPDATE runs 
-                SET ended_at = CURRENT_TIMESTAMP, status = ?, stop_reason = ?, 
-                    total_tokens_used = ?, total_cost_usd = ?
-                WHERE id = ?
-            """,
-                (status, stop_reason, self.budget.tokens_used, self.budget.cost_usd, self.run_id),
-            )
-            self.db_conn.commit()
-        except Exception as e:
-            logger.error(f"Failed to finalize RunContext {self.run_id}: {e}")
+            if not self._is_active:
+                return
 
-        self.db_conn.close()
+            status = "completed"
+            stop_reason = "success"
+
+            if exc_type:
+                status = "error"
+                stop_reason = str(exc_val)
+                # Use isinstance() for reliable type checking regardless of import path.
+                from .budget import BudgetExceeded
+                from .escalation import EscalationPaused
+
+                if isinstance(exc_val, BudgetExceeded):
+                    status = "budget_exceeded"
+                elif isinstance(exc_val, EscalationPaused):
+                    status = "escalated"
+
+            try:
+                cursor = self.db_conn.cursor()
+                cursor.execute(
+                    """
+                    UPDATE runs
+                    SET ended_at = CURRENT_TIMESTAMP, status = ?, stop_reason = ?,
+                        total_tokens_used = ?, total_cost_usd = ?
+                    WHERE id = ?
+                """,
+                    (
+                        status,
+                        stop_reason,
+                        self.budget.tokens_used,
+                        self.budget.cost_usd,
+                        self.run_id,
+                    ),
+                )
+                self.db_conn.commit()
+            except Exception as e:
+                logger.error(f"Failed to finalize RunContext {self.run_id}: {e}")
+        finally:
+            try:
+                self.db_conn.close()
+            except Exception:  # noqa: BLE001 — close must never mask the original error
+                pass
 
     @classmethod
     def from_config(cls, command: str = "brain activate", **kwargs: Any) -> "RunContext":

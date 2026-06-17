@@ -15,13 +15,16 @@ Usage:
 """
 
 import argparse
+import ipaddress
 import re
 import shutil
+import socket
 import sys
 import tarfile
 import tempfile
 import urllib.request
 from pathlib import Path
+from urllib.parse import urlparse
 
 KIT_ROOT_DEFAULT = Path(__file__).resolve().parent.parent
 
@@ -49,11 +52,49 @@ def _load_helpers(kit_root):
     return compile_skills, validate_skills
 
 
+def _validate_remote_url(source: str) -> None:
+    """SSRF / MITM guard for a remote registry source.
+
+    Imported skills are untrusted supply-chain input, so the *transport* is locked
+    down too: require HTTPS (no plaintext MITM of the payload) and refuse URLs that
+    resolve to non-public addresses (loopback / private / link-local / metadata
+    endpoints like 169.254.169.254). Best-effort — this is a pre-flight resolution
+    check, not a pinned connection — but it closes the obvious SSRF angles.
+    """
+    parsed = urlparse(source)
+    if parsed.scheme != "https":
+        raise SystemExit(
+            f"refusing non-HTTPS registry URL ({parsed.scheme or 'no-scheme'}://…): "
+            "use https:// for supply-chain integrity."
+        )
+    host = parsed.hostname or ""
+    if not host:
+        raise SystemExit(f"registry URL has no host: {source}")
+    try:
+        infos = socket.getaddrinfo(host, parsed.port or 443)
+    except socket.gaierror as e:
+        raise SystemExit(f"cannot resolve registry host {host!r}: {e}")
+    for info in infos:
+        ip = ipaddress.ip_address(info[4][0])
+        if (
+            ip.is_private
+            or ip.is_loopback
+            or ip.is_link_local
+            or ip.is_reserved
+            or ip.is_multicast
+            or ip.is_unspecified
+        ):
+            raise SystemExit(
+                f"refusing registry URL pointing at a non-public address: {host} -> {ip}"
+            )
+
+
 def _fetch(source: str, stage: Path) -> Path:
     """Resolve <source> (URL or path) into a staging dir; return the staging root."""
     if source.startswith(("http://", "https://")):
+        _validate_remote_url(source)
         dest = stage / Path(source.split("?")[0]).name
-        # nosec: deliberate, user-supplied registry URL; content is validated below.
+        # nosec: scheme/host validated above; content is validated below.
         urllib.request.urlretrieve(source, dest)  # noqa: S310
         src = dest
     else:
@@ -67,9 +108,11 @@ def _fetch(source: str, stage: Path) -> Path:
     if src.is_dir():
         shutil.copytree(src, stage / src.name, dirs_exist_ok=True)
         return stage / src.name
-    # single file
+    # single file. For the URL path src is already inside `stage`, so copying it to
+    # `stage / src.name` would be a copy-onto-self (shutil.SameFileError) — guard it.
     target = stage / src.name
-    shutil.copy2(src, target)
+    if src.resolve() != target.resolve():
+        shutil.copy2(src, target)
     return stage
 
 
@@ -150,8 +193,21 @@ def main():
             return
 
         ns_dir.mkdir(parents=True, exist_ok=True)
+        # Disambiguate slug collisions WITHIN this import run so two distinct
+        # source skills that slugify identically don't silently overwrite each
+        # other (data loss). Re-importing the same skill still overwrites/updates
+        # (we only track slugs used in this run, not pre-existing files).
+        used: set[str] = set()
         for c, slug, _ in accepted:
-            (ns_dir / f"{slug}.skill.md").write_text(c.read_text(errors="replace"))
+            final = slug
+            if final in used:
+                n = 2
+                while f"{slug}-{n}" in used:
+                    n += 1
+                final = f"{slug}-{n}"
+                print(f"  [DEDUP]  {c.name}: duplicate slug '{slug}' -> '{final}'")
+            used.add(final)
+            (ns_dir / f"{final}.skill.md").write_text(c.read_text(errors="replace"))
         print(
             f"\nImported {len(accepted)} skills -> {ns_dir} (NAMESPACED, untrusted — review before use)."
         )

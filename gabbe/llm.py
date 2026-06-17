@@ -44,7 +44,11 @@ def _handle_response(response: requests.Response) -> Tuple[Optional[str], Dict[s
         return content, usage
 
     msg = "Unexpected API response format"
-    logger.error("%s: %s", msg, str(data)[:200])
+    # Redact before logging: an error body can echo request fragments / identifiers
+    # that may contain PII or secrets, and logs are a storage path like any other.
+    from .audit import _redact_text
+
+    logger.error("%s: %s", msg, _redact_text(str(data)[:200]))
     return None, usage
 
 

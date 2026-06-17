@@ -105,6 +105,33 @@ def test_initiator_and_persona_stored(tmp_project, db_conn):
         assert row["agent_persona"] == "researcher"
 
 
+def test_exit_closes_connection_even_when_enter_failed(tmp_project):
+    """Regression (C-1): the DB connection is opened in __init__, so __exit__ must
+    close it on every path — including when __enter__ failed and _is_active is
+    False — or the SQLite connection + WAL lock leaks for the process lifetime."""
+    from unittest.mock import MagicMock
+
+    ctx = RunContext.from_config(command="ctx-leak")
+    fake_conn = MagicMock()
+    ctx.db_conn = fake_conn
+    ctx._is_active = False  # simulate a failed __enter__
+
+    ctx.__exit__(None, None, None)
+
+    fake_conn.close.assert_called_once()  # closed despite inactive
+
+
+def test_exit_closes_connection_on_normal_path(tmp_project):
+    """The happy path also closes the connection exactly once."""
+    from unittest.mock import MagicMock
+
+    ctx = RunContext.from_config(command="ctx-close")
+    with ctx:
+        ctx.db_conn = MagicMock()  # swap AFTER activation so finalize uses the mock
+        fake_conn = ctx.db_conn
+    fake_conn.close.assert_called_once()
+
+
 def test_from_checkpoint(tmp_project, db_conn):
     import uuid
 

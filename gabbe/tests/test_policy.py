@@ -76,12 +76,21 @@ def test_role_policy_wildcard_admin():
     assert result.allowed is True
 
 
-def test_role_policy_missing_role_passes():
+def test_role_policy_missing_role_denies():
     p = RolePolicy({"agent": ["call_llm"]})
     engine = PolicyEngine([p])
-    # No role in context — policy can't deny without role
+    # No role in context — fail-closed: a call that can't be affirmatively
+    # authorized against a configured RolePolicy must be denied, not waved through.
     result = engine.evaluate({"tool": "call_llm"})
-    assert result.allowed is True
+    assert result.allowed is False
+
+
+def test_role_policy_empty_role_denies():
+    p = RolePolicy({"agent": ["call_llm"]})
+    engine = PolicyEngine([p])
+    # Empty-string role must not bypass role restrictions.
+    result = engine.evaluate({"tool": "call_llm", "role": ""})
+    assert result.allowed is False
 
 
 # --------------------------------------------------------------------------

@@ -48,6 +48,17 @@ It contains:
 
 ### ⚡ Automated Setup (Recommended)
 
+**All install options at a glance** (every channel is a single command — pick one):
+
+| Channel | One-command install | Notes |
+|---|---|---|
+| **npm / Node** | `npx gabbe-kit init` | Python-independent; bundles the kit & wires detected agents |
+| **PyPI** | `pipx install gabbe && gabbe setup` | or `pip install gabbe` / `uvx gabbe setup`; adds the `gabbe` CLI |
+| **Shell bootstrap** | `curl -fsSL https://raw.githubusercontent.com/andreibesleaga/GABBE/main/install.sh \| sh` | picks the best available installer |
+| **Git checkout** | `git clone https://github.com/andreibesleaga/GABBE && cd GABBE && python3 scripts/init.py` | the interactive wizard |
+
+> On npm the package is **`gabbe-kit`** (npm refuses the unscoped `gabbe`); on PyPI it is **`gabbe`**. The installed command is `gabbe` either way. After installing, run `gabbe doctor` for an environment + install report. Full guide: [`docs/INSTALL.md`](docs/INSTALL.md).
+
 **Universal, Python-independent (one command):**
 ```bash
 npx gabbe-kit init                       # Node installer — bundles the kit, wires every agent
@@ -56,10 +67,11 @@ npx gabbe-kit init --agents claude,cursor,antigravity,opencode --yes   # non-int
 curl -fsSL https://raw.githubusercontent.com/andreibesleaga/GABBE/main/install.sh | sh
 ```
 
-**Python wizard (full interactive, also via PyPI):**
+**Python / PyPI (full interactive wizard):**
 ```bash
-python3 scripts/init.py     # from a checkout
-gabbe setup                 # if the optional gabbe CLI is installed (pipx/uvx/pip)
+pipx install gabbe && gabbe setup    # PyPI: install the CLI, then run the wizard
+# alternatives:  pip install gabbe   ·   uvx gabbe setup
+python3 scripts/init.py              # or run the wizard directly from a checkout
 ```
 
 The installer is a **Universal Skill Compiler** — it generates the correct format for each AI tool:
@@ -703,10 +715,13 @@ GABBE has also an experimental helper, **Zero-Dependency CLI** (`gabbe`) for a "
 | `GABBE_OTEL_ENABLED` | `false` | Enable OpenTelemetry tracing |
 
 ### Installation
-The CLI is a Python package.
+The CLI is a Python package, published on PyPI as **`gabbe`**.
 
 ```bash
-# 1. Install locally (Recommended)
+# 1a. Install from PyPI (recommended)
+pipx install gabbe          # or: pip install gabbe  /  uvx gabbe
+
+# 1b. …or install locally from a checkout (for development)
 pip install -e .
 
 # 2. Verify installation

@@ -2,68 +2,78 @@
   "_comment": "MCP (Model Context Protocol) server configuration template",
   "_comment2": "Customise for your project. Security rules: prod databases = read-only, dev = read-write.",
   "_comment3": "Install instructions: see docs/MCP_CONFIGURATIONS.md for detailed per-server setup",
-
   "mcpServers": {
-
     "_section_essential": "=== ESSENTIAL (install for every project) ===",
-
     "context7": {
-      "_description": "Up-to-date SDK docs — prevents API hallucination. HIGHLY RECOMMENDED.",
+      "_description": "Up-to-date SDK docs \u2014 prevents API hallucination. HIGHLY RECOMMENDED.",
       "command": "npx",
-      "args": ["@context7/mcp-server"],
+      "args": [
+        "@context7/mcp-server"
+      ],
       "env": {}
     },
-
     "sequential-thinking": {
       "_description": "Structured chain-of-thought before acting. Improves reasoning quality.",
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"],
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-sequential-thinking"
+      ],
       "env": {}
     },
-
     "brave-search": {
       "_description": "Authoritative web research with source filtering.",
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-brave-search"],
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-brave-search"
+      ],
       "env": {
         "BRAVE_API_KEY": "${BRAVE_API_KEY}"
       }
     },
-
     "filesystem": {
       "_description": "Access local project files for knowledge ingestion (RAG).",
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-filesystem", "./"],
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "./"
+      ],
       "env": {}
     },
-
     "_section_version_control": "=== VERSION CONTROL & PROJECT MANAGEMENT ===",
-
     "github": {
       "_description": "PR review, code search, issue management, git history.",
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-github"
+      ],
       "env": {
         "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_TOKEN}"
       }
     },
-
     "_section_database": "=== DATABASES ===",
-
     "postgres-dev": {
-      "_description": "PostgreSQL for development — READ-WRITE allowed.",
-      "_security": "DEVELOPMENT ONLY — never use read-write in production",
+      "_description": "PostgreSQL for development \u2014 READ-WRITE allowed.",
+      "_security": "DEVELOPMENT ONLY \u2014 never use read-write in production",
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-postgres"],
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-postgres"
+      ],
       "env": {
         "POSTGRES_CONNECTION_STRING": "${DATABASE_URL_DEV}"
       }
     },
-
     "greptime": {
       "_description": "Time-series analytics and robust metrics logging.",
       "command": "npx",
-      "args": ["-y", "@greptimedb/mcp-server"],
+      "args": [
+        "-y",
+        "@greptimedb/mcp-server"
+      ],
       "env": {
         "GREPTIME_HOST": "${GREPTIME_HOST}",
         "GREPTIME_DB": "${GREPTIME_DB}",
@@ -71,521 +81,727 @@
         "GREPTIME_PASSWORD": "${GREPTIME_PASSWORD}"
       }
     },
-
     "clickhouse": {
       "_description": "Agentic OLAP and real-time reporting via ClickHouse.",
       "command": "npx",
-      "args": ["-y", "@clickhouse/mcp-server"],
+      "args": [
+        "-y",
+        "@clickhouse/mcp-server"
+      ],
       "env": {
         "CLICKHOUSE_URL": "${CLICKHOUSE_URL}",
         "CLICKHOUSE_USER": "${CLICKHOUSE_USER}",
         "CLICKHOUSE_PASSWORD": "${CLICKHOUSE_PASSWORD}"
       }
     },
-
     "postgres-prod": {
-      "_description": "PostgreSQL for production — READ-ONLY. Schema introspection only.",
-      "_security": "PRODUCTION — read-only access enforced by database user permissions",
+      "_description": "PostgreSQL for production \u2014 READ-ONLY. Schema introspection only.",
+      "_security": "PRODUCTION \u2014 read-only access enforced by database user permissions",
       "_enable_only_when_needed": true,
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-postgres"],
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-postgres"
+      ],
       "env": {
         "POSTGRES_CONNECTION_STRING": "${DATABASE_URL_PROD_READONLY}"
       }
     },
-
     "_section_security": "=== SECURITY & CODE QUALITY ===",
-
     "semgrep": {
       "_description": "SAST code scanning, security analysis, custom rules.",
       "command": "python",
-      "args": ["-m", "semgrep_mcp"],
+      "args": [
+        "-m",
+        "semgrep_mcp"
+      ],
       "env": {
         "SEMGREP_APP_TOKEN": "${SEMGREP_APP_TOKEN}"
-      }
+      },
+      "_install": "Local: pip install semgrep-mcp (Python module), runs via `python -m semgrep_mcp`."
     },
-
     "time-complexity": {
-      "_description": "Estimates Big-O time complexity via static analysis (tree-sitter). No code execution.",
-      "_security": "Static analysis only — read-only file access, no code execution",
+      "_description": "Estimates Big-O time & space complexity via static analysis (tree-sitter). No code execution.",
+      "_security": "Static analysis only \u2014 read-only file access, no code execution",
+      "_install": "Local GitHub server: git clone the time-complexity-mcp repository, run `npm install && npm run build`, then set args to the built dist/index.js path. Pairs with coding/time-complexity.skill.",
       "command": "node",
-      "args": ["/path/to/time-complexity-mcp/dist/index.js"],
+      "args": [
+        "/path/to/time-complexity-mcp/dist/index.js"
+      ],
       "env": {}
     },
-
     "_section_observability": "=== OBSERVABILITY & MONITORING ===",
-
     "sentry": {
       "_description": "Error tracking, bug context, performance issues.",
       "command": "npx",
-      "args": ["-y", "@sentry/mcp"],
+      "args": [
+        "-y",
+        "@sentry/mcp"
+      ],
       "env": {
         "SENTRY_AUTH_TOKEN": "${SENTRY_AUTH_TOKEN}",
         "SENTRY_ORG": "${SENTRY_ORG}",
         "SENTRY_PROJECT": "${SENTRY_PROJECT}"
       }
     },
-
     "_section_browser": "=== BROWSER & WEB ===",
-
     "playwright": {
       "_description": "Browser automation for visual TDD and E2E testing.",
       "command": "npx",
-      "args": ["@playwright/mcp", "--headless"],
+      "args": [
+        "@playwright/mcp",
+        "--headless"
+      ],
       "env": {}
     },
-
     "tavily": {
       "_description": "Real-time web search and content extraction. Use for research.skill.",
       "command": "npx",
-      "args": ["-y", "tavily-mcp"],
+      "args": [
+        "-y",
+        "tavily-mcp"
+      ],
       "env": {
         "TAVILY_API_KEY": "${TAVILY_API_KEY}"
       }
     },
-
     "image-recognition": {
-      "_description": "Vision API proxy for image analysis — sketch recognition, diagram interpretation, OCR.",
+      "_description": "Vision API proxy for image analysis \u2014 sketch recognition, diagram interpretation, OCR.",
       "_security": "Images are sent to configured vision API (Anthropic/OpenAI/Cloudflare) for processing",
       "command": "npx",
-      "args": ["-y", "mcp-image-recognition"],
+      "args": [
+        "-y",
+        "mcp-image-recognition"
+      ],
       "env": {
         "ANTHROPIC_API_KEY": "${ANTHROPIC_API_KEY}"
       }
     },
-
     "_section_infrastructure": "=== CLOUD & INFRASTRUCTURE ===",
-
     "terraform": {
       "_description": "Agentic Infrastructure as Code (IaC) via HashiCorp Terraform.",
       "command": "npx",
-      "args": ["-y", "@hashicorp/terraform-mcp-server"],
+      "args": [
+        "-y",
+        "@hashicorp/terraform-mcp-server"
+      ],
       "env": {
         "TERRAFORM_CLOUD_TOKEN": "${TERRAFORM_CLOUD_TOKEN}"
       }
     },
-
-    "_section_optional": "=== OPTIONAL — Enable as needed ===",
-
+    "_section_optional": "=== OPTIONAL \u2014 Enable as needed ===",
     "docker": {
       "_enabled": false,
-      "_description": "Docker daemon integration — manage containers, images, and read local logs.",
+      "_description": "Docker daemon integration \u2014 manage containers, images, and read local logs.",
       "command": "npx",
-      "args": ["-y", "@docker/mcp-server"],
+      "args": [
+        "-y",
+        "@docker/mcp-server"
+      ],
       "env": {}
     },
-
     "google-cloud": {
       "_enabled": false,
-      "_description": "Google Cloud Platform access — manage Firebase, Cloud Run, GKE, BigQuery.",
+      "_description": "Google Cloud Platform access \u2014 manage Firebase, Cloud Run, GKE, BigQuery.",
       "command": "npx",
-      "args": ["-y", "@googlecloud/mcp-server"],
+      "args": [
+        "-y",
+        "@googlecloud/mcp-server"
+      ],
       "env": {
         "GOOGLE_APPLICATION_CREDENTIALS": "${GOOGLE_APPLICATION_CREDENTIALS}"
       }
     },
-
     "azure": {
       "_enabled": false,
-      "_description": "Azure Resource management — Key Vault, CosmosDB, Azure Storage.",
+      "_description": "Azure Resource management \u2014 Key Vault, CosmosDB, Azure Storage.",
       "command": "npx",
-      "args": ["-y", "@microsoft/azure-mcp-server"],
+      "args": [
+        "-y",
+        "@microsoft/azure-mcp-server"
+      ],
       "env": {
         "AZURE_CLIENT_ID": "${AZURE_CLIENT_ID}",
         "AZURE_CLIENT_SECRET": "${AZURE_CLIENT_SECRET}",
         "AZURE_TENANT_ID": "${AZURE_TENANT_ID}"
       }
     },
-
     "vercel": {
       "_enabled": false,
       "_description": "Vercel deployments, aliases, and serverless log integration.",
       "command": "npx",
-      "args": ["-y", "@vercel/mcp-server"],
+      "args": [
+        "-y",
+        "@vercel/mcp-server"
+      ],
       "env": {
         "VERCEL_API_TOKEN": "${VERCEL_API_TOKEN}"
       }
     },
-
     "gitlab": {
       "_enabled": false,
       "_description": "GitLab alternative to GitHub MCP.",
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-gitlab"],
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-gitlab"
+      ],
       "env": {
         "GITLAB_PERSONAL_ACCESS_TOKEN": "${GITLAB_TOKEN}",
         "GITLAB_API_URL": "https://gitlab.com"
       }
     },
-
     "jira": {
       "_enabled": false,
-      "_description": "Jira Cloud task interaction — read/update tickets.",
+      "_description": "Jira Cloud task interaction \u2014 read/update tickets.",
       "command": "npx",
-      "args": ["-y", "aashari/mcp-server-atlassian-jira"],
+      "args": [
+        "-y",
+        "aashari/mcp-server-atlassian-jira"
+      ],
       "env": {
         "ATLASSIAN_SITE_NAME": "${JIRA_SITE}",
         "ATLASSIAN_USER_EMAIL": "${JIRA_EMAIL}",
         "ATLASSIAN_API_TOKEN": "${JIRA_API_TOKEN}"
       }
     },
-
     "notion": {
       "_enabled": false,
-      "_description": "Notion workspace access — pages, databases, docs.",
+      "_description": "Notion workspace access \u2014 pages, databases, docs.",
       "command": "npx",
-      "args": ["-y", "@notionhq/notion-mcp-server"],
+      "args": [
+        "-y",
+        "@notionhq/notion-mcp-server"
+      ],
       "env": {
         "OPENAPI_MCP_HEADERS": "{\"Authorization\": \"Bearer ${NOTION_TOKEN}\"}"
       }
     },
-
     "qdrant": {
       "_enabled": false,
-      "_description": "Semantic memory layer — vector search for long-term knowledge.",
+      "_description": "Semantic memory layer \u2014 vector search for long-term knowledge.",
       "command": "npx",
-      "args": ["-y", "mcp-server-qdrant"],
+      "args": [
+        "-y",
+        "mcp-server-qdrant"
+      ],
       "env": {
         "QDRANT_URL": "${QDRANT_URL}",
         "QDRANT_API_KEY": "${QDRANT_API_KEY}",
         "COLLECTION_NAME": "project-knowledge"
       }
     },
-
     "datadog": {
       "_enabled": false,
       "_description": "Monitoring, alerts, observability queries.",
       "command": "npx",
-      "args": ["-y", "@datadog/mcp-server"],
+      "args": [
+        "-y",
+        "@datadog/mcp-server"
+      ],
       "env": {
         "DD_API_KEY": "${DATADOG_API_KEY}",
         "DD_APP_KEY": "${DATADOG_APP_KEY}"
       }
     },
-
     "grafana": {
       "_enabled": false,
       "_description": "Dashboard search, datasource queries, incident management.",
       "command": "npx",
-      "args": ["-y", "@grafana/mcp-server"],
+      "args": [
+        "-y",
+        "@grafana/mcp-server"
+      ],
       "env": {
         "GRAFANA_URL": "${GRAFANA_URL}",
         "GRAFANA_API_KEY": "${GRAFANA_API_KEY}"
       }
     },
-
     "aws-core": {
       "_enabled": false,
-      "_description": "AWS core services — documentation, CDK, Lambda.",
+      "_description": "AWS core services \u2014 documentation, CDK, Lambda.",
       "command": "npx",
-      "args": ["-y", "@aws/mcp-server-core"],
+      "args": [
+        "-y",
+        "@aws/mcp-server-core"
+      ],
       "env": {
         "AWS_ACCESS_KEY_ID": "${AWS_ACCESS_KEY_ID}",
         "AWS_SECRET_ACCESS_KEY": "${AWS_SECRET_ACCESS_KEY}",
         "AWS_REGION": "${AWS_REGION}"
       }
     },
-
     "kubernetes": {
       "_enabled": false,
       "_security": "Read-only recommended for production cluster",
       "_description": "Cluster state, pod logs, deployment management.",
       "command": "npx",
-      "args": ["-y", "mcp-server-kubernetes"],
+      "args": [
+        "-y",
+        "mcp-server-kubernetes"
+      ],
       "env": {
         "KUBECONFIG": "${KUBECONFIG}"
       }
     },
-
     "slack": {
       "_enabled": false,
       "_description": "Workspace channels, DMs, message history.",
       "command": "npx",
-      "args": ["-y", "@slack/mcp-server"],
+      "args": [
+        "-y",
+        "@slack/mcp-server"
+      ],
       "env": {
         "SLACK_BOT_TOKEN": "${SLACK_BOT_TOKEN}",
         "SLACK_TEAM_ID": "${SLACK_TEAM_ID}"
       }
     },
-
     "_section_design_visual": "=== DESIGN & VISUAL ARCHITECTURE ===",
-
     "figma": {
       "_enabled": false,
       "_description": "UI/UX semantic understanding, component specs, and design-to-code.",
       "command": "npx",
-      "args": ["-y", "@figma/mcp-server"],
+      "args": [
+        "-y",
+        "@figma/mcp-server"
+      ],
       "env": {
         "FIGMA_ACCESS_TOKEN": "${FIGMA_ACCESS_TOKEN}"
       }
     },
-
     "drawio": {
       "_enabled": false,
       "_description": "Programmatic generation and editing of C4, UML, and Network diagrams in Draw.io.",
       "command": "npx",
-      "args": ["-y", "@jgraph/drawio-mcp-server"],
+      "args": [
+        "-y",
+        "@jgraph/drawio-mcp-server"
+      ],
       "env": {}
     },
-
     "excalidraw": {
       "_enabled": false,
-      "_description": "Create and manage Excalidraw diagrams — nodes, edges, and diagram state.",
+      "_description": "Create and manage Excalidraw diagrams \u2014 nodes, edges, and diagram state.",
       "command": "npx",
-      "args": ["-y", "@cmd8/excalidraw-mcp", "--diagram", "./docs/architecture.excalidraw"],
+      "args": [
+        "-y",
+        "@cmd8/excalidraw-mcp",
+        "--diagram",
+        "./docs/architecture.excalidraw"
+      ],
       "env": {}
     },
-
     "tldraw": {
       "_enabled": false,
-      "_description": "Persistent visual canvas — create, manage, and search tldraw .tldr files for wireframing and design.",
+      "_description": "Persistent visual canvas \u2014 create, manage, and search tldraw .tldr files for wireframing and design.",
       "command": "npx",
-      "args": ["-y", "@talhaorak/tldraw-mcp"],
+      "args": [
+        "-y",
+        "@talhaorak/tldraw-mcp"
+      ],
       "env": {}
     },
-
     "miro": {
       "_enabled": false,
       "_description": "Read context from virtual whiteboards and continuously sync architecture PRDs.",
       "command": "npx",
-      "args": ["-y", "@mirohq/miro-mcp-server"],
+      "args": [
+        "-y",
+        "@mirohq/miro-mcp-server"
+      ],
       "env": {
         "MIRO_ACCESS_TOKEN": "${MIRO_ACCESS_TOKEN}"
       }
     },
-
     "mermaid": {
       "_enabled": false,
       "_description": "Translate Mermaid/PlantUML text syntax into immediately viewable SVG/PNG images.",
       "command": "npx",
-      "args": ["-y", "mermaid-mcp-server"],
+      "args": [
+        "-y",
+        "mermaid-mcp-server"
+      ],
       "env": {}
     },
-
     "dbhub": {
       "_enabled": false,
       "_description": "Universal DB client (MySQL, MariaDB, PG, SQL Server).",
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-dbhub"],
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-dbhub"
+      ],
       "env": {}
     },
-
     "mongodb": {
       "_enabled": false,
       "_description": "MongoDB exploration and query tool.",
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-mongodb-lens"],
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-mongodb-lens"
+      ],
       "env": {
         "MONGODB_CONNECTION_STRING": "${MONGODB_URI}"
       }
     },
-
     "redis": {
       "_enabled": false,
       "_description": "Redis interaction and key management.",
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-redis"],
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-redis"
+      ],
       "env": {
         "REDIS_URL": "${REDIS_URL}"
       }
     },
-
     "sqlite": {
       "_enabled": false,
       "_description": "SQLite database explorer (read-only recommended).",
       "command": "npx",
-      "args": ["-y", "sqlite-mcp"],
+      "args": [
+        "-y",
+        "sqlite-mcp"
+      ],
       "env": {
         "SQLITE_PATH": "./database.sqlite"
       }
     },
-
     "pinecone": {
       "_enabled": false,
       "_description": "Vector database for semantic search.",
       "command": "npx",
-      "args": ["-y", "pinecone-mcp"],
+      "args": [
+        "-y",
+        "pinecone-mcp"
+      ],
       "env": {
         "PINECONE_API_KEY": "${PINECONE_API_KEY}"
       }
     },
-
     "chroma": {
       "_enabled": false,
       "_description": "Open-source embedding database.",
       "command": "npx",
-      "args": ["-y", "chromadb-mcp"],
+      "args": [
+        "-y",
+        "chromadb-mcp"
+      ],
       "env": {}
     },
-
     "weaviate": {
       "_enabled": false,
       "_description": "Vector search engine.",
       "command": "npx",
-      "args": ["-y", "weaviate-mcp"],
+      "args": [
+        "-y",
+        "weaviate-mcp"
+      ],
       "env": {
         "WEAVIATE_URL": "${WEAVIATE_URL}",
         "WEAVIATE_API_KEY": "${WEAVIATE_API_KEY}"
       }
     },
-
     "confluence": {
       "_enabled": false,
       "_description": "Confluence pages and spaces.",
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-confluence"],
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-confluence"
+      ],
       "env": {
         "ATLASSIAN_URL": "${CONFLUENCE_URL}",
         "ATLASSIAN_USERNAME": "${CONFLUENCE_EMAIL}",
         "ATLASSIAN_API_TOKEN": "${CONFLUENCE_TOKEN}"
       }
     },
-
     "linear": {
       "_enabled": false,
       "_description": "Linear issue tracking and project management.",
       "command": "npx",
-      "args": ["-y", "linear-mcp-server"],
+      "args": [
+        "-y",
+        "linear-mcp-server"
+      ],
       "env": {
         "LINEAR_API_KEY": "${LINEAR_API_KEY}"
       }
     },
-
     "sonarqube": {
       "_enabled": false,
       "_description": "Code quality and security analysis.",
       "command": "npx",
-      "args": ["-y", "sonarqube-mcp"],
+      "args": [
+        "-y",
+        "sonarqube-mcp"
+      ],
       "env": {
         "SONAR_URL": "${SONAR_URL}",
         "SONAR_TOKEN": "${SONAR_TOKEN}"
       }
     },
-
     "firecrawl": {
       "_enabled": false,
       "_description": "Turn websites into LLM-ready markdown.",
       "command": "npx",
-      "args": ["-y", "firecrawl-mcp"],
+      "args": [
+        "-y",
+        "firecrawl-mcp"
+      ],
       "env": {
         "FIRECRAWL_API_KEY": "${FIRECRAWL_API_KEY}"
       }
     },
-
     "duckduckgo": {
       "_enabled": false,
       "_description": "Privacy-focused web search.",
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-duckduckgo"],
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-duckduckgo"
+      ],
       "env": {}
     },
-
     "snyk": {
       "_enabled": false,
       "_description": "Vulnerability scanning for code and dependencies.",
       "command": "npx",
-      "args": ["-y", "snyk-mcp-server"],
+      "args": [
+        "-y",
+        "snyk-mcp-server"
+      ],
       "env": {
         "SNYK_TOKEN": "${SNYK_TOKEN}"
       }
     },
-
     "gitleaks": {
       "_enabled": false,
       "_description": "Secret detection in git repositories.",
       "command": "npx",
-      "args": ["-y", "gitleaks-mcp"],
+      "args": [
+        "-y",
+        "gitleaks-mcp"
+      ],
       "env": {}
     },
-
     "jupyter": {
       "_enabled": false,
       "_description": "Execute Python code in Jupyter notebooks.",
       "command": "npx",
-      "args": ["-y", "jupyter-mcp-server"],
+      "args": [
+        "-y",
+        "jupyter-mcp-server"
+      ],
       "env": {}
     },
-
     "zapier": {
       "_enabled": false,
       "_description": "Connect to 6,000+ apps via Zapier.",
       "command": "npx",
-      "args": ["-y", "@zapier/mcp-server"],
+      "args": [
+        "-y",
+        "@zapier/mcp-server"
+      ],
       "env": {
         "ZAPIER_NLA_API_KEY": "${ZAPIER_NLA_API_KEY}"
       }
     },
-
     "stripe": {
       "_enabled": false,
       "_description": "Search and manage Stripe resources.",
       "command": "npx",
-      "args": ["-y", "@stripe/mcp-server"],
+      "args": [
+        "-y",
+        "@stripe/mcp-server"
+      ],
       "env": {
         "STRIPE_API_KEY": "${STRIPE_SECRET_KEY}"
       }
     },
-
     "_section_api_knowledge": "=== API INTROSPECTION & KNOWLEDGE ===",
-
     "graphql": {
       "_enabled": false,
       "_description": "GraphQL schema introspection, query validation, and documentation.",
       "command": "npx",
-      "args": ["-y", "graphql-mcp-server"],
+      "args": [
+        "-y",
+        "graphql-mcp-server"
+      ],
       "env": {
         "GRAPHQL_ENDPOINT": "${GRAPHQL_ENDPOINT}",
         "GRAPHQL_HEADERS": "{\"Authorization\": \"Bearer ${GRAPHQL_TOKEN}\"}"
       }
     },
-
     "elasticsearch": {
       "_enabled": false,
       "_description": "Full-text search, log analysis, and knowledge base indexing.",
       "command": "npx",
-      "args": ["-y", "elasticsearch-mcp-server"],
+      "args": [
+        "-y",
+        "elasticsearch-mcp-server"
+      ],
       "env": {
         "ELASTICSEARCH_URL": "${ELASTICSEARCH_URL}",
         "ELASTICSEARCH_API_KEY": "${ELASTICSEARCH_API_KEY}"
       }
     },
-
     "shell": {
       "_enabled": false,
-      "_security": "DEVELOPMENT ONLY — restrict to project directory. Never enable in production.",
+      "_security": "DEVELOPMENT ONLY \u2014 restrict to project directory. Never enable in production.",
       "_description": "Execute shell commands for local build, test, and system introspection (internal RAG).",
       "command": "npx",
-      "args": ["-y", "@anthropic/mcp-server-shell"],
+      "args": [
+        "-y",
+        "@anthropic/mcp-server-shell"
+      ],
       "env": {}
     },
-
     "openapi": {
       "_enabled": false,
       "_description": "Load and query any OpenAPI/Swagger specification for API exploration.",
       "command": "npx",
-      "args": ["-y", "openapi-mcp-server"],
+      "args": [
+        "-y",
+        "openapi-mcp-server"
+      ],
       "env": {
         "OPENAPI_SPEC_URL": "${OPENAPI_SPEC_URL}"
       }
+    },
+    "_section_v1_priority": "=== v1.0 PRIORITY ADDITIONS (SWEBOK-mapped, opt-in) ===",
+    "knowledge-graph-memory": {
+      "_enabled": false,
+      "_description": "Persistent knowledge-graph memory (Anthropic) \u2014 semantic network so multi-agent systems don't lose/hallucinate architectural decisions. Pairs with core/knowledge-connect.skill.",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-memory"
+      ],
+      "env": {
+        "MEMORY_FILE_PATH": "${MEMORY_FILE_PATH}"
+      }
+    },
+    "mcp-evals": {
+      "_enabled": false,
+      "_description": "Evaluate agent/LLM outputs in CI (LLM-as-judge / regression). Pairs with coding/eval-driven-development.skill + agents/scripts/eval_skills.py.",
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-evals"
+      ],
+      "env": {
+        "OPENAI_API_KEY": "${OPENAI_API_KEY}"
+      }
+    },
+    "mcp-chaos-rig": {
+      "_enabled": false,
+      "_description": "Chaos engineering for MCP/agents \u2014 inject auth failures, disappearing tools, token expiry. Pairs with coding/chaos-fault-injection.skill + 'gabbe verify --chaos'.",
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-chaos-rig"
+      ],
+      "env": {}
+    },
+    "supabase": {
+      "_enabled": false,
+      "_description": "Direct DB execution \u2014 inspect schemas + run queries against the live Supabase project.",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@supabase/mcp-server-supabase",
+        "--read-only"
+      ],
+      "env": {
+        "SUPABASE_ACCESS_TOKEN": "${SUPABASE_ACCESS_TOKEN}"
+      }
+    },
+    "pagerduty": {
+      "_enabled": false,
+      "_description": "On-call automation \u2014 incidents, rotations, resolution workflows. Day-2 (S11 Operate & Maintain).",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@pagerduty/mcp-server"
+      ],
+      "env": {
+        "PAGERDUTY_API_TOKEN": "${PAGERDUTY_API_TOKEN}"
+      }
+    },
+    "cloudflare": {
+      "_enabled": false,
+      "_description": "Edge deployment logs, runtime errors, DNS/cache management.",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@cloudflare/mcp-server-cloudflare"
+      ],
+      "env": {
+        "CLOUDFLARE_API_TOKEN": "${CLOUDFLARE_API_TOKEN}"
+      }
+    },
+    "obsidian": {
+      "_enabled": false,
+      "_description": "Knowledge base / ADR + spec search over an Obsidian vault (design & requirements).",
+      "command": "npx",
+      "args": [
+        "-y",
+        "obsidian-mcp"
+      ],
+      "env": {
+        "OBSIDIAN_VAULT_PATH": "${OBSIDIAN_VAULT_PATH}"
+      }
+    },
+    "discord": {
+      "_enabled": false,
+      "_description": "Communication triage \u2014 summarize channels, pull engineering context.",
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-discord"
+      ],
+      "env": {
+        "DISCORD_TOKEN": "${DISCORD_TOKEN}"
+      }
+    },
+    "google-genai-toolbox": {
+      "_enabled": false,
+      "_description": "Google MCP Toolbox for Databases (genai-toolbox) \u2014 foundational data access; self-hosted Go binary.",
+      "command": "toolbox",
+      "args": [
+        "--stdio"
+      ],
+      "env": {
+        "GOOGLE_API_KEY": "${GOOGLE_API_KEY}"
+      },
+      "_install": "Local: download the genai-toolbox (MCP Toolbox for Databases) Go binary from its GitHub releases; run `toolbox --stdio`."
     }
   },
-
   "_security_rules": {
-    "prod_databases": "Read-only access only — use dedicated read-only DB user",
-    "dev_databases": "Read-write allowed — never point dev config at production DB",
-    "secrets_policy": "All credentials via environment variables — never hardcoded in this file",
-    "file_system": "Restrict to project directory only — no access to /etc, /home, system dirs",
-    "kubernetes_prod": "Read-only mode only — no exec, no delete, no scale in production",
-    "browser_ci": "Headless mode only for CI — headed mode for local debugging only"
+    "prod_databases": "Read-only access only \u2014 use dedicated read-only DB user",
+    "dev_databases": "Read-write allowed \u2014 never point dev config at production DB",
+    "secrets_policy": "All credentials via environment variables \u2014 never hardcoded in this file",
+    "file_system": "Restrict to project directory only \u2014 no access to /etc, /home, system dirs",
+    "kubernetes_prod": "Read-only mode only \u2014 no exec, no delete, no scale in production",
+    "browser_ci": "Headless mode only for CI \u2014 headed mode for local debugging only"
   },
-
   "_environment_variables_required": [
-    "BRAVE_API_KEY — from https://api.search.brave.com/register",
-    "GITHUB_TOKEN — GitHub Personal Access Token with repo scope",
-    "DATABASE_URL_DEV — PostgreSQL connection string (development)",
-    "DATABASE_URL_PROD_READONLY — PostgreSQL read-only connection (production, optional)",
-    "SEMGREP_APP_TOKEN — from https://semgrep.dev/settings/tokens (optional)",
-    "SENTRY_AUTH_TOKEN — from Sentry Settings > API Keys (optional)",
-    "TAVILY_API_KEY — from https://tavily.com (optional, for research.skill)"
+    "BRAVE_API_KEY \u2014 from https://api.search.brave.com/register",
+    "GITHUB_TOKEN \u2014 GitHub Personal Access Token with repo scope",
+    "DATABASE_URL_DEV \u2014 PostgreSQL connection string (development)",
+    "DATABASE_URL_PROD_READONLY \u2014 PostgreSQL read-only connection (production, optional)",
+    "SEMGREP_APP_TOKEN \u2014 from https://semgrep.dev/settings/tokens (optional)",
+    "SENTRY_AUTH_TOKEN \u2014 from Sentry Settings > API Keys (optional)",
+    "TAVILY_API_KEY \u2014 from https://tavily.com (optional, for research.skill)",
+    "MEMORY_FILE_PATH",
+    "SUPABASE_ACCESS_TOKEN",
+    "PAGERDUTY_API_TOKEN",
+    "CLOUDFLARE_API_TOKEN",
+    "OBSIDIAN_VAULT_PATH",
+    "DISCORD_TOKEN"
   ]
 }

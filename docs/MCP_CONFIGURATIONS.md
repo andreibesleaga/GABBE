@@ -1740,3 +1740,26 @@ All credentials should be set as environment variables in your shell profile or 
 *See also: `agents/templates/core/MCP_CONFIG_TEMPLATE.json` for the raw configuration template.*
 *See also: [README.md](../README.md) for the Essential MCP Servers quick reference.*
 *See also: [README_FULL.md](README_FULL.md) for the full MCP coverage matrix.*
+
+---
+
+## SWEBOK v4 Priority Map
+
+A lifecycle-oriented view of the highest-value, self-hostable/free-tier MCP servers,
+mapped to the SWEBOK v4 knowledge areas. Most run locally via Docker or Node so
+credentials never leave the host. Servers marked **(new in v1.0)** were added to
+`MCP_CONFIG_TEMPLATE.json` as opt-in (`_enabled: false`) entries.
+
+| SWEBOK area | Priority MCP servers | GABBE tie-in |
+|---|---|---|
+| **Requirements & Design** | `figma`, `notion`, `obsidian` (new), `knowledge-graph-memory` (new) | S00–S03; `knowledge-connect.skill`, ADR/spec search; persistent semantic memory prevents architectural-decision drift |
+| **Construction & Architecture** | `github`, `supabase` (new), `postgres-dev`/`postgres-prod`, `mongodb`, `aws-core`, `azure`, `kubernetes`, `docker` | S05; direct schema/query execution instead of guessed SQL |
+| **Testing & Quality** | `sentry`, `snyk`, `semgrep`, `mcp-evals` (new), `mcp-chaos-rig` (new) | S06–S07; `mcp-evals` ↔ `eval-driven-development.skill`; `mcp-chaos-rig` ↔ `chaos-fault-injection.skill` + `gabbe verify --chaos` |
+| **Maintenance & Config Mgmt** | `pagerduty` (new), `cloudflare` (new), `vercel`, `gitlab` | S11–S13 Day-2; on-call automation, edge deploy logs |
+| **Eng. Management & Economics** | `linear`, `jira`, `confluence`, `slack`, `discord` (new), `stripe` | management + software economics; comms triage, billing/churn |
+| **Computing & Foundations** | `firecrawl`, `qdrant`, `chroma`/`weaviate`/`pinecone`, `google-genai-toolbox` (new), `context7`, `sequential-thinking` | research, RAG long-term memory, foundational data access |
+
+**Deployment note:** the vast majority of these run locally via Docker or Node, so API
+keys/credentials stay on the host unless explicitly routed through an enterprise gateway.
+All new entries are opt-in — enable per project by setting `_enabled: true` and the listed
+env vars.

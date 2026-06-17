@@ -135,6 +135,8 @@ Checkpoint: sdlc-checkpoint.skill S04
 
 ```
 Persona: orch-planner (coordinator), eng-* (executors)
+SCM discipline: apply configuration-management.skill (branching model, baselines,
+  reproducible builds) alongside git-workflow.skill throughout this phase.
 
 Implementation Loop (repeats until all tasks DONE):
   1. orch-planner analyzes `project/TASKS.md`:
@@ -207,6 +209,8 @@ eng-qa Tasks:
   - Run integration test suite
   - Identify any missing test scenarios from EARS acceptance criteria
   - Fill any gaps via tdd-cycle.skill
+  - Score probabilistic quality via eval-driven-development.skill; interpret benchmark/
+    A-B results with empirical-methods.skill (effect size, significance — not just averages)
 
 orch-judge Tasks:
   - Quality Gate Check (orch-judge's 7-gate system, extended here with E2E + EARS):
@@ -258,6 +262,8 @@ Checkpoint: sdlc-checkpoint.skill S07
 
 ```
 Personas: prod-tech-lead (review prep), orch-judge (EARS compliance), prod-ethicist (safety)
+Professional conduct: prod-ethicist applies professional-practice.skill (ACM/IEEE-CS
+  Code of Ethics) for the human/ethics dimension of the review.
 
 Prep:
   - prod-tech-lead generates review summary:

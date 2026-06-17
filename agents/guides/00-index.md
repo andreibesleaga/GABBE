@@ -6,7 +6,7 @@
 
 ---
 
-> **Total Guides**: 79
+> **Total Guides**: 82
 > *Registry categorized by domain.*
 
 ## Guides Registry
@@ -111,6 +111,9 @@
 | No-Code Integ. | `principles/no-code-integration.md` | Connecting no-code platforms |
 | Testing Strat. | `principles/testing-strategy.md` | The testing pyramid and mocks |
 | Evaluation Strat. | `principles/evaluation-strategy.md` | Evals vs tests; eval pyramid; eval-driven CI |
+| Mathematical Foundations | `principles/mathematical-foundations.md` | Logic, sets, graphs, probability/statistics (SWEBOK v4) |
+| Computing Foundations | `principles/computing-foundations.md` | CS fundamentals → engineering decisions (SWEBOK v4) |
+| Modeling Methods | `principles/modeling-methods.md` | Model types + formal/semi-formal method selection (SWEBOK v4) |
 | Visual Design | `principles/visual-design-system.md` | Design tokens and accessibility |
 
 ### 9. Security & Privacy (`security/`)

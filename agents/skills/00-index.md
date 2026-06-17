@@ -166,6 +166,7 @@ ln -sf /path/to/agents/skills/*/*.skill.md ~/.agent/skills/
 | Runbook Authoring | `ops/runbook-authoring.skill.md` | runbook, alert response, remediation | Operational runbooks per alert |
 | Dependency Lifecycle | `ops/dependency-lifecycle.skill.md` | dependency upgrade, sbom, cve triage, eol | Patch/upgrade cadence + SBOM |
 | Decommission & Sunset | `ops/decommission-sunset.skill.md` | decommission, sunset, deprecation, retention | Sunset + data retention |
+| Configuration Management | `ops/configuration-management.skill.md` | scm, branching, baseline, reproducible build | SCM discipline (SWEBOK) |
 
 ### 4. Security & Compliance (`security/`)
 | Skill | File | Triggers | Purpose |
@@ -228,6 +229,7 @@ ln -sf /path/to/agents/skills/*/*.skill.md ~/.agent/skills/
 | Estimation & Sizing | `product/estimation-sizing.skill.md` | estimation, reference-class, story points | Probabilistic sizing |
 | Product Analytics | `product/product-analytics.skill.md` | funnel, a/b test, dora, space, retention | Analytics + delivery metrics |
 | Financial Governance | `product/financial-governance.skill.md` | budget, roi, unit economics, cost allocation | Budget + unit economics |
+| Professional Practice | `product/professional-practice.skill.md` | ethics code, professional conduct, teamwork, stakeholder comms | SE ethics + professionalism (SWEBOK) |
 
 ### 7. Coordination & Agents (`coordination/`)
 | Skill | File | Triggers | Purpose |
@@ -265,6 +267,7 @@ ln -sf /path/to/agents/skills/*/*.skill.md ~/.agent/skills/
 | Analytics | `core/agent-analytics.skill.md` | token usage | Agent metrics |
 | Connectors | `core/knowledge-connect.skill.md` | rag, doc | RAG ingestion |
 | Retrospective | `core/retrospective.skill.md` | retro, blameless, lessons learned | Blameless retrospective |
+| Empirical Methods | `core/empirical-methods.skill.md` | experiment design, measurement, statistics, root cause | Empirical/measurement methods (SWEBOK) |
 
 ### 9. Neuro-Architecture (`brain/`)
 *See separate index in `brain/README.md`*

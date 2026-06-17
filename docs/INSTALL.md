@@ -15,7 +15,10 @@ outside the chosen target unless you pass `--global`.
 | Git checkout | `git clone … && python3 scripts/init.py` | the interactive wizard |
 
 After installing, run `gabbe doctor` to print an environment + install report
-(detected OS/arch, runtimes, agent clients, and per-check PASS/WARN).
+(detected OS/arch, runtimes, agent clients, and per-check PASS/WARN). It also prints
+**post-install next steps** — which MCP servers to enable and how. For the full
+environment-setup walkthrough (MCP servers, local-GitHub servers, policy/budgets,
+validation), see `docs/POST_INSTALL.md`.
 
 ## Install scopes (targets)
 

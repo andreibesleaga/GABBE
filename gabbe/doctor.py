@@ -111,9 +111,32 @@ def run_doctor(root: Path | None = None) -> int:
     has_installer_runtime = any(runtimes[r] for r in ("npx", "pipx", "pip", "curl"))
     print(f"    [{'PASS' if has_installer_runtime else 'WARN'}] an install channel is available")
 
+    _print_next_steps()
+
     print("=" * 48)
     print("OK" if ok else "FAILED")
     return 0 if ok else 1
+
+
+# Essential MCP servers to enable for full capability (every project).
+ESSENTIAL_MCP = ["context7", "filesystem", "sequential-thinking", "github", "brave-search"]
+# Useful servers that are installed/run locally (not a plain npx one-liner).
+LOCAL_MCP = [
+    "time-complexity (GitHub repo, build locally)",
+    "semgrep (pip)",
+    "google-genai-toolbox (binary)",
+]
+
+
+def _print_next_steps() -> None:
+    """Post-install guidance: which MCP servers to enable and how, for a full env."""
+    print("\n  Next steps — finish the environment (MCP servers):")
+    print(f"    1. Enable the essential MCP servers: {', '.join(ESSENTIAL_MCP)}")
+    print('       Edit agents/templates/core/MCP_CONFIG_TEMPLATE.json: set "_enabled": true')
+    print("       and the listed env vars, then point your agent at that config.")
+    print(f"    2. Optional local servers: {', '.join(LOCAL_MCP)}")
+    print("    3. Full setup guide: docs/POST_INSTALL.md")
+    print("       MCP catalog + SWEBOK v4 priority map: docs/MCP_CONFIGURATIONS.md")
 
 
 if __name__ == "__main__":

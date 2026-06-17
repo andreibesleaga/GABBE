@@ -51,6 +51,14 @@ uninstall path.
   plan, property-test checklist, eval plan/golden-dataset/rubric), each registered in
   `agents/templates/00-index.md` and wired to the phase/skill that produces it.
 
+### Added — MCP ecosystem (SWEBOK v4 priority map)
+- **8 new opt-in MCP servers** in `MCP_CONFIG_TEMPLATE.json` (now 65 total): `knowledge-graph-memory`
+  (Anthropic persistent memory), `mcp-evals` (↔ `eval-driven-development.skill`), `mcp-chaos-rig`
+  (↔ `chaos-fault-injection.skill` + `gabbe verify --chaos`), `supabase`, `pagerduty` (Day-2 S11),
+  `cloudflare`, `obsidian`, `discord`, plus `google-genai-toolbox`.
+- **SWEBOK v4 priority map** in `docs/MCP_CONFIGURATIONS.md` — best self-hostable servers mapped to
+  the software-engineering knowledge areas, each tied to a GABBE phase/skill.
+
 ### Added — Evaluation & guardrails (Track E)
 - **Eval methodology skills:** `coding/eval-driven-development` (offline eval suites,
   golden datasets, 3-tier assertions deterministic→semantic→LLM-judge, `pass@k`/`pass^k`

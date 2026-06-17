@@ -19,7 +19,7 @@
 - The system features an experimental **Meta-Cognitive Orchestrator "Brain"** (Neurocognitive based architecture derived from Neuroscience, Cognitive Psychology, Epistemology, treating the Software System not as a machine, but as a **Cognitive Entity**), using Active Inference to plan, route, and optimize work.
 - The system features a **Multi-Agent Swarm "Loki" Engineering Team** (30+ specialized agent roles for large projects), providing episodic and semantic memory, project history auditing and checkpoints.
 - Experimental support for budget enforcement, tokens, hard stops, policy rules, cli tool gateway (via MCP server), audit tracing and logs, human escalation, and deterministic replay, with built-in rules for agents to select the best specialized skills/guides, proactively recommend necessary MCP servers, and default to continuous cost & budget optimization—always requiring human approval for expensive operations.
-- **v1.0** extends the framework to a **cradle-to-grave ADLC (S00–S13)** — Day-0 Strategy & Discovery (S00) through the S01–S10 SDLC to Day-2 Operate/Evolve/Decommission (S11–S13), grounded in named industry methods (ADD 3.0, ATAM, Wardley, JTBD, RICE, DORA/SPACE, ADKAR) — and adds an **evals + standards-grounded guardrails layer** (eval-driven development, LLM-as-judge, RAG/trajectory evals, plus prompt-injection-defense and output-validation mapped to OWASP LLM Top 10 / NIST AI RMF / MITRE ATLAS / ISO 42001 / EU AI Act), **advanced testing** (property-based, metamorphic, chaos/fault-injection, and mutation testing; `gabbe verify --chaos`), and **one-command, multi-OS install with autodetect** (`gabbe doctor` reports OS/arch, runtimes, and detected agents; install/update/uninstall are fully reversible via a `.gabbe/manifest.json`). The "world-first" framing stays honest: the **self-evolving "genes" / brain-inference-via-skills** model is a conceptual framing — the production brain is epsilon-greedy with a monotonic success-rate, and evals/PBT **sample and raise confidence, they do not prove**.
+- **v1.0** extends the framework to a **cradle-to-grave ADLC (S00–S13)** — Day-0 Strategy & Discovery (S00) through the S01–S10 SDLC to Day-2 Operate/Evolve/Decommission (S11–S13), grounded in named industry methods (ADD 3.0, ATAM, Wardley, JTBD, RICE, DORA/SPACE, ADKAR) — and adds an **evals + standards-grounded guardrails layer** (eval-driven development, LLM-as-judge, RAG/trajectory evals, plus prompt-injection-defense and output-validation mapped to OWASP LLM Top 10 / NIST AI RMF / MITRE ATLAS / ISO 42001 / EU AI Act), **advanced testing** (property-based, metamorphic, chaos/fault-injection, and mutation testing; `gabbe verify --chaos`), and **one-command, multi-OS install with autodetect** (`gabbe doctor` reports OS/arch, runtimes, and detected agents; `update`/`uninstall` are manifest-backed for `gabbe`-CLI-managed kits via `.gabbe/manifest.json`). The "world-first" framing stays honest: the **self-evolving "genes" / brain-inference-via-skills** model is a conceptual framing — the production brain is epsilon-greedy with a monotonic success-rate, and evals/PBT **sample and raise confidence, they do not prove**.
 
 It contains:
 - **214 Skills** (specialized capabilities)
@@ -53,7 +53,7 @@ It contains:
 | Channel | One-command install | Notes |
 |---|---|---|
 | **npm / Node** | `npx gabbe-kit init` | Python-independent; bundles the kit & wires detected agents |
-| **PyPI** | `pipx install gabbe && gabbe setup` | or `pip install gabbe` / `uvx gabbe setup`; adds the `gabbe` CLI |
+| **PyPI** | `pipx install gabbe` | adds the `gabbe` **CLI** (doctor/brain/route/gateway); install the kit via npx / curl / checkout |
 | **Shell bootstrap** | `curl -fsSL https://raw.githubusercontent.com/andreibesleaga/GABBE/main/install.sh \| sh` | picks the best available installer |
 | **Git checkout** | `git clone https://github.com/andreibesleaga/GABBE && cd GABBE && python3 scripts/init.py` | the interactive wizard |
 
@@ -67,11 +67,12 @@ npx gabbe-kit init --agents claude,cursor,antigravity,opencode --yes   # non-int
 curl -fsSL https://raw.githubusercontent.com/andreibesleaga/GABBE/main/install.sh | sh
 ```
 
-**Python / PyPI (full interactive wizard):**
+**Python / PyPI:**
 ```bash
-pipx install gabbe && gabbe setup    # PyPI: install the CLI, then run the wizard
-# alternatives:  pip install gabbe   ·   uvx gabbe setup
-python3 scripts/init.py              # or run the wizard directly from a checkout
+pipx install gabbe            # installs the `gabbe` CLI (doctor / brain / route / gateway)
+# the kit is Python-independent — land it into a project with:
+npx gabbe-kit init            # (or `curl … | sh`)
+python3 scripts/init.py       # …or the wizard from a checkout (equivalent to `gabbe setup`)
 ```
 
 The installer is a **Universal Skill Compiler** — it generates the correct format for each AI tool:

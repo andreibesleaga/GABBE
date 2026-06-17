@@ -1,16 +1,23 @@
 # Installing, Updating & Uninstalling GABBE
 
-GABBE installs are **manifest-backed, reversible, and isolated**: every install
-records exactly what it created in `.gabbe/manifest.json`, so `update` and
-`uninstall` are precise and never touch unrelated files. Nothing is ever written
-outside the chosen target unless you pass `--global`.
+GABBE installs are **isolated**: nothing is ever written outside the chosen target
+unless you pass `--global`.
+
+> **Reversibility — scope.** Manifest-backed, precise `update`/`uninstall` (recorded
+> in `.gabbe/manifest.json`) covers kits managed by the Python `gabbe` CLI — i.e.
+> after a `gabbe update` from a checkout / editable install, which writes the
+> manifest. The Python-independent installers (`npx gabbe-kit init`, `curl … | sh`,
+> and the `scripts/init.py` wizard) copy the kit but do **not** write a manifest, so
+> `gabbe uninstall` cannot auto-reverse them — remove those manually (delete the
+> created `agents/`, `.agents/`, per-agent dirs, and root `AGENTS.md`), or run
+> `gabbe update` from a checkout to begin manifest tracking.
 
 ## One-command install (every channel)
 
 | Channel | Command | Notes |
 |---|---|---|
 | npm / Node | `npx gabbe-kit init` | Python-independent; bundles the kit and wires detected agents |
-| PyPI | `pipx install gabbe && gabbe setup` (or `pip install gabbe`) | adds the `gabbe` CLI |
+| PyPI | `pipx install gabbe` (or `pip install gabbe` / `uvx gabbe`) | adds the `gabbe` **CLI** (doctor/brain/route/gateway). The kit is Python-independent — land it with `npx gabbe-kit init` / `curl … \| sh` / a checkout. `gabbe setup` wires the kit only from a checkout. |
 | Shell bootstrap | `curl -fsSL https://raw.githubusercontent.com/andreibesleaga/GABBE/main/install.sh \| sh` | picks the best available installer |
 | Git checkout | `git clone … && python3 scripts/init.py` | the interactive wizard |
 
@@ -38,7 +45,7 @@ gabbe update                 # additive refresh of kit files; prunes orphans
 your memory/project files; it only refreshes managed kit artifacts and removes
 ones that are no longer emitted.
 
-## Uninstalling (fully reversible)
+## Uninstalling (manifest-backed installs)
 
 ```bash
 gabbe uninstall --dry-run          # print exactly what would be removed
@@ -56,8 +63,10 @@ pwsh ./uninstall.ps1 -DryRun       # Windows / PowerShell
 
 Uninstall reads `.gabbe/manifest.json`, removes **exactly** what was installed,
 restores any shadowed user files from their `.bak`, prunes now-empty directories,
-and is idempotent (safe to run twice). The result is byte-identical to the
-pre-install state.
+and is idempotent (safe to run twice). When a manifest is present the result is
+byte-identical to the pre-install state. **Note:** `npx` / `curl` / wizard installs
+are not manifest-tracked (see the scope note at the top); for those, delete the kit
+directories manually or run `gabbe update` from a checkout first.
 
 ## Verification
 

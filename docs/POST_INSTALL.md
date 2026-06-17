@@ -68,8 +68,12 @@ gabbe eval                # deterministic skill-eval self-check
 ## 5. Updating / uninstalling later
 
 ```bash
-gabbe update              # additive kit refresh; preserves user files
-gabbe uninstall --dry-run # preview the exact, reversible removal
+gabbe update              # additive kit refresh; preserves user files (writes the manifest)
+gabbe uninstall --dry-run # preview the exact removal (manifest-backed installs only)
 ```
 
-See `docs/INSTALL.md` for scopes (project / `--global` / `--dir`) and channels.
+`update`/`uninstall` are manifest-backed for kits managed by the Python `gabbe`
+CLI. `npx` / `curl` / wizard installs aren't manifest-tracked — run `gabbe update`
+from a checkout first, or remove the kit directories manually. See
+`docs/INSTALL.md` for scopes (project / `--global` / `--dir`), channels, and the
+full reversibility scope note.

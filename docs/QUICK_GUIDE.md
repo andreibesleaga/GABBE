@@ -129,7 +129,7 @@ python scripts/fill_placeholders.py
 | `gabbe verify --chaos` | **Resilience**: fault-injection self-checks (fail-closed tool, hard-stop, escalation). |
 | `gabbe eval` | **Skill evals**: deterministic self-check; `--live` scores via the model. |
 | `gabbe doctor` | **Autodetect**: OS/runtimes/agents + post-install MCP next-steps. |
-| `gabbe update` / `gabbe uninstall` | **Reversible install**: additive refresh / manifest-backed removal. |
+| `gabbe update` / `gabbe uninstall` | Additive refresh / manifest-backed removal (for `gabbe`-CLI-managed kits; npx/curl/wizard installs aren't manifest-tracked). |
 | `gabbe status`| **Dashboard**: Visualizes project phase and task progress. |
 | `gabbe brain` | **Meta-Cognition**: Activates Active Inference loop or Evolutionary Prompt Optimization (Requires API Key). |
 | `gabbe route` | **Cost Router**: Arbitrates between Local and Remote LLMs based on task complexity (Requires API Key). |

@@ -21,7 +21,9 @@ from hypothesis import strategies as st
 
 from gabbe.mcp_server import _RUN_COMMAND_SCHEMA, run_command_handler, serve
 
-_S = settings(suppress_health_check=[HealthCheck.function_scoped_fixture], max_examples=80)
+_S = settings(
+    suppress_health_check=[HealthCheck.function_scoped_fixture], max_examples=80, deadline=None
+)
 
 try:
     from hypothesis_jsonschema import from_schema
@@ -32,7 +34,7 @@ except ImportError:  # pragma: no cover
 
 
 @pytest.mark.skipif(not _HAS_JSONSCHEMA_STRATEGY, reason="hypothesis-jsonschema not installed")
-@settings(max_examples=60, suppress_health_check=[HealthCheck.too_slow])
+@settings(max_examples=60, suppress_health_check=[HealthCheck.too_slow], deadline=None)
 @given(data=st.deferred(lambda: from_schema(_RUN_COMMAND_SCHEMA)))
 def test_generated_payloads_satisfy_the_contract(data):
     # The generator and validator agree: every generated instance is schema-valid.

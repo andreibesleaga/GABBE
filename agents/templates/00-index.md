@@ -6,7 +6,7 @@
 
 ---
 
-> **Total Templates**: 97
+> **Total Templates**: 100
 > *Registry categorized by domain.*
 
 ## Templates Registry
@@ -74,6 +74,9 @@
 | Hazard Log | `security/HAZARD_LOG.md` | Safety-critical hazard tracking |
 | Safety Policy | `security/SAFETY_POLICY.md` | System safety constraints |
 | Safety Case | `security/SAFETY_CASE.md` | Assurance arguments |
+| Model Card | `security/MODEL_CARD_TEMPLATE.md` | AI model documentation (intended use, evals, limits) |
+| Datasheet | `security/DATASHEET_TEMPLATE.md` | Dataset documentation (composition, collection, uses) |
+| System Card | `security/SYSTEM_CARD_TEMPLATE.md` | Deployed AI-system risk/mitigation/eval card |
 
 ### 5. Product & Strategy (`product/`)
 | Template | File | Purpose |

@@ -14,7 +14,11 @@ from hypothesis import strategies as st
 
 from gabbe.brain import _get_best_gene, _update_gene_success_rate
 
-_S = settings(suppress_health_check=[HealthCheck.function_scoped_fixture], max_examples=60)
+# deadline=None: these examples do many small DB writes; the per-example timing
+# varies with machine load, so a wall-clock deadline would flake (not a logic bug).
+_S = settings(
+    suppress_health_check=[HealthCheck.function_scoped_fixture], max_examples=60, deadline=None
+)
 
 
 @_S

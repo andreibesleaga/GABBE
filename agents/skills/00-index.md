@@ -193,6 +193,8 @@ ln -sf /path/to/agents/skills/*/*.skill.md ~/.agent/skills/
 | Privacy Protection | `security/privacy-data-protection.skill.md` | gdpr, pii | Data privacy |
 | Secure Arch | `security/secure-architecture.skill.md` | zero trust | Defense-in-depth |
 | Prompt Injection Defense | `security/prompt-injection-defense.skill.md` | prompt injection, indirect injection, lethal trifecta, jailbreak | Defense-in-depth vs injection |
+| AI Red-Teaming | `security/ai-red-teaming.skill.md` | red team, adversarial test, attack success rate, jailbreak test | Offensive AI testing (OWASP LLM) |
+| Agent Sandboxing | `security/agent-sandboxing.skill.md` | sandbox, isolation, egress control, least privilege | Intrinsic agent isolation policy |
 
 ### 5. Data & Analytics (`data/`)
 | Skill | File | Triggers | Purpose |
@@ -243,6 +245,7 @@ ln -sf /path/to/agents/skills/*/*.skill.md ~/.agent/skills/
 | Self Optimize | `coordination/self-optimize.skill.md` | optimize for project, autonomy level | Tune selection to project for quality+cost; autonomy levels |
 | Meta Prompt | `coordination/meta-prompting.skill.md` | system prompt | Prompt engineering |
 | Patterns | `coordination/agentic-patterns.skill.md` | react, plan | Agent patterns |
+| Workflow Patterns | `coordination/agent-workflow-patterns.skill.md` | prompt chaining, routing, orchestrator-workers, evaluator-optimizer | Workflow taxonomy (workflow vs agent) |
 | Linter | `coordination/agentic-linter.skill.md` | boundary | Interaction validity |
 
 ### 8. Core System (`core/`)
@@ -300,6 +303,8 @@ ln -sf /path/to/agents/skills/*/*.skill.md ~/.agent/skills/
 | LLM-as-Judge | `ai/llm-as-judge.skill.md` | llm judge, rubric scoring, eval bias | Score outputs with an LLM judge |
 | RAG Evaluation | `ai/rag-evaluation.skill.md` | rag eval, faithfulness, context precision | Reference-free RAG metrics |
 | Cognitive Testing | `brain/cognitive-testing.skill.md` | cognitive test, invariant, convergence, shadow test | Test cognitive loops by invariants |
+| Context Engineering | `ai/context-engineering.skill.md` | context window, compaction, retrieval, prompt caching | Write/Select/Compress/Isolate context |
+| Reasoning Patterns | `ai/reasoning-patterns.skill.md` | chain of thought, tree of thoughts, react, self-consistency | Reasoning-technique selection by problem shape |
 
 ### 10. Activation Modes (`brain/`)
 | Skill | File | Triggers | Context | Purpose |

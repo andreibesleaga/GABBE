@@ -15,7 +15,9 @@ from gabbe.budget import Budget, BudgetExceeded
 _HUGE = 10**12
 # Hypothesis reuses a function-scoped fixture across examples; the budget makes a
 # fresh object per example, so this is safe to suppress.
-_S = settings(suppress_health_check=[HealthCheck.function_scoped_fixture], max_examples=120)
+_S = settings(
+    suppress_health_check=[HealthCheck.function_scoped_fixture], max_examples=120, deadline=None
+)
 
 
 @_S

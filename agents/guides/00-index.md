@@ -6,7 +6,7 @@
 
 ---
 
-> **Total Guides**: 82
+> **Total Guides**: 86
 > *Registry categorized by domain.*
 
 ## Guides Registry
@@ -26,6 +26,8 @@
 | Agent-Only Cognition | `ai/agent-only-cognition.md` | Cognition patterns for agent-only systems |
 | Agent-Only Swarms | `ai/agent-only-swarms.md` | Swarm topologies without humans in the loop |
 | Visual Integration | `ai/visual-mcp-integration.md` | Guide on Mermaid vs Canvas tools |
+| Agent Identity & Trust | `ai/agent-identity-trust.md` | Agent identity, auth, KYA, signed mandates |
+| Model Customization | `ai/model-customization-decisions.md` | Prompt vs RAG vs fine-tune; SLMs; routing |
 
 ### 1b. Processes (`processes/`)
 | Guide | File | Purpose |
@@ -82,6 +84,8 @@
 | Guide | File | Purpose |
 |---|---|---|
 | Agentic Patterns| `patterns/agentic-patterns.md` | Implementation paths for swarms |
+| Agentic Design Patterns | `patterns/agentic-design-patterns.md` | Full pattern catalog: reasoning/planning/workflow/multi-agent/memory/safety |
+| Software Design Patterns | `patterns/software-design-patterns.md` | Classical catalog: GoF + architectural + DDD + enterprise/distributed |
 | AI Scenarios | `patterns/ai-native-scenarios.md` | Real-world AI integrations |
 | Autonomous Swarm| `patterns/autonomous-swarm-patterns.md` | Inter-agent negotiation |
 | Design Patterns | `patterns/design-patterns.md` | GoF and modern code patterns |

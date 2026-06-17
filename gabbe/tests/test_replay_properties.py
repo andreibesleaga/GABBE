@@ -25,7 +25,9 @@ _snapshot = st.dictionaries(
     values=_json_scalar,
     max_size=6,
 )
-_S = settings(suppress_health_check=[HealthCheck.function_scoped_fixture], max_examples=60)
+_S = settings(
+    suppress_health_check=[HealthCheck.function_scoped_fixture], max_examples=60, deadline=None
+)
 _run_counter = itertools.count()
 
 

@@ -72,6 +72,27 @@ For agentic developer tooling, the most relevant EU AI Act themes and GABBE's co
 
 General-purpose / foundation-model obligations apply to the underlying models GABBE orchestrates, not to GABBE's controls themselves.
 
-## 7. Honesty Note
+## 7. Adjacent & Lifecycle Standards (2025-2026 landscape)
+
+Beyond the five mapped frameworks above, these standards round out a defensible
+AI-governance posture. GABBE aligns to them by intent; none implies certification.
+
+| Standard | Scope | GABBE alignment |
+|---|---|---|
+| **ISO/IEC 5338:2023** | AI system **life-cycle processes** (the ADLC anchor) | the S00–S13 lifecycle + memory/checkpoint model structure AI lifecycle activities |
+| **ISO/IEC 23894:2023** | AI **risk management** guidance | `threat-model.skill`, `ai-red-teaming.skill`, fail-closed gateway, budget/hardstop caps |
+| **ISO/IEC 25059:2023** | **Quality model** for AI systems | `eval-driven-development.skill`, `rag-evaluation.skill`, fitness functions, integrity gates |
+| **ISO/IEC 22989:2022** | AI **concepts & terminology** | consistent vocabulary across the AI/brain skills |
+| **ISO/IEC 42001:2023** | AI **management system** (AIMS) | governance via CONSTITUTION, audit trail, human-approval gates (see §4) |
+| **IEEE 7000 / 7001 / 7002** | ethics-by-design, **transparency**, data privacy | `professional-practice.skill`, `output-validation.skill` PII masking, audit logging |
+| **NIST AI 600-1** (Generative AI Profile) | GenAI risk categories + actions | layered injection defenses, this map, red-teaming, content provenance |
+| **EU AI Act — GPAI Code of Practice** | obligations for general-purpose models | applies to the underlying models GABBE orchestrates; document model provenance (model cards) |
+| **Google SAIF → CoSAI** | secure-AI framework / risk map | maps to `ai-safety-guardrails.skill`, `agent-sandboxing.skill`, MCP hardening |
+
+AI-assurance artifacts: GABBE ships `MODEL_CARD_TEMPLATE.md`, `DATASHEET_TEMPLATE.md`, and
+`SYSTEM_CARD_TEMPLATE.md` (security templates) to make these obligations concrete; TEVV
+(test/evaluation/verification/validation) is covered by the eval + red-team skills.
+
+## 8. Honesty Note
 
 This guide documents **coverage and intent** — how GABBE's existing controls map onto named AI-risk standards — to keep the framework's governance claims grounded. It is **not** a certification, audit result, or compliance attestation. A control appearing in a mapping row means GABBE provides a relevant mechanism; it does NOT mean GABBE is certified against OWASP, NIST AI RMF, MITRE ATLAS, ISO/IEC 42001, or the EU AI Act. Formal conformance requires independent assessment against the specific standard's normative requirements.

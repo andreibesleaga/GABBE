@@ -7,7 +7,7 @@ from typing import Any, Dict, List
 
 import yaml
 
-from .config import GABBE_POLICY_FILE, PII_PATTERNS
+from .config import GABBE_POLICY_FILE, PII_PATTERNS, SECRET_PATTERNS
 
 
 @dataclass
@@ -76,7 +76,7 @@ class ContentSafetyPolicy(Policy):
             # Also check arguments dict values
             args = context.get("arguments", {})
             text = " ".join(str(v) for v in args.values()) if args else ""
-        for pattern in PII_PATTERNS:
+        for pattern in list(PII_PATTERNS) + list(SECRET_PATTERNS):
             if pattern.search(text):
                 return PolicyResult(False, "Input contains PII — routing to LOCAL only", self.name)
         return PolicyResult(True, "No PII detected", self.name)

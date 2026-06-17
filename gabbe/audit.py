@@ -4,7 +4,6 @@ from __future__ import annotations
 import json
 import logging
 import os
-import re
 import sqlite3
 import time
 import uuid
@@ -12,6 +11,7 @@ from datetime import datetime, timezone
 from typing import Any
 
 from .config import GABBE_DIR, GABBE_OTEL_ENABLED
+from .config import SECRET_PATTERNS as _SECRET_PATTERNS
 from .database import get_db
 
 # Set up local text logger
@@ -67,22 +67,16 @@ GEN_AI_ATTRIBUTES: dict[str, str] = {
 # Default GenAI system identifier for spans we emit. Callers may override.
 GEN_AI_DEFAULT_SYSTEM = "gabbe"
 
-# Extra secret patterns beyond config.PII_PATTERNS (which covers email/phone/
-# SSN/credit-card/credential-assignments) — common bearer/API-key token shapes.
-_SECRET_PATTERNS = [
-    re.compile(r"(?i)bearer\s+[A-Za-z0-9._\-]+"),
-    re.compile(r"\bsk-[A-Za-z0-9_\-]{16,}\b"),  # OpenAI-style keys
-    re.compile(r"\bsk-or-v1-[A-Za-z0-9]{16,}\b"),  # OpenRouter keys
-    re.compile(r"\bgh[pousr]_[A-Za-z0-9]{16,}\b"),  # GitHub tokens
-    re.compile(r"\bAKIA[0-9A-Z]{16}\b"),  # AWS access key id
-]
+# Secret token shapes now live in config.SECRET_PATTERNS (imported at top, aliased
+# as _SECRET_PATTERNS for backward compat), shared with route.py and policy.py so
+# PII-routing and content-safety recognize the same formats as the audit redactor.
 _REDACTION = "[REDACTED]"
 
 
 def _redact_text(value: str) -> str:
     from .config import PII_PATTERNS
 
-    for pat in list(PII_PATTERNS) + _SECRET_PATTERNS:
+    for pat in list(PII_PATTERNS) + list(_SECRET_PATTERNS):
         value = pat.sub(_REDACTION, value)
     return value
 
@@ -283,9 +277,9 @@ class AuditTracer:
                     timestamp,
                     span_ctx["event_type"],
                     span_ctx["node_name"],
-                    json.dumps(span_ctx["input_data"]) if span_ctx["input_data"] else None,
-                    json.dumps(output_data) if output_data else None,
-                    reasoning_content,
+                    json.dumps(_redact(span_ctx["input_data"])) if span_ctx["input_data"] else None,
+                    json.dumps(_redact(output_data)) if output_data else None,
+                    _redact_text(reasoning_content) if reasoning_content else None,
                     model_name,
                     p_tokens,
                     c_tokens,
@@ -294,7 +288,7 @@ class AuditTracer:
                     cost_usd,
                     duration_ms,
                     status,
-                    json.dumps(metadata) if metadata else None,
+                    json.dumps(_redact(metadata)) if metadata else None,
                 ),
             )
             self.db_conn.commit()

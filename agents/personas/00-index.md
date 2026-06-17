@@ -7,7 +7,7 @@
 
 ## The 4 Swarms
 
-> The diagram below names representative personas per swarm; the full set of **34**
+> The diagram below names representative personas per swarm; the full set of **36**
 > is in the detailed tables further down (the box is a summary, not the complete list).
 
 ```

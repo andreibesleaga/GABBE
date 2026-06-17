@@ -5,6 +5,7 @@ import os
 import shutil
 import sys
 from pathlib import Path
+from typing import Any
 
 # --- Configuration ---
 # KIT_SOURCE: Where the script and correct agents folder currently live
@@ -74,7 +75,7 @@ def build_tech_map_from_skills(agents_dir):
 
 
 # Initial placeholders - will be populated in main()
-TECH_MAP = {}
+TECH_MAP: dict[str, Any] = {}
 
 # --- Helper Functions ---
 

@@ -9,7 +9,7 @@
 ## Installation
 
 ### Method 1: This Kit (built-in — no install needed)
-All 180 skills in this directory are ready to use immediately.
+All 214 skills in this directory are ready to use immediately.
 Run `setup-context.sh` to wire them to your AI tool's skill directory.
 
 ### Method 2: Skill Marketplaces & Registries
@@ -45,12 +45,12 @@ ln -sf /path/to/agents/skills/*/*.skill.md ~/.agent/skills/
 
 ---
 
-> **Total Skills**: 180
+> **Total Skills**: 214
 > *Registry auto-updated by init.py logic*
 
 > **This index is the canonical skill catalog.** Native skill menus (e.g. Claude
 > Code) cap how many skills they show by token budget, so they may not list all
-> 180 — always consult THIS file to discover any skill, then invoke it by trigger
+> 214 — always consult THIS file to discover any skill, then invoke it by trigger
 > or by reading its file. For a clean native menu, emit only the curated core set
 > with `compile_skills.py --native-subset core` (37 skills flagged `core: true`);
 > the full catalog stays here.

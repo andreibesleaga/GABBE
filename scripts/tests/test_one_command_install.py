@@ -23,7 +23,7 @@ def test_installer_entrypoints_exist():
 
 
 def test_each_channel_is_a_single_command_in_readme():
-    readme = (REPO / "README.md").read_text()
+    readme = (REPO / "README.md").read_text(encoding="utf-8")
     # Each channel must appear as a one-liner the user can paste.
     single_command_channels = [
         r"npx gabbe init",  # Node / npm — zero-Python
@@ -35,5 +35,5 @@ def test_each_channel_is_a_single_command_in_readme():
 
 
 def test_doctor_command_is_documented():
-    cli_ref = (REPO / "docs" / "CLI_REFERENCE.md").read_text()
+    cli_ref = (REPO / "docs" / "CLI_REFERENCE.md").read_text(encoding="utf-8")
     assert "gabbe doctor" in cli_ref

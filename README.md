@@ -22,15 +22,15 @@
 - **v1.0** extends the framework to a **cradle-to-grave ADLC (S00–S13)** — Day-0 Strategy & Discovery (S00) through the S01–S10 SDLC to Day-2 Operate/Evolve/Decommission (S11–S13), grounded in named industry methods (ADD 3.0, ATAM, Wardley, JTBD, RICE, DORA/SPACE, ADKAR) — and adds an **evals + standards-grounded guardrails layer** (eval-driven development, LLM-as-judge, RAG/trajectory evals, plus prompt-injection-defense and output-validation mapped to OWASP LLM Top 10 / NIST AI RMF / MITRE ATLAS / ISO 42001 / EU AI Act), **advanced testing** (property-based, metamorphic, chaos/fault-injection, and mutation testing; `gabbe verify --chaos`), and **one-command, multi-OS install with autodetect** (`gabbe doctor` reports OS/arch, runtimes, and detected agents; install/update/uninstall are fully reversible via a `.gabbe/manifest.json`). The "world-first" framing stays honest: the **self-evolving "genes" / brain-inference-via-skills** model is a conceptual framing — the production brain is epsilon-greedy with a monotonic success-rate, and evals/PBT **sample and raise confidence, they do not prove**.
 
 It contains:
-- **206 Skills** (specialized capabilities)
-- **97 Templates** (standardized documents)
-- **79 Guides** (language & domain expertise)
+- **214 Skills** (specialized capabilities)
+- **100 Templates** (standardized documents)
+- **86 Guides** (language & domain expertise)
 - **36 Personas** (specialized roles)
 - **50+ MCP servers** (configuration and guides for AI tools)
 - **Brain Mode** (meta-cognitive orchestration)
 - **Loki Mode** (multi-agent swarm engineering personas team for large projects)
 
-> **206 Skills · 97 Templates · 79 Guides · 36 Personas · 50+ MCPs · Loki / Brain Mode CLI**
+> **214 Skills · 100 Templates · 86 Guides · 36 Personas · 50+ MCPs · Loki / Brain Mode CLI**
 
 ---
 
@@ -301,9 +301,9 @@ graph TB
     end
 
     subgraph Tools ["Capability Layer"]
-        S[180+ Skills]
-        T[85+ Templates]
-        G[73 Guides]
+        S[214 Skills]
+        T[100 Templates]
+        G[86 Guides]
     end
 
     subgraph Memory ["Memory System"]
@@ -658,7 +658,7 @@ Task → Knowledge gap? → research.skill → Execute → Verify
 
 ## 🛡️ Security & Guardrails
 
-All 180+ skills in the GABBE kit feature a heavily enforced **"Security & Guardrails"** section that binds agents to the project's CONSTITUTION.md. The 3-layer security constraints include:
+All 214 skills in the GABBE kit feature a heavily enforced **"Security & Guardrails"** section that binds agents to the project's CONSTITUTION.md. The 3-layer security constraints include:
 
 1.  **Skill Security**: Tool-specific protection (e.g., preventing command injection or sandbox escapes).
 2.  **System Integration Security**: Safe external integration (e.g., verifying boundary enforcement or ensuring test coverage).

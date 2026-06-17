@@ -22,6 +22,10 @@ This guide provides a quick reference for the most common commands, setup instru
 | `gabbe init` | Initializes the SQLite database (run after `scripts/init.py`). |
 | `gabbe sync` | Bidirectional sync between `project/TASKS.md` and SQLite DB. |
 | `gabbe verify` | Programmable integrity check (files, tests, lint). |
+| `gabbe verify --chaos` | Fault-injection resilience self-checks. |
+| `gabbe eval` | Skill-eval self-check (`--live` scores via the model). |
+| `gabbe doctor` | Autodetect OS/runtimes/agents + post-install MCP next-steps. |
+| `gabbe update` / `gabbe uninstall` | Reversible, manifest-backed install management. |
 | `gabbe status` | Visual dashboard of project phase and task progress. |
 | `gabbe brain activate` | Activates Active Inference loop (requires API key). |
 | `gabbe brain evolve --skill NAME` | Evolutionary Prompt Optimization for a named skill. |
@@ -64,7 +68,7 @@ You can invoke these skills directly in your IDE chat (e.g., Cursor, GitHub Copi
 | **Modes** | `loki-mode` | "loki", "swarm" | 10-phase SDLC orchestration. |
 | **Modes** | `brain-mode` | "brain activate" | Meta-cognitive orchestrator. |
 
-*(For the complete 140+ skills list, see `agents/skills/00-index.md`)*
+*(For the complete 214 skills list, see `agents/skills/00-index.md`)*
 
 ---
 

@@ -15,15 +15,15 @@
 - The system features a **Multi-Agent Swarm "Loki" Engineering Team** (30+ specialized agent roles for large projects), providing episodic and semantic memory, project history auditing and checkpoints.
 
 It contains:
-- **180+ Skills** (specialized capabilities)
-- **85+ Templates** (standardized documents)
-- **73 Guides** (language & domain expertise)
-- **34 Personas** (specialized roles)
-- **40+ MCP servers** (configuration and guides for AI tools)
+- **214 Skills** (specialized capabilities)
+- **100 Templates** (standardized documents)
+- **86 Guides** (language & domain expertise)
+- **36 Personas** (specialized roles)
+- **65 MCP servers** (configuration and guides for AI tools)
 - **Brain Mode** (meta-cognitive orchestration)
 - **Loki Mode** (multi-agent swarm engineering personas team for large projects)
 
-> **180+ Skills · 85+ Templates · 73 Guides · 34 Personas · 50+ MCPs · Loki / Brain Mode CLI**
+> **214 Skills · 100 Templates · 86 Guides · 36 Personas · 50+ MCPs · Loki / Brain Mode CLI**
 
 ---
 
@@ -181,6 +181,10 @@ gabbe --help
 | `gabbe init` | Initialize the SQLite Database (Run this after `python scripts/init.py`). |
 | `gabbe sync` | **Hybrid Sync**: Bidirectional sync between `project/TASKS.md` and SQLite DB. |
 | `gabbe verify`| **Enforcer**: programmable integrity check (files, tests, lint). |
+| `gabbe verify --chaos` | **Resilience**: fault-injection self-checks (fail-closed tool, hard-stop, PII routing, escalation). |
+| `gabbe eval` | **Skill evals**: deterministic self-check; `--live` scores skill outputs via the model. |
+| `gabbe doctor` | **Autodetect**: OS/arch, runtimes, installed agents + post-install MCP next-steps. |
+| `gabbe update` / `gabbe uninstall` | **Reversible install**: additive refresh / manifest-backed removal (`--dry-run`, `--purge`, `--global`, `--dir`). |
 | `gabbe status`| **Dashboard**: Visualizes project phase and task progress. |
 | `gabbe brain` | **Meta-Cognition**: Activates Active Inference loop or Evolutionary Prompt Optimization (Requires API Key). |
 | `gabbe route` | **Cost Router**: Arbitrates between Local and Remote LLMs based on task complexity (Requires API Key). |
@@ -870,7 +874,7 @@ Resources for binding Requirements to Code and Tests (The Golden Thread).
 
 ## 19. Skills Reference
 
-All 180+ skills live in `skills/` subdirectories. Invoke by mentioning the trigger keyword or using slash commands in VS Code.
+All 214 skills live in `skills/` subdirectories. Invoke by mentioning the trigger keyword or using slash commands in VS Code.
 
 ### 1. Coding & Development (`coding/`)
 | Skill | Slash Command (VS Code) | Triggers | Purpose |
@@ -1256,7 +1260,7 @@ Loki Mode activates a multi-agent swarm for large projects (new product builds, 
 
 ## 24. What's Inside?
 
-> **Stats**: 180+ Skills · 85+ Templates · 34 Personas · 73 Guides
+> **Stats**: 214 Skills · 100 Templates · 36 Personas · 86 Guides
 
 | Category | Count | Skills Included |
 |---|---|---|

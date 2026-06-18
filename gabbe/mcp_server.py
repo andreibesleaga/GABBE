@@ -183,7 +183,7 @@ def serve() -> None:
                         "result": {
                             "protocolVersion": MCP_PROTOCOL_VERSION,
                             "capabilities": {"tools": {}},
-                            "serverInfo": {"name": "gabbe-mcp", "version": "1.0.0"},
+                            "serverInfo": {"name": "gabbe-mcp", "version": "1.0.1"},
                         },
                     }
                 elif method == "notifications/initialized":

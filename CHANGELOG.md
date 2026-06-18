@@ -6,6 +6,29 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [1.0.3] — 2026-06-18 — Kit-version stamps refreshed; emitter golden vault recaptured
+
+Patch release. Supersedes 1.0.2 (whose `GABBE CI` run was red — the kit-version
+stamp bump below changed byte-frozen emitter artifacts without recapturing the
+golden baseline). Strictly additive to the public API / CLI / config / DB / emit
+schema; the kit-version-stamp change is an intentional, reviewed content update
+to emitted artifacts, with the Gate 4 / golden baseline recaptured to match.
+
+### Changed
+- **Kit-version stamps now read 1.0.3** in `agents/AGENTS.md`,
+  `agents/CONSTITUTION.md`, and `agents/templates/coordination/AGENTS_TEMPLATE.md`
+  (they had drifted to 0.9.6 / 0.8.0). `scripts/registry_export.py` and
+  `agents/scripts/state_export.sh` read this stamp, so exports now report 1.0.3.
+- Recaptured the emitter golden baseline (`scripts/tests/golden/baseline_v0.8.0`)
+  so the golden-emitter tests and **Gate 4 (emitter fixture vault)** stay green
+  with the refreshed stamps.
+
+### Fixed
+- Carries forward the 1.0.2 fix: MCP `serverInfo.version` reads
+  `gabbe.__version__` dynamically (no drift from the package version).
+
+---
+
 ## [1.0.2] — 2026-06-18 — MCP server version no longer drifts from the package
 
 Patch release. Strictly additive — no public API / CLI / config / DB / emit

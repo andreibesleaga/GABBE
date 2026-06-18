@@ -536,5 +536,5 @@ Examples:
 ---
 
 *Last updated: [DATE]*
-*GABBE Kit version: 0.8.0*
+*GABBE Kit version: 1.0.2*
 *This file is maintained by the team and updated when project conventions change.*

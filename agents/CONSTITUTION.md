@@ -184,5 +184,5 @@
 *Amended by: [team member name]*
 *Reason for amendment: [brief explanation]*
 
-*GABBE Kit version: 0.9.6*
+*GABBE Kit version: 1.0.2*
 *This file is maintained by the team and updated when project conventions change.*

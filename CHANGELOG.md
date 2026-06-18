@@ -6,6 +6,21 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [1.0.2] — 2026-06-18 — MCP server version no longer drifts from the package
+
+Patch release. Strictly additive — no public API / CLI / config / DB / emit
+change; the backward-compat gates stay green.
+
+### Fixed
+- **MCP `serverInfo.version` reported `1.0.0` on the published `gabbe` 1.0.1.**
+  The version string in `gabbe/mcp_server.py` was hardcoded and was not bumped at
+  release time, so an MCP client calling `initialize` saw `1.0.0` even though
+  `gabbe --version` reported `1.0.1`. The server now reads `gabbe.__version__`
+  dynamically, so `serverInfo.version` always tracks the package version and
+  cannot drift again.
+
+---
+
 ## [1.0.1] — 2026-06-17 — Registry publish (`gabbe-kit` on npm) + install-doc accuracy
 
 Patch release. Registry publishing is now live and all install channels were

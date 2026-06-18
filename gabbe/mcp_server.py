@@ -10,6 +10,7 @@ import subprocess
 import sys
 from typing import Any
 
+from . import __version__
 from .context import RunContext
 from .gateway import ToolDefinition
 
@@ -183,7 +184,7 @@ def serve() -> None:
                         "result": {
                             "protocolVersion": MCP_PROTOCOL_VERSION,
                             "capabilities": {"tools": {}},
-                            "serverInfo": {"name": "gabbe-mcp", "version": "1.0.1"},
+                            "serverInfo": {"name": "gabbe-mcp", "version": __version__},
                         },
                     }
                 elif method == "notifications/initialized":

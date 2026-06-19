@@ -110,7 +110,10 @@ def normalize(path_str, project_dir):
 
 # agents/memory/ is gitignored per-user runtime state, so its contents differ
 # between a developer checkout and a clean CI clone — never manifest it.
-_MANIFEST_EXCLUDE_PREFIXES = ("agents/memory",)
+# .gabbe/ is the install manifest (records installer_version + per-run hashes):
+# it is install bookkeeping, not an emitted artifact, and would otherwise couple
+# the golden vault to the package version. Never manifest it.
+_MANIFEST_EXCLUDE_PREFIXES = ("agents/memory", ".gabbe")
 
 
 def build_manifest(project_dir):

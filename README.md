@@ -63,9 +63,17 @@ It contains:
 ```bash
 npx gabbe-kit init                       # Node installer — bundles the kit, wires every agent
 npx gabbe-kit init --agents claude,cursor,antigravity,opencode --yes   # non-interactive
+npx gabbe-kit init --force               # re-template even preserved files (each is backed up first)
 # or, without npm:
 curl -fsSL https://raw.githubusercontent.com/andreibesleaga/GABBE/main/install.sh | sh
 ```
+
+> **Never-clobber.** Both installers — the Node installer (`npx gabbe-kit init`) and
+> the Python wizard (`gabbe setup` / `python scripts/init.py`) — back up ANY differing
+> pre-existing file to `<name>.gabbe-bak` before refreshing it; nothing you already had
+> is silently overwritten. The preserve-set (`AGENTS.md`, `CONSTITUTION.md`, `TASKS.md`,
+> `policies.yml`, `config.json`) is left untouched unless you pass `--force`, which
+> opts into re-templating them too (still backing each up first).
 
 **Python / PyPI:**
 ```bash
@@ -84,10 +92,19 @@ The installer is a **Universal Skill Compiler** — it generates the correct for
 - **Zed / Continue / Roo Code / Kilo Code**: root `AGENTS.md` (agents.md standard) + each tool's rules file
 - Every install also writes a root `AGENTS.md` (the agents.md open standard).
 
+**Greenfield vs. brownfield (autodetect).** In an empty directory the wizard runs the
+greenfield flow unchanged. In an **existing codebase** (detected via `package.json`,
+`pyproject.toml`, `go.mod`, `Cargo.toml`, `composer.json`, `pom.xml`, `Gemfile`, a `.git`
+repo, etc.) it adds a **Mode** question — greenfield build vs **Upgrade / Refactor
+existing** — prefills the detected language / framework / package-manager / project-name
+as defaults, and in refactor mode scaffolds a `BROWNFIELD_ONBOARDING.md` discovery brief
+(map → assess → baseline → backlog) instead of greenfield mission docs.
+
 Steps after running the wizard:
 
 1. **Verify Context**
    - Open `agents/AGENTS.md` and check the `Tech Stack` section and other [PLACEHOLDER] or Optional sections.
+   - The wizard auto-fills derivable `[PLACEHOLDER:]` fields — dev/test/lint/format/typecheck/coverage commands (by package manager), `repo_url` (from the git remote), and `ci_cd` / `deployment_target` (from detected files). Fields it can't derive are kept and tagged `<!-- OPTIONAL: fill this in yourself -->`, and the installer prints an end-of-install warning listing them so blank fields are never shipped silently. Fill them in or re-run `gabbe setup`.
    - Open `agents/CONSTITUTION.md` and review project laws.
 
 2. **Feed the Mission**
@@ -525,6 +542,10 @@ Config in AGENTS.md: test_cmd="pytest", lint_cmd="ruff check ."
 ---
 
 ## 📋 SDLC Phases (10 Gates)
+
+The table below enumerates the **10 SDLC gates (S01–S10)**. These are bracketed by
+the Day-0 phase **S00 (Strategy & Discovery)** and the Day-2 phases **S11–S13
+(Operate / Evolve / Decommission)** that complete the cradle-to-grave ADLC (S00–S13).
 
 | Phase | Gate | Key Artifact |
 |---|---|---|

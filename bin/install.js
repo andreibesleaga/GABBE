@@ -172,16 +172,44 @@ function shouldPreserve(relPath, fileName) {
   return false;
 }
 
-// Copy a directory tree without overwriting preserved user files.
-function safeCopyTree(srcRoot, dstRoot) {
+// Back up an existing target file to <name>.gabbe-bak before it is overwritten.
+// The first backup wins (never overwrite an existing .gabbe-bak), so re-running
+// install preserves the user's ORIGINAL, not a kit copy from a prior run.
+function backupBeforeOverwrite(dst) {
+  const backup = dst + '.gabbe-bak';
+  if (!fs.existsSync(backup)) {
+    try {
+      fs.copyFileSync(dst, backup);
+      log(`  ${yellow('!')} Backed up existing ${path.basename(dst)} -> ${path.basename(backup)}`);
+    } catch (e) {
+      /* best-effort backup */
+    }
+  }
+}
+
+// Copy a directory tree without ever losing user data. Preserved files are left
+// untouched; any other differing pre-existing file is backed up to .gabbe-bak
+// before being refreshed. With force=true, even preserved files are re-templated
+// (still backed up first). Mirrors init.py safe_merge_directory.
+function safeCopyTree(srcRoot, dstRoot, force) {
   if (!fs.existsSync(srcRoot)) return 0;
   let copied = 0;
   for (const src of walk(srcRoot)) {
     const rel = path.relative(srcRoot, src);
     const dst = path.join(dstRoot, rel);
     const fileName = path.basename(src);
-    if (fs.existsSync(dst) && shouldPreserve(rel, fileName)) {
+    const exists = fs.existsSync(dst);
+    if (exists && !force && shouldPreserve(rel, fileName)) {
       continue;
+    }
+    if (exists) {
+      let differs = true;
+      try {
+        differs = !fs.readFileSync(src).equals(fs.readFileSync(dst));
+      } catch (e) {
+        differs = true;
+      }
+      if (differs) backupBeforeOverwrite(dst);
     }
     fs.mkdirSync(path.dirname(dst), { recursive: true });
     fs.copyFileSync(src, dst);
@@ -411,7 +439,7 @@ Examples:
 `;
 
 function parseArgs(argv) {
-  const opts = { command: null, agents: [], yes: false, wizard: false, help: false };
+  const opts = { command: null, agents: [], yes: false, wizard: false, help: false, force: false };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === 'init') {
@@ -420,6 +448,8 @@ function parseArgs(argv) {
       opts.help = true;
     } else if (a === '--yes' || a === '-y') {
       opts.yes = true;
+    } else if (a === '--force') {
+      opts.force = true;
     } else if (a === '--wizard') {
       opts.wizard = true;
     } else if (a === '--agents') {
@@ -496,13 +526,13 @@ function runInit(opts) {
   if (path.resolve(targetAgents) === path.resolve(SOURCE_AGENTS_DIR)) {
     log(`  ${blue('→')} Target agents/ is the source; skipping copy.`);
   } else {
-    const n = safeCopyTree(SOURCE_AGENTS_DIR, targetAgents);
+    const n = safeCopyTree(SOURCE_AGENTS_DIR, targetAgents, opts.force);
     log(`  ${green('✓')} Copied agents/ (${n} files, user content preserved)`);
   }
   if (fs.existsSync(SOURCE_DOCS_DIR)) {
     const targetDocs = path.join(PROJECT_ROOT, 'docs');
     if (path.resolve(targetDocs) !== path.resolve(SOURCE_DOCS_DIR)) {
-      const n = safeCopyTree(SOURCE_DOCS_DIR, targetDocs);
+      const n = safeCopyTree(SOURCE_DOCS_DIR, targetDocs, opts.force);
       log(`  ${green('✓')} Copied docs/ (${n} files)`);
     }
   }

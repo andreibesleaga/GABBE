@@ -163,6 +163,7 @@ Import style:
 Agents MUST follow this order. Skipping steps is forbidden.
 
 ### Step 1 — Load Context (every session start)
+
 ```
 1. Read this AGENTS.md completely
 2. Read CONSTITUTION.md if it exists
@@ -172,6 +173,7 @@ Agents MUST follow this order. Skipping steps is forbidden.
 ```
 
 ### Step 2 — Plan Before Coding
+
 ```
 Before touching any file, write a brief implementation plan:
   - What files will you create or modify?
@@ -184,6 +186,7 @@ For complex tasks: write plan.md or use PLAN_TEMPLATE.md
 ```
 
 ### Step 3 — Test First (TDD Red Phase)
+
 ```
 Write the failing test BEFORE writing implementation code.
 Run the test -- it MUST fail (Red).
@@ -191,12 +194,14 @@ If the test passes immediately with no implementation: the test is WRONG. Fix it
 ```
 
 ### Step 4 — Implement (TDD Green Phase)
+
 ```
 Write the minimal code to make the failing test pass.
 Do not add features not covered by a failing test.
 ```
 
 ### Step 5 — Verify (must all pass before marking done)
+
 ```
 Run: [test command] -> must pass
 Run: [typecheck command] -> must pass
@@ -205,12 +210,14 @@ Run: agentic-linter check -> no boundary violations
 ```
 
 ### Step 6 — Refactor
+
 ```
 Improve code quality while keeping all tests green.
 Check: Cyclomatic complexity < 10, no code duplication > 3 occurrences, no dead code.
 ```
 
 ### Step 7 — Log & Complete
+
 ```
 Write entry to agents/memory/AUDIT_LOG.md
 Update task status in project/TASKS.md to DONE
@@ -222,6 +229,7 @@ If this completes a SDLC phase: invoke sdlc-checkpoint.skill
 ## 6. Governance & Security
 
 ### Forbidden Actions (agents must never do these without explicit human approval)
+
 ```
 - Commit .env files or any file containing secrets
 - Push directly to main/master branch
@@ -236,6 +244,7 @@ If this completes a SDLC phase: invoke sdlc-checkpoint.skill
 ```
 
 ### Secrets Policy
+
 ```
 All secrets MUST be in environment variables.
 Local dev: .env file (always in .gitignore)
@@ -245,6 +254,7 @@ Use: [PLACEHOLDER: dotenv | .env.vault | AWS Secrets Manager | HashiCorp Vault]
 ```
 
 ### PR Format (Conventional Commits)
+
 ```
 Format: <type>(<scope>): <subject>
 
@@ -266,6 +276,7 @@ PR body must include:
 ```
 
 ### Quality Gates (all must pass before PR merges)
+
 ```
 Gate 1 -- Syntax/Linting:    ESLint / PHP-CS-Fixer / Prettier / Ruff -- zero errors
 Gate 2 -- Type Safety:       tsc --noEmit / PHPStan L9 / mypy -- zero errors
@@ -283,6 +294,7 @@ Gate 7 -- EARS Compliance:   (for new features) All requirements have tests
 Agents must use authoritative sources. Never guess or hallucinate.
 
 ### Source Tiers (in order of trust)
+
 ```
 Tier 1 (Primary -- always prefer):
   - Official language/framework docs (MDN, nodejs.org, laravel.com, docs.python.org)
@@ -303,6 +315,7 @@ NOT acceptable (never cite as authoritative):
 ```
 
 ### Research Gate -- mandatory before:
+
 ```
 - Using any library not in existing package.json / composer.json
 - Calling any API method not confirmed in official docs
@@ -311,6 +324,7 @@ NOT acceptable (never cite as authoritative):
 ```
 
 ### When to invoke research.skill
+
 ```
 "I'm not sure about X" -> knowledge-gap.skill -> research.skill -> confirm before coding
 If library version not found in official docs -> do NOT assume behavior -> report to human
@@ -324,6 +338,7 @@ Use Context-7 MCP for library docs (prevents hallucinated deprecated API usage)
 Agents may autonomously fix failures up to 5 attempts.
 
 ### What agents may self-heal (no human approval needed):
+
 ```
 - Type errors and lint errors
 - Test assertion updates when spec changed
@@ -334,6 +349,7 @@ Agents may autonomously fix failures up to 5 attempts.
 ```
 
 ### What requires human decision:
+
 ```
 - Architecture or library changes
 - Breaking API changes (any consumer affected)
@@ -345,7 +361,9 @@ Agents may autonomously fix failures up to 5 attempts.
 ```
 
 ### Self-Heal Escalation Protocol
+
 After 5 failed attempts, agent MUST:
+
 ```
 1. STOP all autonomous action
 2. Create structured escalation report:
@@ -390,6 +408,7 @@ Format for human escalation:
 ## 10. Tool-Specific Overrides
 
 ### Claude Code (claude.ai/code, Claude Code CLI)
+
 ```
 - Skills: Use slash commands matching skill names (e.g., /tdd-cycle, /code-review)
 - Memory: Use TodoWrite tool for task tracking
@@ -398,6 +417,7 @@ Format for human escalation:
 ```
 
 ### Cursor
+
 ```
 - Context: This AGENTS.md is symlinked to .cursorrules
 - Skills: Reference skill files directly in conversation
@@ -405,12 +425,14 @@ Format for human escalation:
 ```
 
 ### GitHub Copilot
+
 ```
 - Context: Instructions from .github/copilot-instructions.md (symlinked)
 - Skills: Reference skills/ directory files in comments or conversation
 ```
 
 ### Antigravity / Gemini CLI
+
 ```
 - Context: This AGENTS.md is symlinked to .gemini/settings.json (instructions field)
 - Skills: Symlinked to .agent/skills/ -- invoke by trigger keywords
@@ -443,6 +465,7 @@ Agent context priority: Package AGENTS.md > Root AGENTS.md
 ## 12. References
 
 ### 3. Skill Access
+
 - **Search First**: Before coding, search for relevant skills:
     - **Cursor**: Check `.cursor/rules/` for `.mdc` files.
     - **VS Code / Copilot**: Check `.github/skills/` or invoke via slash command.
@@ -462,6 +485,7 @@ Project memory:       agents/memory/PROJECT_STATE.md
 Past failures:        agents/memory/CONTINUITY.md
 Decision log:         agents/memory/AUDIT_LOG.md
 ```
+
 - **Skills**: `agents/skills/` (Master) → `.cursor/rules/` (*.mdc) | `.github/skills/` | `.claude/skills/`
 - **Memory**: `agents/memory/`
 
@@ -536,5 +560,5 @@ Examples:
 ---
 
 *Last updated: [DATE]*
-*GABBE Kit version: 1.0.3*
+*GABBE Kit version: 1.1.0*
 *This file is maintained by the team and updated when project conventions change.*

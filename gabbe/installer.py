@@ -49,12 +49,18 @@ def _resolve_within(target: Path, rel: str) -> Path:
 
     Hard guarantee for the isolation invariant: a tampered/malicious manifest path
     (e.g. '../../etc/x') can never make uninstall touch a file outside the target.
+
+    The leaf is NOT dereferenced: we resolve the PARENT directory and re-attach the
+    final component, so a symlink entry (e.g. a wired `.cursorrules`) is acted on
+    directly — `.resolve()` on the full path would follow the link to its target
+    and the symlink itself would never be removed.
     """
     base = target.resolve()
-    p = (base / rel).resolve()
-    if p != base and base not in p.parents:
+    raw = base / rel
+    parent = raw.parent.resolve()
+    if parent != base and base not in parent.parents:
         raise ValueError(f"refusing path outside target: {rel!r}")
-    return p
+    return parent / raw.name
 
 
 def manifest_path(target: Path) -> Path:
@@ -195,6 +201,7 @@ def uninstall(
     target = target.resolve()
     manifest = read_manifest(target)
     removed: list[str] = []
+    modified: list[str] = []  # user-edited files preserved as .gabbe-bak on removal
     kept_entries: list[dict[str, Any]] = []
 
     for entry in manifest.get("entries", []):
@@ -217,7 +224,29 @@ def uninstall(
         removed.append(entry["path"])
         if dry_run:
             continue
-        if path.exists() or path.is_symlink():
+        # Modification-aware removal: if the user edited an installed file since
+        # install (current hash != recorded hash), preserve their edits in a
+        # `.gabbe-bak` instead of silently deleting them.
+        if (
+            entry.get("kind") == "copy"
+            and entry.get("hash")
+            and path.is_file()
+            and not path.is_symlink()
+        ):
+            try:
+                if _sha256(path) != entry["hash"]:
+                    edited_backup = Path(str(path) + ".gabbe-bak")
+                    if not edited_backup.exists():
+                        shutil.copy2(path, edited_backup)
+                        modified.append(entry["path"])
+            except OSError:
+                pass
+        if entry.get("kind") == "tree":
+            # A generated directory tree (e.g. emitted per-agent skills/). Remove
+            # the whole tree it created.
+            if path.is_dir() and not path.is_symlink():
+                shutil.rmtree(path, ignore_errors=True)
+        elif path.exists() or path.is_symlink():
             path.unlink()
         # Restore a backup if this install shadowed a user file (also containment-checked).
         if entry.get("backup_of"):
@@ -241,8 +270,47 @@ def uninstall(
         if mp.exists():
             mp.unlink()
 
+    if modified:
+        import sys
+
+        print(
+            "warning: preserved your edits to "
+            f"{len(modified)} modified file(s) as <name>.gabbe-bak: " + ", ".join(sorted(modified)),
+            file=sys.stderr,
+        )
+    if not dry_run:
+        _prune_empty_ancestors(target, removed)
     _prune_empty_dirs(target, purge=purge)
     return removed
+
+
+def _prune_empty_ancestors(target: Path, removed: list[str]) -> None:
+    """Remove directories that became empty once their entries were removed.
+
+    Walks each removed path's ancestor chain bottom-up and rmdir()s any directory
+    that is now empty, stopping at `target`. Leaves no empty wiring dirs (e.g.
+    `.claude/`, `.cursor/`) behind. Bounded to within `target`.
+    """
+    base = target.resolve()
+    seen: set[Path] = set()
+    for rel in removed:
+        d = (base / rel).parent
+        while d != base:
+            try:
+                d.relative_to(base)  # stay within target
+            except ValueError:
+                break
+            if d in seen:
+                break
+            seen.add(d)
+            try:
+                if d.is_dir() and not d.is_symlink() and not any(d.iterdir()):
+                    d.rmdir()
+                else:
+                    break
+            except OSError:
+                break
+            d = d.parent
 
 
 def remove_agents(target: Path, agents: list[str]) -> list[str]:

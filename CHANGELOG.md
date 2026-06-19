@@ -6,6 +6,53 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [1.1.0] — 2026-06-19 — Install safety, brownfield mode, fuller population, broader tests
+
+Minor release. New features and a hardened install/uninstall contract. Backward
+compatible: the public API / CLI / config / DB / emit schema remain additive
+(all six backward-compat gates pass); the only intentional emitted-artifact
+change is a richer `agents/AGENTS.md` (more fields populated), with the Gate 4 /
+golden baseline recaptured to match.
+
+### Added
+- **Never-clobber install.** Both install paths (the Python wizard
+  `scripts/init.py` and the Node installer `bin/install.js`) now back up any
+  differing pre-existing file to `<name>.gabbe-bak` before refreshing it, so a
+  project's existing `docs/`, agent rule files, etc. can never be silently lost.
+  A new `--force` flag opts into re-templating preserve-set files (still backed
+  up first).
+- **Reversible wizard installs.** The wizard now records everything it creates
+  under the project (copied kit files, wiring symlinks, generated skill trees,
+  config files) into `.gabbe/manifest.json`, so `gabbe uninstall` fully reverses
+  a wizard install and restores any backed-up user file.
+- **Brownfield autodetect + refactor mode.** `gabbe/detect.py` sniffs the target
+  for an existing codebase (language/framework/package-manager/git). When one is
+  found the wizard asks a greenfield-vs-refactor Mode question, prefills detected
+  defaults, and in refactor mode scaffolds a `BROWNFIELD_ONBOARDING.md` discovery
+  brief instead of greenfield mission docs.
+- **Fuller placeholder population.** Derivable `[PLACEHOLDER:]` fields in
+  `AGENTS.md` (dev/test/lint/format/typecheck/coverage commands, `repo_url`,
+  `ci_cd`, `deployment_target`) are filled from your answers and detection.
+  Genuinely project-specific fields are kept but tagged `<!-- OPTIONAL -->` and
+  reported in an end-of-install warning — never shipped as silent blanks.
+
+### Fixed
+- **Uninstall no longer follows symlinks.** `_resolve_within` resolves the parent
+  only, so wired entries (e.g. `.cursorrules`, root `AGENTS.md`) are removed
+  directly instead of being dereferenced and left behind.
+- **Uninstall preserves user edits.** A user-modified installed file is backed up
+  to `<name>.gabbe-bak` (with a warning) instead of being silently deleted, and
+  now-empty wiring directories (`.claude/`, etc.) are pruned.
+
+### Tests
+- New end-to-end coverage: never-clobber/backup (Python + a zero-dependency Node
+  e2e), wizard manifest round-trip, brownfield detection + wizard flow, placeholder
+  population, MCP-over-stdio (handshake/auth/`serverInfo.version`), markdown-plane
+  emission, a slow wheel-build-and-install sandbox, a wizard-flow snapshot, and
+  mermaid diagram validation.
+
+---
+
 ## [1.0.3] — 2026-06-18 — Kit-version stamps refreshed; emitter golden vault recaptured
 
 Patch release. Supersedes 1.0.2 (whose `GABBE CI` run was red — the kit-version

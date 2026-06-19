@@ -15,6 +15,113 @@ SOURCE_AGENTS_DIR = KIT_SOURCE / "agents"
 # PROJECT_ROOT: Where the user is running the script from (the project they want to configure)
 PROJECT_ROOT = Path.cwd()
 
+# FORCE: when True, re-template even preserve-set files (still backed up first).
+# Set from the --force CLI flag in main(). Default False = never overwrite user files.
+FORCE = False
+
+# --- Install manifest recorder ---------------------------------------------
+# The wizard records everything it creates under PROJECT_ROOT into
+# `.gabbe/manifest.json` (the same schema gabbe/installer.py reads), so that
+# `gabbe uninstall` can fully reverse a wizard install — symlinks, generated
+# trees, config files and copied kit files alike. Paths outside PROJECT_ROOT
+# (e.g. a global `~/agents` install) cannot live in a project manifest and are
+# skipped; their wiring under PROJECT_ROOT is still recorded and reversible.
+MANIFEST_SCHEMA_VERSION = 1
+_MANIFEST_ENTRIES: list[dict] = []
+_RECORDED_PATHS: set[str] = set()
+
+
+def _rel_to_project(path):
+    """Return `path` relative to PROJECT_ROOT, or None if it escapes it.
+
+    Resolves the PARENT only — never dereferences the leaf — so a freshly-created
+    symlink (e.g. the wired root AGENTS.md) is recorded under its own name rather
+    than its link target (which would collide with the copied kit file).
+    """
+    p = Path(path)
+    try:
+        full = p.parent.resolve() / p.name
+        return str(full.relative_to(PROJECT_ROOT.resolve()))
+    except (ValueError, OSError):
+        return None
+
+
+def _record(path, kind, agent="shared", backup_of=None):
+    """Record a created artifact for the uninstall manifest (idempotent per path)."""
+    rel = _rel_to_project(path)
+    if rel is None or rel in (".", ""):
+        return
+    entry = {"path": rel, "kind": kind, "agent": agent, "backup_of": backup_of}
+    if kind == "copy":
+        try:
+            import hashlib
+
+            entry["hash"] = hashlib.sha256(Path(path).read_bytes()).hexdigest()
+        except OSError:
+            entry["hash"] = ""
+    # Last write wins, but prefer keeping a backup_of linkage if one was recorded.
+    if rel in _RECORDED_PATHS:
+        for e in _MANIFEST_ENTRIES:
+            if e["path"] == rel:
+                if backup_of and not e.get("backup_of"):
+                    e["backup_of"] = backup_of
+                if kind == "copy" and "hash" in entry:
+                    e["hash"] = entry["hash"]
+                return
+    _MANIFEST_ENTRIES.append(entry)
+    _RECORDED_PATHS.add(rel)
+
+
+def _record_tree(root):
+    """Record every file under an installed kit dir (kind=copy) for reversal."""
+    root = Path(root)
+    if not root.exists():
+        return
+    for p in sorted(root.rglob("*")):
+        if p.is_file() and not p.is_symlink():
+            _record(p, "copy")
+
+
+def write_install_manifest():
+    """Write `.gabbe/manifest.json` capturing the wizard's tracked artifacts."""
+    if not _MANIFEST_ENTRIES:
+        return
+    import importlib
+
+    try:
+        version = importlib.import_module("gabbe").__version__
+    except Exception:
+        version = "wizard"
+    mp = PROJECT_ROOT / ".gabbe" / "manifest.json"
+    # Merge with any prior manifest so a re-run never drops earlier wiring (e.g.
+    # agents selected in a previous install). New entries win on path collisions.
+    merged: dict[str, dict] = {}
+    if mp.exists():
+        try:
+            prior = json.loads(mp.read_text())
+            for e in prior.get("entries", []):
+                if isinstance(e, dict) and "path" in e:
+                    merged[e["path"]] = e
+        except (ValueError, OSError):
+            pass
+    for e in _MANIFEST_ENTRIES:
+        merged[e["path"]] = e
+    entries = sorted(merged.values(), key=lambda e: e["path"])
+    agents = sorted({e.get("agent", "shared") for e in entries if e.get("agent") != "shared"})
+    manifest = {
+        "schema_version": MANIFEST_SCHEMA_VERSION,
+        "installer_version": version,
+        "timestamp": "",
+        "agents": agents,
+        "entries": entries,
+    }
+    mp.parent.mkdir(parents=True, exist_ok=True)
+    mp.write_text(json.dumps(manifest, indent=2, sort_keys=True))
+    print(
+        f"  {GREEN}✓ Recorded install manifest ({len(_MANIFEST_ENTRIES)} entries) for uninstall{NC}"
+    )
+
+
 # Colors
 GREEN = "\033[0;32m"
 YELLOW = "\033[1;33m"
@@ -76,6 +183,211 @@ def build_tech_map_from_skills(agents_dir):
 
 # Initial placeholders - will be populated in main()
 TECH_MAP: dict[str, Any] = {}
+
+
+# Remaining unfilled [PLACEHOLDER:] fields after population, surfaced as an
+# end-of-install warning so users are never silently shipped blank fields.
+_UNFILLED_PLACEHOLDERS: list[str] = []
+
+# Per-package-manager command derivations for the [PLACEHOLDER:] command fields
+# the Jinja substitution does not cover. Keyed by the resolved package manager.
+_PM_COMMANDS = {
+    "npm": {
+        "dev": "npm run dev",
+        "test_coverage": "npm test -- --coverage",
+        "test_single": "npm test -- path/to/file.test.ts",
+        "typecheck": "tsc --noEmit",
+        "lint": "eslint .",
+        "format": "prettier --write .",
+    },
+    "pnpm": {
+        "dev": "pnpm dev",
+        "test_coverage": "pnpm test --coverage",
+        "test_single": "pnpm vitest run src/path/to/file.test.ts",
+        "typecheck": "pnpm tsc --noEmit",
+        "lint": "pnpm eslint .",
+        "format": "pnpm prettier --write .",
+    },
+    "yarn": {
+        "dev": "yarn dev",
+        "test_coverage": "yarn test --coverage",
+        "test_single": "yarn test path/to/file.test.ts",
+        "typecheck": "yarn tsc --noEmit",
+        "lint": "yarn eslint .",
+        "format": "yarn prettier --write .",
+    },
+    "pip": {
+        "dev": "uvicorn main:app --reload",
+        "test_coverage": "pytest --cov",
+        "test_single": "pytest path/to/test_file.py::test_name",
+        "typecheck": "mypy .",
+        "lint": "ruff check .",
+        "format": "ruff format .",
+    },
+    "go mod": {
+        "dev": "go run .",
+        "test_coverage": "go test -cover ./...",
+        "test_single": "go test ./path/to/pkg -run TestName",
+        "typecheck": "go vet ./...",
+        "lint": "golangci-lint run",
+        "format": "gofmt -w .",
+    },
+    "cargo": {
+        "dev": "cargo run",
+        "test_coverage": "cargo tarpaulin",
+        "test_single": "cargo test test_name",
+        "typecheck": "cargo check",
+        "lint": "cargo clippy",
+        "format": "cargo fmt",
+    },
+    "composer": {
+        "dev": "php artisan serve",
+        "test_coverage": "php artisan test --coverage",
+        "test_single": "php artisan test --filter=TestName",
+        "typecheck": "phpstan analyse --level=9",
+        "lint": "pint --test",
+        "format": "pint",
+    },
+}
+
+
+def _detect_repo_url(base):
+    """Best-effort git remote URL (https form), or None."""
+    try:
+        import subprocess
+
+        out = subprocess.run(
+            ["git", "-C", str(base), "remote", "get-url", "origin"],
+            capture_output=True,
+            text=True,
+            timeout=5,
+        )
+        url = out.stdout.strip()
+        if url:
+            if url.startswith("git@") and ":" in url:
+                host, path = url[4:].split(":", 1)
+                url = f"https://{host}/{path}"
+            return url.removesuffix(".git")
+    except Exception:
+        pass
+    return None
+
+
+def _detect_ci_cd(base):
+    if (base / ".github" / "workflows").exists():
+        return "GitHub Actions"
+    if (base / ".gitlab-ci.yml").exists():
+        return "GitLab CI"
+    if (base / ".circleci").exists():
+        return "CircleCI"
+    return None
+
+
+def _detect_deploy_target(base):
+    if (base / "vercel.json").exists():
+        return "Vercel"
+    if (base / "Dockerfile").exists() or (base / "docker-compose.yml").exists():
+        return "Docker/K8s"
+    if (base / "serverless.yml").exists():
+        return "AWS Lambda"
+    return None
+
+
+def populate_placeholders(content, pm, base):
+    """Fill derivable [PLACEHOLDER:] fields, tag the rest OPTIONAL, and record
+    which remain so the installer can warn the user to complete them.
+
+    Returns the updated content. Appends remaining field names to the module
+    global `_UNFILLED_PLACEHOLDERS` for the end-of-install warning.
+    """
+    import re
+
+    cmds = _PM_COMMANDS.get(pm, _PM_COMMANDS["npm"])
+    derived = dict(cmds)
+    repo = _detect_repo_url(base)
+    if repo:
+        derived["repo_url"] = repo
+    ci = _detect_ci_cd(base)
+    if ci:
+        derived["ci_cd"] = ci
+    deploy = _detect_deploy_target(base)
+    if deploy:
+        derived["deployment_target"] = deploy
+
+    out_lines = []
+    # Matches `key: "[PLACEHOLDER: ...]"` (the YAML-ish command/config fields).
+    kv_re = re.compile(r'^(\s*)([a-z_]+):\s*"\[PLACEHOLDER:[^"]*\]"\s*$')
+    for line in content.splitlines():
+        m = kv_re.match(line)
+        if m:
+            indent, key = m.group(1), m.group(2)
+            if key in derived:
+                out_lines.append(f'{indent}{key}: "{derived[key]}"')
+                continue
+            # Unknown value: keep the field, mark it clearly OPTIONAL, and record it.
+            _UNFILLED_PLACEHOLDERS.append(key)
+            out_lines.append(line + "  # <!-- OPTIONAL: fill this in yourself -->")
+            continue
+        # Prose / inline placeholders: tag the line OPTIONAL (don't fabricate prose).
+        if "[PLACEHOLDER" in line:
+            _UNFILLED_PLACEHOLDERS.append(line.strip()[:48])
+            if "OPTIONAL" not in line:
+                out_lines.append(line + "  <!-- OPTIONAL: fill this in yourself -->")
+            else:
+                out_lines.append(line)
+            continue
+        out_lines.append(line)
+    return "\n".join(out_lines)
+
+
+def detect_existing_project(cwd):
+    """Detect whether `cwd` is an existing codebase and infer its stack.
+
+    Prefers the richer, unit-tested gabbe.detect module when GABBE is importable
+    (pip install); falls back to a self-contained sniff so the wizard still works
+    when run standalone via npx/curl (where the gabbe package is not present).
+    """
+    try:
+        from gabbe import detect as _detect  # type: ignore
+
+        return _detect.detect_project(cwd)
+    except Exception:
+        pass
+    base = Path(cwd)
+    manifests = [
+        ("pnpm-lock.yaml", "TypeScript", "pnpm"),
+        ("yarn.lock", "TypeScript", "yarn"),
+        ("package.json", "TypeScript", "npm"),
+        ("pyproject.toml", "Python", "pip"),
+        ("requirements.txt", "Python", "pip"),
+        ("go.mod", "Go", "go mod"),
+        ("Cargo.toml", "Rust", "cargo"),
+        ("composer.json", "PHP", "composer"),
+        ("pom.xml", "Java", "maven"),
+        ("build.gradle", "Java", "gradle"),
+        ("Gemfile", "Ruby", "bundler"),
+    ]
+    language = pm = None
+    signals = []
+    for name, lang, pmgr in manifests:
+        if (base / name).exists():
+            language, pm = lang, pmgr
+            signals.append(f"found {name}")
+            break
+    has_git = (base / ".git").exists()
+    if has_git:
+        signals.append("git repository")
+    is_existing = bool(language or has_git)
+    return {
+        "is_existing": is_existing,
+        "language": language,
+        "framework": None,
+        "package_manager": pm,
+        "project_name": None,
+        "has_git": has_git,
+        "signals": signals,
+    }
+
 
 # --- Helper Functions ---
 
@@ -140,7 +452,32 @@ def ask_multiselect(question, options):
     return selected
 
 
-def safe_merge_directory(src_root, dst_root, is_kit_root=False):
+def _backup_before_overwrite(dst_file):
+    """Back up an existing target file to <name>.gabbe-bak before it is overwritten.
+
+    Guarantees the never-clobber invariant: any pre-existing content is always
+    recoverable. The first backup wins (we never overwrite an existing .gabbe-bak,
+    so re-running install keeps the user's ORIGINAL, not a kit copy from a prior run).
+    """
+    backup = Path(str(dst_file) + ".gabbe-bak")
+    if not backup.exists():
+        try:
+            shutil.copy2(dst_file, backup)
+            print(f"  {YELLOW}! Backed up existing {dst_file.name} -> {backup.name}{NC}")
+        except Exception:
+            pass
+
+
+def safe_merge_directory(src_root, dst_root, is_kit_root=False, force=None):
+    """Merge the kit tree into a target without ever losing user data.
+
+    Preserve-set files (and memory/project trees) are left untouched. Any OTHER
+    pre-existing file is backed up to <name>.gabbe-bak before being refreshed, so
+    nothing is clobbered. With force=True, even preserve-set files are re-templated
+    (still backed up first).
+    """
+    if force is None:
+        force = FORCE
     PRESERVE_FILES = {"AGENTS.md", "CONSTITUTION.md", "TASKS.md", "policies.yml", "config.json"}
     notified_preservations = set()
 
@@ -161,7 +498,8 @@ def safe_merge_directory(src_root, dst_root, is_kit_root=False):
             # when is_kit_root=True, so the symlink-fallback path (is_kit_root
             # defaults to False) clobbered existing user files. User content
             # must never be overwritten regardless of how the merge was reached.
-            if dst_file.exists():
+            # With force=True the user explicitly opted into re-templating these.
+            if dst_file.exists() and not force:
                 if in_memory:
                     preserve = True
                 elif in_project:
@@ -185,15 +523,35 @@ def safe_merge_directory(src_root, dst_root, is_kit_root=False):
                 continue
 
             if dst_file.exists():
+                # Never clobber: only files whose bytes differ from the incoming kit
+                # file are backed up (identical files need no backup). This covers
+                # user-modified kit files AND, with force=True, preserve-set files.
+                try:
+                    differs = src_file.read_bytes() != dst_file.read_bytes()
+                except Exception:
+                    differs = True
+                if differs:
+                    _backup_before_overwrite(dst_file)
                 try:
                     dst_file.unlink()
                 except Exception:
                     pass
             shutil.copy2(src_file, dst_file)
+            bak = str(dst_file) + ".gabbe-bak"
+            _record(
+                dst_file,
+                "copy",
+                backup_of=_rel_to_project(bak) if os.path.exists(bak) else None,
+            )
 
 
-def create_symlink(source, target):
-    """Creates a symlink from target to source, backing up if exists."""
+def create_symlink(source, target, agent="shared"):
+    """Creates a symlink from target to source, backing up if exists.
+
+    Records the created link (and any backup) in the install manifest so
+    `gabbe uninstall` can reverse it and restore the user's original.
+    """
+    backup_of = None
     if target.is_symlink():
         target.unlink()
     elif target.exists():
@@ -202,9 +560,11 @@ def create_symlink(source, target):
                 f"  {YELLOW}! Backing up existing directory {target.name} to {target.name}.bak{NC}"
             )
             shutil.move(str(target), str(target) + ".bak")
+            backup_of = _rel_to_project(str(target) + ".bak")
         else:
             print(f"  {YELLOW}! Backing up existing file {target.name} to {target.name}.bak{NC}")
             target.rename(Path(str(target) + ".bak"))
+            backup_of = _rel_to_project(str(target) + ".bak")
 
     # Ensure parent dir exists
     target.parent.mkdir(parents=True, exist_ok=True)
@@ -218,16 +578,19 @@ def create_symlink(source, target):
     try:
         os.symlink(link_path, target)
         print(f"  {GREEN}✓ Linked {target.name} -> {link_path}{NC}")
+        _record(target, "symlink", agent=agent, backup_of=backup_of)
     except OSError as e:
         # Fallback for Windows (no admin rights) or restricted environments
         print(f"  {YELLOW}! Symlink failed ({e}), falling back to copy...{NC}")
         try:
             if source.is_dir():
                 safe_merge_directory(source, target)
+                _record(target, "tree", agent=agent, backup_of=backup_of)
             else:
                 if target.exists():
                     target.unlink()
                 shutil.copy2(source, target)
+                _record(target, "copy", agent=agent, backup_of=backup_of)
             print(f"  {GREEN}✓ Copied {target.name} (Symlink fallback){NC}")
         except Exception as e2:
             print(f"  {RED}x Failed to copy {target}: {e2}{NC}")
@@ -310,6 +673,9 @@ def setup_skills_for_platform(platform, agents_dir, target_dir):
             ]
             subprocess.run(cmd, check=True)
             print(f"  {GREEN}✓ Processed skills for {platform}{NC}")
+            # Record the generated skills tree so uninstall removes exactly it.
+            _slug = "".join(c if (c.isalnum() or c in "-_") else "-" for c in platform.lower())
+            _record(target_dir, "tree", agent=_slug.strip("-") or "shared")
         except Exception as e:
             print(f"{RED}Error running skill compiler: {e}{NC}")
     else:
@@ -347,10 +713,16 @@ def run_bench():
 
 
 def main():
-    global PROJECT_ROOT
+    global PROJECT_ROOT, FORCE
+    # Start each run with a clean manifest recorder (globals persist in-process).
+    _MANIFEST_ENTRIES.clear()
+    _RECORDED_PATHS.clear()
+    _UNFILLED_PLACEHOLDERS.clear()
     if "--bench" in sys.argv:
         run_bench()
         return
+    if "--force" in sys.argv:
+        FORCE = True
     if not SOURCE_AGENTS_DIR.exists():
         if (KIT_SOURCE / "AGENTS.md").exists():
             pass
@@ -421,13 +793,37 @@ def main():
     else:
         shutil.copytree(SOURCE_AGENTS_DIR, target_agents_dir)
         print(f"  {GREEN}✓ Kit installed to {target_agents_dir}{NC}")
+        # Record the freshly-copied kit tree (only if it lives under PROJECT_ROOT;
+        # global/custom installs outside the project are not in its manifest).
+        _record_tree(target_agents_dir)
 
     AGENTS_DIR = target_agents_dir
 
     # --- Step 2: Interview ---
     print(f"\n{YELLOW}Part 2: Project Context{NC}")
 
-    project_name = ask("Project Name", PROJECT_ROOT.name)
+    # Brownfield autodetect: recognise an existing codebase and prefill from it.
+    detected = detect_existing_project(PROJECT_ROOT)
+    refactor_mode = False
+    if detected.get("is_existing"):
+        print(
+            f"  {BLUE}→ Existing project detected ({', '.join(detected.get('signals', [])) or 'source present'}).{NC}"
+        )
+        if detected.get("language"):
+            print(f"  {BLUE}→ Stack looks like: {detected['language']}", end="")
+            if detected.get("framework"):
+                print(f" / {detected['framework']}", end="")
+            print(f"{NC}")
+        mode_idx = select_index(
+            "How should GABBE engage this project?",
+            [
+                "Greenfield build — scaffold a new system here",
+                "Upgrade / Refactor — onboard onto the EXISTING codebase",
+            ],
+        )
+        refactor_mode = mode_idx == 1
+
+    project_name = ask("Project Name", detected.get("project_name") or PROJECT_ROOT.name)
     description = ask("One-line Description", "A new software project")
 
     # Team & Type
@@ -472,7 +868,10 @@ def main():
     if language_choice == "Other":
         language = ask("Enter Language")
 
-    framework = ask("Primary Framework (e.g. Next.js, FastAPI, Laravel)", "None")
+    framework = ask(
+        "Primary Framework (e.g. Next.js, FastAPI, Laravel)",
+        detected.get("framework") or "None",
+    )
 
     db_options = ["PostgreSQL", "MySQL/MariaDB", "MongoDB", "SQLite", "Redis", "None"]
     databases = ask_multiselect("Databases used", db_options)
@@ -693,8 +1092,15 @@ def main():
             # Strip the marker comments themselves for clean output
             content = content.replace(cli_start, "").replace(cli_end, "")
 
+        # Fill derivable [PLACEHOLDER:] fields (commands, repo_url, ci/cd,
+        # deploy target); tag the rest OPTIONAL and record them for a warning.
+        content = populate_placeholders(content, pm, PROJECT_ROOT)
+
         target_agents_md = AGENTS_DIR / "AGENTS.md"
         target_agents_md.write_text(content)
+        # Refresh the manifest hash now that AGENTS.md holds substituted content
+        # (the earlier copy recorded the raw template hash).
+        _record(target_agents_md, "copy", agent="shared")
         print(f"  {GREEN}✓ Configured {target_agents_md}{NC}")
     else:
         print(f"  {RED}x Template not found: {template_path}{NC}")
@@ -826,6 +1232,7 @@ def main():
         aider_conf = PROJECT_ROOT / ".aider.conf.yml"
         if not aider_conf.exists():
             aider_conf.write_text("read:\n  - agents/AGENTS.md\n  - agents/skills/\n")
+            _record(aider_conf, "copy", agent="aider")
             print(f"  {GREEN}✓ Wired .aider.conf.yml{NC}")
 
     # "Gemini" is the split-out target; "Gemini / Antigravity" kept for backward
@@ -849,8 +1256,9 @@ def main():
             "notes": "Managed by init.py",
         }
         (gemini_dir / "settings.json").write_text(json.dumps(settings_content, indent=2))
+        _record(gemini_dir / "settings.json", "copy", agent="gemini")
         # Gemini CLI natively reads a GEMINI.md context file; point it at AGENTS.md.
-        create_symlink(agents_md_src, PROJECT_ROOT / "GEMINI.md")
+        create_symlink(agents_md_src, PROJECT_ROOT / "GEMINI.md", agent="gemini")
         print(f"  {GREEN}✓ Wired .gemini/settings.json + GEMINI.md{NC}")
 
     # Universal agentskills.io target: .agents/skills/<slug>/SKILL.md is read by
@@ -876,6 +1284,7 @@ def main():
                 )
                 + "\n"
             )
+            _record(opencode_conf, "copy", agent="opencode")
         setup_skills_for_platform("OpenCode", AGENTS_DIR, PROJECT_ROOT / ".agents" / "skills")
         print(f"  {GREEN}✓ Wired opencode.json + .agents/skills{NC}")
 
@@ -1027,9 +1436,80 @@ Here is your mission to finalize the setup:
 
         mission_file = PROJECT_ROOT / "SETUP_MISSION.md"
         mission_file.write_text(mission)
+        _record(mission_file, "copy", agent="shared")
         print(f"\n{GREEN}✓ Mission saved to SETUP_MISSION.md{NC}")
 
+    # --- Brownfield onboarding artifact ---
+    # In Upgrade/Refactor mode the first job is to UNDERSTAND the existing code,
+    # not scaffold greenfield mission docs. Emit a discovery brief that steers the
+    # agent to map the codebase before changing anything.
+    if refactor_mode:
+        write_brownfield_assessment(project_name, detected)
+
+    # Persist the uninstall manifest of everything we created under PROJECT_ROOT.
+    write_install_manifest()
+
+    # Never ship blank fields silently: if any [PLACEHOLDER:] remain (skipped
+    # interactive setup, or genuinely project-specific fields), tell the user
+    # exactly what to complete and how.
+    if _UNFILLED_PLACEHOLDERS:
+        n = len(_UNFILLED_PLACEHOLDERS)
+        print(
+            f"\n{YELLOW}⚠ {n} optional field(s) in agents/AGENTS.md still need your input "
+            f"(marked with <!-- OPTIONAL -->):{NC}"
+        )
+        for name in _UNFILLED_PLACEHOLDERS[:12]:
+            print(f"    - {name}")
+        if n > 12:
+            print(f"    ... and {n - 12} more")
+        print(
+            f"  {BLUE}→ Search agents/AGENTS.md for 'OPTIONAL' and fill them in, "
+            f"or re-run `gabbe setup` to be prompted.{NC}"
+        )
+
     print(f"{BLUE}Setup Complete! The kit is installed at: {AGENTS_DIR}{NC}")
+
+
+def write_brownfield_assessment(project_name, detected):
+    """Scaffold a discovery/onboarding brief for an existing codebase."""
+    stack = detected.get("language") or "unknown"
+    if detected.get("framework"):
+        stack += f" / {detected['framework']}"
+    signals = ", ".join(detected.get("signals", [])) or "existing source"
+    doc = f"""# Brownfield Onboarding — {project_name}
+
+> GABBE installed in **Upgrade / Refactor** mode. This is an EXISTING codebase
+> ({signals}). Do NOT scaffold a greenfield system. First understand, then change.
+
+## Detected
+- Stack: {stack}
+- Package manager: {detected.get('package_manager') or 'unknown'}
+- Git repository: {'yes' if detected.get('has_git') else 'no'}
+
+## Phase 0 — Discovery (do this before any change)
+1. **Map the codebase**: entry points, modules, data flow, external deps. Record
+   findings in `agents/memory/semantic/` and a top-level `CODEBASE_MAP.md`.
+2. **Assess current state**: build/test/CI status, obvious tech debt, risky areas,
+   test coverage. Capture in `ASSESSMENT.md`.
+3. **Establish a baseline**: get the existing build + tests green and recorded
+   BEFORE refactoring, so regressions are detectable.
+4. **Backlog**: turn findings into a prioritised improvement backlog in `TASKS.md`
+   (use the kit's task templates). Sequence by risk/value.
+
+## Phase 1+ — Change safely
+- Work in small, reversible increments; keep the baseline green at every step.
+- Apply the relevant kit guides/skills for {stack}.
+- Use `gabbe verify` / your SDLC gates on each increment.
+
+## Safety
+- GABBE is additive: it has NOT modified your source. Any file it would have
+  overwritten was backed up to `<name>.gabbe-bak`. `gabbe uninstall` reverses
+  the install and restores backups.
+"""
+    out = PROJECT_ROOT / "BROWNFIELD_ONBOARDING.md"
+    out.write_text(doc)
+    _record(out, "copy", agent="shared")
+    print(f"  {GREEN}✓ Brownfield onboarding brief saved to BROWNFIELD_ONBOARDING.md{NC}")
 
 
 if __name__ == "__main__":

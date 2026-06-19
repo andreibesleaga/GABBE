@@ -1,0 +1,15 @@
+SELECT: Select Install Location :: Local (Recommended) - Installs to <PROJECT_ROOT>/agents | Global - Installs to <HOME>/agents (All projects share this) | Custom Path
+ASK: Project Name
+ASK: One-line Description
+SELECT: Team Size :: Solo (1 dev) | Small (2-5 devs) | Large (6+ devs, Enterprise)
+SELECT: Project Type :: Greenfield (New) | Legacy Modernization | Enterprise / Regulated | R&D / Prototype
+SELECT: Primary Language :: TypeScript | JavaScript | Python | PHP | Go | Rust | Java | C# | Other
+ASK: Primary Framework (e.g. Next.js, FastAPI, Laravel)
+MULTI: Databases used :: PostgreSQL | MySQL/MariaDB | MongoDB | SQLite | Redis | None
+MULTI: Infrastructure / Cloud :: AWS | Google Cloud | Azure | Vercel | Railway | DigitalOcean | On-Prem
+ASK: Enable Dynamic Agent Setup (Live Research & Auto-Configuration)? (y/n)
+ASK: Enable Agent Analytics (Track tokens, loops, and success rates)? (y/n)
+ASK: Enable Self-Evolving Capabilities (Meta-Optimization)? (y/n)
+ASK: Enable GABBE CLI platform controls? (y/n)
+SELECT: Package Manager :: npm | pnpm | yarn
+MULTI: Which AI Agents are you using? :: Claude Code | Cursor | Windsurf | Cline | Aider | Devin / Cognition | Gemini | Antigravity | OpenCode | Zed | Continue | Roo Code | Kilo Code | OpenAI / Codex | GitHub Copilot | VS Code

@@ -55,3 +55,21 @@ def test_double_uninstall_is_safe(tmp_path):
     installer.uninstall(target)
     # Second uninstall on already-clean state must not raise.
     assert installer.uninstall(target) == []
+
+
+def test_uninstall_preserves_user_edits_to_installed_file(tmp_path):
+    """If the user edited an installed kit file, uninstall must not silently
+    delete their work — it backs the edited file up to <name>.gabbe-bak."""
+    source = _make_source(tmp_path)
+    target = tmp_path / "proj"
+    installer.install_kit(target, source, ["claude"])
+
+    edited = target / "agents" / "skills" / "a.skill.md"
+    edited.write_text("USER EDITED THIS INSTALLED SKILL\n")
+
+    installer.uninstall(target)
+
+    # The installed file is gone, but the user's edits survive as a .gabbe-bak.
+    assert not edited.exists()
+    backup = Path(str(edited) + ".gabbe-bak")
+    assert backup.read_text() == "USER EDITED THIS INSTALLED SKILL\n"

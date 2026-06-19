@@ -19,6 +19,109 @@ PROJECT_ROOT = Path.cwd()
 # Set from the --force CLI flag in main(). Default False = never overwrite user files.
 FORCE = False
 
+# --- Install manifest recorder ---------------------------------------------
+# The wizard records everything it creates under PROJECT_ROOT into
+# `.gabbe/manifest.json` (the same schema gabbe/installer.py reads), so that
+# `gabbe uninstall` can fully reverse a wizard install — symlinks, generated
+# trees, config files and copied kit files alike. Paths outside PROJECT_ROOT
+# (e.g. a global `~/agents` install) cannot live in a project manifest and are
+# skipped; their wiring under PROJECT_ROOT is still recorded and reversible.
+MANIFEST_SCHEMA_VERSION = 1
+_MANIFEST_ENTRIES: list[dict] = []
+_RECORDED_PATHS: set[str] = set()
+
+
+def _rel_to_project(path):
+    """Return `path` relative to PROJECT_ROOT, or None if it escapes it.
+
+    Resolves the PARENT only — never dereferences the leaf — so a freshly-created
+    symlink (e.g. the wired root AGENTS.md) is recorded under its own name rather
+    than its link target (which would collide with the copied kit file).
+    """
+    p = Path(path)
+    try:
+        full = p.parent.resolve() / p.name
+        return str(full.relative_to(PROJECT_ROOT.resolve()))
+    except (ValueError, OSError):
+        return None
+
+
+def _record(path, kind, agent="shared", backup_of=None):
+    """Record a created artifact for the uninstall manifest (idempotent per path)."""
+    rel = _rel_to_project(path)
+    if rel is None or rel in (".", ""):
+        return
+    entry = {"path": rel, "kind": kind, "agent": agent, "backup_of": backup_of}
+    if kind == "copy":
+        try:
+            import hashlib
+
+            entry["hash"] = hashlib.sha256(Path(path).read_bytes()).hexdigest()
+        except OSError:
+            entry["hash"] = ""
+    # Last write wins, but prefer keeping a backup_of linkage if one was recorded.
+    if rel in _RECORDED_PATHS:
+        for e in _MANIFEST_ENTRIES:
+            if e["path"] == rel:
+                if backup_of and not e.get("backup_of"):
+                    e["backup_of"] = backup_of
+                if kind == "copy" and "hash" in entry:
+                    e["hash"] = entry["hash"]
+                return
+    _MANIFEST_ENTRIES.append(entry)
+    _RECORDED_PATHS.add(rel)
+
+
+def _record_tree(root):
+    """Record every file under an installed kit dir (kind=copy) for reversal."""
+    root = Path(root)
+    if not root.exists():
+        return
+    for p in sorted(root.rglob("*")):
+        if p.is_file() and not p.is_symlink():
+            _record(p, "copy")
+
+
+def write_install_manifest():
+    """Write `.gabbe/manifest.json` capturing the wizard's tracked artifacts."""
+    if not _MANIFEST_ENTRIES:
+        return
+    import importlib
+
+    try:
+        version = importlib.import_module("gabbe").__version__
+    except Exception:
+        version = "wizard"
+    mp = PROJECT_ROOT / ".gabbe" / "manifest.json"
+    # Merge with any prior manifest so a re-run never drops earlier wiring (e.g.
+    # agents selected in a previous install). New entries win on path collisions.
+    merged: dict[str, dict] = {}
+    if mp.exists():
+        try:
+            prior = json.loads(mp.read_text())
+            for e in prior.get("entries", []):
+                if isinstance(e, dict) and "path" in e:
+                    merged[e["path"]] = e
+        except (ValueError, OSError):
+            pass
+    for e in _MANIFEST_ENTRIES:
+        merged[e["path"]] = e
+    entries = sorted(merged.values(), key=lambda e: e["path"])
+    agents = sorted({e.get("agent", "shared") for e in entries if e.get("agent") != "shared"})
+    manifest = {
+        "schema_version": MANIFEST_SCHEMA_VERSION,
+        "installer_version": version,
+        "timestamp": "",
+        "agents": agents,
+        "entries": entries,
+    }
+    mp.parent.mkdir(parents=True, exist_ok=True)
+    mp.write_text(json.dumps(manifest, indent=2, sort_keys=True))
+    print(
+        f"  {GREEN}✓ Recorded install manifest ({len(_MANIFEST_ENTRIES)} entries) for uninstall{NC}"
+    )
+
+
 # Colors
 GREEN = "\033[0;32m"
 YELLOW = "\033[1;33m"
@@ -229,10 +332,21 @@ def safe_merge_directory(src_root, dst_root, is_kit_root=False, force=None):
                 except Exception:
                     pass
             shutil.copy2(src_file, dst_file)
+            bak = str(dst_file) + ".gabbe-bak"
+            _record(
+                dst_file,
+                "copy",
+                backup_of=_rel_to_project(bak) if os.path.exists(bak) else None,
+            )
 
 
-def create_symlink(source, target):
-    """Creates a symlink from target to source, backing up if exists."""
+def create_symlink(source, target, agent="shared"):
+    """Creates a symlink from target to source, backing up if exists.
+
+    Records the created link (and any backup) in the install manifest so
+    `gabbe uninstall` can reverse it and restore the user's original.
+    """
+    backup_of = None
     if target.is_symlink():
         target.unlink()
     elif target.exists():
@@ -241,9 +355,11 @@ def create_symlink(source, target):
                 f"  {YELLOW}! Backing up existing directory {target.name} to {target.name}.bak{NC}"
             )
             shutil.move(str(target), str(target) + ".bak")
+            backup_of = _rel_to_project(str(target) + ".bak")
         else:
             print(f"  {YELLOW}! Backing up existing file {target.name} to {target.name}.bak{NC}")
             target.rename(Path(str(target) + ".bak"))
+            backup_of = _rel_to_project(str(target) + ".bak")
 
     # Ensure parent dir exists
     target.parent.mkdir(parents=True, exist_ok=True)
@@ -257,16 +373,19 @@ def create_symlink(source, target):
     try:
         os.symlink(link_path, target)
         print(f"  {GREEN}✓ Linked {target.name} -> {link_path}{NC}")
+        _record(target, "symlink", agent=agent, backup_of=backup_of)
     except OSError as e:
         # Fallback for Windows (no admin rights) or restricted environments
         print(f"  {YELLOW}! Symlink failed ({e}), falling back to copy...{NC}")
         try:
             if source.is_dir():
                 safe_merge_directory(source, target)
+                _record(target, "tree", agent=agent, backup_of=backup_of)
             else:
                 if target.exists():
                     target.unlink()
                 shutil.copy2(source, target)
+                _record(target, "copy", agent=agent, backup_of=backup_of)
             print(f"  {GREEN}✓ Copied {target.name} (Symlink fallback){NC}")
         except Exception as e2:
             print(f"  {RED}x Failed to copy {target}: {e2}{NC}")
@@ -349,6 +468,9 @@ def setup_skills_for_platform(platform, agents_dir, target_dir):
             ]
             subprocess.run(cmd, check=True)
             print(f"  {GREEN}✓ Processed skills for {platform}{NC}")
+            # Record the generated skills tree so uninstall removes exactly it.
+            _slug = "".join(c if (c.isalnum() or c in "-_") else "-" for c in platform.lower())
+            _record(target_dir, "tree", agent=_slug.strip("-") or "shared")
         except Exception as e:
             print(f"{RED}Error running skill compiler: {e}{NC}")
     else:
@@ -387,6 +509,9 @@ def run_bench():
 
 def main():
     global PROJECT_ROOT, FORCE
+    # Start each run with a clean manifest recorder (globals persist in-process).
+    _MANIFEST_ENTRIES.clear()
+    _RECORDED_PATHS.clear()
     if "--bench" in sys.argv:
         run_bench()
         return
@@ -462,6 +587,9 @@ def main():
     else:
         shutil.copytree(SOURCE_AGENTS_DIR, target_agents_dir)
         print(f"  {GREEN}✓ Kit installed to {target_agents_dir}{NC}")
+        # Record the freshly-copied kit tree (only if it lives under PROJECT_ROOT;
+        # global/custom installs outside the project are not in its manifest).
+        _record_tree(target_agents_dir)
 
     AGENTS_DIR = target_agents_dir
 
@@ -736,6 +864,9 @@ def main():
 
         target_agents_md = AGENTS_DIR / "AGENTS.md"
         target_agents_md.write_text(content)
+        # Refresh the manifest hash now that AGENTS.md holds substituted content
+        # (the earlier copy recorded the raw template hash).
+        _record(target_agents_md, "copy", agent="shared")
         print(f"  {GREEN}✓ Configured {target_agents_md}{NC}")
     else:
         print(f"  {RED}x Template not found: {template_path}{NC}")
@@ -867,6 +998,7 @@ def main():
         aider_conf = PROJECT_ROOT / ".aider.conf.yml"
         if not aider_conf.exists():
             aider_conf.write_text("read:\n  - agents/AGENTS.md\n  - agents/skills/\n")
+            _record(aider_conf, "copy", agent="aider")
             print(f"  {GREEN}✓ Wired .aider.conf.yml{NC}")
 
     # "Gemini" is the split-out target; "Gemini / Antigravity" kept for backward
@@ -890,8 +1022,9 @@ def main():
             "notes": "Managed by init.py",
         }
         (gemini_dir / "settings.json").write_text(json.dumps(settings_content, indent=2))
+        _record(gemini_dir / "settings.json", "copy", agent="gemini")
         # Gemini CLI natively reads a GEMINI.md context file; point it at AGENTS.md.
-        create_symlink(agents_md_src, PROJECT_ROOT / "GEMINI.md")
+        create_symlink(agents_md_src, PROJECT_ROOT / "GEMINI.md", agent="gemini")
         print(f"  {GREEN}✓ Wired .gemini/settings.json + GEMINI.md{NC}")
 
     # Universal agentskills.io target: .agents/skills/<slug>/SKILL.md is read by
@@ -917,6 +1050,7 @@ def main():
                 )
                 + "\n"
             )
+            _record(opencode_conf, "copy", agent="opencode")
         setup_skills_for_platform("OpenCode", AGENTS_DIR, PROJECT_ROOT / ".agents" / "skills")
         print(f"  {GREEN}✓ Wired opencode.json + .agents/skills{NC}")
 
@@ -1068,7 +1202,11 @@ Here is your mission to finalize the setup:
 
         mission_file = PROJECT_ROOT / "SETUP_MISSION.md"
         mission_file.write_text(mission)
+        _record(mission_file, "copy", agent="shared")
         print(f"\n{GREEN}✓ Mission saved to SETUP_MISSION.md{NC}")
+
+    # Persist the uninstall manifest of everything we created under PROJECT_ROOT.
+    write_install_manifest()
 
     print(f"{BLUE}Setup Complete! The kit is installed at: {AGENTS_DIR}{NC}")
 

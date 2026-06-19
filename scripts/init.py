@@ -184,6 +184,56 @@ def build_tech_map_from_skills(agents_dir):
 # Initial placeholders - will be populated in main()
 TECH_MAP: dict[str, Any] = {}
 
+
+def detect_existing_project(cwd):
+    """Detect whether `cwd` is an existing codebase and infer its stack.
+
+    Prefers the richer, unit-tested gabbe.detect module when GABBE is importable
+    (pip install); falls back to a self-contained sniff so the wizard still works
+    when run standalone via npx/curl (where the gabbe package is not present).
+    """
+    try:
+        from gabbe import detect as _detect  # type: ignore
+
+        return _detect.detect_project(cwd)
+    except Exception:
+        pass
+    base = Path(cwd)
+    manifests = [
+        ("pnpm-lock.yaml", "TypeScript", "pnpm"),
+        ("yarn.lock", "TypeScript", "yarn"),
+        ("package.json", "TypeScript", "npm"),
+        ("pyproject.toml", "Python", "pip"),
+        ("requirements.txt", "Python", "pip"),
+        ("go.mod", "Go", "go mod"),
+        ("Cargo.toml", "Rust", "cargo"),
+        ("composer.json", "PHP", "composer"),
+        ("pom.xml", "Java", "maven"),
+        ("build.gradle", "Java", "gradle"),
+        ("Gemfile", "Ruby", "bundler"),
+    ]
+    language = pm = None
+    signals = []
+    for name, lang, pmgr in manifests:
+        if (base / name).exists():
+            language, pm = lang, pmgr
+            signals.append(f"found {name}")
+            break
+    has_git = (base / ".git").exists()
+    if has_git:
+        signals.append("git repository")
+    is_existing = bool(language or has_git)
+    return {
+        "is_existing": is_existing,
+        "language": language,
+        "framework": None,
+        "package_manager": pm,
+        "project_name": None,
+        "has_git": has_git,
+        "signals": signals,
+    }
+
+
 # --- Helper Functions ---
 
 
@@ -596,7 +646,28 @@ def main():
     # --- Step 2: Interview ---
     print(f"\n{YELLOW}Part 2: Project Context{NC}")
 
-    project_name = ask("Project Name", PROJECT_ROOT.name)
+    # Brownfield autodetect: recognise an existing codebase and prefill from it.
+    detected = detect_existing_project(PROJECT_ROOT)
+    refactor_mode = False
+    if detected.get("is_existing"):
+        print(
+            f"  {BLUE}→ Existing project detected ({', '.join(detected.get('signals', [])) or 'source present'}).{NC}"
+        )
+        if detected.get("language"):
+            print(f"  {BLUE}→ Stack looks like: {detected['language']}", end="")
+            if detected.get("framework"):
+                print(f" / {detected['framework']}", end="")
+            print(f"{NC}")
+        mode_idx = select_index(
+            "How should GABBE engage this project?",
+            [
+                "Greenfield build — scaffold a new system here",
+                "Upgrade / Refactor — onboard onto the EXISTING codebase",
+            ],
+        )
+        refactor_mode = mode_idx == 1
+
+    project_name = ask("Project Name", detected.get("project_name") or PROJECT_ROOT.name)
     description = ask("One-line Description", "A new software project")
 
     # Team & Type
@@ -641,7 +712,10 @@ def main():
     if language_choice == "Other":
         language = ask("Enter Language")
 
-    framework = ask("Primary Framework (e.g. Next.js, FastAPI, Laravel)", "None")
+    framework = ask(
+        "Primary Framework (e.g. Next.js, FastAPI, Laravel)",
+        detected.get("framework") or "None",
+    )
 
     db_options = ["PostgreSQL", "MySQL/MariaDB", "MongoDB", "SQLite", "Redis", "None"]
     databases = ask_multiselect("Databases used", db_options)
@@ -1205,10 +1279,59 @@ Here is your mission to finalize the setup:
         _record(mission_file, "copy", agent="shared")
         print(f"\n{GREEN}✓ Mission saved to SETUP_MISSION.md{NC}")
 
+    # --- Brownfield onboarding artifact ---
+    # In Upgrade/Refactor mode the first job is to UNDERSTAND the existing code,
+    # not scaffold greenfield mission docs. Emit a discovery brief that steers the
+    # agent to map the codebase before changing anything.
+    if refactor_mode:
+        write_brownfield_assessment(project_name, detected)
+
     # Persist the uninstall manifest of everything we created under PROJECT_ROOT.
     write_install_manifest()
 
     print(f"{BLUE}Setup Complete! The kit is installed at: {AGENTS_DIR}{NC}")
+
+
+def write_brownfield_assessment(project_name, detected):
+    """Scaffold a discovery/onboarding brief for an existing codebase."""
+    stack = detected.get("language") or "unknown"
+    if detected.get("framework"):
+        stack += f" / {detected['framework']}"
+    signals = ", ".join(detected.get("signals", [])) or "existing source"
+    doc = f"""# Brownfield Onboarding — {project_name}
+
+> GABBE installed in **Upgrade / Refactor** mode. This is an EXISTING codebase
+> ({signals}). Do NOT scaffold a greenfield system. First understand, then change.
+
+## Detected
+- Stack: {stack}
+- Package manager: {detected.get('package_manager') or 'unknown'}
+- Git repository: {'yes' if detected.get('has_git') else 'no'}
+
+## Phase 0 — Discovery (do this before any change)
+1. **Map the codebase**: entry points, modules, data flow, external deps. Record
+   findings in `agents/memory/semantic/` and a top-level `CODEBASE_MAP.md`.
+2. **Assess current state**: build/test/CI status, obvious tech debt, risky areas,
+   test coverage. Capture in `ASSESSMENT.md`.
+3. **Establish a baseline**: get the existing build + tests green and recorded
+   BEFORE refactoring, so regressions are detectable.
+4. **Backlog**: turn findings into a prioritised improvement backlog in `TASKS.md`
+   (use the kit's task templates). Sequence by risk/value.
+
+## Phase 1+ — Change safely
+- Work in small, reversible increments; keep the baseline green at every step.
+- Apply the relevant kit guides/skills for {stack}.
+- Use `gabbe verify` / your SDLC gates on each increment.
+
+## Safety
+- GABBE is additive: it has NOT modified your source. Any file it would have
+  overwritten was backed up to `<name>.gabbe-bak`. `gabbe uninstall` reverses
+  the install and restores backups.
+"""
+    out = PROJECT_ROOT / "BROWNFIELD_ONBOARDING.md"
+    out.write_text(doc)
+    _record(out, "copy", agent="shared")
+    print(f"  {GREEN}✓ Brownfield onboarding brief saved to BROWNFIELD_ONBOARDING.md{NC}")
 
 
 if __name__ == "__main__":

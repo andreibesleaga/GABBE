@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "gabbe"
-version = "1.0.3"
+version = "1.1.0"
 description = "Generative Architectural Brain Base Engine - Agentic Engineering Kit"
 readme = "README.md"
 requires-python = ">=3.9"

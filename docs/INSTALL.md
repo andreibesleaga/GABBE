@@ -4,11 +4,13 @@ GABBE installs are **isolated**: nothing is ever written outside the chosen targ
 unless you pass `--global`.
 
 > **Reversibility — scope.** Manifest-backed, precise `update`/`uninstall` (recorded
-> in `.gabbe/manifest.json`) covers kits managed by the Python `gabbe` CLI — i.e.
-> after a `gabbe update` from a checkout / editable install, which writes the
-> manifest. The Python-independent installers (`npx gabbe-kit init`, `curl … | sh`,
-> and the `scripts/init.py` wizard) copy the kit but do **not** write a manifest, so
-> `gabbe uninstall` cannot auto-reverse them — remove those manually (delete the
+> in `.gabbe/manifest.json`) covers kits managed by the Python `gabbe` CLI **and**
+> the Python wizard (`gabbe setup` / `python scripts/init.py`), which now writes a
+> manifest recording everything it created under the project (copied kit files,
+> wiring symlinks, generated skill trees, config files). So `gabbe uninstall` fully
+> reverses a wizard install too. The remaining Python-independent installers
+> (`npx gabbe-kit init`, `curl … | sh`) copy the kit but do **not** write a manifest,
+> so `gabbe uninstall` cannot auto-reverse them — remove those manually (delete the
 > created `agents/`, `.agents/`, per-agent dirs, and root `AGENTS.md`), or run
 > `gabbe update` from a checkout to begin manifest tracking.
 
@@ -20,6 +22,14 @@ unless you pass `--global`.
 | PyPI | `pipx install gabbe` (or `pip install gabbe` / `uvx gabbe`) | adds the `gabbe` **CLI** (doctor/brain/route/gateway). The kit is Python-independent — land it with `npx gabbe-kit init` / `curl … \| sh` / a checkout. `gabbe setup` wires the kit only from a checkout. |
 | Shell bootstrap | `curl -fsSL https://raw.githubusercontent.com/andreibesleaga/GABBE/main/install.sh \| sh` | picks the best available installer |
 | Git checkout | `git clone … && python3 scripts/init.py` | the interactive wizard |
+
+**Never-clobber + `--force`.** Both installers — the Node installer
+(`npx gabbe-kit init`) and the Python wizard (`gabbe setup` / `python scripts/init.py`)
+— back up ANY differing pre-existing file to `<name>.gabbe-bak` before refreshing it, so
+nothing you already had is silently overwritten. The preserve-set (`AGENTS.md`,
+`CONSTITUTION.md`, `TASKS.md`, `policies.yml`, `config.json`) is left as-is unless you
+pass `--force` (e.g. `npx gabbe-kit init --force`), which opts into re-templating those
+too — and still backs each one up first.
 
 After installing, run `gabbe doctor` to print an environment + install report
 (detected OS/arch, runtimes, agent clients, and per-check PASS/WARN). It also prints
@@ -62,11 +72,14 @@ pwsh ./uninstall.ps1 -DryRun       # Windows / PowerShell
 ```
 
 Uninstall reads `.gabbe/manifest.json`, removes **exactly** what was installed,
-restores any shadowed user files from their `.bak`, prunes now-empty directories,
-and is idempotent (safe to run twice). When a manifest is present the result is
-byte-identical to the pre-install state. **Note:** `npx` / `curl` / wizard installs
-are not manifest-tracked (see the scope note at the top); for those, delete the kit
-directories manually or run `gabbe update` from a checkout first.
+restores any shadowed user files from their `.gabbe-bak`/`.bak` backup, preserves any
+file you edited after install as `<name>.gabbe-bak` instead of deleting it, prunes
+now-empty wiring directories, and is idempotent (safe to run twice). When a manifest is
+present the result is byte-identical to the pre-install state. The wizard
+(`gabbe setup` / `python scripts/init.py`) now writes a manifest, so its installs are
+fully reversible too. **Note:** only `npx` / `curl` installs remain non-manifest-tracked
+(see the scope note at the top); for those, delete the kit directories manually or run
+`gabbe update` from a checkout first.
 
 ## Verification
 

@@ -438,7 +438,7 @@ gabbe registry add ./bundle --namespace ext            # dry run
 gabbe registry add https://example/skill.skill.md --apply
 ```
 
-### `gabbe setup`
+### `gabbe setup [--force]`
 
 Run the interactive install wizard (`scripts/init.py`) to wire the kit into your
 coding agents. (For a Python-independent install, use `npx gabbe-kit init` or
@@ -446,6 +446,42 @@ coding agents. (For a Python-independent install, use `npx gabbe-kit init` or
 
 ```bash
 gabbe setup
+gabbe setup --force          # re-template even preserved files (each backed up first)
+```
+
+**Behavior:**
+- **Never-clobber.** Any differing pre-existing file is backed up to `<name>.gabbe-bak`
+  before being refreshed; nothing you already had is silently overwritten. The
+  preserve-set (`AGENTS.md`, `CONSTITUTION.md`, `TASKS.md`, `policies.yml`, `config.json`)
+  is left untouched unless you pass `--force`, which re-templates them too (still backing
+  each up first).
+- **Reversible.** The wizard writes `.gabbe/manifest.json` recording everything it created
+  (copied kit files, wiring symlinks, generated skill trees, config files), so
+  `gabbe uninstall` fully reverses a wizard install.
+- **Brownfield autodetect.** In an existing codebase (detects `package.json`,
+  `pyproject.toml`, `go.mod`, `Cargo.toml`, `composer.json`, `pom.xml`, `Gemfile`, a `.git`
+  repo, etc.) the wizard adds a Mode question — greenfield vs **Upgrade / Refactor
+  existing** — prefills detected language / framework / package-manager / project-name as
+  defaults, and in refactor mode scaffolds a `BROWNFIELD_ONBOARDING.md` discovery brief
+  instead of greenfield mission docs. The greenfield flow is unchanged in an empty dir.
+- **Placeholder population.** Derivable `[PLACEHOLDER:]` fields in `AGENTS.md`
+  (dev/test/lint/format/typecheck/coverage commands, `repo_url`, `ci_cd`,
+  `deployment_target`) are auto-filled; the rest are kept, tagged
+  `<!-- OPTIONAL: fill this in yourself -->`, and listed in an end-of-install warning so
+  blank fields are never shipped silently.
+
+**Node installer (`npx gabbe-kit init`) flags** — the Python-independent equivalent
+supports the same never-clobber/`--force` behavior plus non-interactive install:
+
+| Flag | Description |
+|---|---|
+| `--yes` | Non-interactive; accept defaults without prompting |
+| `--agents <list>` | Comma-separated agents to wire (e.g. `--agents claude,cursor`) |
+| `--force` | Re-template even preserve-set files (each backed up to `<name>.gabbe-bak` first) |
+
+```bash
+npx gabbe-kit init --yes --agents claude,cursor
+npx gabbe-kit init --force
 ```
 
 ---
@@ -498,10 +534,12 @@ gabbe update
 ### `gabbe uninstall [--agents LIST] [--dry-run] [--purge] [--global] [--dir PATH]`
 
 Reverse a GABBE install using its `.gabbe/manifest.json`: removes exactly what was
-installed, restores any `.bak` backups, prunes now-empty dirs, and never touches
-unrelated files. `--agents` deselects specific agents only; `--dry-run` prints the
-plan without changing anything; `--purge` also removes the `agents/` kit and
-`.gabbe/`. Idempotent and isolated (never writes outside the target).
+installed, restores any `.gabbe-bak`/`.bak` backups, preserves any file you edited after
+install as `<name>.gabbe-bak` (rather than deleting it), prunes now-empty wiring dirs, and
+never touches unrelated files. Wizard installs (`gabbe setup`) are manifest-tracked and so
+fully reversible. `--agents` deselects specific agents only; `--dry-run` prints the plan
+without changing anything; `--purge` also removes the `agents/` kit and `.gabbe/`.
+Idempotent and isolated (never writes outside the target).
 
 ```bash
 gabbe uninstall --dry-run

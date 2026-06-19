@@ -15,6 +15,10 @@ SOURCE_AGENTS_DIR = KIT_SOURCE / "agents"
 # PROJECT_ROOT: Where the user is running the script from (the project they want to configure)
 PROJECT_ROOT = Path.cwd()
 
+# FORCE: when True, re-template even preserve-set files (still backed up first).
+# Set from the --force CLI flag in main(). Default False = never overwrite user files.
+FORCE = False
+
 # Colors
 GREEN = "\033[0;32m"
 YELLOW = "\033[1;33m"
@@ -140,7 +144,32 @@ def ask_multiselect(question, options):
     return selected
 
 
-def safe_merge_directory(src_root, dst_root, is_kit_root=False):
+def _backup_before_overwrite(dst_file):
+    """Back up an existing target file to <name>.gabbe-bak before it is overwritten.
+
+    Guarantees the never-clobber invariant: any pre-existing content is always
+    recoverable. The first backup wins (we never overwrite an existing .gabbe-bak,
+    so re-running install keeps the user's ORIGINAL, not a kit copy from a prior run).
+    """
+    backup = Path(str(dst_file) + ".gabbe-bak")
+    if not backup.exists():
+        try:
+            shutil.copy2(dst_file, backup)
+            print(f"  {YELLOW}! Backed up existing {dst_file.name} -> {backup.name}{NC}")
+        except Exception:
+            pass
+
+
+def safe_merge_directory(src_root, dst_root, is_kit_root=False, force=None):
+    """Merge the kit tree into a target without ever losing user data.
+
+    Preserve-set files (and memory/project trees) are left untouched. Any OTHER
+    pre-existing file is backed up to <name>.gabbe-bak before being refreshed, so
+    nothing is clobbered. With force=True, even preserve-set files are re-templated
+    (still backed up first).
+    """
+    if force is None:
+        force = FORCE
     PRESERVE_FILES = {"AGENTS.md", "CONSTITUTION.md", "TASKS.md", "policies.yml", "config.json"}
     notified_preservations = set()
 
@@ -161,7 +190,8 @@ def safe_merge_directory(src_root, dst_root, is_kit_root=False):
             # when is_kit_root=True, so the symlink-fallback path (is_kit_root
             # defaults to False) clobbered existing user files. User content
             # must never be overwritten regardless of how the merge was reached.
-            if dst_file.exists():
+            # With force=True the user explicitly opted into re-templating these.
+            if dst_file.exists() and not force:
                 if in_memory:
                     preserve = True
                 elif in_project:
@@ -185,6 +215,15 @@ def safe_merge_directory(src_root, dst_root, is_kit_root=False):
                 continue
 
             if dst_file.exists():
+                # Never clobber: only files whose bytes differ from the incoming kit
+                # file are backed up (identical files need no backup). This covers
+                # user-modified kit files AND, with force=True, preserve-set files.
+                try:
+                    differs = src_file.read_bytes() != dst_file.read_bytes()
+                except Exception:
+                    differs = True
+                if differs:
+                    _backup_before_overwrite(dst_file)
                 try:
                     dst_file.unlink()
                 except Exception:
@@ -347,10 +386,12 @@ def run_bench():
 
 
 def main():
-    global PROJECT_ROOT
+    global PROJECT_ROOT, FORCE
     if "--bench" in sys.argv:
         run_bench()
         return
+    if "--force" in sys.argv:
+        FORCE = True
     if not SOURCE_AGENTS_DIR.exists():
         if (KIT_SOURCE / "AGENTS.md").exists():
             pass

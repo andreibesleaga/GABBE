@@ -30,7 +30,7 @@
     "gabbe-kit": "bin/install.js"
   },
   "scripts": {
-    "test": "node bin/install.js --help"
+    "test": "node bin/install.js --help && node scripts/tests/test_node_install.js"
   },
   "files": [
     "bin/",

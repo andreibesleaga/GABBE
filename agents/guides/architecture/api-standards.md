@@ -38,14 +38,16 @@ Consistency allows shared client libraries.
 }
 ```
 
-### Error (RFC 7807)
+### Error (RFC 9457 Problem Details)
+Use the standardized **Problem Details** media type `application/problem+json` (RFC 9457, which obsoletes RFC 7807) for HTTP error responses:
 ```json
 {
-  "error": {
-    "code": "resource_not_found",
-    "message": "User 123 not found",
-    "traceId": "abc-123"
-  }
+  "type": "https://example.com/probs/resource-not-found",
+  "title": "Resource not found",
+  "status": 404,
+  "detail": "User 123 not found",
+  "instance": "/users/123",
+  "traceId": "abc-123"
 }
 ```
 
@@ -53,7 +55,7 @@ Consistency allows shared client libraries.
 -   **Authentication**: Bearer Token (JWT) in Header.
 -   **Rate Limiting**: Return `429 Too Many Requests` with `Retry-After` header.
 -   **Idempotency**: `POST` requests should accept `Idempotency-Key` header to prevent double-billing on network retry.
--   **Documentation**: OpenAPI 3.0+ required for ALL APIs.
+-   **Documentation**: OpenAPI 3.1+ required for ALL APIs (3.1 aligns with JSON Schema 2020-12).
 
 ## 6. Deprecation Policy
 1.  Mark endpoint `Deprecated: true` in OpenAPI.

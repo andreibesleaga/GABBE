@@ -24,19 +24,24 @@ or reasoning).
 
 ## 2. The Eval Pyramid
 
-Like the testing pyramid, push work down to the cheapest, most-deterministic layer that
-can express the check. Climb only when you must.
+This is the **authoritative eval taxonomy** for GABBE (the testing taxonomy lives in
+`testing-strategy.md`; its "Level 5: Evaluation-Driven" defers here). Like the testing
+pyramid, push work down to the cheapest, most-deterministic layer that can express the
+check. Climb only when you must. The four layers are referred to elsewhere as **Tier-1**
+through **Tier-4**:
 
-1. **Deterministic assertions (base)** — exact match, regex, JSON-schema validation, set
-   membership. Cheap, instant, 100% reproducible. Most "quality" checks are secretly
-   deterministic — catch them here.
-2. **Semantic similarity** — embedding cosine similarity against a reference answer, with
-   a threshold. Tolerates wording differences while still being mostly reproducible.
-3. **LLM-as-judge** — a model scores the output against a rubric. Expensive, subjective,
-   non-deterministic; use for quality dimensions no formula captures (clarity, helpfulness).
-4. **Human review (tip)** — the gold standard and the calibration anchor for everything
-   below it. Slowest and most expensive; reserve for high-stakes output and for keeping the
-   judges honest.
+1. **Tier-1 — Deterministic assertions (base)** — exact match, regex, JSON-schema
+   validation, set membership. Cheap, instant, 100% reproducible. Most "quality" checks are
+   secretly deterministic — catch them here.
+2. **Tier-2 — Semantic similarity** — embedding cosine similarity against a reference
+   answer, with a threshold. Tolerates wording differences while still being mostly
+   reproducible.
+3. **Tier-3 — LLM-as-judge** — a model scores the output against a rubric. Expensive,
+   subjective, non-deterministic; use for quality dimensions no formula captures (clarity,
+   helpfulness).
+4. **Tier-4 — Human review (tip)** — the gold standard and the calibration anchor for
+   everything below it. Slowest and most expensive; reserve for high-stakes output and for
+   keeping the judges honest.
 
 Each layer up costs more and is less reproducible. A good eval suite is fat at the base.
 

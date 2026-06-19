@@ -87,12 +87,12 @@
 ### 6. Implementation Patterns (`patterns/`)
 | Guide | File | Purpose |
 |---|---|---|
-| Agentic Patterns| `patterns/agentic-patterns.md` | Implementation paths for swarms |
-| Agentic Design Patterns | `patterns/agentic-design-patterns.md` | Full pattern catalog: reasoning/planning/workflow/multi-agent/memory/safety |
-| Software Design Patterns | `patterns/software-design-patterns.md` | Classical catalog: GoF + architectural + DDD + enterprise/distributed |
+| Agentic Design Patterns | `patterns/agentic-design-patterns.md` | **Canonical** agentic catalog: reasoning/planning/workflow/multi-agent/memory/safety |
+| Agentic Patterns| `patterns/agentic-patterns.md` | Pointer → `agentic-design-patterns.md` |
+| Software Design Patterns | `patterns/software-design-patterns.md` | **Canonical** classical catalog: GoF + architectural + DDD + enterprise/distributed |
+| Design Patterns | `patterns/design-patterns.md` | Pointer → `software-design-patterns.md` |
 | AI Scenarios | `patterns/ai-native-scenarios.md` | Real-world AI integrations |
 | Autonomous Swarm| `patterns/autonomous-swarm-patterns.md` | Inter-agent negotiation |
-| Design Patterns | `patterns/design-patterns.md` | GoF and modern code patterns |
 | Ent. Migration | `patterns/enterprise-migration-scenario.md` | Legacy to modern code paths |
 | Ent. Patterns | `patterns/enterprise-patterns.md` | CQRS, Saga, and bounded contexts |
 | Time Complexity | `patterns/time-complexity-analysis.md` | Big-O detection and remediation |

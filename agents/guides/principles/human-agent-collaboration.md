@@ -44,11 +44,12 @@ of the collaboration are:
   architect persona bounds what the agent is and is *not* to do.
 - **Transparency** → observability is non-negotiable (every run traced; see the
   Observability mandate in AGENTS.md §5 and CONSTITUTION Article VI).
-- **Control** → HITL gates + autonomy levels (L0–L3, `self-optimize.skill`) scale
-  intervention frequency to the autonomy the human has granted.
+- **Control** → HITL gates + the autonomy posture (`GABBE_AUTONOMY = ask | auto | hybrid`,
+  default **hybrid**; see `clarify.skill` / `preflight.skill`) scale intervention
+  frequency to the autonomy the human has granted.
 
 ## Final-review checklist (apply at integrity-check / S08)
 A change is only "done" when all three facets hold:
 - [ ] **Purpose** — scope/non-goals are explicit; the work maps to a spec/requirement.
 - [ ] **Transparency** — the run is traced and legible (decisions, tools, cost) — no black box.
-- [ ] **Control** — the right HITL gates fired for the autonomy level; high-stakes/irreversible actions were human-approved.
+- [ ] **Control** — the right HITL gates fired for the autonomy posture; high-stakes/irreversible actions were human-approved.

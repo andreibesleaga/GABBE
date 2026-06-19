@@ -13,6 +13,12 @@ context_cost: high
 > **Concept**: Applies Active Inference (Free Energy Principle) to Software Engineering.
 > **Goal**: Minimize "Surprise" (Bugs, Delays, Costs) by continuously updating internal models and routing work intelligently.
 
+> **Conceptual framing, not implemented CLI math:** the OODA loop, Active Inference,
+> and Free-Energy / "minimize surprise" language here are a *framing* for how the agent
+> should reason and self-adapt — they guide instructions, not a literal free-energy solver.
+> See `guides/ai/self-evolving-skills.md` for what is actually implemented (heuristic gene
+> selection / success-rate reward), and `brain/active-inference.skill` for the same caveat.
+
 ## Skill, Guide & MCP Selection Mandate
 **CRITICAL**: Throughout the Cognitive Loop, the orchestrator must **always select (and ask the user to confirm/select) the best guides and skills** for the specific tasks, user queries, actions being performed, gate passing, or system workflows. Never default to generic logic if a tailored skill exists. Additionally, the orchestrator must proactively recommend enabling any missing but highly relevant **MCP servers** (universal or task-specific) to optimally execute the workload.
 
@@ -64,7 +70,7 @@ graph TD
 2.  **Decision**:
     - **Strategy A (Quick Fix)**: Direct tool use (coding/edit).
     - **Strategy B (Deep Think)**: `sequential-thinking` -> `plan` -> `execute`.
-    - **Strategy C (Full Swarm)**: Initialize `loki-mode` (S01-S10).
+    - **Strategy C (Full Swarm)**: Initialize `loki-mode` (full S00–S13 lifecycle; 10-phase core build loop S01–S10 plus Day-0 S00 and Day-2 S11–S13).
 
 ### Phase B03: Execution & Monitoring (The "Watcher")
 If delegating to `loki-mode` or `sub-agents`, Brain Mode remains active as a **Supervisor**:
@@ -103,7 +109,8 @@ Brain Mode treats `loki-mode` as a **Sub-Routine**.
 
 If `loki` is running:
 - `brain-mode` watches `agents/memory/PROJECT_STATE.md`.
-- It performs "Meta-Checks" at every checkpoint (S01, S02...).
+- It performs "Meta-Checks" at every checkpoint across the full S00–S13 lifecycle
+  (Day-0 S00, the S01–S10 core build loop, and Day-2 S11–S13) — not only the core loop.
 
 ## Security & Guardrails
 

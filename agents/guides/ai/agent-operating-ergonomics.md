@@ -12,7 +12,7 @@
 | **Context efficiency** | The context window is finite; every token spent on irrelevant text is a token not spent on the task. | `00-index.md` summaries + `context_cost` tags + `preflight.skill` (load summaries, then bodies on demand — progressive disclosure). |
 | **A clear operating loop** | Ambiguity about "what do I do next" wastes turns and invites drift. | `AGENTS.md` §5 Step 0–7 (preflight → plan → test → implement → verify → refactor → log). |
 | **Durable memory** | A token/time cutoff or an agent switch must not lose progress. | `state-preserve.skill` (continuous + pre-cutoff checkpoint) + `RESUME_POINTER.md` + `state-portability.skill` (move to any agent). |
-| **Knowing when to ask vs act** | Acting on a wrong interpretation is expensive; asking on the obvious is annoying. | `clarify.skill` (uncertainty-aware) + `GABBE_AUTONOMY` levels (L0–L3). |
+| **Knowing when to ask vs act** | Acting on a wrong interpretation is expensive; asking on the obvious is annoying. | `clarify.skill` (uncertainty-aware) + the autonomy posture `GABBE_AUTONOMY = ask \| auto \| hybrid` (default **hybrid**). |
 | **Fast feedback** | Verifying late means debugging a big surface; verifying early localizes the error. | Test-first mandate + run the test/lint/gate now, not at the end + `verify_all.sh`. |
 | **Self-correction** | The first attempt is often wrong; a bounded recovery loop beats giving up or thrashing. | `self-heal.skill` (≤5 attempts, cost-gated) + `final-review.skill`. |
 | **Cost awareness** | Cheap and expensive paths often produce the same result; defaulting to expensive burns budget. | Cost levers (cache/context-budget/model-tier/batch) + `budget.reserve()` + `cost-benefit-router`. |

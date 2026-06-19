@@ -37,7 +37,8 @@ Skills/guides/templates/personas are kit content (installable anywhere) — the 
 
 ## How to continue (any agent or LLM)
 1. Load agents/AGENTS.md (operating loop) and CONSTITUTION.md (project law).
-2. Run session-resume.skill, then preflight.skill.
+2. Run preflight.skill — it runs integrity-check, then delegates the full memory load to
+   session-resume.skill, then returns for the capability summary (canonical boot order).
 3. Start from NEXT ACTION below.
 
 ## RESUME POINTER
@@ -62,7 +63,7 @@ Skills/guides/templates/personas are kit content (installable anywhere) — the 
 In the destination agent:
 1. Place the bundle/files into the project (or paste `STATE_HANDOFF.md` into the chat for a filesystem-less LLM).
 2. `sh agents/scripts/state_import.sh gabbe-state-<timestamp>.tar.gz` to restore `agents/memory/` + tasks + config (merges, never clobbers newer local state without confirmation).
-3. Run `session-resume.skill` then `preflight.skill`. The agent now has identical memory, instructions, and the same NEXT ACTION — work continues as before.
+3. Run `preflight.skill` (the canonical entry point): it runs integrity-check, delegates the full memory load to `session-resume.skill`, then returns for the capability summary. The agent now has identical memory, instructions, and the same NEXT ACTION — work continues as before.
 
 ## Constraints
 - Export/import must be **lossless and agent-neutral** — no agent-specific paths or formats baked into the portable bundle (it's plain Markdown + a tarball).

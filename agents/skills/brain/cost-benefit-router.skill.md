@@ -15,8 +15,9 @@ context_cost: low
 ## Logic Flow
 
 ### Steps
-## 1. Complexity Scoring (0-10)
-Analyze the prompt/task:
+## 1. Complexity Scoring (0–10 conceptual band)
+This 0–10 banding is an illustrative conceptual scale; the actual `gabbe route` CLI scores
+**0–100** against a single threshold and returns one `LOCAL`/`REMOTE` verdict. Analyze the prompt/task:
 - **0-3 (Low)**: Typos, simple regex, one-line fixes, known boilerplate.
   - *Recommendation*: **LOCAL** (Llama-3-8b, Mistral, Grep/Sed).
 - **4-7 (Medium)**: React components, API integration, unit tests, refactoring.
@@ -60,13 +61,24 @@ Analyze the prompt/task:
 
 ## Self-Adaptive Routing
 
-In GABBE the router is self-adaptive end to end: it scores task **complexity**, layers in
-**privacy** (a PII/DLP hit forces `LOCAL`, overriding any complexity score), and weighs
-**context size** to pick the cheapest path that can still do the job. Behavior is gated by
+> **Conceptual framing vs the actual CLI.** The implemented `gabbe route` command returns a
+> **one-shot binary decision** (`LOCAL` / `REMOTE`) by scoring complexity on a **0–100** scale
+> against a threshold, with a **PII/DLP override that forces `LOCAL`**. The richer behaviors
+> described below — the multi-tier ladder, the **self-correction / escalation loop**, the
+> per-task **heuristic updates**, and **autonomy-gating** (`ask`/`auto`/`hybrid`) — are
+> *conceptual framing for how an agent should route work*, not features the one-shot CLI
+> performs. Treat them as guidance for the orchestrator's own loop, and don't claim the router
+> "guarantees" the optimal/cheapest path. See `guides/ai/self-evolving-skills.md`.
+
+In GABBE the router is designed to behave self-adaptively end to end: it scores task **complexity**,
+layers in **privacy** (a PII/DLP hit forces `LOCAL`, overriding any complexity score), and weighs
+**context size** to pick the cheapest path that can still do the job. Conceptually it is gated by
 autonomy level (`GABBE_AUTONOMY` = `ask` | `auto` | `hybrid`): `ask` confirms each route,
-`auto` routes silently, `hybrid` auto-routes the safe cases and asks on the rest. The router
-also **self-corrects** — when a `LOCAL` attempt fails, it escalates up the tier ladder to a
-remote model (re-checking privacy first) and updates its heuristics for next time.
+`auto` routes silently, `hybrid` auto-routes the safe cases and asks on the rest. The framing also
+includes **self-correction** — when a `LOCAL` attempt fails, the orchestrator escalates up the tier
+ladder to a remote model (re-checking privacy first) and updates its heuristics for next time —
+though the bare `gabbe route` CLI returns only the single LOCAL/REMOTE verdict (the loop lives in
+the calling agent).
 
 ## Self-Correction
 If a routed task FAILS (e.g., Local model produces garbage):

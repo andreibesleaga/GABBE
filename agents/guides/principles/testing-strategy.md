@@ -1,4 +1,4 @@
-# Comprehensive Testing Strategy Guide (2025)
+# Comprehensive Testing Strategy Guide (2026)
 
 Testing is not just about "finding bugs" — it's about **confidence at speed**. This guide outlines modern testing strategies for robust applications.
 
@@ -51,14 +51,16 @@ Verify the whole system as a user sees it.
 ### Level 5: Evaluation-Driven (for agentic / LLM work)
 When the system *is* an agent (or uses one), correctness is probabilistic, so the
 acceptance bar must be defined **before** the agent is built and must **co-evolve**
-with it.
+with it. This level is a pointer: the **authoritative eval taxonomy** (the Tier-1–Tier-4
+Eval Pyramid) lives in [`evaluation-strategy.md`](evaluation-strategy.md); the points
+below summarize how it plugs into the test strategy.
 -   **Evals before implementation**: write the success criteria / eval set at the spec stage (S01–S02), not after — they are the executable form of the spec (golden thread).
 -   **Component-level evals**: evaluate each persona/gate/sub-step on its own, not only end-to-end. One sub-agent's slightly-wrong output becomes the next one's hopelessly-wrong input, so end-to-end checks alone hide where it broke.
 -   **Regression evals**: keep a growing fixture set of past failures; re-run on every change (ties to `CONTINUITY.md` and `self-heal`).
 -   **Judge/verifier pass**: for high-stakes output, an independent verifier/judge persona scores against the rubric before human sign-off (see `coordination/persona-selector.skill` voting + `core/final-review.skill`).
 -   **Metric shift**: measure decision quality, cost-efficiency, and reliability — not lines of code.
 
-## 2b. Beyond Examples: Advanced Tiers (2025)
+## 2b. Beyond Examples: Advanced Testing Techniques (2026)
 
 Example-based unit and integration tests only cover the cases a human imagined. Four
 advanced tiers close the remaining gaps and now sit alongside the pyramid/trophy:

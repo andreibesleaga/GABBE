@@ -24,7 +24,7 @@ Solve complex problems by breaking them down into small, logical steps. This pre
    - Validating each step before moving to the next.
    - If a step fails or reveals new info, update the Plan.
 
-4. **Review & Sythesize**
+4. **Review & Synthesize**
    - Review your chain of reasoning. Does the conclusion logically follow?
    - Formulate the final answer based on the verified steps.
 

@@ -26,7 +26,7 @@ Implement overlapping layers of security. If one fails, another catches the brea
 2. **Network**: VPCs, private subnets, strict Security Groups / Network Policies.
 3. **Application**: Input validation, parameterized queries, rate limiting.
 4. **Data**: Field-level encryption, KMS, backups.
-5. **Monitoring**: Intrustion Detection Systems (IDS), audit logging, SIEM alerts.
+5. **Monitoring**: Intrusion Detection Systems (IDS), audit logging, SIEM alerts.
 
 ## 4. Secure Development Lifecycle (SDLC)
 Shift security to the "Left" (early in the process).

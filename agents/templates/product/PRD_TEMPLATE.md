@@ -157,9 +157,15 @@ DELETE /api/v1/[resource]/{id}      Delete
 
 ---
 
-## 9. Non-Functional Requirements
+## 9. Non-Functional Requirements (Summary)
 
-| Category | Requirement |
+<!-- This is a SUMMARY only. The authoritative, full NFR definition (RTO/RPO, latency
+     percentiles, throughput, encryption, observability, compatibility) lives in
+     NFR_TEMPLATE.md — link it here and do not duplicate detail. -->
+
+**Full NFR definition:** [Link to NFR.md (from NFR_TEMPLATE.md)]
+
+| Category | Headline target (full detail in NFR.md) |
 |---|---|
 | **Performance** | API responses < [X]ms at p99 under [Y] concurrent users |
 | **Availability** | [X]% uptime SLO |

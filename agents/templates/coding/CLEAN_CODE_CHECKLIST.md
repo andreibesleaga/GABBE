@@ -24,7 +24,7 @@ Use this checklist during code reviews to ensure high quality.
 - [ ] **Testable**: Dependencies are injected (DI), not hardcoded.
 - [ ] **Boundary Checks**: Inputs are validated.
 
-## 5. Modern Best Practices (2025)
+## 5. Modern Best Practices
 - [ ] **Immutable Default**: Prefer `const`/`final` over mutable variables.
 - [ ] **Async/Await**: properly used; no blocking main threads.
 - [ ] **Type Safety**: No `any` or loose types unless strictly necessary.

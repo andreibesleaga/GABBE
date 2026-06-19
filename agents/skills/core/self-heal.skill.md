@@ -24,6 +24,18 @@ FAIL detected
   -> Attempt 5 fails? ESCALATE TO HUMAN (stop all action)
 ```
 
+### Stop-condition precedence (whichever trips FIRST wins)
+These are not three competing caps — they are layered tripwires; STOP and escalate as
+soon as any one fires:
+1. **Repeated-fix tripwire (tightest):** about to apply the **same fix a 3rd time** → STOP
+   immediately. Re-trying an identical fix is wasted budget; don't burn the remaining attempts.
+2. **Attempt cap (headline):** **max 5 distinct attempts** per task. Each attempt must try a
+   *different* hypothesis (the tripwire above prevents 5 reruns of one fix).
+3. **Recursion-depth ceiling (defensive backstop):** if nested/recursive self-heal invocations
+   exceed **depth 10** → STOP. This guards against runaway re-entry even if the per-task counter
+   is somehow bypassed; in normal operation attempt-cap (5) or the repeated-fix tripwire fires long first.
+On any STOP → human escalation (below).
+
 ## Steps
 
 ### Pre-Healing: Check CONTINUITY.md (Dynamic Optimization)
@@ -34,10 +46,11 @@ Before starting, read `agents/memory/CONTINUITY.md`:
 
 ### Per-Attempt Procedure
 
-0. **Safety Check (Loop Avoidance)**
-   - Check `production-health.skill.md` rules:
-   - Is this the 3rd time trying the exact same fix? -> **STOP**.
-   - Is the recursion depth > 10? -> **STOP**.
+0. **Safety Check (Loop Avoidance)** — apply the *Stop-condition precedence* above:
+   - Check `production-health.skill.md` rules.
+   - About to apply the same fix a 3rd time? -> **STOP** (repeated-fix tripwire).
+   - Attempt counter already at 5? -> **STOP** (attempt cap).
+   - Recursion depth > 10? -> **STOP** (defensive backstop).
 
 1. **Diagnose the error**
    - Read the full error message and stack trace

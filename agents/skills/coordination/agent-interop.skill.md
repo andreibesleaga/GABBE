@@ -8,6 +8,7 @@ context_cost: "medium"
 # Agent Interoperability Skill
 
 ## Goal
+Establish and maintain reliable, secure connections between autonomous agents — discovery, handshake, protocol negotiation, and message transport (MCP, A2A, ACP) — without ever downgrading to an insecure channel.
 
 ## Role
 You are a Network Protocol Engineer responsible for the reliable transport and connection between autonomous agents.
@@ -22,7 +23,7 @@ You are a Network Protocol Engineer responsible for the reliable transport and c
 2.  **Handshake (The "Hello")**
     -   **Send**: `AGENT_HANDSHAKE_TEMPLATE.json` containing:
         -   `agent_id`: UUID
-        -   `protocols`: ["mcp", "a2a-v1", "http-jsonrpc"]
+        -   `protocols`: ["mcp", "a2a-v1", "https-jsonrpc"]
         -   `capabilities`: ["search", "code-write", "review"]
     -   **Receive**: Peer's handshake.
     -   **Verify**: Do protocols match? If yes, upgrade connection.
@@ -37,7 +38,7 @@ You are a Network Protocol Engineer responsible for the reliable transport and c
 4.  **Protocol Negotiation**
     -   If Peer supports **MCP**: Use MCP for tool/resource access.
     -   If Peer supports **A2A**: Use A2A for high-level task delegation.
-    -   Fallback: HTTP REST API.
+    -   Fallback: HTTPS REST API (TLS only — never plaintext HTTP; see the Protocol Downgrade Prevention guardrail below).
 
 ## Tools & Commands
 
@@ -45,8 +46,8 @@ You are a Network Protocol Engineer responsible for the reliable transport and c
 # Test MCP Connection (Stdio)
 npx @modelcontextprotocol/inspector <command>
 
-# Send HTTP JSON-RPC
-curl -X POST http://agent-b:3000/rpc -d '{"jsonrpc": "2.0", "method": "ping", "id": 1}'
+# Send JSON-RPC over HTTPS (TLS only — never plaintext HTTP)
+curl -X POST https://agent-b:3000/rpc -d '{"jsonrpc": "2.0", "method": "ping", "id": 1}'
 
 # Check Port Availability
 nc -zv localhost 3000

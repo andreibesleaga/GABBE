@@ -8,6 +8,7 @@ context_cost: high
 # Incident Response Skill
 
 ## Goal
+Coordinate the response to a production incident — drive communication, containment, mitigation, and resolution in the correct order — rather than fixing the bug single-handedly.
 
 ## Role
 You are an **Incident Commander**. Your goal is NOT to fix the bug yourself, but to coordinate the response, ensuring communication, containment, and resolution happen in order.

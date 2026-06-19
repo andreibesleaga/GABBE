@@ -17,7 +17,11 @@ This guide explains how to manually trigger:
 
 ## 1. Manual Brain Mode (Active Inference)
 
-If you have a massive feature to build and want the agent to use "System 2" Free Energy logic (thinking before typing), you can explicitly ask it to load the `brain-mode` skill.
+If you have a massive feature to build and want the agent to use "System 2" deliberation (thinking before typing), you can explicitly ask it to load the `brain-mode` skill.
+
+> **Framing vs. implementation.** "Active Inference" and "Free Energy" are *framing words* for
+> the observe → decide → act loop in the brain prompt — no variational free-energy math is
+> computed. See `ai/self-evolving-skills.md` for the honest accounting.
 
 ### The Agent Prompt
 > "Activate Brain Mode for this session by reading `agents/skills/brain/brain-mode.skill.md`. Your goal is to [build X feature]. Follow the Observe -> Orient -> Decide -> Act loop in that document before you write any code."
@@ -33,6 +37,10 @@ Because `brain-mode.skill.md` contains strict procedural logic, the LLM will:
 ## 2. Manual Genetic Evolution (EPO)
 
 If your agent is consistently failing at a specific task (e.g., repeatedly generating outdated React components), you don't need the CLI to fix it. You can order the agent to "evolve" its own rulebook.
+
+> **Framing vs. implementation.** "Genetic Evolution" is a metaphor. GABBE's real mechanism is a
+> single-parent **LLM-driven rewrite** of a skill selected by an **epsilon-greedy bandit** — there
+> is no crossover and no population culling. See `ai/self-evolving-skills.md`.
 
 ### The Agent Prompt
 > "We continually fail when writing React hooks. Invoke the `meta-optimize` skill. Read the last 5 chat messages, identify why your previous attempts failed, and directly edit `agents/skills/coding/ui-gen.skill.md` to add new constraints preventing this failure in the future. Log the change to `meta-evolution.log`."
@@ -61,7 +69,7 @@ Agents often fail silently or give up when a test breaks. You can manually force
 
 ## 4. Manual Cost-Benefit Routing
 
-If you are using a local LLM or a cheaper model on Copilot and encounter a hyper-complex visual diagram or massive refactor, you can prompt the agent to "route" the task context to you, the human, to paste into a frontier model (like Claude 3.5 Sonnet or OpenAI o1).
+If you are using a local LLM or a cheaper model on Copilot and encounter a hyper-complex visual diagram or massive refactor, you can prompt the agent to "route" the task context to you, the human, to paste into a frontier model.
 
 ### The Agent Prompt
 > "Evaluate my request to [refactor the legacy COBOL module] using `cost-benefit-router.skill.md`. Provide a Complexity Score. If the score is > 50, do not attempt to solve it. Instead, generate a `REMOTE_PAYLOAD.md` containing exactly the context I need to copy-paste into an external AI interface."

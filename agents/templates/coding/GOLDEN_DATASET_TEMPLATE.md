@@ -62,7 +62,7 @@ tests:
         value: >
           Score the summary 1-5. It must: (a) state the customer's core problem,
           (b) omit PII, (c) be under 3 sentences. Pass only if score >= 4.
-        threshold: 0.8   # normalized judge score required to pass
+        threshold: 0.8   # normalized judge score required to pass (= 4.0/5; see EVAL_RUBRIC_TEMPLATE.md normalization rule)
 ```
 
 Notes:

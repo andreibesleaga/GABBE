@@ -16,6 +16,14 @@ This skill is intentionally **cheap**: it loads *index summaries* and *state hea
 ## Steps
 
 ### Step 0 — Auto-checks first
+
+> **Canonical boot order (single source of truth).** `preflight` is always the entry point.
+> The order is: **`preflight` (Step 0) → `integrity-check` (fast) → if resuming, `session-resume`
+> (full memory load) → back to `preflight` Steps 1–6 (capability summary + clarify)**. For a
+> cross-agent transfer, `state-portability` *hydrate* runs first to place the bundle, then this
+> same boot order takes over. So the hand-off is one-directional (no circular dependency):
+> portability → preflight → (integrity-check, session-resume) → preflight.
+
 1. Run `integrity-check.skill` in fast mode (state consistency only) — confirm memory and working tree are coherent before loading anything else.
 2. If this is a cold start / resume, defer to `session-resume.skill` for the full memory load, then return here for the capability summary.
 

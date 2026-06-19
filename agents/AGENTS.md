@@ -124,7 +124,7 @@ every task (episodic, semantic, AUDIT_LOG, CONTINUITY, PROJECT_STATE, RESUME_POI
 **CRITICAL MANDATES (always apply):**
 
 - **Optimal skill/guide/MCP selection** — analyze the task and select (or ask the user to confirm) the best skills/guides/templates; never default to generic execution when a specialized one exists. Recommend enabling any MCP server that would materially help.
-- **Cost & budget by default** — minimize tokens/context/API cost; never use swarms or SOTA models for simple work, and **ask the human before any expensive/SOTA/high-cost approach** (with a one-line cost-benefit). Four levers (`guides/ops/cost-optimization.md`): prompt caching (stable context first), context budgeting (load minimum, prefer `context_cost: low`), model tiering (`gabbe route`), batching. Never weaken the gates, the 10-phase SDLC, or HITL to save cost.
+- **Cost & budget by default** — minimize tokens/context/API cost; never use swarms or SOTA models for simple work, and **ask the human before any expensive/SOTA/high-cost approach** (with a one-line cost-benefit). Four levers (`guides/ops/cost-optimization.md`): prompt caching (stable context first), context budgeting (load minimum, prefer `context_cost: low`), model tiering (`gabbe route`), batching. Never weaken the gates, the SDLC lifecycle, or HITL to save cost.
 - **Spec-driven (first-class)** — `spec → evals → test → code`, never code-first. Non-trivial features start from an **EARS** spec (`product/spec-writer.skill`, `templates/product/SPEC_TEMPLATE.md`, `guides/planning/product-requirements.md`); keep a **golden thread** (requirement → spec → test → code → audit). No requirement without a test (Article I); resolve ambiguity in the spec via `clarify.skill`.
 - **Observability (first-class)** — every run/decision/model+tool call is traced with token usage + **per-step cost attribution** (`core/audit-trail.skill`, `core/agent-analytics.skill`; OTel GenAI conventions `gen_ai.usage.*`; span tree root→plan→discover→execute→retrieve). Redact content by default (Article IV); `AUDIT_LOG.md` is authoritative without the CLI.
 - **Human–agent collaboration (manager, not operator)** — the human delegates → observes → intervenes on exceptions. Keep three questions always answerable: **Purpose** (scope/non-goals via spec), **Transparency** (legible reasoning/tools/cost via observability), **Control** (pause/correct/approve via HITL). Prefer an async, observable surface; "done" only when all three hold (`guides/principles/human-agent-collaboration.md`).
@@ -559,7 +559,8 @@ restating them here, to prevent drift):
 - **🧠 Brain Mode** (`brain/brain-mode.skill.md`) — the Strategist (System 2): meta-cognitive
   planner/router/optimizer (Active Inference + dynamic cost routing). Trigger: `gabbe brain activate`, `supermode`.
 - **⚡ Loki Mode** (`brain/loki-mode.skill.md`) — the Executor (System 1): the deterministic
-  10-phase SDLC (S01→S10) with human-in-the-loop gates. Trigger: `loki`, `orchestrate`.
+  SDLC state machine — a 14-phase lifecycle (10-phase core build loop S01–S10, plus
+  Day-0 S00 and Day-2 S11–S13) with human-in-the-loop gates (S00/S01/S02/S07/S08). Trigger: `loki`, `orchestrate`.
 
 Brain Mode **wraps** Loki: it receives the request, routes by complexity/budget, runs Loki for
 the SDLC, and monitors — intervening if cost spikes, errors loop, or requirements drift. Both use

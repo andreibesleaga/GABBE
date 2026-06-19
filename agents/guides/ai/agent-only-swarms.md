@@ -10,7 +10,7 @@ However, **all GABBE swarm coordination protocols are defined in Markdown.** Thi
 
 There are two primary ways to operate Swarms in "Agent-Only" mode:
 1. **In-Context Simulation**: The LLM adopts multiple personas sequentially within the same chat thread.
-2. **True Subagent Delegation (A2A)**: You act as the "Router," taking instructions from the Master Orchestrator and spinning up true, parallel LLM instances (like Gemini 1.5 Pro or Claude 3.5 Sonnet) to do isolated work.
+2. **True Subagent Delegation (A2A)**: You act as the "Router," taking instructions from the Master Orchestrator and spinning up true, parallel LLM instances (each running a frontier model) to do isolated work.
 
 ---
 
@@ -49,13 +49,13 @@ Use this for simple projects where context window limits are not a concern. The 
 > "Execute the next 3 tasks using **In-Context Simulation**. Act as the `eng-backend` persona to write the code, then immediately adopt the `eng-qa` persona in the next paragraph to test it."
 
 ### Tactic B: True Subagent Delegation A2A (For Massive Scale)
-Use this when you need true isolation, zero context-pollution, or want to utilize different frontier models for different tasks (e.g., Cursor for coding, OpenAI o1 for Architecture review).
+Use this when you need true isolation, zero context-pollution, or want to utilize different frontier models for different tasks (e.g., one tool for coding, another frontier model for architecture review).
 
 > "For the next task, use **True Subagent Delegation**. Do not write the code yourself. Instead, generate a `delegation-payload.md` file. Include the specific `persona` file to load, the exact task context, and the expected output format. I will copy-paste this file into a separate AI model and return the result to you here."
 
 **Your Workflow:**
 1. The Orchestrator generates `delegation-payload.md`.
-2. You open a new browser tab for an advanced model (e.g., Gemini Advanced).
+2. You open a new browser tab for a frontier model.
 3. You paste the payload: *"You are now adopting the GABBE `eng-qa` persona based on the following payload..."*
 4. The Subagent works in isolation and gives you the final test suite.
 5. You paste the test suite back to the Orchestrator in Cursor: *"Here is the output from the `eng-qa` subagent. Proceed to S06."*
@@ -64,7 +64,7 @@ Use this when you need true isolation, zero context-pollution, or want to utiliz
 
 ## 4. Ad-Hoc Swarm Debate (No SDLC)
 
-You don't need the 10 phases to use Swarms. You can invoke a specific matrix of personas to debate a complex architecture decision.
+You don't need the full 14-phase lifecycle (the 10-phase core build loop S01–S10, plus Day-0 S00 and Day-2 S11–S13) to use Swarms. You can invoke a specific matrix of personas to debate a complex architecture decision.
 
 ### The Agent Prompt
 > "Invoke `agents/skills/coordination/multi-agent-orch.skill.md`. I need to decide between PostgreSQL and MongoDB. Load the `prod-architect`, `eng-database`, and `ops-cost` personas. Facilitate a sequential debate simulating their perspectives. Synthesize their arguments into a final recommendation."

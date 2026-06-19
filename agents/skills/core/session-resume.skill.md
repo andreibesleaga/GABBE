@@ -11,11 +11,16 @@ context_cost: medium
 ## Goal
 Allow ANY agent at ANY time to load the complete project state and continue as if they were there from the beginning. Zero knowledge loss between sessions. Always run integrity-check before continuing to verify current state.
 
+> **Boot order:** this skill is the *memory-load* step that `preflight.skill` delegates to on a
+> cold start / resume — it does not call `preflight` back. Canonical order: preflight → integrity-check
+> → **session-resume (here)** → return to preflight for the capability summary. (See `preflight.skill`.)
+
 ## Steps
 
 1. **Load PROJECT_STATE.md** (primary state file)
    - Read: `agents/memory/PROJECT_STATE.md`
-   - Determine: current SDLC phase (S01-S10)
+   - Determine: current lifecycle phase — any of S00–S13 (Day-0 S00, core build loop S01–S10,
+     Day-2 S11–S13). S00 and S11–S13 are real phases; resume into them, do not skip them.
    - Note: last checkpoint, last completed milestone, current blockers
 
 2. **Load CONTINUITY.md** (past failures — CRITICAL, read before doing anything)
@@ -50,9 +55,9 @@ Allow ANY agent at ANY time to load the complete project state and continue as i
    ## Project Resume Report
 
    ### Project State
-   - Current SDLC phase: [S0X — Phase Name]
+   - Current lifecycle phase: [SXX — Phase Name] (one of S00–S13)
    - Last checkpoint: [date] at [phase]
-   - Overall progress: [X/10 phases complete]
+   - Overall progress: [X/14 lifecycle phases complete (S00–S13); core build loop = S01–S10]
 
    ### What Was Completed (last session)
    - [list of completed tasks/phases]

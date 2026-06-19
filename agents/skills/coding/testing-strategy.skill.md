@@ -19,7 +19,7 @@ To help the user or agent define *what* to test, *how* to test it, and *where* t
 -   **Tools**: Jest/Vitest (Unit), Supertest (Int), Playwright (E2E).
 
 ### 2. The Testing Trophy (Modern / Frontend-heavy)
-**Best for**: React/Next.js apps, Microservices.
+**Best for**: React/Next.js apps, UI-heavy frontends. (For microservices, prefer Contract Testing — see below.)
 -   **Structure**: Static Analysis (Base) -> Unit -> **Integration (Big)** -> E2E (Top).
 -   **Focus**: "Write tests. Not too many. Mostly integration." (Kent C. Dodds).
 -   **Rationale**: Integration tests give the most confidence per dollar.

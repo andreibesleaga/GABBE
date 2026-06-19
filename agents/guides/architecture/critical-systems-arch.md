@@ -22,7 +22,7 @@ This guide details how to apply **Agentic Engineering** to domains governed by s
 You cannot trust an AI Agent to control a plane directly ("The Black Box Problem").
 **Solution:** **Runtime Assurance (RTA)** arch.
 *   **Complex Channel (AI):** Optimizes flight path (High Performance, Low Trust).
-*   **Safety Monitor (Deterministic):** Checks limits ($$ G < 4.0 $$, $$ Alt > 500 $$).
+*   **Safety Monitor (Deterministic):** Checks limits (`G < 4.0`, `Alt > 500`).
 *   **Switch:** If Monitor triggers, revert to distinct "Safe Core" code.
 
 ### 2.2 Integration with Domain-Driven Design (DDD)
@@ -47,16 +47,22 @@ In a regulated environment, the Agent's primary job is **Evidence Generation**.
 2.  **Segregation Verification:**
     *   Agent analyzes import graphs.
     *   Alerts if "Class C" (Critical) code imports "Class A" (UI) code.
-3.  **Hazard Analysis (FMEA/STPA):**
-    *   Agent brainstorms "What if?" scenarios ("What if the GPS sensor sends NaN?").
+3.  **Hazard Analysis (STPA / FTA):**
+    *   For *hazard* analysis use system-theoretic methods — **STPA** (Systems-Theoretic Process Analysis) and **FTA** (Fault Tree Analysis) — to reason top-down from unsafe control actions and hazards.
+    *   **FMEA** (Failure Mode and Effects Analysis) is a *failure-mode* analysis, not a hazard analysis: it works bottom-up from component failure modes to their effects. Use it alongside, not as a substitute for, STPA/FTA.
+    *   Agent brainstorms "What if?" scenarios ("What if the GPS sensor sends NaN?") to seed both.
 
 ---
 
-## 4. The "Lethal Trifecta" in Critical Ops
+## 4. Forbidden Constructs in Hard-Real-Time Code
 Avoid these three at all costs:
 1.  **Unbounded Loops:** Control loops must be deterministic.
 2.  **Dynamic Memory Allocation:** Critical C/C++ often forbids `malloc` after init.
 3.  **Deadlocks:** Actors/Agents must have proven liveness.
+
+> Note: "Lethal Trifecta" is a term of art for the *prompt-injection* risk
+> (private data + untrusted content + exfiltration channel in one agent) — see the
+> security guides; it does not refer to the real-time constructs above.
 
 ---
 

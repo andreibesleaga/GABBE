@@ -160,7 +160,35 @@ Import style:
 
 ## 5. Workflow for Agents — Review-Driven Development
 
-Agents MUST follow this order. Skipping steps is forbidden.
+Agents MUST follow this order; skipping steps is forbidden. Keep `agents/memory/` current at
+every task (episodic, semantic, AUDIT_LOG, CONTINUITY, PROJECT_STATE, RESUME_POINTER), and consult
+`agents/{skills,guides,templates}/` for relevant capabilities at each step.
+
+**CRITICAL MANDATES (always apply):**
+
+- **Optimal skill/guide/MCP selection** — analyze the task and select (or ask the user to confirm) the best skills/guides/templates; never default to generic execution when a specialized one exists. Recommend enabling any MCP server that would materially help.
+- **Cost & budget by default** — minimize tokens/context/API cost; never use swarms or SOTA models for simple work, and **ask the human before any expensive/SOTA/high-cost approach** (with a one-line cost-benefit). Four levers (`guides/ops/cost-optimization.md`): prompt caching (stable context first), context budgeting (load minimum, prefer `context_cost: low`), model tiering (`gabbe route`), batching. Never weaken the gates, the SDLC phases, or HITL to save cost.
+- **Spec-driven (first-class)** — `spec → evals → test → code`, never code-first. Non-trivial features start from an **EARS** spec (`product/spec-writer.skill`, `templates/product/SPEC_TEMPLATE.md`, `guides/planning/product-requirements.md`); keep a **golden thread** (requirement → spec → test → code → audit). No requirement without a test (Article I); resolve ambiguity in the spec via `clarify.skill`.
+- **Observability (first-class)** — every run/decision/model+tool call is traced with token usage + **per-step cost attribution** (`core/audit-trail.skill`, `core/agent-analytics.skill`; OTel GenAI conventions `gen_ai.usage.*`; span tree root→plan→discover→execute→retrieve). Redact content by default (Article IV); `AUDIT_LOG.md` is authoritative without the CLI.
+- **Human–agent collaboration (manager, not operator)** — the human delegates → observes → intervenes on exceptions. Keep three questions always answerable: **Purpose** (scope/non-goals via spec), **Transparency** (legible reasoning/tools/cost via observability), **Control** (pause/correct/approve via HITL). Prefer an async, observable surface; "done" only when all three hold (`guides/principles/human-agent-collaboration.md`).
+
+### Step 0 — Preflight & Clarify (before anything else)
+
+```
+Run preflight.skill as the FIRST action of every session and every major task:
+  1. Auto-checks: integrity-check (fast) → confirm memory + working tree are coherent.
+  2. Load index SUMMARIES (not bodies): agents/{skills,guides,templates,personas}/00-index.md
+     → know what capabilities exist before choosing generically.
+  3. Load memory headers with decay-aware priming (PROJECT_STATE, CONTINUITY, latest snapshot).
+  4. Surface cost posture: GABBE_AUTONOMY (ask|auto|hybrid, default hybrid) + remaining budget.
+  5. Recommend the OPTIMAL set for the task (skills/guides/persona/MCP), ranked by
+     relevance × (1/context_cost); pick a reasoning pattern proportionate to task + budget.
+  6. Flag new/changed capabilities since last preflight (defer adoption to update-scan.skill).
+  7. End by invoking clarify.skill → ask the focused batch of clarifying questions
+     (and "questions you should ask me") before proceeding.
+Do not begin implementation until blocking questions are answered, unless the autonomy
+posture is `auto` AND the task is cheap AND reversible.
+```
 
 ### Step 1 — Load Context (every session start)
 
@@ -221,12 +249,22 @@ Check: Cyclomatic complexity < 10, no code duplication > 3 occurrences, no dead 
 ```
 Write entry to agents/memory/AUDIT_LOG.md
 Update task status in project/TASKS.md to DONE
+Refresh agents/memory/RESUME_POINTER.md (state-preserve.skill) — keep the
+  "next action" current so any future session resumes losslessly
 If this completes a SDLC phase: invoke sdlc-checkpoint.skill
 ```
+
+> **State preservation is continuous, not just at Step 7.** Per `state-preserve.skill`
+> and §13, save incrementally after every meaningful step and flush a full snapshot
+> before budget/time runs out — assume a cutoff can happen at any moment.
 
 ---
 
 ## 6. Governance & Security
+
+### 🛡️ Mandatory Security & Guardrails
+
+Agents MUST adhere to the **Security & Guardrails** section appended to the bottom of whatever skill they are currently executing. Bypassing these skill-specific guardrails is strictly forbidden.
 
 ### Forbidden Actions (agents must never do these without explicit human approval)
 
@@ -280,7 +318,7 @@ PR body must include:
 ```
 Gate 1 -- Syntax/Linting:    ESLint / PHP-CS-Fixer / Prettier / Ruff -- zero errors
 Gate 2 -- Type Safety:       tsc --noEmit / PHPStan L9 / mypy -- zero errors
-Gate 3 -- Test Coverage:     >99% coverage, all tests passing, no skipped tests
+Gate 3 -- Test Coverage:     >= 99% coverage, all tests passing, no skipped tests
 Gate 4 -- Integration:       Docker Compose up, API contract validation
 Gate 5 -- Security scan:     npm audit / composer audit -- no critical or high CVEs
 Gate 6 -- Complexity:        Cyclomatic complexity < 10 on modified files
@@ -375,6 +413,15 @@ After 5 failed attempts, agent MUST:
 4. Wait for human response before continuing
 ```
 
+### Self-Evolving Policy (within cost + permission bounds)
+
+The system may keep itself current and improve (new/better skills, tools, MCPs, models) via
+`update-scan.skill` — but only inside hard bounds (full detail in that skill):
+
+- **Allowed** (gated by `GABBE_AUTONOMY` + budget): adopt a cheaper/better reversible+validated tool/model; import a vetted external skill (validated first); refine prompts/personas from **successful** trajectories only.
+- **Always needs human approval** (even under `auto`): anything expensive/SOTA/irreversible, externally-sourced runnable code, or any change to protected files.
+- **Guardrails:** misaligned-replay guard (never learn from failed runs); protected files (never auto-edit build/IaC/CI/dependency manifests outside the self-heal allowlist); policy-as-code self-enforcement with every adoption/rejection logged to `AUDIT_LOG.md`; prefer canary + rollback, version evolved components.
+
 ---
 
 ## 9. Human-in-the-Loop Triggers
@@ -391,6 +438,8 @@ ALWAYS pause and ask:
   - Architectural change (new service, new database, library switch)
   - Any discovered vulnerability that requires feature disablement
   - "I've tried 5 times and cannot fix this" (see Self-Healing Policy)
+  - Any expensive / SOTA-model / irreversible action — even under GABBE_AUTONOMY=auto
+  - Adopting a new tool, model, or externally-sourced skill (see update-scan / skills-registry)
   - [PLACEHOLDER: add project-specific escalation triggers]
 
 Format for human escalation:
@@ -402,6 +451,14 @@ Format for human escalation:
   Recommendation: [option X because Y]
   Awaiting: [specific decision needed]
 ```
+
+**Clarify at every major step (not just at session start).** Per `clarify.skill`, the agent
+estimates its own uncertainty before each major step and asks a focused batch of clarifying
+questions (≈3–6, highest-impact first) whenever interpretation is ambiguous, a decision input is
+missing, retrieval/verification failed, or the action is expensive/irreversible. The amount of
+questioning scales with the `GABBE_AUTONOMY` posture (ask → clarify freely; hybrid → clarify on
+real ambiguity; auto → silent for cheap/reversible work but always pause for the cases above).
+Record assumed defaults in `agents/memory/AUDIT_LOG.md` so silence is informed, not a guess.
 
 ---
 
@@ -464,7 +521,11 @@ Agent context priority: Package AGENTS.md > Root AGENTS.md
 
 ## 12. References
 
-### 3. Skill Access
+**Discover skills via the index — `agents/skills/00-index.md` is the canonical catalog**: native
+skill menus (e.g. Claude Code) may truncate large collections by token budget, so always consult
+the index to find any skill, then read its full file before use. Per-tool skill locations: see §10.
+
+**Skill access (search first, read before use):**
 
 - **Search First**: Before coding, search for relevant skills:
     - **Cursor**: Check `.cursor/rules/` for `.mdc` files.
@@ -475,12 +536,12 @@ Agent context priority: Package AGENTS.md > Root AGENTS.md
 
 ```
 Project law:          agents/CONSTITUTION.md
-Skills registry:      agents/skills/00-index.md
-Language guides:      agents/guides/
-Orchestrators:        agents/skills/brain/README.md
-Brain Patterns:       agents/skills/brain/README.md
+Skills (canonical):   agents/skills/00-index.md   (master: agents/skills/**)
+Guides:               agents/guides/00-index.md
 Templates:            agents/templates/00-index.md
-Quick reference:      QUICK_GUIDE.md
+Personas (Loki):      agents/personas/00-index.md
+Brain patterns:       agents/skills/brain/README.md
+Quick reference:      docs/QUICK_GUIDE.md
 Project memory:       agents/memory/PROJECT_STATE.md
 Past failures:        agents/memory/CONTINUITY.md
 Decision log:         agents/memory/AUDIT_LOG.md
@@ -498,19 +559,33 @@ Every session, agents MUST:
 ```
 START of session:
   1. Read this AGENTS.md
-  2. Read agents/memory/PROJECT_STATE.md (if exists) -> understand current state
-  3. Read agents/memory/CONTINUITY.md (if exists) -> understand past failures
-  4. Load latest agents/memory/episodic/SESSION_SNAPSHOT/ (if exists)
-  5. If resuming: use session-resume.skill for full recovery
-  6. Run integrity-check.skill before starting new work on existing code
+  2. Read agents/memory/RESUME_POINTER.md (the lifeline — current task + NEXT ACTION)
+  3. Read agents/memory/PROJECT_STATE.md (if exists) -> understand current state
+  4. Read agents/memory/CONTINUITY.md (if exists) -> understand past failures
+  5. Load latest agents/memory/episodic/SESSION_SNAPSHOT/ (if exists)
+  6. If resuming: use session-resume.skill for full recovery
+  7. Run integrity-check.skill before starting new work on existing code
+
+CONTINUOUSLY — never lose progress (state-preserve.skill; assume a cutoff at any moment):
+  - After each meaningful step: refresh RESUME_POINTER.md (current task + precise NEXT ACTION)
+    and append the outcome to AUDIT_LOG.md.
+  - Pre-exhaustion flush: when budget/tokens/turns run low or before a long/irreversible action,
+    write a FULL snapshot FIRST (RESUME_POINTER, then snapshot/PROJECT_STATE/CONTINUITY).
+  - On-disk Markdown memory must always suffice for a fresh agent to resume losslessly.
+
+PORTABLE — switch coding agent or LLM anytime (state-portability.skill):
+  DEHYDRATE (state_export.sh → STATE_HANDOFF.md + a lossless bundle) and HYDRATE in the
+  destination agent (state_import.sh), then run session-resume + preflight. Memory + instructions
+  + state are a fully compatible export/import. Never export secrets; merge (don't clobber) on import.
 
 END of session:
   1. Update project/TASKS.md with current status of all in-progress tasks
   2. Write session summary to agents/memory/episodic/ (DECISION_LOG_TEMPLATE.md)
   3. Update agents/memory/PROJECT_STATE.md with current SDLC phase
   4. Write all decisions/outcomes to agents/memory/AUDIT_LOG.md
-  5. Create SDLC checkpoint if a phase was completed
-  6. If stopping mid-task: note exactly where you stopped and why
+  5. Update agents/memory/CONTINUITY.md with lessons learned
+  6. Create SDLC checkpoint if a phase was completed
+  7. If stopping mid-task: note exactly where you stopped and why (RESUME_POINTER)
 ```
 
 ---
@@ -556,6 +631,24 @@ Examples:
 
 **Workflow**: `gabbe init → gabbe sync → gabbe status → gabbe verify → gabbe brain activate → gabbe forecast → gabbe runs → gabbe audit`
 <!-- GABBE_CLI_END -->
+
+---
+
+## Loki & Brain — Agentic Orchestration
+
+Two optional orchestration modes (both run purely via Markdown inference; the `gabbe`
+CLI is optional). Full definitions live in the skills — this is only a pointer (avoid
+restating them here, to prevent drift):
+
+- **🧠 Brain Mode** (`brain/brain-mode.skill.md`) — the Strategist (System 2): meta-cognitive
+  planner/router/optimizer (Active Inference framing + dynamic cost routing). Trigger: `gabbe brain activate`, `supermode`.
+- **⚡ Loki Mode** (`brain/loki-mode.skill.md`) — the Executor (System 1): the deterministic
+  SDLC lifecycle (S00→S13, 14 phases) with human-in-the-loop hard gates at S00 (GO/NO-GO),
+  S01, S02, S07, S08. Trigger: `loki`, `orchestrate`.
+
+Brain Mode **wraps** Loki: it receives the request, routes by complexity/budget, runs Loki for
+the SDLC, and monitors — intervening if cost spikes, errors loop, or requirements drift. Both use
+the same operating spine in §5/§13 (preflight → clarify → act → state-preserve → final-review).
 
 ---
 

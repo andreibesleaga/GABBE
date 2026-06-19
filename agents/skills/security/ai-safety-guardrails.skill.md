@@ -13,14 +13,23 @@ This skill protects the system from its own AI.
 
 ## Steps
 ## 1. Input Guardrails (Defense)
+
+> **KNOWN-WEAK, necessary-not-sufficient layers.** Delimiters/"Sandwich Defense" and
+> pattern-matching jailbreak filters are *trivially bypassed* and must never be the sole or
+> authoritative defense — treat them as cheap pre-filters only. The authoritative controls are
+> structural (instruction hierarchy, dual-LLM quarantine, least-privilege tokens, egress
+> filtering, HITL on trifecta-complete actions). See `prompt-injection-defense.skill` (which
+> states: "Pattern-matching filters and 'ask the LLM to detect the injection' are known-weak and
+> trivially bypassed") for the layered defense these rails must enforce.
+
 - **Prompt Injection**: "Ignore previous instructions".
-  - *Defense*: Delimiters (XML tags), "Sandwich Defense" (System Prompt + User Input + System Reminder).
+  - *Defense (weak pre-filter only)*: Delimiters (XML tags), "Sandwich Defense" (System Prompt + User Input + System Reminder). Bypassable — back it with the structural controls above.
 - **Jailbreaks**: "Do this in 'DAN' mode".
-  - *Defense*: Pattern matching for known jailbreak signatures.
+  - *Defense (weak pre-filter only)*: Pattern matching for known jailbreak signatures. Catches only known strings; never rely on it alone.
 - **PII Scrubbing**: Regex scan input for SSN, Credit Cards, Emails *before* sending to LLM.
 
 ## 2. Output Guardrails (Verification)
-- **Hallucination Check**: "Self-Consistency" (Ask 3 times, take majority).
+- **Reasoning-variance reduction (NOT a factual-hallucination check)**: "Self-Consistency" (sample N times, take the majority answer) reduces *reasoning variance* on tasks with a single correct answer. It does **not** detect factual hallucination — if the model is confidently wrong, all N samples agree and the majority is still wrong. For factual grounding, use retrieval/citation checks and external verification, not self-consistency.
 - **Tone Policing**: Sentiment analysis on output. (Block Toxic/Aggressive responses).
 - **Format Validation**: Ensure JSON is valid JSON.
 

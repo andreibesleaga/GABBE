@@ -9,7 +9,7 @@ This guide explores paradigms that extend beyond pure Large Language Models, off
 ## 1. Neuro-Symbolic AI (Hybrid)
 **The Best of Both Worlds:**
 *   **Neural (System 1):** Fast, intuitive, handles fuzzy data (Images, Text).
-*   **Symbolic (System 2):** Slow, logical, guarantees correctness (Logic, Math, Rules).
+*   **Symbolic (System 2):** Slow, logical, can establish correctness within its formal model (Logic, Math, Rules).
 
 ### Application in Engineering
 *   **Formal Verification:** LLM translates code to Formal Logic (TLA+ / Coq). Symbolic Prover verifies it.
@@ -29,6 +29,11 @@ Instead of "one-shot" generation, use "Population-based" improvement.
 4.  **Crossover/Mutation:** Ask LLM to "Mix strategy A and B" or "Mutate parameter X".
 5.  **Repeat:** Until optimal.
 
+> **Framing vs. implementation.** This is the *evolutionary metaphor*, not what GABBE
+> actually runs. GABBE's real mechanism is a single-parent **LLM-driven rewrite** of a
+> skill steered by an **epsilon-greedy multi-armed bandit** — there is **no crossover and
+> no population culling**. See `ai/self-evolving-skills.md` for the honest accounting.
+
 *See `brain/learning-adaptation.skill.md` and `brain/self-improvement.skill.md`.*
 
 ---
@@ -38,9 +43,14 @@ Instead of "one-shot" generation, use "Population-based" improvement.
 Based on Karl Friston's work. Agents act to confirm their predictions about the world.
 *See `brain/active-inference.skill.md`.*
 
+> **Framing vs. implementation.** In GABBE, "Active Inference" and "minimize free energy/surprise"
+> are *framing words* placed in the brain's system prompt to bias the observe → decide → act loop —
+> there is no variational free energy or generative-model math being computed. See
+> `ai/self-evolving-skills.md` for the honest accounting.
+
 *   **Generative Model:** The Agent maintains a belief state of the Project.
 *   **Prediction Error:** The difference between "Expected State" (All tests pass) and "Sensed State" (Build failed).
-*   **Action:** The Agent codes *solely* to minimize this Prediction Error.
+*   **Action:** The Agent codes to *reduce* this Prediction Error (as a goal, not a computed objective).
 *   **Epistemic Exploration:** Agent acts not just to fix, but to *learn* ("I will add a log to see what's happening").
 
 ---

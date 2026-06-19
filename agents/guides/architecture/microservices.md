@@ -12,11 +12,11 @@
 - Organization is large enough to support operational overhead
 
 **Do NOT use microservices when:**
-- Team < 10 engineers (start with modular monolith)
+- Team is below ~50 engineers and you have not hit a concrete scaling-pain trigger (start with a modular monolith)
 - Domain is not well understood yet (boundaries will be wrong)
 - Operational maturity is not there (monitoring, tracing, CI/CD)
 
-**Start with a modular monolith. Extract services when boundaries are proven.**
+**Start with a modular monolith. Extract services when boundaries are proven** — the rule of thumb is ~50 engineers or a clear scaling-pain trigger (independent deploy cadence, divergent scaling needs), matching `architecture/monolith.md`.
 
 ---
 

@@ -20,7 +20,7 @@ Code is read 10x more than it is written. Optimize for readability and maintaina
 
 ### DRY (Don't Repeat Yourself)
 -   Every piece of knowledge needs a single, unambiguous representation.
--   **Nuance**: duplication of *code* is sometimes verified to avoid coupling. Duplication of *business logic* is always bad.
+-   **Nuance**: incidental duplication of *code* is sometimes tolerable — and even preferable — when removing it would force premature coupling between otherwise-independent modules. Duplication of *business logic* (a single rule encoded in two places) is always bad.
 
 ### KISS (Keep It Simple, Stupid)
 -   Avoid "clever" one-liners.

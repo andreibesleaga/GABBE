@@ -11,6 +11,10 @@ context_cost: low
 ## Goal
 This skill allows a group of agents to agree on a decision when opinions differ (e.g., "Should we refactor or patch?").
 
+> **Canonical owner of the voting algorithm.** Any skill that needs consensus voting
+> (`coordination/persona-selector.skill`, `coordination/multi-agent-orch.skill`) defers to
+> the protocols defined here rather than redefining its own tally rule.
+
 ## Steps
 ## 1. Voting Protocols
 
@@ -20,6 +24,12 @@ This skill allows a group of agents to agree on a decision when opinions differ 
 | **Supermajority** | >66% wins. | Irreversible actions (Delete DB, Change Arch). |
 | **Weighted Voting** | Expert's vote counts 2x. | Technical disputes (Trust `eng-backend` over `prod-pm`). |
 | **Ranked Choice** | Rank A, B, C. | Choosing a library/framework. |
+| **k-threshold ("first-to-ahead-by-k")** | Stop polling as soon as one option leads by `k` votes — don't always poll all N. On no-consensus, escalate to a human. | Cost-gated high-stakes/ambiguous calls (security/compliance/architecture); the canonical early-stopping rule the other coordination skills defer to. |
+
+**k-threshold details** (the single source of truth for this rule):
+- Prefer **diverse lenses** (e.g. correctness / security / cost) over identical voters so the panel catches more failure modes.
+- **Red-flag-discard** structurally-confused outputs (malformed, off-schema, self-contradictory) *before* they get a vote, so noise cannot dilute the tally.
+- Voting multiplies cost — fire it only when stakes + budget justify it; otherwise default to deterministic single-agent execution.
 
 ## 2. Process
 1.  **Proposal**: Agent A proposes "Refactor Auth module".

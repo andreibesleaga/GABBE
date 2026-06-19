@@ -1,4 +1,4 @@
-# Guide: Cryptography & Secrets Management (2025)
+# Guide: Cryptography & Secrets Management (2026)
 <!-- Encryption, Hashing, Key Management, TLS -->
 
 ---
@@ -14,7 +14,7 @@ All network communication must be encrypted.
 Encrypt sensitive data before storing it in databases or file systems.
 
 - **Symmetric Encryption**: Use **AES-256-GCM** or **ChaCha20-Poly1305**. Both provide authenticated encryption (detects tampering).
-- **Asymmetric Encryption**: Use **RSA-2048** (or higher) or Elliptic Curve Cryptography (**ECC**, e.g., Ed25519) for key exchange or digital signatures.
+- **Asymmetric Encryption**: For new RSA keys use **RSA-3072** or higher (RSA-2048 is the absolute minimum for legacy interop). For Elliptic Curve Cryptography, keep signatures and key exchange separate: use **Ed25519** for *digital signatures* and **X25519** for *key exchange / key agreement* — Ed25519 is a signature scheme only and must not be used for key exchange.
 - **Database level**: Utilize provider-level Transparent Data Encryption (TDE) for full disk encryption, plus application-level encryption for highly sensitive column data (e.g., SSNs, medical data).
 
 ## 3. Hashing (Passwords & Integrity)
@@ -36,3 +36,9 @@ API keys, database credentials, and certificates are secrets.
 ## 5. Random Number Generation
 - **CSPRNG**: Always use Cryptographically Secure Pseudo-Random Number Generators (e.g., `/dev/urandom`, `crypto.randomBytes()`, `secrets` module in Python) for tokens, keys, and session IDs.
 - Never use standard `Math.random()` or `rand()` for security purposes.
+
+## 6. Post-Quantum Readiness & Crypto-Agility
+A sufficiently large quantum computer would break RSA and classical ECC ("harvest now, decrypt later" makes long-lived secrets a present-day concern).
+
+- **Standardized PQC**: NIST has standardized **ML-KEM (FIPS 203, formerly CRYSTALS-Kyber)** for key encapsulation and **ML-DSA (FIPS 204, formerly CRYSTALS-Dilithium)** for signatures. Prefer **hybrid** schemes (classical + PQC) during the transition so security holds even if one primitive is broken.
+- **Crypto-agility**: Design systems so algorithms, key sizes, and providers can be swapped without re-architecting. Reference algorithms by configurable identifier rather than hardcoding them, and version your ciphertext/key material so a future rotation to PQC is a configuration change, not a rewrite.

@@ -1,9 +1,9 @@
 ---
 name: reliability-engineering
-description: Designing failover patterns (Hot Standby, TMR), redundancy, and MTTF calculations.
+description: Designing failover patterns (Hot Standby, TMR), redundancy, and MTBF/availability calculations.
 triggers: [reliability engineering]
 tags: [security]
-role: prod-safety-engineer, eng-arch
+role: prod-safety-engineer, prod-architect
 context_cost: low
 ---
 # reliability-engineering Skill
@@ -23,7 +23,8 @@ This skill designs systems that continue to function in the presence of faults.
 - **N-Version Programming**: 3 teams write the same software in 3 languages (Python, Rust, Ada) to avoid common bugs.
 
 ## 3. Calculations
-- **MTBF (Mean Time Between Failures)**: Total Time / Number of Failures.
+- **MTBF (Mean Time Between Failures)**: Total Time / Number of Failures. Use for **repairable** systems (the model used throughout this skill).
+- **MTTF (Mean Time To Failure)**: the analogous metric for **non-repairable** components (you replace, not repair); MTBF ≈ MTTF + MTTR.
 - **Availability**: MTBF / (MTBF + MTTR). Goal: 99.999% ("Five Nines" = 5 mins downtime/year).
 - **Failure Rate ($\lambda$)**: 1 / MTBF.
 

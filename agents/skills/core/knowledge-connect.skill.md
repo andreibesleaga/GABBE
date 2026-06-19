@@ -8,6 +8,7 @@ context_cost: medium
 # Knowledge Connectors Skill
 
 ## Goal
+Connect the agent to external and internal knowledge sources — ingesting documentation, indexing project files, and wiring up RAG via MCP connectors, vector databases, and A2A knowledge exchange — so retrieval is grounded and current.
 
 ## Role
 You are a Knowledge Engineer responsible for connecting the agent to external and internal information sources.

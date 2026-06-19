@@ -63,11 +63,13 @@ tech) is the hard part. → `domain-model.skill`
 
 - **Saga** — manage a distributed transaction as a sequence of local steps + compensations.
 - **Outbox / Inbox** — reliable event publishing alongside a DB write.
-- **Circuit Breaker** — stop calling a failing dependency; fail fast and recover.
+- **Circuit Breaker** — stop calling a failing dependency for a timeout period; fail fast and recover. Avoids cascading failures. Libraries: `Resilience4j` (Java), `Polly` (.NET), `opossum` (Node).
 - **Bulkhead** — isolate resource pools so one failure can't sink the whole system.
 - **Retry with backoff + jitter**, **Timeout**, **Rate Limiting**, **Idempotency key**.
 - **Strangler Fig** — incrementally replace a legacy system. → `enterprise-migration-scenario.skill`, `legacy-modernization.skill`
-- **API Gateway**, **Backend-for-Frontend**, **Sidecar**, **Anti-Corruption Layer**, **Service Mesh**.
+- **API Gateway**, **Anti-Corruption Layer**, **Service Mesh**.
+- **Backend-for-Frontend (BFF)** — separate API/gateway per client type (Mobile/Web/IoT) when one API can't serve all equally.
+- **Sidecar** — run a helper process alongside the main app container to keep infra concerns (logging, mTLS, telemetry) out of application logic. Example: Envoy/Istio.
 - Implemented by `enterprise-patterns.skill`, `error-handling-strategy.skill`, `middleware-design.skill`, `api-design.skill`.
 
 ---

@@ -1,6 +1,6 @@
 ---
 name: loki-mode
-description: Master multi-agent swarm orchestration — coordinates personas across the 10-phase SDLC with checkpoints, memory, and HITL gates.
+description: Master multi-agent swarm orchestration — coordinates personas across the 14-phase lifecycle (10-phase core build loop S01–S10, plus Day-0 S00 and Day-2 S11–S13) with checkpoints, memory, and HITL gates.
 triggers: [loki, swarm, orchestrate, big project, autonomous build, multi-agent, spawn, coordinate swarm]
 tags: [brain]
 core: true
@@ -47,10 +47,11 @@ sections below:
 Before doing anything else (after preflight above):
 
 ```
-1. Check: does agents/memory/PROJECT_STATE.md exist AND phase is a real S01–S10 phase
-   (i.e. NOT one of: absent, NOT_STARTED, S00_INITIALIZED)?
+1. Check: does agents/memory/PROJECT_STATE.md exist AND phase is a real lifecycle
+   phase S00–S13 (i.e. NOT one of: absent, NOT_STARTED)?
    - YES → This is a RESUMED project → invoke session-resume.skill first
            Load all memory (RESUME_POINTER first), then continue from the current phase
+           (S00 Day-0 strategy and S11–S13 Day-2 phases are real phases — resume into them)
    - NO  → This is a NEW project → proceed with INIT below
 ```
 
@@ -77,11 +78,12 @@ Before doing anything else (after preflight above):
 
 ---
 
-## Orchestration Loop — 10 SDLC Phases
+## Orchestration Loop — 14-Phase Lifecycle (S00–S13)
 
-Run each phase in order; gate before advancing. **Full per-phase detail (personas, tasks,
-outputs, gates, checkpoints) lives in `agents/guides/processes/loki-sdlc-phases.md`** — load it
-on demand when orchestrating.
+Run each phase in order; gate before advancing. The lifecycle is **14 phases**: a 10-phase
+**core** build loop (S01–S10) bracketed by Day-0 strategy (S00) and Day-2 operate/evolve/sunset
+(S11–S13). **Full per-phase detail (personas, tasks, outputs, gates, checkpoints) lives in
+`agents/guides/processes/loki-sdlc-phases.md`** — load it on demand when orchestrating.
 
 | Phase | Persona(s) | Output | Gate |
 |---|---|---|---|
@@ -137,6 +139,7 @@ On unexpected interruption (context limit, crash):
 ## Human-in-the-Loop Protocol
 
 Loki Mode requires human approval at these gates (consistent with `sdlc-checkpoint.skill`):
+- **S00**: Strategy & discovery GO/NO-GO (problem statement, opportunity) — hard stop before any build
 - **S01**: Requirements approval (PRD.md) — hard stop
 - **S02**: Architecture approval (PLAN.md + threat model) — hard stop
 - **S07**: Security sign-off (SECURITY_REVIEW.md — accepted risks / no HIGH findings)
@@ -245,8 +248,8 @@ Current position: Phase S0X, Task T-NNN
 
 ### Steps
 ## 1. Skill Security (Loki Mode)
-- **Swarm Blast Radius**: Because `loki-mode` orchestrates multiple autonomous personas concurrently, a compromised sub-agent can execute tasks rapidly without individual human oversight. Loki must enforce mathematically rigid boundaries for each persona: a `prod-pm` persona must physical lack the kernel-level permissions to execute code, and an `eng-qa` persona must lack permissions to deploy or merge to the `main` branch.
-- **Gate Override Protection**: The 10-Phase SDLC contains mandatory "HUMAN APPROVAL REQUIRED" gates (S01, S02, S07, S08). Loki is strictly prohibited from autonomously advancing `PROJECT_STATE.md` to the next phase without cryptographically verifying a Human-In-The-Loop interaction. The LLM must not be allowed to "hallucinate" human approval based on implicit context.
+- **Swarm Blast Radius**: Because `loki-mode` orchestrates multiple autonomous personas concurrently, a compromised sub-agent can execute tasks rapidly without individual human oversight. Loki must enforce mathematically rigid boundaries for each persona: a `prod-pm` persona must physically lack the kernel-level permissions to execute code, and an `eng-qa` persona must lack permissions to deploy or merge to the `main` branch.
+- **Gate Override Protection**: The 14-phase lifecycle contains mandatory "HUMAN APPROVAL REQUIRED" gates (S00 GO/NO-GO, S01, S02, S07, S08). Loki is strictly prohibited from autonomously advancing `PROJECT_STATE.md` to the next phase without cryptographically verifying a Human-In-The-Loop interaction. The LLM must not be allowed to "hallucinate" human approval based on implicit context.
 
 ### 2. System Integration Security
 - **Check-Point Integrity**: Loki utilizes `sdlc-checkpoint.skill` to save state. If an attacker manipulates the filesystem to alter `SESSION_SNAPSHOT` or `CONTINUITY.md` between phases, Loki will reboot into a compromised state. The orchestrator must generate hashes of critical checkpoints and verify them upon resumption to prevent rollback or state-tampering attacks.
@@ -258,7 +261,7 @@ Current position: Phase S0X, Task T-NNN
 
 ### 4. Experimental CLI Integration & Swarm Containment
 - **Optional Enhancement**: The `gabbe` CLI is strictly optional. Loki Mode can be operated entirely as a conceptual orchestration framework driven exclusively by an LLM reading this markdown file (e.g., inside Cursor, Claude Code, or Copilot).
-- **Platform Control Limits**: If utilizing the experimental CLI, Swarm engineering runs using multiple sub-agents can exhaust LLM tokens exponentially. `loki-mode` should strictly be operated inside the boundaries of `gabbe serve-mcp` or `gabbe verify` gateways so all API calls adhere to the mathematical budgets outlaid in `PLATFORM_CONTROLS.md`.
+- **Platform Control Limits**: If utilizing the experimental CLI, Swarm engineering runs using multiple sub-agents can exhaust LLM tokens exponentially. `loki-mode` should strictly be operated inside the boundaries of `gabbe serve-mcp` or `gabbe verify` gateways so all API calls adhere to the budgets laid out in `PLATFORM_CONTROLS.md`.
 - **Enforced Determinism**: When using the CLI, Loki commits its entire SDLC transitions to the SQLite internal `project/state.db`. If any sub-agent violates the `PolicyEngine` (such as accessing restricted tools), the RunContext halts Swarm execution and generates a `pending_escalation` requiring human remediation.
 
 ### 5. Agent-Only (CLI-Less) Execution Tactics

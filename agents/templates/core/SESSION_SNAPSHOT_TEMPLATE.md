@@ -1,5 +1,5 @@
 # Session Snapshot — S[XX]_[PHASE_NAME]
-<!-- Created by: sdlc-checkpoint.skill -->
+<!-- Created by: sdlc-checkpoint.skill (the SESSION_SNAPSHOT/ directory is created on first checkpoint) -->
 <!-- Store in: agents/memory/episodic/SESSION_SNAPSHOT/S[XX]_[phase].md -->
 <!-- IMMUTABLE after creation — never overwrite, create new snapshot for revisions -->
 
@@ -7,7 +7,7 @@
 
 **Snapshot ID:** S[XX]-[YYYYMMDD]-[HH]
 **Timestamp:** [ISO 8601: 2025-03-15T14:30:00Z]
-**SDLC Phase:** S[XX] — [Phase Name: REQUIREMENTS/DESIGN/SPEC/TASKS/IMPLEMENTATION/TESTING/SECURITY/REVIEW/STAGING/PRODUCTION]
+**SDLC Phase:** S[XX] — [Phase Name: DISCOVERY(S00)/REQUIREMENTS(S01)/DESIGN(S02)/SPEC(S03)/TASKS(S04)/IMPLEMENTATION(S05)/TESTING(S06)/SECURITY(S07)/REVIEW(S08)/STAGING(S09)/PRODUCTION(S10)/OPERATE(S11)/EVOLVE(S12)/DECOMMISSION(S13)]
 **Created by:** [agent persona name or "human"]
 **Project:** [Project name from AGENTS.md]
 
@@ -19,7 +19,7 @@
 SDLC Phase:           S[XX] — [Phase Name]
 Phase status:         COMPLETED / IN_PROGRESS
 Gate criteria met:    YES / NO (if NO, explain)
-Overall progress:     [X]/10 phases complete
+Overall progress:     [X]/14 phases complete (S00–S13)
 Confidence:           HIGH / MEDIUM / LOW
 ```
 

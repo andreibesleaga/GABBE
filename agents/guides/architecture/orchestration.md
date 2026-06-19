@@ -9,7 +9,7 @@ This directory contains the **High-Level Orchestrators** for the Agentic Enginee
 
 - **Role**: Meta-Cognitive Orchestrator.
 - **Function**: Plans, Routes, and Optimizes.
-- **Logic**: Active Inference (Free Energy Principle).
+- **Logic**: Active Inference (Free Energy Principle) — used here as conceptual *framing* for the observe → decide → act loop, not implemented variational math. See `ai/self-evolving-skills.md` for the honest accounting.
 - **Use Case**: Complex, ambiguous, or high-stakes projects.
 - **Key Feature**: **Dynamic Cost Routing** (Local vs Remote).
 
@@ -21,8 +21,8 @@ This directory contains the **High-Level Orchestrators** for the Agentic Enginee
 > **The Executor (System 1)**
 
 - **Role**: SDLC Orchestrator.
-- **Function**: Executes the 10-Phase Engineering Lifecycle.
-- **Logic**: Deterministic Workflow (S01 -> S10).
+- **Function**: Executes the 14-phase lifecycle (10-phase core build loop S01–S10, plus Day-0 S00 and Day-2 S11–S13).
+- **Logic**: Deterministic Workflow (core build loop S01 -> S10).
 - **Use Case**: Building software with strict process requirements.
 - **Key Feature**: **Human-in-the-Loop Gates**.
 

@@ -13,7 +13,7 @@ Never roll your own crypto or identity provider. Use established standards.
 
 ### JWT Best Practices
 - **Algorithm**: Enforce `alg: RS256` (or EdDSA). NEVER allow `alg: none`.
-- **Payload**: Never store PII or sensitive data in the JWT payload (it's bas64 encoded, not encrypted).
+- **Payload**: Never store PII or sensitive data in the JWT payload (it's base64 encoded, not encrypted).
 - **Validation**: Always validate `exp` (expiration), `iss` (issuer), and `aud` (audience).
 
 ## 2. Authorization (Access Control)

@@ -11,6 +11,8 @@ context_cost: medium
 ## Goal
 Transform a user goal or feature request into a structured PRD using EARS syntax. Before generating requirements, invoke the ambiguity layer to clarify unclear aspects. Human approval required before proceeding to implementation.
 
+> **Boundary vs `product/req-elicitation.skill`:** `req-elicitation` is the heavyweight IEEE 29148 / IREB elicitation pass (stakeholder interviews, use cases → full `EARS_REQUIREMENTS.md`). `spec-writer` is the fast feature-to-PRD path that reuses the **same EARS forms** (defined canonically in `req-elicitation`). For large or regulated requirement sets, run `req-elicitation`; use `spec-writer` for a single feature's PRD. Both must use the identical EARS patterns.
+
 ## Steps
 
 1. **Receive and understand the goal**
@@ -59,11 +61,12 @@ Transform a user goal or feature request into a structured PRD using EARS syntax
    THE SYSTEM SHALL require a TOTP code on each login attempt.
    ```
 
-   **Unwanted Behavior** (negative requirements):
+   **Unwanted Behavior** (defensive requirements — canonical `IF…THEN` form):
    ```
-   THE SYSTEM SHALL NOT store plaintext passwords in any medium.
-   THE SYSTEM SHALL NOT expose internal stack traces in HTTP responses.
+   IF a password is submitted for storage THEN THE SYSTEM SHALL hash it and SHALL NOT store the plaintext in any medium.
+   IF an unhandled error occurs THEN THE SYSTEM SHALL return a generic error and SHALL NOT expose internal stack traces in HTTP responses.
    ```
+   (Matches the `IF [unwanted condition] THEN the [system] shall [protective response]` form in `req-elicitation.skill` / `req-review.skill`.)
 
 5. **Write acceptance criteria**
    Each requirement needs 1+ verifiable acceptance criteria:

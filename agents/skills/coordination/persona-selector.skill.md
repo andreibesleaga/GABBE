@@ -35,7 +35,7 @@ CONTRACT
 - **Validation:** delegation targets MUST be a real, approved persona from the registry (see Security — no hallucinated personas like `eng-god-mode`).
 
 ## Voting (consensus for high-stakes decisions)
-For high-stakes, ambiguous decisions (e.g. a security/compliance/architecture call), optionally spawn a small panel of personas/attempts and take a **k-threshold consensus** (MAKER-style): accept the option that leads by `k`; on no-consensus, escalate to a human.
+For high-stakes, ambiguous decisions (e.g. a security/compliance/architecture call), optionally spawn a small panel of personas/attempts and take a **k-threshold consensus** (MAKER-style): accept the option that leads by `k`; on no-consensus, escalate to a human. **The voting algorithm itself (tally rule, first-to-ahead-by-k early stopping, red-flag-discard) is owned by `coordination/swarm-consensus.skill` — defer to it; this section only decides *when* to convene a panel.**
 - Cost-gate it: voting multiplies cost, so only fire when `GABBE_AUTONOMY` + budget allow and the decision's stakes justify it.
 - Prefer **diverse lenses** over identical voters (e.g. correctness / security / cost) so the panel catches more failure modes.
 - Default to deterministic single-persona execution for ordinary tasks.

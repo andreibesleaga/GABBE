@@ -223,9 +223,15 @@ tests/integration/api/[resource].test.ts
 ```
 
 ### Coverage Target
-- Domain layer: > 99%
-- Application layer: > 85%
-- Adapters layer: > 99% (integration tests)
+
+<!-- Respect the test pyramid: unit-heavy domain layer carries the highest coverage;
+     integration-level adapter coverage targets critical paths, not every branch.
+     Keep these in sync with coding/TEST_PLAN_TEMPLATE.md §2. -->
+
+- Domain layer (unit): >= 99%
+- Application layer (unit): > 90%
+- Adapters layer (integration): critical paths covered (~70–80% — integration tests
+  exercise wiring, not every branch)
 
 ---
 

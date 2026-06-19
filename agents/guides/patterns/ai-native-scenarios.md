@@ -12,7 +12,7 @@ This guide explores advanced "in the wild" use cases where GABBE 2.0 excels, lev
 2. **Key Steps:**
    - **Extract Logic:** The agent separates UI-only "vibe" code from business logic.
    - **Apply Types:** Moving from `any` or loose JS to strict TypeScript.
-   - **Add Gates:** Setting up `ESLint` and `Pretier` to enforce the style discovered during the "vibe" phase.
+   - **Add Gates:** Setting up `ESLint` and `Prettier` to enforce the style discovered during the "vibe" phase.
 
 ---
 
@@ -46,7 +46,7 @@ This guide explores advanced "in the wild" use cases where GABBE 2.0 excels, lev
 
 ## 4. Multi-Agent Competitive Design (Brain Mode)
 
-**The Scenario:** You have a high-stakes architectural decision (e.g., GraphQL vs REST for a high-traffic API) and want the agent to simulate a debate between two विशेषज्ञ (specialist) personas.
+**The Scenario:** You have a high-stakes architectural decision (e.g., GraphQL vs REST for a high-traffic API) and want the agent to simulate a debate between two specialist personas.
 
 ### Workflow:
 1. **Prompt:**

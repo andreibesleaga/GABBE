@@ -1,8 +1,12 @@
-# The Undying Tech Stack: Legacy Systems in 2025
+# The Undying Tech Stack: Legacy Systems in 2026
 
 Legacy systems are not "dead" code. They are "proven" code.
 
-> **Statistic**: In 2025, many of the world's banking transactions still touch a Mainframe. 95% of ATM swipes invoke COBOL.
+> **Context**: As of 2026, a large share of the world's banking and payment transactions
+> still touch a mainframe, and COBOL remains pervasive in core banking and ATM networks.
+> The often-quoted "95% of ATM swipes run COBOL" figure traces to a 2017 Reuters report
+> attributed to industry estimates and has not been rigorously verified — treat it as a
+> widely-cited illustration of COBOL's footprint, not a precise measurement.
 
 ## 1. The Critical Stack
 
@@ -12,7 +16,7 @@ Legacy systems are not "dead" code. They are "proven" code.
 -   **Risk**: Talent shortage. The average COBOL dev is 55+ years old.
 
 ### Fortran (Formula Translation)
--   **Why it survives**: Speed. It is still faster than C/C++ for certain linear algebra operations.
+-   **Why it survives**: Speed. For certain dense numerical/array workloads it can match or beat naively-written C/C++ — partly because Fortran's lack of pointer aliasing lets compilers optimize array loops more aggressively, and because of decades of highly-tuned numerical libraries (BLAS/LAPACK). With equivalent effort and modern compilers, C/C++ is competitive; the advantage is workload- and code-specific, not absolute.
 -   **Where lies**: Weather forecasting, Nuclear simulation, Aerospace (NASA/Boeing).
 
 ### Mainframe (IBM Z-Series)

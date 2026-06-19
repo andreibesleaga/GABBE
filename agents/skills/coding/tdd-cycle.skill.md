@@ -80,7 +80,7 @@ Report: "DONE — [test name] passes. All [N] tests passing. Coverage: [X]%"
 ## Security & Guardrails
 
 ### 1. Skill Security (TDD Cycle)
-- **Trivial Red Phase (The Illusion of Failure)**: In Phase 1, the agent must write a failing test. If the agent writes a test that expects a specific specific string error ("Invalid email format"), but the code fails by throwing a generic NullPointerException, the test is "Red," but for the *wrong reason*. The agent must semantically verify that the Red state directly maps to the exact EARS requirement, rejecting tests that fail due to arbitrary syntax or unrelated setup errors.
+- **Trivial Red Phase (The Illusion of Failure)**: In Phase 1, the agent must write a failing test. If the agent writes a test that expects a specific string error ("Invalid email format"), but the code fails by throwing a generic NullPointerException, the test is "Red," but for the *wrong reason*. The agent must semantically verify that the Red state directly maps to the exact EARS requirement, rejecting tests that fail due to arbitrary syntax or unrelated setup errors.
 - **The "Over-Mocked" Green Phase**: To achieve the "Green" state quickly (Phase 2), the agent might rely entirely on deeply mocking the surrounding architecture (mocking the DB, mocking the auth layer, mocking the validation). While this passes the unit test, it creates a massive blind spot where integration vulnerabilities (like SQL injection) emerge in reality. The agent must limit mocking to true external boundaries, testing business logic against real or purely in-memory data structures whenever possible.
 
 ### 2. System Integration Security

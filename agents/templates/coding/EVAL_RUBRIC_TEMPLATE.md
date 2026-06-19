@@ -21,6 +21,13 @@ with anchored definitions so the judge (and humans during calibration) score con
 
 Weights must sum to 1.0. Weighted score = Σ(criterion_score × weight).
 
+**Score normalization (canonical rule — state once, reuse everywhere):** criteria are
+scored on a **1–5** scale; the **normalized** score used by automated gates is
+`normalized = weighted_score / 5` (range 0–1). So a rubric threshold of `>= 4.0/5` is the
+**same gate** as a harness `threshold: 0.8` (4.0 ÷ 5 = 0.8). Pick one representation per
+config and note the equivalence; e.g. `coding/GOLDEN_DATASET_TEMPLATE.md` expresses the
+same bar as `threshold: 0.8`.
+
 ## Scoring Mode
 
 - **Mode**: [pairwise — compare candidate A vs B and pick a winner | pointwise — score one output in isolation against the anchors].

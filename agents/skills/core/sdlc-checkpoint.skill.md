@@ -13,6 +13,11 @@ Create durable snapshots at each SDLC gate so the project can be resumed, audite
 
 ## SDLC Phases
 
+> This table details the gate criteria for the **10-phase core build loop (S01–S10)**. The
+> full lifecycle is 14 phases: Day-0 strategy **S00** (GO/NO-GO gate) runs before S01, and
+> Day-2 **S11–S13** (operate / evolve / sunset) run after S10. Checkpoint those phases too —
+> see `brain/loki-mode.skill` for the complete S00–S13 phase table and gates.
+
 | Phase | Name | Gate Criteria |
 |---|---|---|
 | S01 | REQUIREMENTS | PRD.md with EARS syntax, ambiguities resolved, human approval |
@@ -20,7 +25,7 @@ Create durable snapshots at each SDLC gate so the project can be resumed, audite
 | S03 | SPECIFICATION | Technical spec finalized, API contracts defined, migration plan ready |
 | S04 | TASKS | Tasks decomposed to ~15-min units, all accepted |
 | S05 | IMPLEMENTATION | All tasks in project/TASKS.md have status DONE |
-| S06 | TESTING | All tests passing, coverage > 99%, 7-gate quality passed |
+| S06 | TESTING | All tests passing, coverage >= 99%, 7-gate quality passed |
 | S07 | SECURITY | SECURITY_CHECKLIST.md completed, no critical CVEs, threat mitigations verified |
 | S08 | REVIEW | Human code review approved, all blocking feedback addressed |
 | S09 | STAGING | Deployed to staging, smoke tests passing |
@@ -129,7 +134,7 @@ Create durable snapshots at each SDLC gate so the project can be resumed, audite
 
 ## Constraints
 - NEVER create a checkpoint if gate criteria are not met
-- NEVER advance to next phase without human approval at S01, S02, S07, S08
+- NEVER advance to next phase without human approval at the hard gates **S00 (GO/NO-GO), S01, S02, S07, S08** (S03 is a lighter/async review — not a hard stop). This set matches `brain/loki-mode.skill`.
 - Snapshots are immutable — never overwrite a snapshot file (create a new one if re-doing a phase)
 - Git tag must match snapshot filename for traceability
 

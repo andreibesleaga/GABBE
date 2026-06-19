@@ -6,6 +6,51 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [1.1.1] — 2026-06-19 — Capability-layer content audit (consistency, accuracy, honesty)
+
+Patch release. A deep semantic/structural audit of the Markdown capability layer
+(skills, guides, templates, brain/loki docs) was run and its findings fixed.
+Content-only and strictly additive — no public API / CLI / config / DB change;
+all six backward-compat gates pass and the emitter golden vault was recaptured.
+
+### Fixed — consistency
+- **Unified the SDLC phase model** across skills, guides, templates and `AGENTS.md`:
+  the lifecycle is consistently described as **S00–S13 (14 phases = 10-phase core
+  build loop S01–S10 + Day-0 S00 + Day-2 S11–S13)**; resume-guards, checkpoint
+  tables and `[X]/10` counters now cover S00–S13 so Day-0/Day-2 work is never
+  treated as "not a real phase".
+- **Unified the human-in-the-loop hard-gate set** to **S00 (GO/NO-GO), S01, S02,
+  S07, S08** everywhere (S00 was previously dropped from several "canonical" lists).
+- **Coverage gate** stated as `>= 99%` consistently; example logs that showed a
+  sub-99% run as `PASS` were corrected.
+- **`AGENTS_TEMPLATE.md` re-synced to the live operating spine** (Step 0 Preflight,
+  the CRITICAL MANDATES, RESUME_POINTER continuity, Self-Evolving policy, Loki/Brain
+  orchestration), honouring `AGENTS.md`'s "both modes share the same spine" invariant.
+- **De-duplicated overlapping guides** (`design-patterns`↔`software-design-patterns`,
+  `agentic-patterns`↔`agentic-design-patterns`) to a single source of truth + pointers.
+
+### Fixed — accuracy & honesty
+- **Brain/Active-Inference honesty**: `ADR-0002`, `beyond-llms.md`,
+  `agent-only-cognition.md` and the `cost-benefit-router` skill now describe the
+  **actual** mechanism (epsilon-greedy bandit + single-parent LLM rewrite; no
+  crossover/culling; `gabbe route` is a separate one-shot decision) and label
+  Active-Inference/Free-Energy framing as *framing, not implemented math*; removed
+  "guarantees correctness"/"mathematically guarantees" superlatives.
+- **Security/crypto**: corrected an inverted allow-list instruction; replaced a
+  non-existent tool name (`Rebertha` → **Presidio**); down-ranked known-weak prompt
+  defenses; fixed Ed25519/X25519 conflation, `RFC 7807`→`RFC 9457`, CRYSTALS-Kyber→
+  **ML-KEM (FIPS 203)**, added a post-quantum/crypto-agility note; pseudonymization vs
+  anonymization; keyed-HMAC blind indexing.
+- **Restored a corrupted architecture diagram + step list** in `ai-agentic.md`.
+- Fixed broken capability references, the "Lethal Trifecta" misuse in
+  `critical-systems-arch.md`, conflicting monolith→microservices thresholds, stale
+  frontier-model names, several typos, and markdownlint blank-line compliance.
+
+> Lower-severity stylistic items remain tracked; this release clears every blocker
+> and major finding from the audit.
+
+---
+
 ## [1.1.0] — 2026-06-19 — Install safety, brownfield mode, fuller population, broader tests
 
 Minor release. New features and a hardened install/uninstall contract. Backward

@@ -177,7 +177,7 @@ sequenceDiagram
 
 ## 7. Design Readiness Checklist
 
-**All required items must pass before proceeding to S02 Architecture / S03 Implementation.**
+**All required items must pass before proceeding to S02 Architecture / S03 Specification.**
 
 ### Required
 - [ ] System architecture diagram (C4 Context minimum) — present and human-verified

@@ -277,6 +277,19 @@ ln -sf /path/to/agents/skills/*/*.skill.md ~/.agent/skills/
 | Skill | File | Context | Purpose |
 |---|---|---|---|
 | Active Inference | `brain/active-inference.skill.md` | high | Predictive error minimization loop |
+| Cognitive Architectures | `brain/cognitive-architectures.skill.md` | ref | Cognitive Turing Machine theory |
+| Consciousness Loop | `brain/consciousness-loop.skill.md` | high | OODA + Strange Loops |
+| Cost-Benefit Router | `brain/cost-benefit-router.skill.md` | high | Local vs Remote model routing |
+| Episodic Consolidation | `brain/episodic-consolidation.skill.md` | high | Long-term vector storage |
+| Epistemology Knowledge | `brain/epistemology-knowledge.skill.md` | ref | Knowledge theory foundations |
+| Global Workspace | `brain/global-workspace.skill.md` | high | Central attention management |
+| Learning Adaptation | `brain/learning-adaptation.skill.md` | med | Neuroplasticity mechanisms |
+| Neuroscience Foundations | `brain/neuroscience-foundations.skill.md` | ref | Cortico-Thalamic theory |
+| Self Improvement | `brain/self-improvement.skill.md` | high | Recursive self-editing |
+| Sensory Motor | `brain/sensory-motor.skill.md` | med | Embodied tool use |
+| Sequential Thinking | `brain/sequential-thinking.skill.md` | think, reason | Step-by-step reasoning |
+| Working Memory | `brain/working-memory.skill.md` | high | Session state management |
+| Cognitive Testing | `brain/cognitive-testing.skill.md` | cognitive test, invariant, convergence, shadow test | Test cognitive loops by invariants |
 
 ### 10. AI & Swarms (`ai/`)
 | Skill | File | Triggers | Purpose |
@@ -288,31 +301,18 @@ ln -sf /path/to/agents/skills/*/*.skill.md ~/.agent/skills/
 | Beyond LLMs | `ai/beyond-llms.skill.md` | neuro-symbolic | Non-LLM techniques |
 | Multi-Agent Sys | `ai/multi-agent-systems.skill.md` | mas, swarm | Orchestrate MAS |
 | Auto Swarm Pat. | `ai/autonomous-swarm-patterns.skill.md` | swarm patterns | Self-organizing swarms |
-| Cognitive Architectures | `brain/cognitive-architectures.skill.md` | ref | Cognitive Turing Machine theory |
-| Consciousness Loop | `brain/consciousness-loop.skill.md` | high | OODA + Strange Loops |
-| Cost-Benefit Router | `brain/cost-benefit-router.skill.md` | high | Local vs Remote model routing |
-| Episodic Consolidation | `brain/episodic-consolidation.skill.md` | high | Long-term vector storage |
-| Epistemology Knowledge | `brain/epistemology-knowledge.skill.md` | ref | Knowledge theory foundations |
-| Global Workspace | `brain/global-workspace.skill.md` | high | Central attention management |
-| Learning Adaptation | `brain/learning-adaptation.skill.md` | med | Neuroplasticity mechanisms |
-| Neuroscience Foundations | `brain/neuroscience-foundations.skill.md` | ref | Cortico-Thalamic theory |
-| Self Improvement | `brain/self-improvement.skill.md` | high | Recursive self-editing |
-| Sensory Motor | `brain/sensory-motor.skill.md` | med | Embodied tool use |
-| Sequential Thinking | `brain/sequential-thinking.skill.md` | think, reason | medium | Step-by-step reasoning |
-| Working Memory | `brain/working-memory.skill.md` | high | Session state management |
 | LLM-as-Judge | `ai/llm-as-judge.skill.md` | llm judge, rubric scoring, eval bias | Score outputs with an LLM judge |
 | RAG Evaluation | `ai/rag-evaluation.skill.md` | rag eval, faithfulness, context precision | Reference-free RAG metrics |
-| Cognitive Testing | `brain/cognitive-testing.skill.md` | cognitive test, invariant, convergence, shadow test | Test cognitive loops by invariants |
 | Context Engineering | `ai/context-engineering.skill.md` | context window, compaction, retrieval, prompt caching | Write/Select/Compress/Isolate context |
 | Reasoning Patterns | `ai/reasoning-patterns.skill.md` | chain of thought, tree of thoughts, react, self-consistency | Reasoning-technique selection by problem shape |
 
-### 10. Activation Modes (`brain/`)
+### 11. Activation Modes (`brain/`)
 | Skill | File | Triggers | Context | Purpose |
 |---|---|---|---|---|
 | **Brain Mode** | `brain/brain-mode.skill.md` | brain activate, supermode | high | **Meta-Cognitive Orchestrator** (Active Inference + Routing) |
-| Loki Mode | `brain/loki-mode.skill.md` | loki, swarm | high | Standard 10-phase SDLC Orchestrator |
+| Loki Mode | `brain/loki-mode.skill.md` | loki, swarm | high | 14-phase lifecycle orchestrator (10-phase core build loop S01–S10 + Day-0 S00 + Day-2 S11–S13) |
 
-### 11. Industry Specifications (`industry/`)
+### 12. Industry Specifications (`industry/`)
 | Skill | File | Triggers | Purpose |
 |---|---|---|---|
 | Healthcare FHIR | `industry/healthcare-fhir.skill.md` | fhir, hl7 | Clinical integration |

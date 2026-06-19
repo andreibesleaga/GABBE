@@ -32,4 +32,4 @@ Software engineering moves fast. In 2026, we are building the foundations for 20
 
 ## 6. Post-Quantum Cryptography (PQC)
 -   **Threat**: Quantum computers (2030+) will break RSA/ECC encryption.
--   **Action**: Start adopting NIST-approved PQC algorithms (CRYSTALS-Kyber) for long-term data storage.
+-   **Action**: Start adopting NIST-approved PQC algorithms (ML-KEM (FIPS 203, formerly CRYSTALS-Kyber)) for long-term data storage.

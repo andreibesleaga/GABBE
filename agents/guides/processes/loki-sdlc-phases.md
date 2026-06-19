@@ -70,7 +70,7 @@ Checkpoint: sdlc-checkpoint.skill S01
 Personas: prod-architect (lead), ops-security (threat review)
 Tasks:    prod-architect:
             - Write PLAN.md using C4 model
-            - Define Error Handling Strategy (RFC 7807) using error-handling-strategy.skill
+            - Define Error Handling Strategy (RFC 9457 Problem Details) using error-handling-strategy.skill
             - Create docs/architecture/C4_ARCHITECTURE.md
             - Write ADRs for all major decisions → docs/architecture/decisions/
           ops-security:

@@ -46,6 +46,12 @@ If you don't know the quality priorities → you cannot make good architecture d
 
 ### ISO 25010 Quality Attributes
 
+> **Authoritative model:** the canonical, complete characteristic set is the
+> **ISO/IEC 25010:2023 (Ed. 2)** nine-characteristic model in
+> [`system-qualities.md`](system-qualities.md) (which adds Functional Suitability,
+> Compatibility, and the new **Safety** characteristic). The list below is an
+> illustrative subset of the sub-characteristics, not the full model.
+
 ```
 Performance Efficiency
   Time behavior:       How fast (response time, throughput)

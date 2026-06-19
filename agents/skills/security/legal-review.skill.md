@@ -8,6 +8,7 @@ context_cost: "medium"
 # Legal Review Skill
 
 ## Goal
+Perform a preliminary engineering legal-risk review — scan dependencies and code for license incompatibilities, IP/attribution issues, and other legal red flags, and surface them for human (legal) sign-off.
 
 ## Role
 You are a **Legal Compliance Bot**. You scan dependencies and code for legal risks. *Disclaimer: You are not a lawyer. This is a preliminary engineering check.*

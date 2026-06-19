@@ -65,7 +65,7 @@ EXAMPLE ENTRIES (remove this comment block when using):
 | 2025-03-15T16:00:00Z | S05-001 | eng-backend | TASK_BLOCKED | T-020: Cannot implement payment integration — unclear if Stripe or Paddle | OPEN | project/TASKS.md |
 | 2025-03-15T16:01:00Z | S05-001 | eng-backend | HUMAN_ESCALATION | T-020 blocked: Payment provider not decided. Options: Stripe (fees: 2.9%) vs Paddle (fees: 5%). Recommend Stripe (direct settlement). | ESCALATED | project/TASKS.md |
 | 2025-03-15T16:45:00Z | S05-001 | human:bob | DECISION | Use Stripe for payment processing — direct settlement preferred | APPROVED | — |
-| 2025-03-15T17:00:00Z | S06-001 | orch-judge | QUALITY_GATE | Gate 3 Tests: 247 pass, 0 fail, 0 skip, 84% coverage | PASS | — |
+| 2025-03-15T17:00:00Z | S06-001 | orch-judge | QUALITY_GATE | Gate 3 Tests: 247 pass, 0 fail, 0 skip, 99% coverage | PASS | — |
 | 2025-03-15T17:05:00Z | S07-001 | ops-security | SECURITY_FINDING | HIGH: No rate limit on /auth/login endpoint — brute force possible | OPEN | src/adapters/http/auth.controller.ts:23 |
 | 2025-03-15T17:30:00Z | S07-001 | eng-backend | TASK_DONE | Added rate limiting to /auth/login: 5 req/min per IP | SUCCESS | src/adapters/http/auth.controller.ts |
 | 2025-03-15T17:31:00Z | S07-001 | ops-security | SECURITY_FINDING | HIGH: No rate limit on /auth/login — RESOLVED | RESOLVED | src/adapters/http/auth.controller.ts |

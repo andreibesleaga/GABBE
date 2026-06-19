@@ -8,8 +8,7 @@
 ```
 ┌─────────────────────────────────────────────────────┐
 │ AGENTS.md (Agent Context Layer)                      │
-│  - Project `diagramming`, `domain-model`, `adaptive-architecture`, `compatibility-design` | diagram, domain, local-first, compatibility |
-| `architecture-governance`, `error-handling-strategy`, `event-governance` | archunit, error handling, schema registry |identity, commands, architecture rules    │
+│  - Project identity, commands, architecture rules    │
 │  - Workflow policies, research rules, self-heal limits│
 ├─────────────────────────────────────────────────────┤
 │ Skills (Capability Layer)                            │
@@ -103,8 +102,7 @@ Process:
   1. Identify architecture impact — which layers change?
   2. Create ADR for each significant technology decision
   3. Create C4 Level 1-3 diagrams
-  4. Invoke `security-audit`, `threat-model`, `privacy-audit`, `compliance-review`, `legal-review` | security, threat, privacy, SOC2, legal |
-| `access-control`, `data-governance`, `backup-recovery`, `queue-management` | rbac, lineage, backup, dlq |threat-model.skill for security features
+  4. Invoke `threat-model.skill` for security features
   5. Write PLAN.md with ordered implementation phases
 Output: PLAN.md + ADRs + threat model — human reviews and approves
 ```

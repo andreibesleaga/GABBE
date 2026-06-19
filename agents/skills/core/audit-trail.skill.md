@@ -69,7 +69,7 @@ HUMAN_APPROVED   - Human provided approval for a phase or decision
    | 2025-03-15T16:45:00Z | S05-001 | eng-backend | SELF_HEAL_ATTEMPT | Type error on UserDto.email field — attempt 1/5 | FAIL | src/application/create-user.use-case.ts:42 |
    | 2025-03-15T16:50:00Z | S05-001 | eng-backend | TASK_DONE | Fixed type error via research (strict null check) | SUCCESS | src/application/create-user.use-case.ts |
    | 2025-03-15T17:00:00Z | S05-001 | ops-security | SECURITY_FINDING | HIGH: Missing rate limit on /auth/login | OPEN | src/adapters/http/auth.controller.ts:23 |
-   | 2025-03-15T17:30:00Z | S06-001 | orch-judge | QUALITY_GATE | Gate 3 Tests: 247 pass, 0 fail, 84% coverage | PASS | — |
+   | 2025-03-15T17:30:00Z | S06-001 | orch-judge | QUALITY_GATE | Gate 3 Tests: 247 pass, 0 fail, 99% coverage | PASS | — |
    ```
 
 3. **APPEND ONLY — never modify existing entries**

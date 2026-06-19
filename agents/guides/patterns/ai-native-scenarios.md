@@ -8,7 +8,7 @@ This guide explores advanced "in the wild" use cases where GABBE 2.0 excels, lev
 
 ### Workflow:
 1. **Prompt:**
-   > "Use the vibe-coding skill to analyze my existing prototype in `src/vibe`. Now, use the clean-coder and architecture-design skills to refactor it into a Clean Architecture (Domain, Application, Adapters) with 100% test coverage using Vitest."
+   > "Use the vibe-coding skill to analyze my existing prototype in `src/vibe`. Now, use the clean-coder and arch-design skills to refactor it into a Clean Architecture (Domain, Application, Adapters) with 100% test coverage using Vitest."
 2. **Key Steps:**
    - **Extract Logic:** The agent separates UI-only "vibe" code from business logic.
    - **Apply Types:** Moving from `any` or loose JS to strict TypeScript.
@@ -50,7 +50,7 @@ This guide explores advanced "in the wild" use cases where GABBE 2.0 excels, lev
 
 ### Workflow:
 1. **Prompt:**
-   > "Activate Brain Mode. Goal: Decide between GraphQL and REST for our mobile backend. Run a competitive simulation between `arch-architect` (GraphQL proponent) and `ops-sre` (REST proponent). Present a weighted decision matrix in `ARCHITECTURE_DECISION_MATRIX.md`."
+   > "Activate Brain Mode. Goal: Decide between GraphQL and REST for our mobile backend. Run a competitive simulation between `prod-architect` (GraphQL proponent) and `ops-sre` (REST proponent). Present a weighted decision matrix in `ARCHITECTURE_DECISION_MATRIX.md`."
 2. **Key Steps:**
    - **Debate:** The orchestrator runs 2-3 passes of debate, synthesizing the pros/cons.
    - **Simulation:** Agent creates minimal benchmarks for both approaches.

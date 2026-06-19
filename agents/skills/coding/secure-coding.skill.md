@@ -18,7 +18,7 @@ This skill guides the implementation of security controls *during* development (
 
 - **Syntactic Validation**: Is it an email? Is it a number? (Use Zod/Pydantic).
 - **Semantic Validation**: Is `start_date` before `end_date`? Is `transfer_amount` > 0?
-- **Allow-list**: Only accept known bad characters (e.g., `[a-zA-Z0-9]`). Block everything else.
+- **Allow-list**: Only accept known good characters (e.g., `[a-zA-Z0-9]`). Block everything else.
 
 ## 2. Output Encoding (Defense)
 > "Context matters."

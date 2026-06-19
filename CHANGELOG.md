@@ -14,6 +14,22 @@ compatible: the public API / CLI / config / DB / emit schema remain additive
 change is a richer `agents/AGENTS.md` (more fields populated), with the Gate 4 /
 golden baseline recaptured to match.
 
+### Fixed (pre-release content audit)
+- **Markdown compliance** in `agents/AGENTS.md` and `AGENTS_TEMPLATE.md` — headings,
+  fenced code blocks, and lists are now surrounded by blank lines (markdownlint
+  MD022/MD031/MD032); whitespace-only.
+- **Restored a corrupted diagram + step list** in `guides/ai/ai-agentic.md` (stray
+  skill-table fragments had been spliced into the architecture diagram and the SDD
+  Phase-3 numbered list).
+- **Corrected an inverted security instruction** in `secure-coding.skill.md`
+  (allow-list now reads "accept known **good** characters", not "bad").
+- **Replaced a non-existent tool name** (`Rebertha` → **Presidio**) in
+  `ai-safety-guardrails.skill.md`.
+- **Fixed broken capability references**: `backend-coder` → `eng-backend`,
+  `arch-architect` → `prod-architect`, `architecture-design` → `arch-design`.
+- **Corrected a quality-gate example** that showed `84% coverage | PASS` against a
+  ≥99% coverage gate (now `99%`).
+
 ### Added
 - **Never-clobber install.** Both install paths (the Python wizard
   `scripts/init.py` and the Node installer `bin/install.js`) now back up any

@@ -76,7 +76,7 @@ Standard sequential chains are slow. Loki optimizes S05 via "Task Batching":
 
 ### C. Hybrid Swarms (A2A)
 Loki allows delegation to external specialized swarms:
--   **Internal**: "Build the API" (Loki Persona `backend-coder`)
+-   **Internal**: "Build the API" (Loki Persona `eng-backend`)
 -   **External**: "Audit for vulnerabilities" -> Delegates to `Sec-Swarm-1` via `agent-interop.skill`.
 
 ### D. Cognitive Architectures (Global Workspace)

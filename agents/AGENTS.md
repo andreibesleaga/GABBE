@@ -7,6 +7,7 @@
 ---
 
 ## 1. Project Identity (REQUIRED VARIABLES)
+>
 > **ACTION REQUIRED**: Replace all `[PLACEHOLDER: ...]` values below with your specific stack.
 
 ```yaml
@@ -129,6 +130,7 @@ every task (episodic, semantic, AUDIT_LOG, CONTINUITY, PROJECT_STATE, RESUME_POI
 - **Human–agent collaboration (manager, not operator)** — the human delegates → observes → intervenes on exceptions. Keep three questions always answerable: **Purpose** (scope/non-goals via spec), **Transparency** (legible reasoning/tools/cost via observability), **Control** (pause/correct/approve via HITL). Prefer an async, observable surface; "done" only when all three hold (`guides/principles/human-agent-collaboration.md`).
 
 ### Step 0 — Preflight & Clarify (before anything else)
+
 ```
 Run preflight.skill as the FIRST action of every session and every major task:
   1. Auto-checks: integrity-check (fast) → confirm memory + working tree are coherent.
@@ -146,6 +148,7 @@ posture is `auto` AND the task is cheap AND reversible.
 ```
 
 ### Step 1 — Load Context (every session start)
+
 ```
 1. Read this AGENTS.md completely
 2. Read CONSTITUTION.md if it exists
@@ -155,6 +158,7 @@ posture is `auto` AND the task is cheap AND reversible.
 ```
 
 ### Step 2 — Plan Before Coding
+
 ```
 Before touching any file, write a brief implementation plan.
 
@@ -168,18 +172,21 @@ For complex tasks: write PLAN.md or use PLAN_TEMPLATE.md
 ```
 
 ### Step 3 — Test First (TDD Red Phase)
+
 ```
 Write the failing test BEFORE writing implementation code.
 <!-- OPTIONAL: Detailed TDD Red -> The test MUST fail (Red). Do not implement features not covered by a test -->
 ```
 
 ### Step 4 — Implement (TDD Green Phase)
+
 ```
 Write the minimal code to make the failing test pass.
 <!-- OPTIONAL: Detailed TDD Green -> Do not add features not covered by a failing test -->
 ```
 
 ### Step 5 — Verify (must all pass before marking done)
+
 ```
 Run: [test command] -> must pass
 Run: [typecheck command] -> must pass
@@ -188,12 +195,14 @@ Run: [lint command] -> must pass
 ```
 
 ### Step 6 — Refactor
+
 ```
 Improve code quality while keeping all tests green.
 <!-- OPTIONAL: Refactoring Metrics -> E.g. Complexity < 10, no duplication > 3 -->
 ```
 
 ### Step 7 — Log & Complete
+
 ```
 Write entry to agents/memory/AUDIT_LOG.md
 Update task status in project/TASKS.md to DONE
@@ -211,9 +220,11 @@ Refresh agents/memory/RESUME_POINTER.md (state-preserve.skill) — keep the
 ## 6. Governance & Security
 
 ### 🛡️ Mandatory Security & Guardrails
+
 Agents MUST adhere to the **Security & Guardrails** section appended to the bottom of whatever skill they are currently executing. Bypassing these skill-specific guardrails is strictly forbidden.
 
 ### Forbidden Actions (agents must never do these without explicit human approval)
+
 ```
 - Commit .env files or any file containing secrets
 - Push directly to main/master branch
@@ -228,6 +239,7 @@ Agents MUST adhere to the **Security & Guardrails** section appended to the bott
 ```
 
 ### Secrets Policy
+
 ```
 All secrets MUST be in environment variables.
 Local dev: .env file (always in .gitignore)
@@ -237,6 +249,7 @@ Use: [PLACEHOLDER: dotenv | .env.vault | AWS Secrets Manager | HashiCorp Vault]
 ```
 
 ### PR Format (Conventional Commits)
+
 ```
 Format: <type>(<scope>): <subject>
 
@@ -253,6 +266,7 @@ PR body must include:
 ```
 
 ### Quality Gates (all must pass before PR merges)
+
 ```
 <!-- OPTIONAL: Quality Gates Specifics -> Document testing, linting, code coverage >99%, CI integration gates -->
 ```
@@ -264,11 +278,13 @@ PR body must include:
 Agents must use authoritative sources. Never guess or hallucinate.
 
 ### Source Tiers (in order of trust)
+
 ```
 <!-- OPTIONAL: Source Tiers -> Tier 1: Official docs/Specs. Tier 2: Academic. Tier 3: Verified blogs. Avoid: Reddit/SO. -->
 ```
 
 ### Research Gate -- mandatory before:
+
 ```
 - Using any library not in existing package.json / composer.json
 - Calling any API method not confirmed in official docs
@@ -277,6 +293,7 @@ Agents must use authoritative sources. Never guess or hallucinate.
 ```
 
 ### When to invoke research.skill
+
 ```
 "I'm not sure about X" -> knowledge-gap.skill -> research.skill -> confirm before coding
 If library version not found in official docs -> do NOT assume behavior -> report to human
@@ -290,6 +307,7 @@ Use Context-7 MCP for library docs (prevents hallucinated deprecated API usage)
 Agents may autonomously fix failures up to 5 attempts.
 
 ### What agents may self-heal (no human approval needed):
+
 ```
 - Type errors and lint errors
 - Test assertion updates when spec changed
@@ -300,6 +318,7 @@ Agents may autonomously fix failures up to 5 attempts.
 ```
 
 ### What requires human decision:
+
 ```
 - Architecture or library changes
 - Breaking API changes (any consumer affected)
@@ -311,7 +330,9 @@ Agents may autonomously fix failures up to 5 attempts.
 ```
 
 ### Self-Heal Escalation Protocol
+
 After 5 failed attempts, agent MUST:
+
 ```
 
 1. STOP all autonomous action
@@ -326,8 +347,10 @@ After 5 failed attempts, agent MUST:
 ```
 
 ### Self-Evolving Policy (within cost + permission bounds)
+
 The system may keep itself current and improve (new/better skills, tools, MCPs, models) via
 `update-scan.skill` — but only inside hard bounds (full detail in that skill):
+
 - **Allowed** (gated by `GABBE_AUTONOMY` + budget): adopt a cheaper/better reversible+validated tool/model; import a vetted external skill (validated first); refine prompts/personas from **successful** trajectories only.
 - **Always needs human approval** (even under `auto`): anything expensive/SOTA/irreversible, externally-sourced runnable code, or any change to protected files.
 - **Guardrails:** misaligned-replay guard (never learn from failed runs); protected files (never auto-edit build/IaC/CI/dependency manifests outside the self-heal allowlist); policy-as-code self-enforcement with every adoption/rejection logged to `AUDIT_LOG.md`; prefer canary + rollback, version evolved components.
@@ -368,6 +391,7 @@ Record assumed defaults in `agents/memory/AUDIT_LOG.md` so silence is informed, 
 ## 10. Tool-Specific Overrides
 
 ### Claude Code (claude.ai/code, Claude Code CLI)
+
 ```
 - Skills: Use slash commands matching skill names (e.g., /tdd-cycle, /code-review)
 - Memory: Use TodoWrite tool for task tracking
@@ -376,6 +400,7 @@ Record assumed defaults in `agents/memory/AUDIT_LOG.md` so silence is informed, 
 ```
 
 ### Cursor
+
 ```
 - Context: This AGENTS.md is symlinked to .cursorrules
 - Skills: Reference skill files directly in conversation
@@ -383,12 +408,14 @@ Record assumed defaults in `agents/memory/AUDIT_LOG.md` so silence is informed, 
 ```
 
 ### GitHub Copilot
+
 ```
 - Context: Instructions from .github/copilot-instructions.md (symlinked)
 - Skills: Reference skills/ directory files in comments or conversation
 ```
 
 ### Gemini CLI
+
 ```
 - Context: This AGENTS.md is symlinked to .gemini/settings.json (instructions field) + GEMINI.md
 - Skills: Symlinked to .agent/skills/ -- invoke by trigger keywords
@@ -396,6 +423,7 @@ Record assumed defaults in `agents/memory/AUDIT_LOG.md` so silence is informed, 
 ```
 
 ### Google Antigravity
+
 ```
 - Context: Reads the root AGENTS.md (priority AGENTS.md → GEMINI.md → defaults, v1.20.3+)
 - Skills: Emitted to .agents/skills/<slug>/SKILL.md (agentskills.io standard)
@@ -403,12 +431,14 @@ Record assumed defaults in `agents/memory/AUDIT_LOG.md` so silence is informed, 
 ```
 
 ### OpenCode (local-first)
+
 ```
 - Context: Reads the root AGENTS.md + an opencode.json `instructions` array
 - Skills: Emitted to .agents/skills/<slug>/SKILL.md (agentskills.io standard)
 ```
 
 ### Zed / Continue / Roo Code / Kilo Code
+
 ```
 - Context: Read the root AGENTS.md (agents.md standard); Zed also via .rules,
   Continue via .continue/rules/, Roo via .roo/rules/, Kilo via .kilocode/rules/
@@ -496,6 +526,7 @@ END of session:
 ```
 
 ### Per-project policy: `project/gabbe.config.json` (optional)
+
 A runtime-agnostic policy file the agent reads to tune itself to this project —
 autonomy posture, budgets, model tiers, enabled MCPs, skill registries, and
 protected files. Copy `docs/gabbe.config.example.json` to
@@ -514,6 +545,7 @@ See `docs/SCHEMA.md` → *Project policy config*.
 > **This section is optional.** The GABBE CLI provides platform controls (budget, audit, replay, escalation) but is NOT required. Agents can fully operate via markdown inference without it.
 
 ### Core CLI Integration
+
 See `agents/guides/ops/gabbe-cli-workflows.md` for standard CLI workflows: Init, Sync, Verify, Status, Route, Forecast, and Brain execution controls. (Note: The GABBE CLI is an optional experimental tool; agents can fully rely on markdown inference execution otherwise).
 
 ---

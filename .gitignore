@@ -1,5 +1,11 @@
 agents/memory/
 project/
+# project/state.db is committed as an empty/seed default so the repo ships a
+# working database, but its per-run mutations (tests / `gabbe init`) must NOT be
+# committed. It is tracked-but-ignored: contributors should run
+#   git update-index --skip-worktree project/state.db
+# to keep the seed pristine in diffs.
+project/state.db
 
 __pycache__
 *.pyc

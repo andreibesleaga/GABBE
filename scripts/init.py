@@ -185,6 +185,161 @@ def build_tech_map_from_skills(agents_dir):
 TECH_MAP: dict[str, Any] = {}
 
 
+# Remaining unfilled [PLACEHOLDER:] fields after population, surfaced as an
+# end-of-install warning so users are never silently shipped blank fields.
+_UNFILLED_PLACEHOLDERS: list[str] = []
+
+# Per-package-manager command derivations for the [PLACEHOLDER:] command fields
+# the Jinja substitution does not cover. Keyed by the resolved package manager.
+_PM_COMMANDS = {
+    "npm": {
+        "dev": "npm run dev",
+        "test_coverage": "npm test -- --coverage",
+        "test_single": "npm test -- path/to/file.test.ts",
+        "typecheck": "tsc --noEmit",
+        "lint": "eslint .",
+        "format": "prettier --write .",
+    },
+    "pnpm": {
+        "dev": "pnpm dev",
+        "test_coverage": "pnpm test --coverage",
+        "test_single": "pnpm vitest run src/path/to/file.test.ts",
+        "typecheck": "pnpm tsc --noEmit",
+        "lint": "pnpm eslint .",
+        "format": "pnpm prettier --write .",
+    },
+    "yarn": {
+        "dev": "yarn dev",
+        "test_coverage": "yarn test --coverage",
+        "test_single": "yarn test path/to/file.test.ts",
+        "typecheck": "yarn tsc --noEmit",
+        "lint": "yarn eslint .",
+        "format": "yarn prettier --write .",
+    },
+    "pip": {
+        "dev": "uvicorn main:app --reload",
+        "test_coverage": "pytest --cov",
+        "test_single": "pytest path/to/test_file.py::test_name",
+        "typecheck": "mypy .",
+        "lint": "ruff check .",
+        "format": "ruff format .",
+    },
+    "go mod": {
+        "dev": "go run .",
+        "test_coverage": "go test -cover ./...",
+        "test_single": "go test ./path/to/pkg -run TestName",
+        "typecheck": "go vet ./...",
+        "lint": "golangci-lint run",
+        "format": "gofmt -w .",
+    },
+    "cargo": {
+        "dev": "cargo run",
+        "test_coverage": "cargo tarpaulin",
+        "test_single": "cargo test test_name",
+        "typecheck": "cargo check",
+        "lint": "cargo clippy",
+        "format": "cargo fmt",
+    },
+    "composer": {
+        "dev": "php artisan serve",
+        "test_coverage": "php artisan test --coverage",
+        "test_single": "php artisan test --filter=TestName",
+        "typecheck": "phpstan analyse --level=9",
+        "lint": "pint --test",
+        "format": "pint",
+    },
+}
+
+
+def _detect_repo_url(base):
+    """Best-effort git remote URL (https form), or None."""
+    try:
+        import subprocess
+
+        out = subprocess.run(
+            ["git", "-C", str(base), "remote", "get-url", "origin"],
+            capture_output=True,
+            text=True,
+            timeout=5,
+        )
+        url = out.stdout.strip()
+        if url:
+            if url.startswith("git@") and ":" in url:
+                host, path = url[4:].split(":", 1)
+                url = f"https://{host}/{path}"
+            return url.removesuffix(".git")
+    except Exception:
+        pass
+    return None
+
+
+def _detect_ci_cd(base):
+    if (base / ".github" / "workflows").exists():
+        return "GitHub Actions"
+    if (base / ".gitlab-ci.yml").exists():
+        return "GitLab CI"
+    if (base / ".circleci").exists():
+        return "CircleCI"
+    return None
+
+
+def _detect_deploy_target(base):
+    if (base / "vercel.json").exists():
+        return "Vercel"
+    if (base / "Dockerfile").exists() or (base / "docker-compose.yml").exists():
+        return "Docker/K8s"
+    if (base / "serverless.yml").exists():
+        return "AWS Lambda"
+    return None
+
+
+def populate_placeholders(content, pm, base):
+    """Fill derivable [PLACEHOLDER:] fields, tag the rest OPTIONAL, and record
+    which remain so the installer can warn the user to complete them.
+
+    Returns the updated content. Appends remaining field names to the module
+    global `_UNFILLED_PLACEHOLDERS` for the end-of-install warning.
+    """
+    import re
+
+    cmds = _PM_COMMANDS.get(pm, _PM_COMMANDS["npm"])
+    derived = dict(cmds)
+    repo = _detect_repo_url(base)
+    if repo:
+        derived["repo_url"] = repo
+    ci = _detect_ci_cd(base)
+    if ci:
+        derived["ci_cd"] = ci
+    deploy = _detect_deploy_target(base)
+    if deploy:
+        derived["deployment_target"] = deploy
+
+    out_lines = []
+    # Matches `key: "[PLACEHOLDER: ...]"` (the YAML-ish command/config fields).
+    kv_re = re.compile(r'^(\s*)([a-z_]+):\s*"\[PLACEHOLDER:[^"]*\]"\s*$')
+    for line in content.splitlines():
+        m = kv_re.match(line)
+        if m:
+            indent, key = m.group(1), m.group(2)
+            if key in derived:
+                out_lines.append(f'{indent}{key}: "{derived[key]}"')
+                continue
+            # Unknown value: keep the field, mark it clearly OPTIONAL, and record it.
+            _UNFILLED_PLACEHOLDERS.append(key)
+            out_lines.append(line + "  # <!-- OPTIONAL: fill this in yourself -->")
+            continue
+        # Prose / inline placeholders: tag the line OPTIONAL (don't fabricate prose).
+        if "[PLACEHOLDER" in line:
+            _UNFILLED_PLACEHOLDERS.append(line.strip()[:48])
+            if "OPTIONAL" not in line:
+                out_lines.append(line + "  <!-- OPTIONAL: fill this in yourself -->")
+            else:
+                out_lines.append(line)
+            continue
+        out_lines.append(line)
+    return "\n".join(out_lines)
+
+
 def detect_existing_project(cwd):
     """Detect whether `cwd` is an existing codebase and infer its stack.
 
@@ -562,6 +717,7 @@ def main():
     # Start each run with a clean manifest recorder (globals persist in-process).
     _MANIFEST_ENTRIES.clear()
     _RECORDED_PATHS.clear()
+    _UNFILLED_PLACEHOLDERS.clear()
     if "--bench" in sys.argv:
         run_bench()
         return
@@ -936,6 +1092,10 @@ def main():
             # Strip the marker comments themselves for clean output
             content = content.replace(cli_start, "").replace(cli_end, "")
 
+        # Fill derivable [PLACEHOLDER:] fields (commands, repo_url, ci/cd,
+        # deploy target); tag the rest OPTIONAL and record them for a warning.
+        content = populate_placeholders(content, pm, PROJECT_ROOT)
+
         target_agents_md = AGENTS_DIR / "AGENTS.md"
         target_agents_md.write_text(content)
         # Refresh the manifest hash now that AGENTS.md holds substituted content
@@ -1288,6 +1448,24 @@ Here is your mission to finalize the setup:
 
     # Persist the uninstall manifest of everything we created under PROJECT_ROOT.
     write_install_manifest()
+
+    # Never ship blank fields silently: if any [PLACEHOLDER:] remain (skipped
+    # interactive setup, or genuinely project-specific fields), tell the user
+    # exactly what to complete and how.
+    if _UNFILLED_PLACEHOLDERS:
+        n = len(_UNFILLED_PLACEHOLDERS)
+        print(
+            f"\n{YELLOW}⚠ {n} optional field(s) in agents/AGENTS.md still need your input "
+            f"(marked with <!-- OPTIONAL -->):{NC}"
+        )
+        for name in _UNFILLED_PLACEHOLDERS[:12]:
+            print(f"    - {name}")
+        if n > 12:
+            print(f"    ... and {n - 12} more")
+        print(
+            f"  {BLUE}→ Search agents/AGENTS.md for 'OPTIONAL' and fill them in, "
+            f"or re-run `gabbe setup` to be prompted.{NC}"
+        )
 
     print(f"{BLUE}Setup Complete! The kit is installed at: {AGENTS_DIR}{NC}")
 

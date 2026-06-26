@@ -19,7 +19,7 @@ It contains:
 - **100 Templates** (standardized documents)
 - **86 Guides** (language & domain expertise)
 - **36 Personas** (specialized roles)
-- **65 MCP servers** (configuration and guides for AI tools)
+- **66 MCP servers** (configuration and guides for AI tools)
 - **Brain Mode** (meta-cognitive orchestration)
 - **Loki Mode** (multi-agent swarm engineering personas team for large projects)
 
@@ -1158,6 +1158,7 @@ MCP (Model Context Protocol) servers extend agent capabilities. Configure them i
 | **Docs** | Context-7 MCP | Up-to-date SDK docs (prevents API hallucination) |
 | **Reasoning** | Sequential Thinking | Chain-of-thought before acting |
 | **Code Search** | GitHub MCP | PR review, code search, issue management |
+| **Dependencies** | GitHits MCP | Navigate open-source dependency source/docs (no clone, no key) |
 | **Database** | PostgreSQL MCP | Live schema introspection |
 | **Security** | Semgrep MCP | SAST scanning from within the agent |
 | **Web Search** | Brave Search / Tavily | Authoritative source research |
@@ -1170,7 +1171,7 @@ MCP (Model Context Protocol) servers extend agent capabilities. Configure them i
 | **Canvas** | tldraw MCP | Persistent visual canvas for wireframing |
 | **Filesystem** | Filesystem MCP | Local file access for internal RAG |
 
-**Full coverage matrix** (65 MCP servers in `MCP_CONFIG_TEMPLATE.json`):
+**Full coverage matrix** (66 MCP servers in `MCP_CONFIG_TEMPLATE.json`):
 
 | Integration Domain | Servers Available |
 |---|---|
@@ -1182,6 +1183,7 @@ MCP (Model Context Protocol) servers extend agent capabilities. Configure them i
 | **Observability** | Sentry, Datadog, Grafana |
 | **Code Quality** | Semgrep, Snyk, SonarQube, Gitleaks, Time Complexity |
 | **Project Mgmt** | GitHub, GitLab, Jira, Linear, Notion, Confluence, Slack |
+| **Dependencies** | GitHits (navigate open-source dependency source, docs, issues, changelogs) |
 | **Cloud/Infra** | AWS Core, Kubernetes, Figma |
 
 **Security rules:**

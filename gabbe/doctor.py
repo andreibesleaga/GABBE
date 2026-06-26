@@ -119,7 +119,7 @@ def run_doctor(root: Path | None = None) -> int:
 
 
 # Essential MCP servers to enable for full capability (every project).
-ESSENTIAL_MCP = ["context7", "filesystem", "sequential-thinking", "github", "brave-search"]
+ESSENTIAL_MCP = ["context7", "filesystem", "sequential-thinking", "github", "githits", "brave-search"]
 # Useful servers that are installed/run locally (not a plain npx one-liner).
 LOCAL_MCP = [
     "time-complexity (GitHub repo, build locally)",

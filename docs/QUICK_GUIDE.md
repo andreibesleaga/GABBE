@@ -681,6 +681,7 @@ Actions:
 | **Context-7** | `npx @context7/mcp-server` | Up-to-date SDK docs (prevents API hallucination) |
 | **Sequential Thinking** | `npx @modelcontextprotocol/server-sequential-thinking` | Chain-of-thought before acting |
 | **GitHub MCP** | `npx @modelcontextprotocol/server-github` | PR review, issues, code search |
+| **GitHits** | `npx githits@latest init` | Navigate open-source dependency source/docs (no clone, no key) |
 | **PostgreSQL MCP** | `npx @modelcontextprotocol/server-postgres` | Live schema introspection |
 | **Semgrep MCP** | `pip install semgrep-mcp` | In-agent SAST security scanning |
 | **Brave Search MCP** | `npx @modelcontextprotocol/server-brave-search` | Authoritative web research |

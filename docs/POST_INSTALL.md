@@ -14,7 +14,7 @@ All agent clients GABBE detected are already wired. Anything missing is reported
 
 ## 2. Enable MCP servers (the main post-install task)
 
-GABBE ships a catalog of **65 MCP servers** in
+GABBE ships a catalog of **66 MCP servers** in
 `agents/templates/core/MCP_CONFIG_TEMPLATE.json`. Most are opt-in (`"_enabled": false`).
 To enable one: set `"_enabled": true`, fill the listed env vars, and point your agent
 at the config (e.g. `.mcp.json`, `.cursor/mcp.json`, or your client's MCP settings).
@@ -27,6 +27,7 @@ at the config (e.g. `.mcp.json`, `.cursor/mcp.json`, or your client's MCP settin
 | `filesystem` | Read-only project file access (internal RAG) | npx; set root path |
 | `sequential-thinking` | Chain-of-thought reasoning | npx; no key |
 | `github` | PR review, code search, issue mgmt | npx; `GITHUB_TOKEN` |
+| `githits` | Navigate open-source dependency source/docs (no clone) | npx; no key (`npx githits@latest init`) |
 | `brave-search` or `tavily` | Authoritative web research | npx; API key |
 
 ### Locally-installed servers (clone/build/binary, not a plain npx one-liner)

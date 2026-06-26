@@ -6,6 +6,22 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [Unreleased]
+
+### Added
+- **GitHits MCP server** added to the catalog (now **66 MCP servers**). GitHits lets
+  the agent navigate the open-source code your app depends on — searching, grepping,
+  and reading dependency source, docs, issues, PRs, and changelogs without cloning,
+  preventing dependency-API hallucination (no API key). Wired into
+  `agents/templates/core/MCP_CONFIG_TEMPLATE.json` (Version Control section,
+  default-enabled), documented in `docs/MCP_CONFIGURATIONS.md` (per-server guide +
+  SWEBOK v4 Construction map), and surfaced as an essential server in `README.md`,
+  `docs/README_FULL.md`, `docs/QUICK_GUIDE.md`, `docs/POST_INSTALL.md`, and
+  `gabbe doctor` post-install next-steps. Setup: `npx githits@latest init`
+  (auto-detect) — docs at <https://docs.githits.com/>.
+
+---
+
 ## [1.1.1] — 2026-06-19 — Capability-layer content audit (consistency, accuracy, honesty)
 
 Patch release. A deep semantic/structural audit of the Markdown capability layer

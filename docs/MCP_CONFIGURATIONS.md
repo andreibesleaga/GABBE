@@ -216,6 +216,49 @@ PR review, code search, issue management, and git history.
 
 ---
 
+### GitHits
+
+Lets the agent **navigate the open-source code your app depends on**. Your agent can already read your local codebase; GitHits extends that reach to your dependencies — searching, grepping, and reading source, docs, issues, PRs, and changelogs of packages **without cloning them locally**. Acts like Context7 for dependency *source code* (not just SDK docs), preventing the agent from hallucinating a dependency's API or upgrade behaviour.
+
+| Property | Value |
+|---|---|
+| **Package** | `githits` (npm) |
+| **Website** | [githits.com](https://githits.com) · [docs.githits.com](https://docs.githits.com/) |
+| **API Key** | None required |
+| **GABBE Skill** | `research.skill`, `coding/code-review.skill`, `security/dependency-security.skill` |
+
+**Capabilities:** code examples (real implementation patterns from repos/issues/discussions/PRs of your deps), code navigation (dependency search, source grep, package-path resolution, line-range reads), documentation access (hosted + repo-backed package docs), and package inspection (metadata, vulnerabilities, changelogs, upgrade context).
+
+**Install (automatic — recommended):**
+```bash
+# Detects your tool (Claude Code, Cursor, VS Code/Copilot, Windsurf, Cline,
+# Claude Desktop, Codex CLI, Gemini CLI, OpenCode, …) and wires up the MCP server.
+npx githits@latest init
+```
+
+**Config (manual — universal stdio entry):**
+```json
+{
+  "githits": {
+    "command": "npx",
+    "args": ["-y", "githits@latest", "mcp", "start"],
+    "env": {}
+  }
+}
+```
+
+> [!NOTE]
+> The server runs as a local stdio subprocess — no background service, global install, env vars, or remote HTTP URL required. For tools not auto-detected, add the manual config above and restart, then confirm `githits` shows as a connected server. See [docs.githits.com/installation/manual-setup](https://docs.githits.com/installation/manual-setup).
+
+**Usage:**
+```
+> "Use GitHits to find how `fastapi` implements dependency injection in its source."
+> "Read the changelog and breaking changes for the `pydantic` v1 → v2 upgrade."
+> "Grep the `react` dependency source for how `useEffect` cleanup is scheduled."
+```
+
+---
+
 ### GitLab
 
 GitLab alternative to the GitHub MCP. Same capabilities for GitLab-hosted repos.
@@ -1753,7 +1796,7 @@ credentials never leave the host. Servers marked **(new in v1.0)** were added to
 | SWEBOK area | Priority MCP servers | GABBE tie-in |
 |---|---|---|
 | **Requirements & Design** | `figma`, `notion`, `obsidian` (new), `knowledge-graph-memory` (new) | S00–S03; `knowledge-connect.skill`, ADR/spec search; persistent semantic memory prevents architectural-decision drift |
-| **Construction & Architecture** | `github`, `supabase` (new), `postgres-dev`/`postgres-prod`, `mongodb`, `aws-core`, `azure`, `kubernetes`, `docker` | S05; direct schema/query execution instead of guessed SQL |
+| **Construction & Architecture** | `github`, `githits` (new), `supabase` (new), `postgres-dev`/`postgres-prod`, `mongodb`, `aws-core`, `azure`, `kubernetes`, `docker` | S05; direct schema/query execution instead of guessed SQL; `githits` reads dependency source/docs so the agent doesn't guess third-party APIs |
 | **Testing & Quality** | `sentry`, `snyk`, `semgrep`, `mcp-evals` (new), `mcp-chaos-rig` (new) | S06–S07; `mcp-evals` ↔ `eval-driven-development.skill`; `mcp-chaos-rig` ↔ `chaos-fault-injection.skill` + `gabbe verify --chaos` |
 | **Maintenance & Config Mgmt** | `pagerduty` (new), `cloudflare` (new), `vercel`, `gitlab` | S11–S13 Day-2; on-call automation, edge deploy logs |
 | **Eng. Management & Economics** | `linear`, `jira`, `confluence`, `slack`, `discord` (new), `stripe` | management + software economics; comms triage, billing/churn |

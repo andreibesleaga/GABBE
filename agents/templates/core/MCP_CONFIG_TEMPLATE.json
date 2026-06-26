@@ -54,6 +54,18 @@
         "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_TOKEN}"
       }
     },
+    "githits": {
+      "_description": "Lets the agent navigate the open-source code your app depends on — search/grep/read dependency source, docs, issues, PRs and changelogs without cloning. Prevents dependency-API hallucination. No API key.",
+      "command": "npx",
+      "args": [
+        "-y",
+        "githits@latest",
+        "mcp",
+        "start"
+      ],
+      "env": {},
+      "_install": "Auto-config: `npx githits@latest init` detects your tool and wires this in. Docs: https://docs.githits.com/installation/automatic-setup (manual: /installation/manual-setup)."
+    },
     "_section_database": "=== DATABASES ===",
     "postgres-dev": {
       "_description": "PostgreSQL for development \u2014 READ-WRITE allowed.",

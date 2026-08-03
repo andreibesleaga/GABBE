@@ -30,7 +30,7 @@ jobs:
             --output=osv.sarif
       - name: Upload OSV SARIF
         if: always()
-        uses: github/codeql-action/upload-sarif@v4
+        uses: github/codeql-action/upload-sarif@v4.37.4
         with:
           sarif_file: osv.sarif
           category: osv-scanner

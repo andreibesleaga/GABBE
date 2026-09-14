@@ -1,0 +1,63 @@
+name: Publish to GitHub Packages (npm mirror)
+
+# Mirrors the `gabbe-kit` npm package to GitHub Packages so it is listed in the
+# repository's "Packages" sidebar (only GitHub-hosted registries appear there;
+# npmjs.com and PyPI packages never do — PyPI has no GitHub Packages equivalent,
+# so the Python distribution stays PyPI-only). npmjs.com remains the CANONICAL
+# npm registry; this is an additional copy under the owner scope GitHub Packages
+# requires: `@andreibesleaga/gabbe-kit`.
+#
+# The rename happens in the runner's checkout only; the committed package.json is
+# never modified. Authentication is the job's GITHUB_TOKEN with `packages: write`
+# — no NPM_TOKEN needed, so unlike release.yml this job is not secret-gated.
+#
+# Triggers: every version tag (alongside release.yml) and manual dispatch, which
+# backfills whatever version the checked-out ref carries. Re-runs are safe: a
+# version already on GitHub Packages is skipped, never overwritten.
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  publish-github-packages:
+    name: npm publish → npm.pkg.github.com (@andreibesleaga scope)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '20'
+          registry-url: 'https://npm.pkg.github.com'
+          scope: '@andreibesleaga'
+
+      - name: Smoke-test the Node installer
+        run: node bin/install.js --help
+
+      - name: Rename to the owner scope (runner checkout only)
+        run: |
+          npm pkg delete publishConfig.provenance publishConfig.access
+          npm pkg set name="@andreibesleaga/gabbe-kit" publishConfig.registry="https://npm.pkg.github.com"
+          node -p "require('./package.json').name + '@' + require('./package.json').version"
+
+      - name: Publish (skipped when this version is already on GitHub Packages)
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          NAME=$(node -p "require('./package.json').name")
+          VERSION=$(node -p "require('./package.json').version")
+          if npm view "$NAME@$VERSION" version --registry=https://npm.pkg.github.com >/dev/null 2>&1; then
+            echo "$NAME@$VERSION is already on GitHub Packages — nothing to do."
+            echo "Skipped: \`$NAME@$VERSION\` already published." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          TAG=latest; case "$VERSION" in *-*) TAG=next ;; esac
+          npm publish --provenance=false --tag "$TAG"
+          echo "Published \`$NAME@$VERSION\` (dist-tag \`$TAG\`) → https://github.com/${GITHUB_REPOSITORY}/pkgs/npm/gabbe-kit" >> "$GITHUB_STEP_SUMMARY"

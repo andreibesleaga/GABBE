@@ -57,7 +57,7 @@ It contains:
 | **Shell bootstrap** | `curl -fsSL https://raw.githubusercontent.com/andreibesleaga/GABBE/main/install.sh \| sh` | picks the best available installer |
 | **Git checkout** | `git clone https://github.com/andreibesleaga/GABBE && cd GABBE && python3 scripts/init.py` | the interactive wizard |
 
-> On npm the package is **`gabbe-kit`** (npm refuses the unscoped `gabbe`); on PyPI it is **`gabbe`**. The installed command is `gabbe` either way. After installing, run `gabbe doctor` for an environment + install report. Full guide: [`docs/INSTALL.md`](docs/INSTALL.md).
+> On npm the package is **`gabbe-kit`** (npm refuses the unscoped `gabbe`); on PyPI it is **`gabbe`**; the npm package is additionally mirrored on GitHub Packages as `@andreibesleaga/gabbe-kit` (npmjs stays canonical). The installed command is `gabbe` either way. After installing, run `gabbe doctor` for an environment + install report. Full guide: [`docs/INSTALL.md`](docs/INSTALL.md).
 
 **Universal, Python-independent (one command):**
 ```bash

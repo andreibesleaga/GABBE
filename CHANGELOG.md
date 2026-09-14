@@ -9,6 +9,11 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [Unreleased]
 
 ### Added
+- **GitHub Packages mirror** — `.github/workflows/publish-github-packages.yml` publishes the npm
+  package a second time to GitHub Packages as `@andreibesleaga/gabbe-kit` (owner scope required there)
+  on every `v*` tag or by manual dispatch, so it is listed in the repository "Packages" sidebar.
+  npmjs.com stays canonical (`gabbe-kit`), PyPI stays `gabbe` (PyPI has no GitHub Packages
+  equivalent); the committed `package.json` is untouched and already-published versions are skipped.
 - **GitHits MCP server** added to the catalog (now **66 MCP servers**). GitHits lets
   the agent navigate the open-source code your app depends on — searching, grepping,
   and reading dependency source, docs, issues, PRs, and changelogs without cloning,

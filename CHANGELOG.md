@@ -9,6 +9,9 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [Unreleased]
 
 ### Added
+- **`docs/ROADMAP.md`** — the planned work after 1.1.1: an off-by-default agent hook set
+  (`npx gabbe-kit init --hooks`) for the four rules a hook can enforce, what stays prose, the
+  per-agent coverage, and the `gabbe verify` exit-code fix.
 - **GitHub Packages mirror** — `.github/workflows/publish-github-packages.yml` publishes the npm
   package a second time to GitHub Packages as `@andreibesleaga/gabbe-kit` (owner scope required there)
   on every `v*` tag or by manual dispatch, so it is listed in the repository "Packages" sidebar.

@@ -34,7 +34,7 @@ It contains:
 
 ---
 
-*Full documentation: [README_FULL.md](docs/README_FULL.md) · Full quick guide: [QUICK_GUIDE.md](docs/QUICK_GUIDE.md) · Quick commands: [QUICK_COMMANDS.md](docs/QUICK_COMMANDS.md) · CLI reference: [CLI_REFERENCE.md](docs/CLI_REFERENCE.md) · MCP servers: [MCP_CONFIGURATIONS.md](docs/MCP_CONFIGURATIONS.md) · Platform Controls: [PLATFORM_CONTROLS.md](docs/PLATFORM_CONTROLS.md) · Verification Guide: [VERIFICATION_GUIDE.md](docs/VERIFICATION_GUIDE.md)*
+*Full documentation: [README_FULL.md](docs/README_FULL.md) · Full quick guide: [QUICK_GUIDE.md](docs/QUICK_GUIDE.md) · Quick commands: [QUICK_COMMANDS.md](docs/QUICK_COMMANDS.md) · CLI reference: [CLI_REFERENCE.md](docs/CLI_REFERENCE.md) · MCP servers: [MCP_CONFIGURATIONS.md](docs/MCP_CONFIGURATIONS.md) · Platform Controls: [PLATFORM_CONTROLS.md](docs/PLATFORM_CONTROLS.md) · Verification Guide: [VERIFICATION_GUIDE.md](docs/VERIFICATION_GUIDE.md) · Roadmap: [ROADMAP.md](docs/ROADMAP.md)*
 
 ---
 

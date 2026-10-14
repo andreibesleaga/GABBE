@@ -202,7 +202,7 @@ def supporting_files(skill_file: Path, body: str, by_name: dict) -> dict:
         if norm.startswith(("..", "/")) or norm in (".", ""):
             continue
         src = None
-        for base in (skill_file.parent, SKILLS, AGENTS, ROOT):
+        for base in (skill_file.parent, SKILLS, AGENTS / "templates", AGENTS, ROOT):
             cand = (base / norm).resolve()
             if cand.is_file():
                 src = cand

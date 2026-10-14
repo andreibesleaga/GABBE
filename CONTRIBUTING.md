@@ -88,6 +88,14 @@ python3 scripts/init.py
 
 3. Add a row to the skills table in `README_FULL.md` and an entry in `README.md`.
 
+4. Regenerate the Claude Code plugins (`plugins/` and `.claude-plugin/marketplace.json`)
+   and commit the result; `scripts/tests/test_claude_plugin.py` fails in CI when the
+   tree is stale. Do the same after editing a skill, or a template or guide a skill names:
+
+```bash
+python3 scripts/build_claude_plugin.py
+```
+
 ---
 
 ## Adding a Custom Template
@@ -129,6 +137,7 @@ python3 scripts/init.py
 - [ ] New behaviour is covered by tests
 - [ ] `CHANGELOG.md` updated under `## [Unreleased]`
 - [ ] `README.md` counts/tables updated if skills/templates/guides were added
+- [ ] `python3 scripts/build_claude_plugin.py` re-run if skills/templates/guides changed (plugin tree in sync)
 - [ ] No `shell=True` introduced
 - [ ] No hardcoded credentials or API keys
 

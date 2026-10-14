@@ -1,0 +1,18 @@
+{
+  "name": "gabbe",
+  "version": "1.1.1",
+  "description": "GABBE core: 44 agent skills for the everyday engineering loop — spec, plan, TDD, review, research, security, memory and audit, with Brain and Loki mode. Add the gabbe-* topic plugins from the same marketplace for the rest of the 214.",
+  "author": {
+    "name": "Andrei Nicolae Besleaga",
+    "url": "https://github.com/andreibesleaga/GABBE"
+  },
+  "homepage": "https://github.com/andreibesleaga/GABBE#readme",
+  "repository": "https://github.com/andreibesleaga/GABBE",
+  "license": "CC-BY-SA-4.0",
+  "keywords": [
+    "gabbe",
+    "agent-skills",
+    "sdlc",
+    "agentic-engineering"
+  ]
+}

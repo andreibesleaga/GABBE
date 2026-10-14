@@ -1,0 +1,142 @@
+# Guides Registry — 00-index.md
+
+> Complete catalog of all available domain, language, and architectural guides.
+> Guides = Best practices, architectural standards, and specialized knowledge references.
+> Usage: Agents reference these to understand *how* to build things in specific domains.
+
+---
+
+> **Total Guides**: 86
+> *Registry categorized by domain.*
+
+## Guides Registry
+
+### 1. Artificial Intelligence (`ai/`)
+| Guide | File | Purpose |
+|---|---|---|
+| A2UI Protocols | `ai/a2ui-protocols.md` | Agent-to-User Interface protocols |
+| Actor Frameworks | `ai/actor-agent-frameworks.md` | Multi-agent framework comparison |
+| Agent Comm. | `ai/agent-communication.md` | Protocols for agent communication |
+| Agent Ergonomics | `ai/agent-operating-ergonomics.md` | How a coding agent works optimally with GABBE + failure modes |
+| Agent UI | `ai/agent-ui.md` | Designing UIs for autonomous agents |
+| AI Agentic | `ai/ai-agentic.md` | Core principles of agentic engineering |
+| Beyond LLMs | `ai/beyond-llms.md` | Advanced AI paradigms beyond text gen |
+| Multi-Agent | `ai/multi-agent-systems.md` | Orchestrating swarms and agent topologies |
+| Self-Healing | `ai/self-healing-summary.md` | Overview of system self-healing loops |
+| Agent-Only Cognition | `ai/agent-only-cognition.md` | Cognition patterns for agent-only systems |
+| Agent-Only Swarms | `ai/agent-only-swarms.md` | Swarm topologies without humans in the loop |
+| Visual Integration | `ai/visual-mcp-integration.md` | Guide on Mermaid vs Canvas tools |
+| Agent Identity & Trust | `ai/agent-identity-trust.md` | Agent identity, auth, KYA, signed mandates |
+| Model Customization | `ai/model-customization-decisions.md` | Prompt vs RAG vs fine-tune; SLMs; routing |
+| Dynamic Capability Loading | `ai/dynamic-capability-loading.md` | Loading skills/capabilities at runtime |
+| GABBE Innovations | `ai/gabbe-innovations.md` | Novel techniques introduced by GABBE |
+| Self-Evolving Skills | `ai/self-evolving-skills.md` | Skills that improve themselves over time |
+
+### 1b. Processes (`processes/`)
+| Guide | File | Purpose |
+|---|---|---|
+| RARV Cycle | `processes/RARV_CYCLE.md` | Reason Act Reflect Verify loop |
+| Loki SDLC Phases | `processes/loki-sdlc-phases.md` | Detailed S01–S10 phase specs (referenced by loki-mode) |
+| System Lifecycle | `processes/full-system-lifecycle.md` | SDLC and traceability |
+| Knowledge Integration | `processes/knowledge-integration.md` | Connectors and RAG overview |
+| Extension Protocol | `processes/extension-protocol.md` | How to extend the kit with new capabilities |
+
+### 2. Architecture (`architecture/`)
+| Guide | File | Purpose |
+|---|---|---|
+| API Standards | `architecture/api-standards.md` | REST, GraphQL, and RPC standards |
+| Critical Systems | `architecture/critical-systems-arch.md` | High availability & fault tolerance |
+| Event-Driven | `architecture/event-driven-architecture.md` | Event sourcing, CQRS context |
+| Microservices | `architecture/microservices.md` | Service isolation and scaling |
+| Monolith | `architecture/monolith.md` | Modular monolithic design |
+| System Qualities| `architecture/system-qualities.md` | NFRs, SLAs, SLOs |
+| Systems Arch. | `architecture/systems-architecture.md` | General system architecture primer |
+| Orchestration | `architecture/orchestration.md` | Service & Agent orchestration |
+| Scalability | `architecture/system-scalability.md` | Vertical and Horizontal scaling |
+| Blockchain | `architecture/blockchain-dlt.md` | DLT and Decentralized Systems |
+
+### 3. Data Engineering (`data/`)
+| Guide | File | Purpose |
+|---|---|---|
+| SQL vs NoSQL | `data/sql-nosql.md` | Database selection criteria |
+| Semantic Web | `data/semantic-web.md` | RDF, SPARQL, and Ontology usage |
+
+### 4. Language Stacks (`languages/`)
+| Guide | File | Purpose |
+|---|---|---|
+| C# / .NET | `languages/c-sharp.md` | C# enterprise patterns and tooling |
+| Go (Golang) | `languages/go-lang.md` | Go standard project layouts |
+| Java | `languages/java.md` | Maven/Gradle Spring standard |
+| JS/TS & Node.js | `languages/js-ts-nodejs.md` | Clean Architecture in TS |
+| Node.js Advanced | `languages/nodejs-advanced.md` | Node internals, libuv, Fastify, perf |
+| PHP / Laravel | `languages/php-laravel.md` | DDD + Actions in Laravel |
+| Python / FastAPI| `languages/python-fastapi-ai.md` | AI-first FastAPI architecture |
+| Rust | `languages/rust.md` | Safe, concurrent systems |
+
+### 5. Operations & DevOps (`ops/`)
+| Guide | File | Purpose |
+|---|---|---|
+| Compliance | `ops/compliance-audit.md` | Pre-flight security/compliance checks |
+| Dev Environments| `ops/dev-environments.md` | Local setup definitions |
+| Prod Health | `ops/production-health.md` | Observability and alerting |
+| Troubleshooting | `ops/troubleshooting-guide.md` | Standard operating procedures for incidents |
+| Cost Opt. | `ops/cost-optimization.md` | FinOps & Resource reduction |
+| Dev Workflow | `ops/dev-workflow.md` | Git/GitHub ops + Diátaxis docs |
+| GABBE CLI Workflows | `ops/gabbe-cli-workflows.md` | Using the gabbe CLI platform controls |
+
+### 6. Implementation Patterns (`patterns/`)
+| Guide | File | Purpose |
+|---|---|---|
+| Agentic Design Patterns | `patterns/agentic-design-patterns.md` | **Canonical** agentic catalog: reasoning/planning/workflow/multi-agent/memory/safety |
+| Agentic Patterns| `patterns/agentic-patterns.md` | Pointer → `agentic-design-patterns.md` |
+| Software Design Patterns | `patterns/software-design-patterns.md` | **Canonical** classical catalog: GoF + architectural + DDD + enterprise/distributed |
+| Design Patterns | `patterns/design-patterns.md` | Pointer → `software-design-patterns.md` |
+| AI Scenarios | `patterns/ai-native-scenarios.md` | Real-world AI integrations |
+| Autonomous Swarm| `patterns/autonomous-swarm-patterns.md` | Inter-agent negotiation |
+| Ent. Migration | `patterns/enterprise-migration-scenario.md` | Legacy to modern code paths |
+| Ent. Patterns | `patterns/enterprise-patterns.md` | CQRS, Saga, and bounded contexts |
+| Time Complexity | `patterns/time-complexity-analysis.md` | Big-O detection and remediation |
+
+### 7. Product Planning (`planning/` + `product/`)
+| Guide | File | Purpose |
+|---|---|---|
+| Product Reqs. | `planning/product-requirements.md` | EARS syntax and req. engineering |
+| Visual Product Specs | `planning/visual-product-specs.md` | Visual inputs → specs pipeline |
+| Strategic Anal. | `planning/strategic-analysis.md` | Pre-development strategic analysis |
+| Green Software | `product/green-software.md` | Sustainable/green software engineering (SCI) |
+| Sustainability Checks | `product/sustainability-checks.md` | ESG / carbon-intensity review checklist |
+
+### 8. Principles & Standards (`principles/`)
+| Guide | File | Purpose |
+|---|---|---|
+| Clean Code | `principles/clean-code-standards.md` | SOLID, DRY, KISS standards |
+| Human–Agent Collab | `principles/human-agent-collaboration.md` | Manager-not-operator stance; purpose/transparency/control |
+| Diagramming | `principles/diagramming-standards.md` | C4, UML, and Mermaid guidelines |
+| Future Tech | `principles/future-tech.md` | Integrating cutting-edge frameworks |
+| Legacy Tech | `principles/legacy-tech.md` | Handling deprecated codebases |
+| No-Code Integ. | `principles/no-code-integration.md` | Connecting no-code platforms |
+| Testing Strat. | `principles/testing-strategy.md` | The testing pyramid and mocks |
+| Evaluation Strat. | `principles/evaluation-strategy.md` | Evals vs tests; eval pyramid; eval-driven CI |
+| Mathematical Foundations | `principles/mathematical-foundations.md` | Logic, sets, graphs, probability/statistics (SWEBOK v4) |
+| Computing Foundations | `principles/computing-foundations.md` | CS fundamentals → engineering decisions (SWEBOK v4) |
+| Modeling Methods | `principles/modeling-methods.md` | Model types + formal/semi-formal method selection (SWEBOK v4) |
+| Visual Design | `principles/visual-design-system.md` | Design tokens and accessibility |
+
+### 9. Security & Privacy (`security/`)
+| Guide | File | Purpose |
+|---|---|---|
+| API Security | `security/api-security.md` | OAuth, JWT, and input validation |
+| Cryptography | `security/cryptography-standards.md` | Encryption transit/rest |
+| Privacy Data | `security/privacy-data-protection.md` | GDPR, HIPAA handling |
+| Secure Arch. | `security/secure-architecture.md` | Defense in depth |
+| Threat Modeling | `security/threat-modeling.md` | STRIDE analysis methodology |
+| AI Risk Standards Map | `security/ai-risk-standards-map.md` | OWASP LLM Top 10 / NIST AI RMF / MITRE ATLAS / ISO 42001 / EU AI Act mapping |
+
+### 10. Industry Domains (`industry/`)
+| Guide | File | Purpose |
+|---|---|---|
+| Engineering Std. | `industry/engineering-standards.md` | IEEE/ISO code quality levels |
+| Global Standards | `industry/global-standards.md` | Regulatory & SDLC compliance |
+| Healthcare FHIR | `industry/healthcare-fhir.md` | Medical data interoperability |
+| Industrial IoT | `industry/industrial-iot.md` | OT/IT connectivity standards |
+| Telecom Networks | `industry/telecom-networks.md` | 5G/OSS/BSS architectural patterns |

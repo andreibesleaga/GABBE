@@ -36,6 +36,7 @@
     "bin/",
     "agents/",
     "docs/",
+    "!docs/assets/claude-plugin-icon.png",
     "scripts/init.py",
     "install.sh",
     "install.ps1",

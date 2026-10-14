@@ -27,6 +27,7 @@ jobs:
             !**/node_modules
             !.venv
             !agents/skills/**
+            !plugins/**
 
   links:
     name: Link check (lychee)

@@ -1,0 +1,19 @@
+{
+  "name": "gabbe-ai",
+  "version": "1.1.1",
+  "description": "GABBE ai skills (11): AI and agent engineering: multi-agent systems, agent UIs and protocols, context engineering, RAG evaluation, LLM-as-judge and reasoning patterns.",
+  "author": {
+    "name": "Andrei Nicolae Besleaga",
+    "url": "https://github.com/andreibesleaga/GABBE"
+  },
+  "homepage": "https://github.com/andreibesleaga/GABBE#readme",
+  "repository": "https://github.com/andreibesleaga/GABBE",
+  "license": "CC-BY-SA-4.0",
+  "keywords": [
+    "gabbe",
+    "agent-skills",
+    "sdlc",
+    "agentic-engineering",
+    "ai"
+  ]
+}

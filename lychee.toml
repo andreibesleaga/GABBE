@@ -5,6 +5,8 @@ exclude_path = [
   "build",
   "dist",
   "agents/memory",
+  # Generated copies of agents/skills (scripts/build_claude_plugin.py).
+  "plugins",
 ]
 
 # Don't fail on transient/rate-limited or auth-gated hosts.

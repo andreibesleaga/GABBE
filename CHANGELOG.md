@@ -9,6 +9,20 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [Unreleased]
 
 ### Added
+- **Claude Code plugins + marketplace** — `scripts/build_claude_plugin.py` converts all 214
+  `agents/skills/**/*.skill.md` into Agent Skills `SKILL.md` folders under `plugins/` (name =
+  file name, description + "Use when:" triggers, `license: CC-BY-SA-4.0`, metadata with the
+  source path; body unchanged; templates and guides a skill names, with or without the
+  `agents/` prefix, are copied beside it at that path) and writes
+  `.claude-plugin/marketplace.json`. Eleven plugins: `gabbe` (core, 44 skills) plus ten topic
+  plugins (`gabbe-ai` … `gabbe-security`), because all 214 descriptions exceed Claude Code's
+  skill-listing budget. Install: `claude plugin marketplace add andreibesleaga/GABBE` then
+  `claude plugin install gabbe@gabbe`; skills.sh: `npx skills add andreibesleaga/GABBE -a
+  claude-code`. `scripts/tests/test_claude_plugin.py` keeps the tree in sync and checks the
+  format, the plugin-directory limits, the icon (source `docs/assets/claude-plugin-icon.png`),
+  that every kit template or guide a skill names is copied, and that the plugins are content
+  only. The generated `plugins/` tree is skipped by markdownlint and lychee and marked
+  `linguist-generated`.
 - **`docs/ROADMAP.md`** — the planned work after 1.1.1: an off-by-default agent hook set
   (`npx gabbe-kit init --hooks`) for the four rules a hook can enforce, what stays prose, the
   per-agent coverage, and the `gabbe verify` exit-code fix.

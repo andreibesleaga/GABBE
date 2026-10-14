@@ -1,0 +1,19 @@
+{
+  "name": "gabbe-coding",
+  "version": "1.1.1",
+  "description": "GABBE coding skills (28): coding: language performance, testing strategies (browser TDD, property-based, metamorphic, chaos), evals, UI generation and diagram canvases.",
+  "author": {
+    "name": "Andrei Nicolae Besleaga",
+    "url": "https://github.com/andreibesleaga/GABBE"
+  },
+  "homepage": "https://github.com/andreibesleaga/GABBE#readme",
+  "repository": "https://github.com/andreibesleaga/GABBE",
+  "license": "CC-BY-SA-4.0",
+  "keywords": [
+    "gabbe",
+    "agent-skills",
+    "sdlc",
+    "agentic-engineering",
+    "coding"
+  ]
+}

@@ -14,6 +14,8 @@ recursive-include agents *
 
 # Documentation tree shipped with the kit.
 recursive-include docs *
+# The Claude Code plugin icon source is a repository asset, not part of the kit.
+exclude docs/assets/claude-plugin-icon.png
 
 # The Python-independent installers and the wizard.
 include scripts/init.py

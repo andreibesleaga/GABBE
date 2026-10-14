@@ -1,0 +1,42 @@
+{
+    "name": "${PROJECT_NAME} Dev Environment",
+    "dockerComposeFile": [
+      "../compose.yaml",
+      "compose.dev.yaml"
+    ],
+    "service": "app",
+    "workspaceFolder": "/workspace",
+  
+    "features": {
+      "ghcr.io/devcontainers/features/git:1": {},
+      "ghcr.io/devcontainers/features/node:1": {},
+      "ghcr.io/devcontainers/features/docker-in-docker:2": {}
+    },
+  
+    "customizations": {
+      "vscode": {
+        "extensions": [
+          "dbaeumer.vscode-eslint",
+          "esbenp.prettier-vscode",
+          "github.copilot",
+          "ms-azuretools.vscode-docker"
+        ],
+        "settings": {
+            "editor.formatOnSave": true,
+            "terminal.integrated.defaultProfile.linux": "zsh"
+        }
+      }
+    },
+  
+    "forwardPorts": [3000, 5432],
+  
+    "postCreateCommand": "npm install && npm run migrate:dev",
+  
+    "build": {
+        "context": "..",
+        "dockerfile": "../Dockerfile",
+        "target": "development" 
+    },
+  
+    "remoteUser": "node"
+}

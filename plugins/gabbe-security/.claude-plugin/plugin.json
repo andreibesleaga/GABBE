@@ -1,0 +1,19 @@
+{
+  "name": "gabbe-security",
+  "version": "1.1.1",
+  "description": "GABBE security skills (21): security, privacy and AI safety: access control, secrets, cryptography, prompt-injection defence, red teaming, compliance and legal review.",
+  "author": {
+    "name": "Andrei Nicolae Besleaga",
+    "url": "https://github.com/andreibesleaga/GABBE"
+  },
+  "homepage": "https://github.com/andreibesleaga/GABBE#readme",
+  "repository": "https://github.com/andreibesleaga/GABBE",
+  "license": "CC-BY-SA-4.0",
+  "keywords": [
+    "gabbe",
+    "agent-skills",
+    "sdlc",
+    "agentic-engineering",
+    "security"
+  ]
+}

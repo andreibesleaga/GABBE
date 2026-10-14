@@ -1,0 +1,19 @@
+{
+  "name": "gabbe-brain",
+  "version": "1.1.1",
+  "description": "GABBE brain skills (13): Brain Mode internals: cognitive architectures, active inference, global workspace, working and episodic memory, self-improvement.",
+  "author": {
+    "name": "Andrei Nicolae Besleaga",
+    "url": "https://github.com/andreibesleaga/GABBE"
+  },
+  "homepage": "https://github.com/andreibesleaga/GABBE#readme",
+  "repository": "https://github.com/andreibesleaga/GABBE",
+  "license": "CC-BY-SA-4.0",
+  "keywords": [
+    "gabbe",
+    "agent-skills",
+    "sdlc",
+    "agentic-engineering",
+    "brain"
+  ]
+}

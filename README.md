@@ -124,6 +124,44 @@ cp -r GABBE/agents .
 chmod +x agents/setup-context.sh && agents/setup-context.sh
 ```
 
+### Install as a Claude Code plugin
+
+The skills also ship as Claude Code plugins in one marketplace, so Claude Code can use
+them without installing the kit into the project:
+
+```bash
+claude plugin marketplace add andreibesleaga/GABBE
+claude plugin install gabbe@gabbe
+```
+
+`gabbe` holds the core skills (every skill in `agents/skills/core/` and every skill
+marked `core: true`). The other skills come as topic plugins from the same marketplace:
+`gabbe-ai`, `gabbe-architecture`, `gabbe-brain`, `gabbe-coding`, `gabbe-coordination`,
+`gabbe-data`, `gabbe-industry`, `gabbe-ops`, `gabbe-product` and `gabbe-security`
+(for example `claude plugin install gabbe-security@gabbe`). Claude Code keeps every
+installed skill's name and description in context, within about 1% of the context
+window. All 214 skills would need far more than that; the core plugin alone costs about
+2,700 tokens per session (`claude plugin details gabbe`), a little over the ~2,000-token
+budget of a 200k context and well within that of a 1M context. Over budget, Claude Code
+drops the descriptions of the least-used skills; nothing fails. Install only the topics
+you use.
+
+The same skills install one by one with the skills CLI ([skills.sh](https://skills.sh)):
+
+```bash
+npx skills add andreibesleaga/GABBE -a claude-code
+```
+
+Plugin skills are namespaced (`/gabbe:code-review`, `/gabbe:debug`). The skills CLI
+instead writes them to `.claude/skills/` in the project, where GABBE's `code-review` and
+`debug` take the place of Claude Code's built-in `/code-review` and `/debug` in that
+project; skip those two there if you want the built-ins.
+
+The plugins are content only (Markdown skills and the templates they name: no hooks,
+no MCP servers, no executables). They are generated from `agents/skills/`; after
+editing a skill run `python scripts/build_claude_plugin.py` (CI checks the tree is in
+sync).
+
 ### 🌍 Cross-Platform Support
 - **Linux / macOS / WSL:** Native support.
 - **Windows (Native):**

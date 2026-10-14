@@ -1,0 +1,19 @@
+{
+  "name": "gabbe-data",
+  "version": "1.1.1",
+  "description": "GABBE data skills (5): data: pipelines, governance, database migrations, SQL optimisation and the semantic web.",
+  "author": {
+    "name": "Andrei Nicolae Besleaga",
+    "url": "https://github.com/andreibesleaga/GABBE"
+  },
+  "homepage": "https://github.com/andreibesleaga/GABBE#readme",
+  "repository": "https://github.com/andreibesleaga/GABBE",
+  "license": "CC-BY-SA-4.0",
+  "keywords": [
+    "gabbe",
+    "agent-skills",
+    "sdlc",
+    "agentic-engineering",
+    "data"
+  ]
+}

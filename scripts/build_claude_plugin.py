@@ -66,6 +66,25 @@ import yaml
 ROOT = Path(__file__).resolve().parent.parent
 AGENTS = ROOT / "agents"
 SKILLS = AGENTS / "skills"
+
+
+def _tracked_files() -> Optional[set]:
+    """Resolved paths of the files git tracks, so the plugin tree depends only on the
+    repository's contents and never on ignored or untracked files in a working copy.
+    None when git is not available (a source archive), where every file counts."""
+    try:
+        out = subprocess.run(["git", "ls-files", "-z"], cwd=ROOT, capture_output=True, check=True).stdout
+    except (OSError, subprocess.CalledProcessError):
+        return None
+    return {(ROOT / name).resolve() for name in out.decode("utf-8").split("\0") if name}
+
+
+TRACKED = _tracked_files()
+
+
+def _is_source(p: Path) -> bool:
+    """A file the generator may read: present, and tracked when git is available."""
+    return p.is_file() and (TRACKED is None or p.resolve() in TRACKED)
 PLUGINS = ROOT / "plugins"
 MARKETPLACE = ROOT / ".claude-plugin" / "marketplace.json"
 ICON = ROOT / "docs" / "assets" / "claude-plugin-icon.png"
@@ -183,7 +202,7 @@ def _unique_basenames() -> dict:
     """File name -> path for text files under agents/templates/ whose name is unique."""
     seen: dict = {}
     for p in sorted((AGENTS / "templates").rglob("*")):
-        if p.is_file():
+        if _is_source(p):
             seen.setdefault(p.name, []).append(p)
     return {n: ps[0] for n, ps in seen.items() if len(ps) == 1}
 
@@ -204,7 +223,7 @@ def supporting_files(skill_file: Path, body: str, by_name: dict) -> dict:
         src = None
         for base in (skill_file.parent, SKILLS, AGENTS / "templates", AGENTS, ROOT):
             cand = (base / norm).resolve()
-            if cand.is_file():
+            if _is_source(cand):
                 src = cand
                 break
         if src is not None:
@@ -241,7 +260,7 @@ def supporting_files(skill_file: Path, body: str, by_name: dict) -> dict:
             # A linked skill (guides/ops/cost-optimization.md links
             # skills/coding/performant-ai.skill.md) is copied as a plain reference
             # file, so the link resolves; only SKILL.md files are listed as skills.
-            if not target.is_file():
+            if not _is_source(target):
                 continue
             sub = posixpath.normpath(posixpath.join(posixpath.dirname(dest), link))
             try:

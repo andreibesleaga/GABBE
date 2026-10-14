@@ -73,7 +73,9 @@ def _tracked_files() -> Optional[set]:
     repository's contents and never on ignored or untracked files in a working copy.
     None when git is not available (a source archive), where every file counts."""
     try:
-        out = subprocess.run(["git", "ls-files", "-z"], cwd=ROOT, capture_output=True, check=True).stdout
+        out = subprocess.run(
+            ["git", "ls-files", "-z"], cwd=ROOT, capture_output=True, check=True
+        ).stdout
     except (OSError, subprocess.CalledProcessError):
         return None
     return {(ROOT / name).resolve() for name in out.decode("utf-8").split("\0") if name}
@@ -85,6 +87,8 @@ TRACKED = _tracked_files()
 def _is_source(p: Path) -> bool:
     """A file the generator may read: present, and tracked when git is available."""
     return p.is_file() and (TRACKED is None or p.resolve() in TRACKED)
+
+
 PLUGINS = ROOT / "plugins"
 MARKETPLACE = ROOT / ".claude-plugin" / "marketplace.json"
 ICON = ROOT / "docs" / "assets" / "claude-plugin-icon.png"

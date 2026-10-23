@@ -1,13 +1,21 @@
-name: Publish npm (manual)
+name: Publish npm
 
-# Manual npm publish for the `gabbe-kit` package, decoupled from the tag-driven
-# Release workflow. The unscoped name `gabbe` is refused by npm's name-similarity
-# policy, so the npm channel ships as `gabbe-kit` (PyPI stays `gabbe`). This lets
-# us (re)publish npm from the current default-branch HEAD without re-tagging a
-# release or re-triggering the PyPI publish (which would fail on a duplicate
-# version). Gated on the NPM_TOKEN secret so it stays a no-op when absent.
+# The single npm publisher for the `gabbe-kit` package (the unscoped name `gabbe`
+# is refused by npm's name-similarity policy, so npm ships as `gabbe-kit`; PyPI
+# stays `gabbe`). Runs on every non-prerelease version tag, and manually to
+# (re)publish from the default-branch HEAD without re-tagging or re-triggering
+# the PyPI publish in release.yml (which would fail on a duplicate version).
+#
+# Authentication is npm trusted publishing (OIDC): no NPM_TOKEN. npm exchanges
+# the job's GitHub id-token for a short-lived publish token and adds provenance
+# automatically. The trusted publisher on npmjs.com must name this file:
+#   npm trust github gabbe-kit --file publish-npm.yml --repo andreibesleaga/GABBE --allow-publish
+# Requires npm >= 11.5.1 and Node >= 22.14 on a GitHub-hosted runner.
 
 on:
+  push:
+    tags:
+      - "v*"
   workflow_dispatch:
     inputs:
       dist_tag:
@@ -22,12 +30,20 @@ jobs:
   publish-npm:
     name: Publish gabbe-kit to npm
     runs-on: ubuntu-latest
+    # Prerelease tags (a '-' in the name) never go to the `latest` dist-tag.
+    if: ${{ github.event_name == 'workflow_dispatch' || !contains(github.ref_name, '-') }}
+    permissions:
+      contents: read
+      id-token: write # npm trusted publishing (OIDC) + provenance
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
         with:
-          node-version: '20'
+          node-version: '24'
           registry-url: 'https://registry.npmjs.org'
+
+      - name: Use npm 11.17.0 (trusted publishing needs >= 11.5.1)
+        run: npm install -g npm@11.17.0
 
       - name: Smoke-test the Node installer
         run: node bin/install.js --help
@@ -35,7 +51,13 @@ jobs:
       - name: Show package identity
         run: node -e "const p=require('./package.json');console.log(p.name+'@'+p.version)"
 
+      - name: Tag matches package.json version
+        if: github.event_name == 'push'
+        run: |
+          v="$(node -p "require('./package.json').version")"
+          [ "v$v" = "$GITHUB_REF_NAME" ] || { echo "tag $GITHUB_REF_NAME != package.json $v"; exit 1; }
+
       - name: Publish to npm
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: npm publish --access public --tag "${{ github.event.inputs.dist_tag }}"
+          DIST_TAG: ${{ inputs.dist_tag || 'latest' }}
+        run: npm publish --access public --tag "$DIST_TAG"

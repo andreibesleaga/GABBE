@@ -1,6 +1,6 @@
 {
   "name": "gabbe-ops",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "GABBE ops skills (30): operations: deployment, environments, observability, incidents, performance, cost and release management.",
   "author": {
     "name": "Andrei Nicolae Besleaga",

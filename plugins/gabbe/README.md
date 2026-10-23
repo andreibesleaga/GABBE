@@ -21,7 +21,7 @@ Installed as this plugin, `code-review` and `debug` are namespaced (`/gabbe:code
 
 Claude Code keeps each installed skill's name and description in context within about 1% of the context window. This plugin costs about 2,700 tokens per session (`claude plugin details gabbe`): over the budget of a 200k context, where Claude Code drops the descriptions of the least-used skills (nothing fails), and within that of a 1M context.
 
-Version 1.1.1. Generated from `agents/skills/` by `scripts/build_claude_plugin.py`; edit the sources, not these files.
+Version 1.1.2. Generated from `agents/skills/` by `scripts/build_claude_plugin.py`; edit the sources, not these files.
 
 ## Skills
 

@@ -8,6 +8,14 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.1.2] — 2026-10-23 — `gabbe verify` exit code; Claude Code plugins
+
+### Fixed
+- **`gabbe verify` now exits 1 when verification fails.** It printed "Verification FAILED" but exited 0, so CI
+  jobs and scripts that ran it always passed. `gabbe verify --chaos` already exited 1. Two tests cover both
+  outcomes (`gabbe/tests/test_main.py`).
+- README: the opening bullet no longer claims to be the first such project world-wide.
+
 ### Added
 - **Claude Code plugins + marketplace** — `scripts/build_claude_plugin.py` converts all 214
   `agents/skills/**/*.skill.md` into Agent Skills `SKILL.md` folders under `plugins/` (name =

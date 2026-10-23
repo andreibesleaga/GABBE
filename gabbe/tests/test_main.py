@@ -218,3 +218,31 @@ def test_generic_exception_exits_1(tmp_project, capsys):
             main()
     assert exc_info.value.code == 1
     assert "boom" in capsys.readouterr().err
+
+
+# ---------------------------------------------------------------------------
+# verify command — exit code follows the result (1.1.2: it used to exit 0 on failure)
+# ---------------------------------------------------------------------------
+
+
+def test_verify_failure_exits_1(tmp_project):
+    from gabbe.main import main
+
+    with (
+        patch("sys.argv", ["gabbe", "verify"]),
+        patch("gabbe.verify.run_verification", return_value=False),
+    ):
+        with pytest.raises(SystemExit) as exc_info:
+            main()
+    assert exc_info.value.code == 1
+
+
+def test_verify_success_exits_0(tmp_project):
+    from gabbe.main import main
+
+    with (
+        patch("sys.argv", ["gabbe", "verify"]),
+        patch("gabbe.verify.run_verification", return_value=True) as mock_verify,
+    ):
+        main()  # must not raise SystemExit
+    mock_verify.assert_called_once()

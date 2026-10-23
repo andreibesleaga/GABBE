@@ -9,7 +9,7 @@ name: Publish to GitHub Packages (npm mirror)
 #
 # The rename happens in the runner's checkout only; the committed package.json is
 # never modified. Authentication is the job's GITHUB_TOKEN with `packages: write`
-# — no NPM_TOKEN needed, so unlike release.yml this job is not secret-gated.
+# — no npm token needed, so this job is not secret-gated.
 #
 # Triggers: every version tag (alongside release.yml) and manual dispatch, which
 # backfills whatever version the checked-out ref carries. Re-runs are safe: a

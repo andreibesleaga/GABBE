@@ -8,6 +8,11 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Changed
+- **npm publishing uses npm trusted publishing (OIDC).** `publish-npm.yml` is now the only npm publisher: it runs
+  on every version tag and by hand, needs no `NPM_TOKEN`, and adds npm provenance. `release.yml` no longer
+  publishes to npm. A token-based publish had started to fail because npm now asks for a one-time password.
+
 ## [1.1.2] — 2026-10-23 — `gabbe verify` exit code; Claude Code plugins
 
 ### Fixed

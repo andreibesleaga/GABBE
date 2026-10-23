@@ -206,7 +206,8 @@ def main() -> None:
             else:
                 from .verify import run_verification
 
-                run_verification()
+                if not run_verification():
+                    sys.exit(1)
 
         elif args.command == "status":
             from .status import show_dashboard

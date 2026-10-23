@@ -1,6 +1,6 @@
 {
   "name": "gabbe-data",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "GABBE data skills (5): data: pipelines, governance, database migrations, SQL optimisation and the semantic web.",
   "author": {
     "name": "Andrei Nicolae Besleaga",

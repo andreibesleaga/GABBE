@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GABBE - Agentic Engineering Kit</title>
+<meta name="description" content="GABBE is an open-source Markdown kit that turns AI coding agents into a governed engineering team. Install with npx gabbe-kit init.">
+<link rel="canonical" href="https://andreibesleaga.github.io/GABBE/">
+<meta name="author" content="Andrei N. Besleaga">
+<meta name="color-scheme" content="light dark">
+<meta name="tdm-reservation" content="1">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="GABBE">
+<meta property="og:title" content="GABBE - Agentic Engineering Kit">
+<meta property="og:description" content="An open-source Markdown kit that turns AI coding agents into a governed engineering team. Install with npx gabbe-kit init.">
+<meta property="og:url" content="https://andreibesleaga.github.io/GABBE/">
+<meta property="og:image" content="https://andreibesleaga.github.io/GABBE/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="GABBE logo: Generative Architectural Brain Base Engine">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="GABBE - Agentic Engineering Kit">
+<meta name="twitter:description" content="An open-source Markdown kit that turns AI coding agents into a governed engineering team.">
+<meta name="twitter:image" content="https://andreibesleaga.github.io/GABBE/og.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  "name": "GABBE",
+  "alternateName": "Generative Architectural Brain Base Engine",
+  "description": "An open-source Markdown agentic engineering kit that turns AI coding agents into a governed engineering team, with an optional experimental Python CLI.",
+  "url": "https://andreibesleaga.github.io/GABBE/",
+  "codeRepository": "https://github.com/andreibesleaga/GABBE",
+  "programmingLanguage": ["Python", "JavaScript", "Markdown"],
+  "license": ["https://www.apache.org/licenses/LICENSE-2.0", "https://creativecommons.org/licenses/by-sa/4.0/"],
+  "version": "1.1.2",
+  "image": "https://andreibesleaga.github.io/GABBE/og.png",
+  "author": {
+    "@type": "Person",
+    "name": "Andrei N. Besleaga",
+    "url": "https://andreibesleaga.com/",
+    "sameAs": ["https://github.com/andreibesleaga", "https://orcid.org/0009-0001-3464-5283"]
+  }
+}
+</script>
+<style>
+:root{--bg:#fff;--fg:#1d2330;--muted:#556070;--line:#dde2ea;--link:#1a55b8;--code-bg:#f2f4f8}
+@media (prefers-color-scheme:dark){:root{--bg:#10141c;--fg:#e4e8ef;--muted:#a3adbd;--line:#2a3140;--link:#8db8ff;--code-bg:#1a2030}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif}
+main,footer{max-width:42rem;margin:0 auto;padding:0 1rem}
+header{max-width:42rem;margin:0 auto;padding:3rem 1rem 0}
+h1{font-size:2rem;line-height:1.2;margin:0 0 .25rem;letter-spacing:-.01em}
+h2{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:2.5rem 0 .75rem;padding-top:1rem;border-top:1px solid var(--line)}
+p{margin:.5rem 0}
+.sub{color:var(--muted);margin:0 0 1rem}
+.lead{font-size:1.05rem}
+ul{margin:.5rem 0;padding-left:1.25rem}
+li{margin:.3rem 0}
+a{color:var(--link);text-underline-offset:.15em}
+a:focus-visible,summary:focus-visible{outline:2px solid var(--link);outline-offset:2px;border-radius:2px}
+pre{margin:.75rem 0;padding:.75rem 1rem;background:var(--code-bg);border:1px solid var(--line);border-radius:6px;overflow-x:auto;font-size:.85rem;line-height:1.5}
+code{font:.88em ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+p code,li code{background:var(--code-bg);padding:.05em .3em;border-radius:3px;overflow-wrap:anywhere}
+.small{font-size:.875rem;color:var(--muted)}
+dl{margin:.5rem 0}
+dt{font-weight:600;margin-top:.6rem}
+dd{margin:0 0 0 0;color:var(--fg)}
+.links{list-style:none;padding:0;display:flex;flex-wrap:wrap;gap:.4rem 1.25rem}
+.links li{margin:0}
+footer{padding-top:1rem;padding-bottom:3rem;margin-top:2.5rem;border-top:1px solid var(--line);font-size:.875rem;color:var(--muted)}
+.skip{position:absolute;left:-999px}
+.skip:focus{left:1rem;top:1rem;background:var(--bg);padding:.25rem .5rem;z-index:1}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header>
+<h1>GABBE</h1>
+<p class="sub">Generative Architectural Brain Base Engine &middot; Agentic Software R&amp;D Engineering Kit &middot; v1.1.2</p>
+<p class="lead">An open-source Markdown kit that turns AI coding agents into a governed engineering team, for any project type, language and team size.</p>
+</header>
+<main id="main">
+
+<h2>What it does</h2>
+<ul>
+<li>Gives AI coding agents context, skills, memory and workflows, with software development cycle gates and human-in-the-loop checkpoints.</li>
+<li>Works with Claude Code, Cursor, Windsurf, Cline, Aider, Devin, Gemini, Antigravity, OpenCode, Zed, Continue, Roo Code, Kilo Code, OpenAI/Codex, GitHub Copilot and VS Code; it writes each tool's native skill format.</li>
+<li>Covers a lifecycle from Day-0 strategy and discovery (S00) through the S01&ndash;S10 development gates to Day-2 operate, evolve and decommission (S11&ndash;S13), with spec-driven and test-driven development.</li>
+<li>Includes an evals and guardrails layer mapped to OWASP LLM Top 10, NIST AI RMF, MITRE ATLAS, ISO 42001 and the EU AI Act. It documents coverage; it is not a certification.</li>
+<li>Ships 214 skills, 100 templates, 86 guides, 36 personas and 50+ MCP server configurations.</li>
+<li>Optional experimental Python CLI (<code>gabbe</code>) for budgets, policy, audit tracing, an MCP gateway, <code>gabbe doctor</code> and <code>gabbe verify</code>.</li>
+</ul>
+
+<h2>Install</h2>
+<pre tabindex="0"><code>npx gabbe-kit init
+npx gabbe-kit init --agents claude,cursor,antigravity,opencode --yes
+curl -fsSL https://raw.githubusercontent.com/andreibesleaga/GABBE/main/install.sh | sh
+pipx install gabbe</code></pre>
+<p class="small">The first command is the Python-independent kit installer; the second is its non-interactive form; the third is a shell bootstrap. <code>pipx install gabbe</code> installs the <code>gabbe</code> CLI only, not the kit. On npm the package is <code>gabbe-kit</code>; on PyPI it is <code>gabbe</code>. Run <code>gabbe doctor</code> afterwards for an environment and install report.</p>
+<p>As Claude Code plugins:</p>
+<pre tabindex="0"><code>claude plugin marketplace add andreibesleaga/GABBE
+claude plugin install gabbe@gabbe</code></pre>
+<p class="small">Both installers back up any differing existing file to <code>&lt;name&gt;.gabbe-bak</code> before refreshing it. Full guide: <a href="https://github.com/andreibesleaga/GABBE/blob/main/docs/INSTALL.md">docs/INSTALL.md</a>.</p>
+
+<h2>Key concepts</h2>
+<dl>
+<dt>Skills, templates, guides, personas</dt>
+<dd>Markdown building blocks under <code>agents/</code>, compiled into each agent's native format.</dd>
+<dt>AGENTS.md and CONSTITUTION.md</dt>
+<dd>The operating loop for each session and the hard rules (security, cost, spec-driven work, observability, human approval) that agents follow.</dd>
+<dt>Spec-driven lifecycle</dt>
+<dd>Spec, evals, tests, then code, with human approval gates between phases.</dd>
+<dt>Brain Mode (experimental)</dt>
+<dd>A meta-cognitive layer using an Active Inference loop (predict, act, observe, compare, adapt), cost routing between local and remote models, and episodic memory. Its outputs are advisory, not production guarantees.</dd>
+<dt>Loki Mode (experimental)</dt>
+<dd>A multi-agent team of 30+ specialised roles for large projects, with memory, history auditing and checkpoints.</dd>
+<dt>Fail-closed guardrails</dt>
+<dd>Agents wait for human approval rather than bypass a guardrail; the optional CLI gateway denies by default without a policy.</dd>
+</dl>
+
+<h2>Links</h2>
+<ul class="links">
+<li><a href="https://github.com/andreibesleaga/GABBE">GitHub</a></li>
+<li><a href="https://www.npmjs.com/package/gabbe-kit">npm: gabbe-kit</a></li>
+<li><a href="https://pypi.org/project/gabbe/">PyPI: gabbe</a></li>
+<li><a href="https://doi.org/10.36227/techrxiv.177220787.72010996/v1">TechRxiv preprint</a></li>
+<li><a href="https://github.com/andreibesleaga/GABBE/blob/main/docs/README_FULL.md">Documentation</a></li>
+<li><a href="https://github.com/andreibesleaga/GABBE/releases">Releases</a></li>
+<li><a href="https://github.com/andreibesleaga/GABBE/blob/main/CHANGELOG.md">Changelog</a></li>
+<li><a href="https://github.com/andreibesleaga/GABBE/blob/main/LICENSE">Licence</a></li>
+</ul>
+
+<h2>Built with GABBE</h2>
+<p><a href="https://github.com/andreibesleaga/agentic-system-core">AgenticSystemCore</a> &middot; <a href="https://github.com/andreibesleaga/kaiban-distributed">Kaiban Distributed</a> &middot; <a href="https://github.com/andreibesleaga/QUEST-BEACON">BEACON</a> &middot; <a href="https://github.com/andreibesleaga/AgenticMedicalImagingHelper">AgenticMedicalImagingHelper</a></p>
+
+<h2>Licence</h2>
+<p>Dual-licensed. Code (<code>gabbe/</code>, <code>scripts/</code>, <code>agents/scripts/</code>) is under <a href="https://github.com/andreibesleaga/GABBE/blob/main/LICENSE-CODE">Apache-2.0</a>. Content (<code>agents/</code> Markdown, <code>docs/</code>) is under <a href="https://github.com/andreibesleaga/GABBE/blob/main/LICENSE">CC BY-SA 4.0</a>. SPDX: <code>Apache-2.0 AND CC-BY-SA-4.0</code>.</p>
+</main>
+<footer>
+<p>By <a href="https://andreibesleaga.com/">Andrei N. Besleaga</a> &middot; <a href="https://andreibesleaga.com/projects-demos/#gabbe">GABBE on andreibesleaga.com</a></p>
+</footer>
+</body>
+</html>

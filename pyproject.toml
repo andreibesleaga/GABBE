@@ -63,7 +63,8 @@ evals = [
 gabbe = "gabbe.main:main"
 
 [project.urls]
-"Homepage" = "https://github.com/andreibesleaga/GABBE"
+"Homepage" = "https://andreibesleaga.github.io/GABBE/"
+"Repository" = "https://github.com/andreibesleaga/GABBE"
 
 [tool.setuptools.packages.find]
 include = ["gabbe*"]

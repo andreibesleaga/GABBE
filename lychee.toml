@@ -14,6 +14,9 @@ exclude = [
   '^https?://localhost',
   '^https?://127\.0\.0\.1',
   '^https?://example\.com',
+  # Project website (GitHub Pages). Returns 404 until Pages is enabled for the
+  # repo; remove this line once the site is live.
+  '^https://andreibesleaga\.github\.io/GABBE/?$',
 ]
 
 # Treat 429 (rate limit) and 200/206 as acceptable.

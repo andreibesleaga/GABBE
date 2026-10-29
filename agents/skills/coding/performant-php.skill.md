@@ -49,14 +49,17 @@ Build fast, type-safe, maintainable PHP services using the current ecosystem (ve
 ## Security & Guardrails
 
 ### 1. Skill Security
+
 - **Parameterized queries only**: Use PDO prepared statements or the ORM's bindings; never interpolate user input into SQL, shell commands (`exec`, `shell_exec`) or `unserialize()`.
 - **Dependency hygiene**: Run `composer audit` in CI and keep `roave/security-advisories` installed so a vulnerable package fails the install.
 
 ### 2. System Integration Security
+
 - **Worker-mode state**: In FrankenPHP worker mode, RoadRunner or Swoole the process outlives the request. Reset per-request state (auth, tenant, static caches) so data cannot leak between users.
 - **Production settings**: Keep `display_errors=Off` and `expose_php=Off`; load secrets from the environment, never from committed files.
 
 ### 3. LLM & Agent Guardrails
+
 - **Measure before optimizing**: Do not enable JIT, preloading or worker mode without a before/after profile; record both numbers.
 - **Version claims**: Check the PHP and framework versions in `composer.json` before using 8.4/8.5-only syntax.
 

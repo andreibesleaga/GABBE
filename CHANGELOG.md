@@ -19,6 +19,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Contributor `AGENTS.md` at the repository root; `mypy --strict` passes on `gabbe/*.py`; SECURITY.md lists 1.1.x.
 
 ### Fixed
+
 - **The npm installer rejects unknown commands.** `npx gabbe-kit doctor` (or any unknown word) used to fall
   through to `init` and copy the kit into the current folder; it now prints the usage and exits 1.
 - **The wizard no longer copies `setup-context.sh`/`.ps1` to the project root.** Run from there, the script

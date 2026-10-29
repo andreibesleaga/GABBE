@@ -38,13 +38,16 @@ To be used when the user requests generating diagrams onto a physical board, can
 ## Security & Guardrails
 
 ### 1. Skill Security
-- **No secrets on canvases**: Boards and design files are shared with everyone who has the link. Never place API keys, credentials, internal hostnames or real user data on them; use labelled placeholders.
-- **Sanitize labels**: Treat user-provided node names as untrusted text. Escape them before writing `.drawio` XML or board items, so a label cannot break the file or inject markup.
+
+* **No secrets on canvases**: Boards and design files are shared with everyone who has the link. Never place API keys, credentials, internal hostnames or real user data on them; use labelled placeholders.
+* **Sanitize labels**: Treat user-provided node names as untrusted text. Escape them before writing `.drawio` XML or board items, so a label cannot break the file or inject markup.
 
 ### 2. System Integration Security
-- **Least-privilege MCP tokens**: Give the Miro, Draw.io or Figma MCP server a token scoped to the one board or file it needs, read-only where the task only reads (Figma extraction).
-- **Respect board permissions**: Do not change sharing settings or invite users; ask the human to do it.
+
+* **Least-privilege MCP tokens**: Give the Miro, Draw.io or Figma MCP server a token scoped to the one board or file it needs, read-only where the task only reads (Figma extraction).
+* **Respect board permissions**: Do not change sharing settings or invite users; ask the human to do it.
 
 ### 3. LLM & Agent Guardrails
-- **Draw only what exists**: Render the verified architecture from the plan or the code. Do not add components (WAF, KMS, queues) that the system does not have.
-- **Human review before sharing**: Present the generated diagram for approval before it is posted to a shared board.
+
+* **Draw only what exists**: Render the verified architecture from the plan or the code. Do not add components (WAF, KMS, queues) that the system does not have.
+* **Human review before sharing**: Present the generated diagram for approval before it is posted to a shared board.

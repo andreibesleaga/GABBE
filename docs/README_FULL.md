@@ -95,8 +95,10 @@ The system features a **Brain Mode** that supersedes standard execution. It uses
 
 ```bash
 # Activate Brain Mode
-/brain activate "Build a SaaS platform"
+gabbe brain activate
 ```
+
+Or ask your agent in chat: "Activate Brain Mode. Goal: Build a SaaS platform."
 
 ### Key Capabilities
 - **Active Inference Loop**: Continuously compares "Expected State" vs "Actual State".
@@ -711,7 +713,7 @@ gabbe brain evolve --skill code-review
 ```
 
 **Using Pure Agent Mode (No CLI):**
-> "We continually fail when writing React hooks. Invoke the `meta-optimize` skill. Read the last 5 chat messages, identify why your previous attempts failed, and directly edit `agents/skills/coding/react-components.skill.md` to add new constraints preventing this failure in the future. Log the change to `meta-evolution.log`."
+> "We continually fail when writing React hooks. Invoke the `meta-optimize` skill. Read the last 5 chat messages, identify why your previous attempts failed, and directly edit `agents/skills/coding/ui-gen.skill.md` to add new constraints preventing this failure in the future. Log the change to `meta-evolution.log`."
 
 ### 8.4. Self-Healing Enforcement (`heal`)
 The healing protocol acts as an infrastructure watchdog to recover from failures.

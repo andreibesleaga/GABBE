@@ -9,6 +9,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [Unreleased]
 
 ### Changed
+- `project/state.db` is no longer tracked. It is runtime state that `gabbe init` and `gabbe db --init` create and that tests and agents change on every run; contributors no longer need `git update-index --skip-worktree` for it.
 - **npm publishing uses npm trusted publishing (OIDC).** `publish-npm.yml` is now the only npm publisher: it runs
   on every version tag and by hand, needs no `NPM_TOKEN`, and adds npm provenance. `release.yml` no longer
   publishes to npm. A token-based publish had started to fail because npm now asks for a one-time password.

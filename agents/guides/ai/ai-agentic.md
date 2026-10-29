@@ -240,7 +240,7 @@ GOOD (EARS — testable):
 ```json
 {
   "mcpServers": {
-    "context7": { "command": "npx", "args": ["@context7/mcp-server"] },
+    "context7": { "command": "npx", "args": ["@upstash/context7-mcp"] },
     "sequential-thinking": { "command": "npx", "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"] },
     "github": {
       "command": "npx",

@@ -8,7 +8,7 @@
       "_description": "Up-to-date SDK docs \u2014 prevents API hallucination. HIGHLY RECOMMENDED.",
       "command": "npx",
       "args": [
-        "@context7/mcp-server"
+        "@upstash/context7-mcp"
       ],
       "env": {}
     },
@@ -148,7 +148,7 @@
       "command": "npx",
       "args": [
         "-y",
-        "@sentry/mcp"
+        "@sentry/mcp-server"
       ],
       "env": {
         "SENTRY_AUTH_TOKEN": "${SENTRY_AUTH_TOKEN}",

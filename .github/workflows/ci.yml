@@ -55,6 +55,9 @@ jobs:
     - name: Validate Methodology Graph
       run: python3 agents/scripts/validate_methodology_graph.py
 
+    - name: Verify E2E init flows (local, global, custom)
+      run: python3 agents/scripts/verify_e2e_init_flows.py
+
     - name: Eval suites self-check (deterministic, no model)
       run: python3 agents/scripts/eval_skills.py
 

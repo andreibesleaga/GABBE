@@ -21,7 +21,7 @@ import json
 import re
 import shutil
 from pathlib import Path
-from typing import Any
+from typing import Any, Iterator
 
 from . import __version__
 
@@ -92,7 +92,7 @@ def _write_manifest(target: Path, manifest: dict[str, Any]) -> None:
     mp.write_text(json.dumps(manifest, indent=2, sort_keys=True))
 
 
-def _iter_source_files(source: Path):
+def _iter_source_files(source: Path) -> Iterator[tuple[Path, Path]]:
     for p in sorted(source.rglob("*")):
         if p.is_file():
             yield p, p.relative_to(source)

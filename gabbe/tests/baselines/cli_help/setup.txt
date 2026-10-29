@@ -1,4 +1,6 @@
-usage: main.py setup [-h]
+usage: main.py setup [-h] [--force]
 
 options:
   -h, --help  show this help message and exit
+  --force     Re-template even preserved files (each backed up to .gabbe-bak
+              first)

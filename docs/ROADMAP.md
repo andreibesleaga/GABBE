@@ -14,7 +14,7 @@ Today almost every gate and rule in the kit is enforced only by the agent readin
 
 | Rule | Enforced today by | A hook can add |
 |---|---|---|
-| The agent never commits, pushes, tags, publishes or deploys unless told to in that request | prose (AGENTS.md, CONSTITUTION Article XIII) | a block on the git and publish commands before they run |
+| The agent never commits, pushes, tags, publishes or deploys unless told to in that request | nothing yet: not stated in AGENTS.md or CONSTITUTION.md | a block on the git and publish commands before they run |
 | Protected files (the constitution, AGENTS.md, golden baselines, lockfiles, CI) are not edited | prose; `protected_files` in `project/gabbe.config.json` is read by no code | a block on edits to the configured globs |
 | Checks run on the final tree before work is reported as done | prose (Step 7 of the operating spine) | a refusal to end the turn when files changed after the last green run |
 | The session is recorded in memory before it ends | prose (AGENTS.md section 13) | a refusal to end the turn after edits when no memory file was updated; the resume pointer injected at session start |

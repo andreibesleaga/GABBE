@@ -657,7 +657,7 @@ Goal: Mandate SDD for all new features
 Rule: No code without an approved PRD.md
 Actions:
   - Make spec-writer.skill the entry point for all feature requests
-  - Enforce 7-gate quality system in CI/CD
+  - Enforce 10-gate quality system in CI/CD
   - Track and repay tech debt with tech-debt.skill
   - Measure: specification-to-code ratio, coverage, architectural violations
 ```
@@ -746,7 +746,7 @@ If the self-healing loop frequently fails or a specific skill repeatedly produce
 ```
 
 **Using Pure Agent Mode (No CLI):**
-> "We continually fail when writing React hooks. Invoke the `meta-optimize` skill. Read the last 5 chat messages, identify why your previous attempts failed, and directly edit `agents/skills/coding/react-components.skill.md` to add new constraints preventing this failure in the future. Log the change to `meta-evolution.log`."
+> "We continually fail when writing React hooks. Invoke the `meta-optimize` skill. Read the last 5 chat messages, identify why your previous attempts failed, and directly edit `agents/skills/coding/ui-gen.skill.md` to add new constraints preventing this failure in the future. Log the change to `meta-evolution.log`."
 
 ### Human-in-the-Loop — When to Pause and Ask
 ```

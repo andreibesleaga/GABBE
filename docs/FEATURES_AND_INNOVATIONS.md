@@ -7,7 +7,7 @@
 > Windsurf, Cline, Aider) into a **governed software-engineering team**, with an optional
 > Python control plane for budgets, policy, audit, and MCP tooling.
 >
-> **At a glance (v1.1.1):** 214 skills · 86 guides · 100 templates · 36 personas · 24 runtime
+> **At a glance (written for v1.1.1; counts re-checked 2026-10-29 on v1.1.2):** 214 skills · 86 guides · 100 templates · 36 personas · 24 runtime
 > modules · 14 supported agents · install via `npx gabbe-kit init` / `pip install gabbe` /
 > `curl …/install.sh | sh` / git checkout.
 >

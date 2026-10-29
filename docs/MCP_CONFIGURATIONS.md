@@ -1,6 +1,6 @@
 # MCP Server Configurations Guide
 
-> **Audience:** users wiring MCP servers. **Scope:** install/config/usage for every supported MCP server (package names verified 2026-06-10).
+> **Audience:** users wiring MCP servers. **Scope:** install/config/usage for every supported MCP server (package names verified 2026-06-10, re-checked 2026-10-29: see the note below).
 
 Comprehensive installation, configuration, and usage guide for every MCP (Model Context Protocol) server supported by the GABBE kit.
 
@@ -27,6 +27,16 @@ Comprehensive installation, configuration, and usage guide for every MCP (Model 
 > servers (e.g. `mcp-atlassian`, `@aashari/mcp-server-atlassian-*`). The
 > `@anthropic/mcp-server-shell` entry has no published package and should not be
 > used.
+>
+> **Re-check 2026-10-29.** The npm registry returns 404 for
+> `@anthropic/mcp-server-shell`, `@zapier/mcp-server`, `@vercel/mcp-server`,
+> `@modelcontextprotocol/server-confluence`, `@mirohq/miro-mcp-server`,
+> `@hashicorp/terraform-mcp-server`, `@grafana/mcp-server`,
+> `@googlecloud/mcp-server`, `@figma/mcp-server`, `@docker/mcp-server`,
+> `@datadog/mcp-server` and `@aws/mcp-server-core`: use the hosted or
+> vendor-specific route above for those. npm marks
+> `@modelcontextprotocol/server-github`, `-postgres`, `-brave-search`,
+> `-redis` and `-gitlab` as deprecated (no longer supported).
 
 ---
 

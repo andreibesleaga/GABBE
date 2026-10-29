@@ -423,6 +423,8 @@ Options:
                     gemini, antigravity, opencode, zed, continue, roo, kilo,
                     codex, copilot, vscode.
   --yes, -y         Non-interactive: accept defaults, do not prompt.
+  --force           Also refresh preserved files such as AGENTS.md and
+                    CONSTITUTION.md (the old copy is backed up to .gabbe-bak).
   --wizard          Delegate to the full Python wizard (scripts/init.py) if
                     python3 is available (interactive, richer configuration).
   --help, -h        Show this help.
@@ -439,7 +441,15 @@ Examples:
 `;
 
 function parseArgs(argv) {
-  const opts = { command: null, agents: [], yes: false, wizard: false, help: false, force: false };
+  const opts = {
+    command: null,
+    agents: [],
+    yes: false,
+    wizard: false,
+    help: false,
+    force: false,
+    unknown: [],
+  };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === 'init') {
@@ -459,6 +469,10 @@ function parseArgs(argv) {
     } else if (a.startsWith('-')) {
       log(red(`Unknown option: ${a}`));
       opts.help = true;
+    } else {
+      // An unknown word (e.g. `gabbe doctor`, a command of the PyPI CLI) must
+      // not fall through to the default `init` and copy the kit.
+      opts.unknown.push(a);
     }
   }
   return opts;
@@ -586,6 +600,15 @@ function runInit(opts) {
 
 function main() {
   const opts = parseArgs(process.argv.slice(2));
+  if (opts.unknown.length) {
+    process.stderr.write(red(`Unknown command: ${opts.unknown.join(' ')}`) + '\n');
+    process.stderr.write(
+      'The npm package only installs the kit; `gabbe doctor` and the other CLI\n' +
+        'commands come from the PyPI package (pipx install gabbe).\n\n'
+    );
+    process.stderr.write(USAGE);
+    return 1;
+  }
   if (opts.help) {
     process.stdout.write(USAGE);
     return 0;

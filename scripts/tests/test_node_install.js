@@ -96,6 +96,26 @@ test('preserve-set AGENTS.md kept verbatim without --force', (proj) => {
   );
 });
 
+// 4. An unknown word is rejected with the usage and exit 1, and installs nothing.
+test('unknown command exits 1 with usage and copies nothing', (proj) => {
+  let err = null;
+  try {
+    run(proj, ['doctor']);
+  } catch (e) {
+    err = e;
+  }
+  assert.ok(err, 'unknown command did not fail');
+  assert.strictEqual(err.status, 1, `exit status ${err.status}, expected 1`);
+  assert.ok(/Unknown command: doctor/.test(err.stderr), 'no "Unknown command" message');
+  assert.ok(/Usage:/.test(err.stderr), 'usage text not shown');
+  assert.ok(!fs.existsSync(path.join(proj, 'agents')), 'kit was copied for an unknown command');
+});
+
+// 5. The help text documents --force.
+test('--help lists --force', (proj) => {
+  assert.ok(/--force/.test(run(proj, ['--help'])), '--force missing from --help');
+});
+
 if (failures) {
   console.error(`\n${failures} Node installer test(s) failed.`);
   process.exit(1);

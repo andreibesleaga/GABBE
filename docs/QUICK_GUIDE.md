@@ -657,7 +657,7 @@ Goal: Mandate SDD for all new features
 Rule: No code without an approved PRD.md
 Actions:
   - Make spec-writer.skill the entry point for all feature requests
-  - Enforce 7-gate quality system in CI/CD
+  - Enforce 10-gate quality system in CI/CD
   - Track and repay tech debt with tech-debt.skill
   - Measure: specification-to-code ratio, coverage, architectural violations
 ```
@@ -746,7 +746,7 @@ If the self-healing loop frequently fails or a specific skill repeatedly produce
 ```
 
 **Using Pure Agent Mode (No CLI):**
-> "We continually fail when writing React hooks. Invoke the `meta-optimize` skill. Read the last 5 chat messages, identify why your previous attempts failed, and directly edit `agents/skills/coding/react-components.skill.md` to add new constraints preventing this failure in the future. Log the change to `meta-evolution.log`."
+> "We continually fail when writing React hooks. Invoke the `meta-optimize` skill. Read the last 5 chat messages, identify why your previous attempts failed, and directly edit `agents/skills/coding/ui-gen.skill.md` to add new constraints preventing this failure in the future. Log the change to `meta-evolution.log`."
 
 ### Human-in-the-Loop — When to Pause and Ask
 ```
@@ -838,7 +838,7 @@ No human needed for:
 
 | Category | Templates |
 |---|---|
-| **Core** | `AGENTS`, `MCP_CONFIG`, `DEVCONTAINER`, `DEV_SPACE`, `PLAN`, `TASKS`, `AUDIT_LOG`, `SDLC_TRACKER`, `SESSION_SNAPSHOT`, `SWARM_CONFIG`, `AGENT_HANDSHAKE`, `SYSTEM_ANALYSIS`, `PROJECT_STATE`, `CONTINUITY`, `VOTING_LOG` |
+| **Core** | `AGENTS`, `MCP_CONFIG`, `DEVCONTAINER`, `DEV_SPACE`, `PLAN`, `TASKS`, `AUDIT_LOG`, `SDLC_TRACKER`, `SESSION_SNAPSHOT`, `SWARM_CONFIG`, `AGENT_HANDSHAKE`, `SYSTEM_ANALYSIS` (project state, continuity and the voting log live in `agents/memory/`: `PROJECT_STATE.md`, `CONTINUITY.md`, `episodic/VOTING_LOG_TEMPLATE.md`) |
 | **Arch** | `ADR`, `ARCH_DECISION_FRAMEWORK`, `ARCHITECTURE_DECISION_MATRIX`, `ARCHITECTURE_REVIEW`, `ARCHITECTURE_VIEWS`, `C4_ARCHITECTURE`, `CONTEXT_MAP`, `DOMAIN_MODEL`, `SYSTEM_CONTEXT`, `SWARM_ARCHITECTURE`, `DESIGN_PATTERN_USAGE`, `CAPABILITY_MAP`, `LEGACY_AUDIT` |
 | **Reqs** | `PRD`, `SPEC`, `BUSINESS_CASE`, `CAPABILITY_MAP`, `EMPATHY_MAP`, `NFR`, `QUALITY_ATTRIBUTES`, `REQUIREMENTS_REVIEW`, `STAKEHOLDER_REGISTER`, `TRACEABILITY_MATRIX`, `ETHICAL_IMPACT_ASSESSMENT` |
 | **Eng** | `CLEAN_CODE_CHECKLIST`, `SECURITY_CHECKLIST`, `THREAT_MODEL`, `TECH_DEBT`, `TEST_PLAN`, `TEST_CASE`, `INTEGRATION_SPEC`, `DATA_PIPELINE`, `DATABASE_SCHEMA`, `DESIGN_TOKENS`, `E2E_TEST_SUITE`, `SAFETY_POLICY` |

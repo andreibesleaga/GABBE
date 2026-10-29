@@ -27,7 +27,7 @@ Financial Operations (FinOps) is the operating model for the cloud, bringing fin
 
 ## LLM & Agentic Cost Control (the agent's own spend)
 
-The largest variable cost of an agentic system is LLM tokens. GABBE controls this with four levers, all enforceable through the platform-control layer (`gabbe budget` / `route` / `forecast`).
+The largest variable cost of an agentic system is LLM tokens. GABBE controls this with four levers, all enforceable through the platform-control layer (the `GABBE_MAX_COST_USD` budget, `gabbe route` and `gabbe forecast`).
 
 ### 1. Prompt caching — the highest-leverage lever
 Reusing a stable prompt prefix avoids re-billing it on every call. Sources verified 2026-06-10.

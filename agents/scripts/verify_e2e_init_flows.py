@@ -30,7 +30,7 @@ def run_gabbe_command(cmd, env, cwd):
     process = subprocess.run(cmd, text=True, env=env, cwd=str(cwd), capture_output=True, shell=True)
     # gabbe verify is expected to fail with exit code 1 due to [PLACEHOLDER] variables inside a freshly initialized setup.
     # The success state is it finding the placeholders instead of crashing.
-    if "gabbe verify" in cmd and process.returncode != 0:
+    if cmd.endswith(" verify") and process.returncode != 0:
         if (
             "Verification FAILED" in process.stdout
             or "Placeholder" in process.stdout

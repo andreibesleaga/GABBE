@@ -7,7 +7,7 @@ import sqlite3
 from enum import Enum
 from typing import Any
 
-from .config import GABBE_ESCALATION_MODE
+from .config import GABBE_ESCALATION_MODE as GABBE_ESCALATION_MODE  # re-exported
 from .database import get_db
 
 logger = logging.getLogger("gabbe.escalation")

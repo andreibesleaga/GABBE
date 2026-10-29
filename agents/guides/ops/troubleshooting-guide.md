@@ -21,7 +21,7 @@ This guide provides solutions to common issues encountered when initializing, co
 **Cause:** Windows requires Administrator privileges to create symlinks by default.
 **Solution:**
 1. Open PowerShell **as Administrator**.
-2. Run `.\agents\setup-context.ps1`.
+2. Run `.\agents\scripts\setup-context.ps1`.
 3. Alternatively, enable Developer Mode in Windows Settings (which allows standard users to create symlinks).
 
 ## 2. Agent Configuration Issues
@@ -30,7 +30,7 @@ This guide provides solutions to common issues encountered when initializing, co
 **Symptoms:** The agent generates code in the wrong framework or ignores layer boundaries.
 **Cause:** The symlink from `.cursorrules` or `.claude/CLAUDE.md` to `AGENTS.md` is broken, or the file lacks rules.
 **Solution:**
-1. Re-run `./agents/setup-context.sh`.
+1. Re-run `./agents/scripts/setup-context.sh`.
 2. Check `AGENTS.md` to ensure `[PLACEHOLDER]` fields are filled correctly.
 
 ### Skills not triggering

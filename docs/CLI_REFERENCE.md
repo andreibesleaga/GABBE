@@ -443,12 +443,12 @@ gabbe registry add https://example/skill.skill.md --apply
 
 Run the interactive install wizard (`scripts/init.py`) to wire the kit into your
 coding agents. (For a Python-independent install, use `npx gabbe-kit init` or
-`curl -fsSL .../install.sh | sh`.) `gabbe setup` passes no options to the wizard;
-for `--force`, run the wizard directly.
+`curl -fsSL .../install.sh | sh`.) `gabbe setup --force` passes `--force` to the
+wizard.
 
 ```bash
 gabbe setup
-python3 scripts/init.py --force   # re-template even preserved files (each backed up first)
+gabbe setup --force               # re-template even preserved files (each backed up first)
 ```
 
 **Behavior:**

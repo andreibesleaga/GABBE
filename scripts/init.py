@@ -1142,30 +1142,18 @@ def main():
         print(f"  {GREEN}✓ Initialized Loki Memory{NC}")
 
     _is_windows = sys.platform == "win32"
-    _is_unix = not _is_windows
 
-    # Copy setup-context.sh (Linux / macOS)
-    if _is_unix:
-        setup_src = AGENTS_DIR / "scripts/setup-context.sh"
-        setup_dest = PROJECT_ROOT / "setup-context.sh"
-        if setup_src.exists():
-            shutil.copy2(setup_src, setup_dest)
-            setup_dest.chmod(0o755)
-            print(f"  {GREEN}✓ Installed setup-context.sh{NC}")
-        else:
-            print(f"  {YELLOW}! Could not find {setup_src}, skipping setup-context.sh install{NC}")
-
-    # Copy setup-context.ps1 (Windows)
-    if _is_windows:
-        setup_ps1_src = AGENTS_DIR / "scripts/setup-context.ps1"
-        setup_ps1_dest = PROJECT_ROOT / "setup-context.ps1"
-        if setup_ps1_src.exists():
-            shutil.copy2(setup_ps1_src, setup_ps1_dest)
-            print(f"  {GREEN}✓ Installed setup-context.ps1 (Windows Support){NC}")
-        else:
-            print(
-                f"  {YELLOW}! Could not find {setup_ps1_src}, skipping setup-context.ps1 install{NC}"
-            )
+    # setup-context.sh/.ps1 stay in agents/scripts/: the script derives the project
+    # root from its own location (scripts/../..), so a copy at the project root
+    # would write .claude/, .cursorrules, memory/ ... into the folder above it.
+    _setup_name = "setup-context.ps1" if _is_windows else "setup-context.sh"
+    _setup_path = AGENTS_DIR / "scripts" / _setup_name
+    if _setup_path.exists():
+        try:
+            _setup_shown = _setup_path.relative_to(PROJECT_ROOT)
+        except ValueError:
+            _setup_shown = _setup_path
+        print(f"  {GREEN}✓ Context script: {_setup_shown} (run it from there){NC}")
 
     # Symlinks
     skills_src = AGENTS_DIR / "skills"
@@ -1383,7 +1371,7 @@ You MUST NOT write implementation code until these artifacts are approved:
 -   [ ] CI/CD Pipeline configured
 -   [ ] Compliance Audit passed (if regulated)
 
-Start by running: `setup-context.sh` to confirm your environment.
+Start by running: `agents/scripts/setup-context.sh` to confirm your environment.
 """
         mission_file = PROJECT_ROOT / "BOOTSTRAP_MISSION.md"
         mission_file.write_text(mission)

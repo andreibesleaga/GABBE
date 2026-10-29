@@ -10,7 +10,7 @@
 
 ### Method 1: This Kit (built-in — no install needed)
 All 214 skills in this directory are ready to use immediately.
-Run `setup-context.sh` to wire them to your AI tool's skill directory.
+Run `agents/scripts/setup-context.sh` to wire them to your AI tool's skill directory.
 
 ### Method 2: Skill Marketplaces & Registries
 ```bash
@@ -35,7 +35,7 @@ namnam install --platform claude-code
 ### Global vs Workspace Scope
 ```bash
 # Workspace scope (this project only):
-#   .claude/skills/ -> agents/skills/*/*.skill.md  (done by setup-context.sh)
+#   .claude/skills/ -> agents/skills/*/*.skill.md  (done by agents/scripts/setup-context.sh)
 
 # Global scope (all projects on this machine):
 ln -sf /path/to/agents/skills/*/*.skill.md ~/.claude/skills/

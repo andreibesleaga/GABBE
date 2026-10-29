@@ -13,6 +13,23 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   on every version tag and by hand, needs no `NPM_TOKEN`, and adds npm provenance. `release.yml` no longer
   publishes to npm. A token-based publish had started to fail because npm now asks for a one-time password.
 - Docs: corrected stale commands, paths, flags and claims found by a documentation audit (`gabbe doctor` vs the npm `gabbe`, the QUICK_GUIDE install line, `GABBE_MCP_TOKEN` and `GABBE_AUTONOMY` behaviour, `setup-context.sh` and guide paths, Python 3.9+); added `docs/ARCHITECTURE.md`, a CI workflow table in `TESTING.md` and a release procedure in `CONTRIBUTING.md`.
+- `gabbe setup --force` passes `--force` to the wizard; `npx gabbe-kit init --help` lists `--force`.
+- Kit: Security & Guardrails sections in `visual-whiteboarding` and `performant-php` (all 214 skills now have one);
+  kit stamps read 1.1.2; fixed `setup-context` paths, the PRD template placeholder and a nonexistent `gabbe budget`.
+- Contributor `AGENTS.md` at the repository root; `mypy --strict` passes on `gabbe/*.py`; SECURITY.md lists 1.1.x.
+
+### Fixed
+
+- **The npm installer rejects unknown commands.** `npx gabbe-kit doctor` (or any unknown word) used to fall
+  through to `init` and copy the kit into the current folder; it now prints the usage and exits 1.
+- **The wizard no longer copies `setup-context.sh`/`.ps1` to the project root.** Run from there, the script
+  wrote `.claude/`, `.cursorrules`, `memory/` and other files into the folder above the project. Run it from
+  `agents/scripts/`.
+- **MCP template package names.** `@context7/mcp-server` and `@sentry/mcp` do not exist on npm; the template and
+  the agentic guide now use `@upstash/context7-mcp` and `@sentry/mcp-server`.
+- `agents/scripts/verify_e2e_init_flows.py` always failed (it matched `gabbe verify` in `python -m gabbe.main verify`);
+  it now passes its 12 permutations and runs in CI.
+- The serve-mcp stdio tests run in a temporary project, so test runs no longer write into `project/state.db`.
 
 ## [1.1.2] — 2026-10-23 — `gabbe verify` exit code; Claude Code plugins
 

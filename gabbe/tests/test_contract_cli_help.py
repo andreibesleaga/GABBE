@@ -48,6 +48,7 @@ COMMANDS = {
     "doctor": ["doctor"],
     "uninstall": ["uninstall"],
     "update": ["update"],
+    "setup": ["setup"],
 }
 
 

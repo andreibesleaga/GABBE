@@ -125,7 +125,14 @@ def main() -> None:
     radd.add_argument("--apply", action="store_true", help="Write imports (default: dry run)")
 
     # --- COMMAND: setup ---
-    subparsers.add_parser("setup", help="Run the interactive install wizard (wire agents + skills)")
+    setup_parser = subparsers.add_parser(
+        "setup", help="Run the interactive install wizard (wire agents + skills)"
+    )
+    setup_parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Re-template even preserved files (each backed up to .gabbe-bak first)",
+    )
 
     # --- COMMAND: eval ---
     eval_parser = subparsers.add_parser(
@@ -370,7 +377,10 @@ def main() -> None:
 
             init_script = Path(__file__).resolve().parent.parent / "scripts" / "init.py"
             if init_script.exists():
-                result = subprocess.run([sys.executable, str(init_script)], check=False)
+                wizard_cmd = [sys.executable, str(init_script)]
+                if args.force:
+                    wizard_cmd.append("--force")
+                result = subprocess.run(wizard_cmd, check=False)
                 # Propagate the wizard's exit code so failures don't look successful.
                 if result.returncode != 0:
                     sys.exit(result.returncode)

@@ -246,3 +246,25 @@ def test_verify_success_exits_0(tmp_project):
     ):
         main()  # must not raise SystemExit
     mock_verify.assert_called_once()
+
+
+# ---------------------------------------------------------------------------
+# setup command: passes --force through to the wizard
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    "argv, expect_force",
+    [(["gabbe", "setup"], False), (["gabbe", "setup", "--force"], True)],
+)
+def test_setup_passes_force_to_wizard(tmp_project, argv, expect_force):
+    from unittest.mock import MagicMock
+
+    from gabbe.main import main
+
+    done = MagicMock(returncode=0)
+    with patch("sys.argv", argv), patch("subprocess.run", return_value=done) as mock_run:
+        main()
+    cmd = mock_run.call_args.args[0]
+    assert cmd[1].endswith("init.py")
+    assert ("--force" in cmd) is expect_force

@@ -95,8 +95,10 @@ The system features a **Brain Mode** that supersedes standard execution. It uses
 
 ```bash
 # Activate Brain Mode
-/brain activate "Build a SaaS platform"
+gabbe brain activate
 ```
+
+Or ask your agent in chat: "Activate Brain Mode. Goal: Build a SaaS platform."
 
 ### Key Capabilities
 - **Active Inference Loop**: Continuously compares "Expected State" vs "Actual State".
@@ -711,7 +713,7 @@ gabbe brain evolve --skill code-review
 ```
 
 **Using Pure Agent Mode (No CLI):**
-> "We continually fail when writing React hooks. Invoke the `meta-optimize` skill. Read the last 5 chat messages, identify why your previous attempts failed, and directly edit `agents/skills/coding/react-components.skill.md` to add new constraints preventing this failure in the future. Log the change to `meta-evolution.log`."
+> "We continually fail when writing React hooks. Invoke the `meta-optimize` skill. Read the last 5 chat messages, identify why your previous attempts failed, and directly edit `agents/skills/coding/ui-gen.skill.md` to add new constraints preventing this failure in the future. Log the change to `meta-evolution.log`."
 
 ### 8.4. Self-Healing Enforcement (`heal`)
 The healing protocol acts as an infrastructure watchdog to recover from failures.
@@ -1102,8 +1104,8 @@ All templates now live in categorized subdirectories under `agents/templates/`.
 | `core/SESSION_SNAPSHOT_TEMPLATE.md` | Complete project state |
 | `core/TRACEABILITY_MATRIX_TEMPLATE.md` | Traceability Matrix | Req -> Code -> Test trace |
 | `core/BUG_REPORT_TEMPLATE.md` | Bug Report | Structured bug reporting |
-| `core/PROJECT_STATE_TEMPLATE.md` | Project State | Current SDLC phase & status |
-| `core/CONTINUITY_TEMPLATE.md` | Continuity Log | Past failure prevention log |
+| `agents/memory/PROJECT_STATE.md` | Project State | Current SDLC phase & status |
+| `agents/memory/CONTINUITY.md` | Continuity Log | Past failure prevention log |
 
 ### Coordination & Brain (`templates/coordination/`, `templates/brain/`)
 | Template | Purpose |
@@ -1112,7 +1114,7 @@ All templates now live in categorized subdirectories under `agents/templates/`.
 | `coordination/SWARM_CONFIG_TEMPLATE.json` | Multi-agent configuration |
 | `coordination/AGENT_PROFILE_TEMPLATE.md` | Agent Profile | Persona definition |
 | `coordination/AGENT_HANDSHAKE_TEMPLATE.json` | Agent Handshake | Protocol negotiation |
-| `coordination/VOTING_LOG_TEMPLATE.md` | Agent Consensus Voting Record |
+| `agents/memory/episodic/VOTING_LOG_TEMPLATE.md` | Agent Consensus Voting Record |
 | `coordination/SWARM_ARCHITECTURE_TEMPLATE.md` | Swarm Architecture | Multi-agent topology |
 | `brain/ACTIVE_INFERENCE_LOOP_TEMPLATE.md` | Cognitive loop structure |
 | `brain/GLOBAL_WORKSPACE_CONFIG_TEMPLATE.md` | GWT Blackboard config |

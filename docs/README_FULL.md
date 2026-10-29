@@ -34,26 +34,28 @@ It contains:
 3. [Quick Start (5 min)](#3-quick-start-5-min)
 4. [Kit Structure Map](#4-kit-structure-map)
 5. [Workflow 1: New Project from Scratch](#5-workflow-1-new-project-from-scratch)
-6. [Workflow 2: Refactoring & Bugfixing Existing Project](#6-workflow-2-refactoring-bugfixing-existing-project)
-7. [Self-Healing + Research Loop](#7-self-healing-research-loop)
+6. [Workflow 2: Refactoring & Bugfixing Existing Project](#6-workflow-2-refactoring--bugfixing-existing-project)
+7. [Self-Healing + Research Loop](#7-self-healing--research-loop)
+8. [Cognitive Architecture Integration (Evolution & Healing)](#8-cognitive-architecture-integration-evolution--healing)
 9. [Multi-Agent Systems (MAS)](#9-multi-agent-systems-mas)
-10. [Architecture & Design Patterns](#10-architecture-design-patterns)
+10. [Architecture & Design Patterns](#10-architecture--design-patterns)
 11. [Agentic Patterns (Advanced AI)](#11-agentic-patterns-advanced-ai)
 12. [Testing Strategy](#12-testing-strategy)
 13. [Enterprise Domains (Infra, Data, Integration)](#13-enterprise-domains-infra-data-integration)
-14. [Environment & Deployment (Local/Remote/Cloud)](#14-environment-deployment-localremotecloud)
+14. [Environment & Deployment (Local/Remote/Cloud)](#14-environment--deployment-localremotecloud)
 15. [Legacy Systems (COBOL, Mainframe)](#15-legacy-systems-cobol-mainframe)
-16. [Future Tech & Adaptive Skills (2026-2030)](#16-future-tech-adaptive-skills-2026-2030)
-17. [System Quality & Evolution (SRE, Performance)](#17-system-quality-evolution-sre-performance)
-18. [System Lifecycle & Traceability](#18-system-lifecycle-traceability)
+16. [Future Tech & Adaptive Skills (2026-2030)](#16-future-tech--adaptive-skills-2026-2030)
+17. [System Quality & Evolution (SRE, Performance)](#17-system-quality--evolution-sre-performance)
+18. [System Lifecycle & Traceability](#18-system-lifecycle--traceability)
 19. [Skills Reference](#19-skills-reference)
 20. [Templates Reference](#20-templates-reference)
 21. [MCP Configuration](#21-mcp-configuration)
 22. [Extending the Kit](#22-extending-the-kit)
 23. [Loki Mode (Large Projects)](#23-loki-mode-large-projects)
-24. [Guides by Technology Stack](#24-guides-by-technology-stack)
-25. [Testing & Verification](#25-testing--verification)
-26. [Troubleshooting](#26-troubleshooting)
+24. [What's Inside?](#24-whats-inside)
+25. [Common Actions (Copy-Paste Prompts)](#25--common-actions-copy-paste-prompts)
+26. [Guides by Technology Stack](#26-guides-by-technology-stack)
+27. [Troubleshooting](#27-troubleshooting)
 
 ---
 
@@ -135,7 +137,7 @@ GABBE has a **Zero-Dependency CLI** (`gabbe`) CLI which powers the "Hybrid Mode"
 It's an experimental work-in-progress and you can do without the whole package only with the rest of the kit.
 
 ### Prerequisites
-- Python 3.8+
+- Python 3.9+
 - **LLM API Key**: For Brain/Route features, set `GABBE_API_KEY` (OpenAI-compatible).
 
 **Environment Variables** (full reference in [CLI_REFERENCE.md](CLI_REFERENCE.md#environment-variables)):
@@ -160,7 +162,7 @@ It's an experimental work-in-progress and you can do without the whole package o
 | `GABBE_POLICY_FILE` | `project/policies.yml` | Path to YAML policy file for tool access control |
 | `GABBE_ESCALATION_MODE` | `cli` | Escalation mode: `cli` (interactive), `file` (pause), `silent` (auto-reject) |
 | `GABBE_SUBPROCESS_TIMEOUT` | `300` | Timeout for verify shell commands (seconds) |
-| `GABBE_MCP_TOKEN` | *(unset)* | If set, MCP clients must provide this token to authenticate |
+| `GABBE_MCP_TOKEN` | *(unset)* | MCP clients must provide this token to authenticate. While it is unset (and `GABBE_MCP_INSECURE` is off) the server refuses tool calls |
 | `GABBE_MCP_ALLOWED_COMMANDS` | *(unset)* | Comma-separated list of executables permitted via MCP `run_command` |
 | `GABBE_OTEL_ENABLED` | `false` | Enable OpenTelemetry tracing |
 
@@ -202,7 +204,7 @@ gabbe --help
 The experimental `gabbe` CLI supports a **platform control layer**. It covers budget enforcement, cost and token controls, hard stops, policy rules, the tool gateway, audit tracing, human escalation, and deterministic replay. Detailed documentation is available in [`PLATFORM_CONTROLS.md`](PLATFORM_CONTROLS.md).
 
 ### Architecture
-GABBE 2.0 uses a **Hybrid Architecture** where agents and humans interact via Markdown, but the system of record is SQLite.
+GABBE uses a **Hybrid Architecture** where agents and humans interact via Markdown, but the system of record is SQLite.
 
 ```mermaid
 graph TD
@@ -406,7 +408,7 @@ graph TB
         L --> M1
     end
     subgraph "Templates Layer"
-        T[templates/<br/>60+ fill-in-the-blank docs]
+        T[templates/<br/>100 fill-in-the-blank docs]
     end
 ```
 
@@ -552,7 +554,7 @@ flowchart TD
     B1 -->|Yes — resuming| C[Load all memory + project state]
     B1 -->|No — first time| D[Initialize kit]
 
-    D --> D1[setup-context.sh]
+    D --> D1[agents/scripts/setup-context.sh]
     D1 --> D2[Adapt AGENTS.md]
     D2 --> D3[Run audit skills]
 
@@ -612,7 +614,7 @@ flowchart TD
 cp -r ~/agents/ ./
 
 # 2. Wire up context
-agents/setup-context.sh
+agents/scripts/setup-context.sh
 
 # 3. Adapt AGENTS.md
 #    - Set tech stack, test commands, lint commands
@@ -728,7 +730,7 @@ gabbe brain heal
 This kit includes specialized tools for building orchestrator-worker swarms and complex agent topologies.
 
 **Key Resources:**
--   **Guide**: `guides/multi-agent-systems.md` — Full development patterns & stack integration.
+-   **Guide**: `guides/ai/multi-agent-systems.md` — Full development patterns & stack integration.
 -   **Skill**: `multi-agent-orch` — Plan and orchestrate agent swarms.
 -   **Skill**: `agent-protocol` — Define inter-agent communication schemas.
 -   **Template**: `AGENT_PROFILE_TEMPLATE.md` — Define roles and personalities.
@@ -752,7 +754,7 @@ Embeds 2025-standard patterns into your workflow.
 -   **Template**: `ARCH_DECISION_FRAMEWORK.md` — Matrix for Architectural decision making.
 -   **Template**: `DESIGN_PATTERN_USAGE.md` — Justify complex pattern choices.
 -   **Template**: `CLEAN_CODE_CHECKLIST.md` — Quality gate for PRs.
--   **Guide**: `guides/design-patterns.md` — Catalog of modern patterns.
+-   **Guide**: `guides/patterns/design-patterns.md` — Catalog of modern patterns.
 
 ---
 
@@ -763,7 +765,7 @@ Tools for building self-correcting, planning, and memory-augmented agents.
 **Key Resources:**
 -   **Skill**: `agentic-patterns` — Implements Reflection, ReAct, and Planning loops.
 -   **Template**: `ETHICAL_IMPACT_ASSESSMENT.md` — AI Safety & Bias check.
--   **Guide**: `guides/agentic-patterns.md` — Deep dive into cognitive architectures.
+-   **Guide**: `guides/patterns/agentic-patterns.md` — Deep dive into cognitive architectures.
 
 ---
 
@@ -773,7 +775,7 @@ Comprehensive testing resources using Pyramid or Trophy models.
 
 **Key Resources:**
 -   **Skill**: `testing-strategy` — Orchestrate Unit, Integration, E2E, and Contract testing.
--   **Guide**: `guides/testing-strategy.md` — Complete guide to modern testing patterns.
+-   **Guide**: `guides/principles/testing-strategy.md` — Complete guide to modern testing patterns.
 -   **Template**: `TEST_PLAN_TEMPLATE.md` — Master test plan document.
 -   **Template**: `TEST_CASE_TEMPLATE.md` — Detailed test case definition.
 -   **Template**: `E2E_TEST_SUITE_TEMPLATE.md` — High-level E2E scenarios.
@@ -794,7 +796,7 @@ Specialized resources for specialized domains.
 
 ### Enterprise Integration
 -   **Skill**: `enterprise-integration` (ERP, CRM, Legacy patterns).
--   **Guide**: `guides/enterprise-patterns.md` (Strangler Fig, ACL).
+-   **Guide**: `guides/patterns/enterprise-patterns.md` (Strangler Fig, ACL).
 -   **Template**: `INTEGRATION_SPEC_TEMPLATE.md`.
 
 ---
@@ -814,7 +816,7 @@ Tools for the full lifecycle: from localhost to production.
 ### Cloud Deployment (Outer Loop)
 -   **Skill**: `cloud-deploy` (Vercel, Railway, AWS SST).
 -   **Template**: `DEPLOY_CONFIG_TEMPLATE.md`.
--   **Guide**: `guides/dev-environments.md`.
+-   **Guide**: `guides/ops/dev-environments.md`.
 
 ---
 
@@ -825,7 +827,7 @@ Tools for the full lifecycle: from localhost to production.
 ### Modernization
 -   **Skill**: `legacy-modernization` (COBOL analysis, Strangler Fig).
 -   **Template**: `LEGACY_AUDIT_TEMPLATE.md` (Risk & Knowledge audit).
--   **Guide**: `guides/legacy-tech.md` (Mainframe DevOps, COBOL basics).
+-   **Guide**: `guides/principles/legacy-tech.md` (Mainframe DevOps, COBOL basics).
 
 ---
 
@@ -837,7 +839,7 @@ Preparing for the next wave: 6G, Agentic IoT, and Evolutionary Architecture.
 -   **Skill**: `emerging-tech` (6G, Matter, Vector Databases).
 -   **Skill**: `adaptive-architecture` (Local-First, WASM, CRDTs).
 -   **Template**: `ADAPTIVE_SYSTEM_TEMPLATE.md` (Evolutionary design).
--   **Guide**: `guides/future-tech.md` (The 2030 Horizon).
+-   **Guide**: `guides/principles/future-tech.md` (The 2030 Horizon).
 
 ---
 
@@ -855,7 +857,7 @@ Resources for ensuring your software is reliable, fast, and adaptable.
 -   **Template**: `SAFETY_CASE.md` (Critical system assurance).
 -   **Template**: `COST_OPTIMIZATION_REPORT_TEMPLATE.md` (FinOps).
 -   **Template**: `INCIDENT_POSTMORTEM_TEMPLATE.md` (Blameless analysis).
--   **Guide**: `guides/system-qualities.md` (The "Ilities").
+-   **Guide**: `guides/architecture/system-qualities.md` (The "Ilities").
 
 ---
 
@@ -868,7 +870,7 @@ Resources for binding Requirements to Code and Tests (The Golden Thread).
 
 ### Documentation
 -   **Template**: `TRACEABILITY_MATRIX_TEMPLATE.md` (Live status of requirements).
--   **Guide**: `guides/full-system-lifecycle.md` (Definition of Done).
+-   **Guide**: `guides/processes/full-system-lifecycle.md` (Definition of Done).
 
 ---
 
@@ -1140,7 +1142,7 @@ All templates now live in categorized subdirectories under `agents/templates/`.
 | `architecture/SCALABILITY_ANALYSIS_TEMPLATE.md` | Architecture | Scalability bottleneck analysis |
 | `architecture/SMART_CONTRACT_TEMPLATE.md` | Blockchain | Smart contract logic & security |
 | `architecture/ARCHITECTURE_DECISION_MATRIX.md` | Architecture | Scoring matrix for trade-offs |
-| `core/PROJECT_CONTEXT_TEMPLATE.md` | Core | Holistic project context for agents |
+| `brain/PROJECT_CONTEXT_TEMPLATE.md` | Core | Holistic project context for agents |
 | `product/PROBLEM_STATEMENT_TEMPLATE.md` | Product | Problem definition (EARS subset) |
 | `product/IDEATION_LOG_TEMPLATE.md` | Product | Brainstorming & outcome log |
 
@@ -1220,7 +1222,7 @@ See [MCP_CONFIGURATIONS.md](MCP_CONFIGURATIONS.md) for comprehensive per-server 
     ## Instructions
     [Detailed steps for the agent to follow]
     ```
-3.  **Register:** Run `scripts/init.py` (or `agents/setup-context.sh`) to symlink changes.
+3.  **Register:** Run `scripts/init.py` (or `agents/scripts/setup-context.sh`) to symlink changes.
 
 ### Adding Custom MCP Servers
 
@@ -1336,7 +1338,7 @@ Or activate the swarm skill explicitly:
 
 | Guide | Stack | Key Topics |
 |---|---|---|
-| `guides/principles/full-system-lifecycle.md` | Process/SDLC | Traceability, Golden Thread, DoD |
+| `guides/processes/full-system-lifecycle.md` | Process/SDLC | Traceability, Golden Thread, DoD |
 | `guides/architecture/system-qualities.md` | Architecture/Ops | Reliability, SRE, Scalability |
 | `guides/ops/production-health.md` | Ops/SRE | Health Checks & Monitoring |
 | `guides/principles/future-tech.md` | Future/2030 | 6G, IoT Matter, Vector DBs, WASM |
@@ -1353,7 +1355,7 @@ Or activate the swarm skill explicitly:
 | `guides/patterns/ai-native-scenarios.md` | AI/Agentic | Vibe-to-Code, Auto-Patching, DB Refactor |
 | `guides/patterns/enterprise-migration-scenario.md` | Enterprise | Strangler Fig, Migration paths |
 
-| `guides/principles/RARV_CYCLE.md` | AI/Agentic | Reason-Act-Reflect-Verify loop |
+| `guides/processes/RARV_CYCLE.md` | AI/Agentic | Reason-Act-Reflect-Verify loop |
 | `guides/ai/self-healing-summary.md` | AI/Agentic | Self-healing architecture & loops |
 | `guides/languages/js-ts-nodejs.md` | Python/Node/React | Swarms, Orchestration, A2A Protocol |
 | `guides/patterns/autonomous-swarm-patterns.md` | AI/Agentic | Self-organizing Swarm Patterns |
@@ -1374,7 +1376,7 @@ Or activate the swarm skill explicitly:
 
 | `guides/ops/compliance-audit.md` | Compliance & Audit | GDPR, SOC2 logging, Privacy Engineering |
 | `guides/ops/troubleshooting-guide.md` | Ops | Debugging, Root Cause, Recovery |
-| `guides/ops/self-healing-summary.md` | Ops | Automated recovery patterns |
+| `guides/ai/self-healing-summary.md` | Ops | Automated recovery patterns |
 
 | `guides/ai/ai-agentic.md` | AI/Agentic | RARV, SDD lifecycle, Memory Architecture, MCP config |
 | `guides/architecture/microservices.md` | Microservices | Bounded contexts, event-driven, contract testing |
@@ -1396,12 +1398,12 @@ Or activate the swarm skill explicitly:
 ### Subject-Specific Guides
 | Topic | Guide |
 |---|---|
-| **Product** | `guides/product-requirements.md` (PRD/Spec), `guides/strategic-analysis.md` (Strategy) |
-| **Architecture** | `guides/critical-systems-arch.md`, `guides/event-driven-architecture.md` |
-| **Integration** | `guides/knowledge-integration.md`, `guides/no-code-integration.md`, `guides/api-standards.md` |
-| **Agents** | `guides/actor-agent-frameworks.md`, `guides/autonomous-swarm-patterns.md`, `guides/agent-communication.md` |
-| **UI/UX** | `guides/visual-design-system.md`, `guides/a2ui-protocols.md`, `guides/agent-ui.md` |
-| **Lifecycle** | `guides/production-health.md`, `guides/beyond-llms.md` |
+| **Product** | `guides/planning/product-requirements.md` (PRD/Spec), `guides/planning/strategic-analysis.md` (Strategy) |
+| **Architecture** | `guides/architecture/critical-systems-arch.md`, `guides/architecture/event-driven-architecture.md` |
+| **Integration** | `guides/processes/knowledge-integration.md`, `guides/principles/no-code-integration.md`, `guides/architecture/api-standards.md` |
+| **Agents** | `guides/ai/actor-agent-frameworks.md`, `guides/patterns/autonomous-swarm-patterns.md`, `guides/ai/agent-communication.md` |
+| **UI/UX** | `guides/principles/visual-design-system.md`, `guides/ai/a2ui-protocols.md`, `guides/ai/agent-ui.md` |
+| **Lifecycle** | `guides/ops/production-health.md`, `guides/ai/beyond-llms.md` |
 | **Industry** | `guides/industry/engineering-standards.md`, `guides/industry/global-standards.md`, `guides/industry/telecom-networks.md` |
 
 ---
@@ -1409,7 +1411,7 @@ Or activate the swarm skill explicitly:
 ## 27. Troubleshooting
 
 **Agent ignores AGENTS.md:**
-- Run `setup-context.sh` to create tool-specific symlinks
+- Run `agents/scripts/setup-context.sh` to create tool-specific symlinks
 - For Cursor: verify `.cursorrules` file exists (symlink created by setup script)
 - For Claude Code: verify `.claude/CLAUDE.md` exists
 
@@ -1444,8 +1446,8 @@ Or activate the swarm skill explicitly:
 
 *See README.md for quick reference.*
 *See skills/00-index.md for complete skills registry with installation instructions.*
-*See agents/skills/brain/README_ORCHESTRATORS.md for Loki Mode multi-agent orchestration.*
-*See agents/skills/brain/README.md and README_ORCHESTRATORS.md for complete brain documentation.*
+*See agents/skills/brain/loki-mode.skill.md for Loki Mode multi-agent orchestration.*
+*See agents/skills/brain/README.md for complete brain documentation.*
 
 
 ---

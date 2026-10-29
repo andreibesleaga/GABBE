@@ -96,3 +96,5 @@ The forge stays the final layer for every agent: a required CI check on the defa
 ## 2. `gabbe verify` exit code
 
 `gabbe verify` prints "Verification FAILED" and still exits 0 (`gabbe/main.py` ignores the result of `run_verification()`; only `--chaos` exits 1). Anyone who runs it in CI, as the full guide suggests, gets a green job on a failed check. Fix: exit 1 when the verification fails, with a test. This is independent of the hooks and comes first.
+
+Done in 1.1.2: `gabbe verify` now exits 1 when verification fails (see the [CHANGELOG](../CHANGELOG.md)).

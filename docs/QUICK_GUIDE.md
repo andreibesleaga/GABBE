@@ -32,8 +32,8 @@ AI coding agents suffer from three compounding problems:
 ## 5-Minute Setup Checklist
 
 ```bash
-# 1. Download & Run the Installer
-curl -sL https://raw.githubusercontent.com/andreibesleaga/GABBE/main/scripts/init.py | python3 -
+# 1. Download & Run the Installer (uses npx gabbe-kit init when Node is present)
+curl -fsSL https://raw.githubusercontent.com/andreibesleaga/GABBE/main/install.sh | sh
 
 # OR if you have the repo cloned:
 python3 GABBE/scripts/init.py
@@ -77,7 +77,7 @@ python3 GABBE/scripts/init.py
 GABBE contains a **Zero-Dependency CLI** (`gabbe`) CLI which powers the "Hybrid Mode". It bridges the gap between flexible Markdown files and a robust SQLite database. It's an experimental work-in-progress and you can do without the whole package only with the rest of the kit.
 
 ### Prerequisites
-- Python 3.8+
+- Python 3.9+
 - **LLM API Key**: For Brain/Route features, set `GABBE_API_KEY` (OpenAI-compatible).
 
 **Environment Variables** (full reference in [CLI_REFERENCE.md](CLI_REFERENCE.md#environment-variables)):
@@ -129,7 +129,7 @@ python scripts/fill_placeholders.py
 | `gabbe verify --chaos` | **Resilience**: fault-injection self-checks (fail-closed tool, hard-stop, escalation). |
 | `gabbe eval` | **Skill evals**: deterministic self-check; `--live` scores via the model. |
 | `gabbe doctor` | **Autodetect**: OS/runtimes/agents + post-install MCP next-steps. |
-| `gabbe update` / `gabbe uninstall` | Additive refresh / manifest-backed removal (for `gabbe`-CLI-managed kits; npx/curl/wizard installs aren't manifest-tracked). |
+| `gabbe update` / `gabbe uninstall` | Additive refresh / manifest-backed removal (for `gabbe`-CLI-managed kits and wizard installs; npx/curl installs aren't manifest-tracked). |
 | `gabbe status`| **Dashboard**: Visualizes project phase and task progress. |
 | `gabbe brain` | **Meta-Cognition**: Activates Active Inference loop or Evolutionary Prompt Optimization (Requires API Key). |
 | `gabbe route` | **Cost Router**: Arbitrates between Local and Remote LLMs based on task complexity (Requires API Key). |
@@ -316,20 +316,20 @@ Multi-agent swarm with 30+ specialized personas for projects >5 features or >20 
 ```
 GABBE/
   scripts/init.py      <- Installer Wizard (Run this first)
-  README_FULL.md       <- Complete step-by-step guide
-  QUICK_GUIDE.md       <- This file
+  docs/README_FULL.md  <- Complete step-by-step guide
+  docs/QUICK_GUIDE.md  <- This file
   agents/             <- The actual kit payload
       AGENTS.md        <- Universal config template
       CONSTITUTION.md  <- Immutable project law
       scripts/setup-context.sh <- Internal wiring script (wrapped by scripts/init.py)
       skills/          <- 214 agent capability packages (💯)
-          core/        <- (tdd, refactor, debug, git...)
+          coding/      <- (tdd, refactor, debug, git...)
           security/    <- (audit, threat-model...)
-          arch/        <- (design, review, patterns...)
+          architecture/ <- (design, review, patterns...)
       templates/       <- 100 fill-in-the-blank documents
       guides/          <- 86 domain & process guides
-      loki/
-      docs/
+      personas/        <- 36 specialized roles (Loki Mode)
+      memory/          <- project state, continuity, audit log
 ```
 
 ---
@@ -399,7 +399,7 @@ The script detects your selected agents and generates the correct format for eac
 |---|---|---|
 | **Cursor** | `.mdc` rules | `.cursor/rules/*.mdc` |
 | **VS Code / Copilot** | Folders + Config | `.github/skills/<slug>/` |
-| **Claude Code** | Symlink | `.claude/skills` → `agents/skills` |
+| **Claude Code** | `SKILL.md` folders | `.claude/skills/<slug>/SKILL.md` (one per skill) |
 | **Gemini / Antigravity** | Settings | `.gemini/settings.json` points to `agents/skills` |
 
 This means you write a skill once in `agents/skills/` and it runs everywhere.
@@ -678,7 +678,7 @@ Actions:
 
 | Server | Install | Why |
 |---|---|---|
-| **Context-7** | `npx @context7/mcp-server` | Up-to-date SDK docs (prevents API hallucination) |
+| **Context-7** | `npx @upstash/context7-mcp` | Up-to-date SDK docs (prevents API hallucination) |
 | **Sequential Thinking** | `npx @modelcontextprotocol/server-sequential-thinking` | Chain-of-thought before acting |
 | **GitHub MCP** | `npx @modelcontextprotocol/server-github` | PR review, issues, code search |
 | **GitHits** | `npx githits@latest init` | Navigate open-source dependency source/docs (no clone, no key) |
@@ -686,7 +686,7 @@ Actions:
 | **Semgrep MCP** | `pip install semgrep-mcp` | In-agent SAST security scanning |
 | **Brave Search MCP** | `npx @modelcontextprotocol/server-brave-search` | Authoritative web research |
 | **Playwright MCP** | `npx @playwright/mcp` | Browser automation for visual TDD |
-| **Sentry MCP** | `npx @sentry/mcp` | Error tracking and bug context |
+| **Sentry MCP** | `npx @sentry/mcp-server` | Error tracking and bug context |
 | **Qdrant MCP** | `docker run qdrant/qdrant` + MCP server | Long-term semantic memory |
 
 See `templates/core/MCP_CONFIG_TEMPLATE.json` for the full catalog with security configuration.
@@ -897,7 +897,7 @@ python3 GABBE/scripts/init.py
 *See README.md for quick reference.*
 *See README_FULL.md for full workflow guides with Mermaid diagrams.*
 *See skills/00-index.md for complete skills registry with installation instructions.*
-*See agents/skills/brain/README_ORCHESTRATORS.md for Loki Mode multi-agent orchestration.*
+*See agents/skills/brain/loki-mode.skill.md for Loki Mode multi-agent orchestration.*
 *See agents/skills/brain/README.md for complete brain documentation.*
 
 ## 🛡️ Security & Guardrails

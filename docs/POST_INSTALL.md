@@ -1,8 +1,8 @@
 # Post-Install Setup — Full Environment
 
 After `npx gabbe-kit init` (or `gabbe setup` / `curl … | sh`) lands the kit and wires
-your detected agents, run **`gabbe doctor`** for an environment report, then follow
-these steps to finish a full setup. Steps are safe for a human OR an agent to execute.
+your detected agents, run **`gabbe doctor`** (from the PyPI CLI: `pipx install gabbe`)
+for an environment report, then follow these steps to finish a full setup. Steps are safe for a human OR an agent to execute.
 
 ## 1. Verify the install
 
@@ -74,7 +74,7 @@ gabbe uninstall --dry-run # preview the exact removal (manifest-backed installs 
 ```
 
 `update`/`uninstall` are manifest-backed for kits managed by the Python `gabbe`
-CLI. `npx` / `curl` / wizard installs aren't manifest-tracked — run `gabbe update`
+CLI and for wizard installs. `npx` / `curl` installs aren't manifest-tracked — run `gabbe update`
 from a checkout first, or remove the kit directories manually. See
 `docs/INSTALL.md` for scopes (project / `--global` / `--dir`), channels, and the
 full reversibility scope note.

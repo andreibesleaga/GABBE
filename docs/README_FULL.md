@@ -1102,8 +1102,8 @@ All templates now live in categorized subdirectories under `agents/templates/`.
 | `core/SESSION_SNAPSHOT_TEMPLATE.md` | Complete project state |
 | `core/TRACEABILITY_MATRIX_TEMPLATE.md` | Traceability Matrix | Req -> Code -> Test trace |
 | `core/BUG_REPORT_TEMPLATE.md` | Bug Report | Structured bug reporting |
-| `core/PROJECT_STATE_TEMPLATE.md` | Project State | Current SDLC phase & status |
-| `core/CONTINUITY_TEMPLATE.md` | Continuity Log | Past failure prevention log |
+| `agents/memory/PROJECT_STATE.md` | Project State | Current SDLC phase & status |
+| `agents/memory/CONTINUITY.md` | Continuity Log | Past failure prevention log |
 
 ### Coordination & Brain (`templates/coordination/`, `templates/brain/`)
 | Template | Purpose |
@@ -1112,7 +1112,6 @@ All templates now live in categorized subdirectories under `agents/templates/`.
 | `coordination/SWARM_CONFIG_TEMPLATE.json` | Multi-agent configuration |
 | `coordination/AGENT_PROFILE_TEMPLATE.md` | Agent Profile | Persona definition |
 | `coordination/AGENT_HANDSHAKE_TEMPLATE.json` | Agent Handshake | Protocol negotiation |
-| `coordination/VOTING_LOG_TEMPLATE.md` | Agent Consensus Voting Record |
 | `coordination/SWARM_ARCHITECTURE_TEMPLATE.md` | Swarm Architecture | Multi-agent topology |
 | `brain/ACTIVE_INFERENCE_LOOP_TEMPLATE.md` | Cognitive loop structure |
 | `brain/GLOBAL_WORKSPACE_CONFIG_TEMPLATE.md` | GWT Blackboard config |

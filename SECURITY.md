@@ -23,8 +23,8 @@ impact, and any suggested mitigation.
 GABBE talks to OpenAI-compatible LLM endpoints (OpenAI by default; any
 OpenAI-compatible provider such as OpenRouter works via `GABBE_API_URL`).
 
-- **Never commit a real key.** Only the `env` template (placeholder, empty
-  `GABBE_API_KEY=`) is tracked; real keys belong in a gitignored `.env`.
+- **Never commit a real key.** No env file is tracked; real keys belong in a
+  gitignored `.env` (read by `gabbe/config.py`) or in the process environment.
 - **Never log the key.** `gabbe/llm.py` keeps the key in the `Authorization`
   header only and never logs headers or payloads (see `test_llm_sanitizes_errors`).
 - **Use a project-scoped key**; rotate at least every 90 days.

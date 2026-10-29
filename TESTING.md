@@ -101,9 +101,22 @@ covered by CI even without running the wizard by hand.
 ## CI
 
 `.github/workflows/` runs lint/type-check, the test suite, and the gates on every
-push. `.github/workflows/release.yml` builds the wheel + npm package + kit tarball
-on a `v*` tag and publishes to PyPI/npm only when the respective tokens are
-configured (the workflow stays green when they are absent).
+push and pull request to `main`. On a `v*` tag, `.github/workflows/release.yml`
+builds the wheel, sdist, SBOM, npm package and kit tarball for the GitHub release
+and publishes to PyPI only when the `PYPI_API_TOKEN` secret is configured (the
+workflow stays green when it is absent); npm is published by
+`.github/workflows/publish-npm.yml` with npm trusted publishing (no token).
+
+| Workflow | Runs on | What it does |
+| --- | --- | --- |
+| `ci.yml` | push and PR to `main`/`master`, nightly 04:00 UTC, manual | validators + pytest on Python 3.9–3.13; lint (ruff, black, mypy); the gates; one-command install + `gabbe doctor` on Linux, macOS, Windows; nightly: mutation testing and live skill evals (both non-blocking) |
+| `docs-lint.yml` | push and PR to `main` | markdownlint-cli2 and lychee, both report-only |
+| `security-baseline.yml` | push and PR to `main`, Mondays 06:00 UTC | OSV-Scanner, pip-audit (CVE delta), Trivy filesystem scan |
+| `scorecard.yml` | push to `main`, Mondays 07:00 UTC, branch-protection changes | OpenSSF Scorecard |
+| `pages.yml` | push to `main` touching `site/**` or `pages.yml`, manual | deploys `site/` to GitHub Pages |
+| `release.yml` | `v*` tag | GitHub release assets; if `PYPI_API_TOKEN` is set, the PyPI publish and then `release-verify`, which installs the published package on three OSes and runs `gabbe doctor` |
+| `publish-npm.yml` | `v*` tag (not prereleases), manual | publishes `gabbe-kit` to npmjs with trusted publishing and provenance; the tag must equal `package.json`'s version |
+| `publish-github-packages.yml` | `v*` tag, manual | mirrors the npm package to GitHub Packages as `@andreibesleaga/gabbe-kit` |
 
 ## Known environment caveats
 - **Node absent** → the `npx` smoke test is skipped (run it where Node is

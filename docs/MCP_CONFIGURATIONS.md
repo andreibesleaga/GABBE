@@ -26,8 +26,7 @@ Comprehensive installation, configuration, and usage guide for every MCP (Model 
 > Docker/Go `terraform-mcp-server`; **Confluence/Jira** use community Atlassian
 > servers (e.g. `mcp-atlassian`, `@aashari/mcp-server-atlassian-*`). The
 > `@anthropic/mcp-server-shell` entry has no published package and should not be
-> used. See `OpenSourceAudit/projects/GABBE/mcp-verification-2026-06.md` for the
-> full per-server status.
+> used.
 
 ---
 

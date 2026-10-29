@@ -31,7 +31,8 @@ nothing you already had is silently overwritten. The preserve-set (`AGENTS.md`,
 pass `--force` (e.g. `npx gabbe-kit init --force`), which opts into re-templating those
 too — and still backs each one up first.
 
-After installing, run `gabbe doctor` to print an environment + install report
+After installing, run `gabbe doctor` (a command of the PyPI CLI; the npm package's
+`gabbe` command is the kit installer and has no `doctor`) to print an environment + install report
 (detected OS/arch, runtimes, agent clients, and per-check PASS/WARN). It also prints
 **post-install next steps** — which MCP servers to enable and how. For the full
 environment-setup walkthrough (MCP servers, local-GitHub servers, policy/budgets,

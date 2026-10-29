@@ -2,7 +2,7 @@
 # GABBE v1.0 Release Checklist
 
 A human-runnable release gate that mirrors the v1.0 acceptance matrix in
-`GABBE-v1.0-MASTER-PLAN.md`. Tag `v1.0.0` only when **every** box below is
+`GABBE-v1.0-MASTER-PLAN.md` (the maintainer's plan, kept outside the repository). Tag `v1.0.0` only when **every** box below is
 ticked on a clean checkout and in CI. No item may be waived.
 
 Run all commands from the repository root. Each section maps to one acceptance

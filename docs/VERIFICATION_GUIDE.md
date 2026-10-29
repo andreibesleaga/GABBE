@@ -11,7 +11,7 @@
 Before running tests or launching verifiers, ensure the project development environment is correctly bootstrapped.
 
 ### Prerequisites:
-- **Python:** versions 3.8 to 3.12 support the GABBE framework and test runners.
+- **Python:** versions 3.9 to 3.13 support the GABBE framework and test runners.
 - **Node.js**: Expected by specific NPM-based tools or workflows, though Python is the framework root.
 
 ### Installation:
@@ -25,7 +25,7 @@ pip install -e ".[dev]"
 
 *Optionally*, establish environment secrets to verify API-driven paths (Required for executing the `gabbe brain`, `gabbe route`, and specific integration scenarios):
 ```bash
-cp .env.example .env
+# Either export the key, or put the same line (without `export`) in a gitignored .env
 export GABBE_API_KEY="sk-..."    # Add remote LLM keys for deep integration
 ```
 
@@ -152,7 +152,7 @@ A series of purpose-built Python compilation scripts ensure that your modificati
 
 **Check Structural Integrity:**
 ```bash
-# Checks if skills, templates, guides are valid and that `agents/AGENTS.md` matches `AGENTS_TEMPLATE.md` structures.
+# Checks that the required kit files and folders exist, that the Python scripts compile, and that the template folders are present.
 python3 agents/scripts/validate_integrity.py
 ```
 
@@ -186,8 +186,9 @@ python3 agents/scripts/verify_setup_simulation.py
 
 **Run Everything in One Pass:**
 ```bash
-# Umbrella runner aggregating logs across all structural checkers
-bash agents/scripts/setup-context.sh
+# One-stop runner: lint + type-check, the test suite, the gates, the kit validators,
+# the registry round-trip and the install smoke tests (see TESTING.md)
+bash scripts/verify_all.sh
 ```
 
 ---

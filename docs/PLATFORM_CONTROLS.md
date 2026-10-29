@@ -287,7 +287,7 @@ gabbe replay <run-id> --from-step 3
 | `GABBE_ESCALATION_MODE` | `cli` | Escalation mode: `cli`, `file`, or `silent` |
 | `GABBE_OTEL_ENABLED` | `false` | Enable OpenTelemetry tracing |
 | `GABBE_SUBPROCESS_TIMEOUT` | `300` | Timeout for verify shell commands |
-| `GABBE_MCP_TOKEN` | *(unset)* | If set, MCP clients must provide this token in `initialize` params. Leave unset to disable. |
+| `GABBE_MCP_TOKEN` | *(unset)* | MCP clients must provide this token in `initialize` params. While it is unset (and `GABBE_MCP_INSECURE` is off) the server refuses tool calls. |
 | `GABBE_MCP_ALLOWED_COMMANDS` | *(unset)* | Comma-separated executables permitted via `run_command` over MCP. When unset, all commands are blocked. |
 
 ---

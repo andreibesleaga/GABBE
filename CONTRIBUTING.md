@@ -42,7 +42,7 @@ pip-compile --extra dev --generate-hashes --output-file requirements-lock.txt py
 ### Backward-compatibility gates
 
 Code changes must keep the six verification gates green (API surface, CLI
-`--help`, config schema, emitter output, benchmarks, CVE delta):
+`--help`, config schema, DB schema, emitter output, CVE delta):
 
 ```bash
 ./scripts/gates/run_gates.sh
@@ -133,6 +133,7 @@ python3 scripts/build_claude_plugin.py
 ## Pull Request Checklist
 
 - [ ] Tests pass: `pytest gabbe/tests/ scripts/tests/ -v`
+- [ ] Lint and types pass (CI `lint` job): `ruff check gabbe scripts agents/scripts`, `black --check gabbe scripts agents/scripts`, `mypy gabbe`
 - [ ] Verifiers pass: `python3 agents/scripts/verify_use_cases.py` and `verify_triggers_and_mcps.py`
 - [ ] New behaviour is covered by tests
 - [ ] `CHANGELOG.md` updated under `## [Unreleased]`
@@ -140,6 +141,43 @@ python3 scripts/build_claude_plugin.py
 - [ ] `python3 scripts/build_claude_plugin.py` re-run if skills/templates/guides changed (plugin tree in sync)
 - [ ] No `shell=True` introduced
 - [ ] No hardcoded credentials or API keys
+
+---
+
+## Releasing
+
+A release is cut from `main` by pushing a version tag; the workflows publish.
+
+1. In `CHANGELOG.md`, move the `## [Unreleased]` entries under a new
+   `## [X.Y.Z] — YYYY-MM-DD` heading.
+2. Set the version to `X.Y.Z` in `pyproject.toml`, `package.json` and
+   `gabbe/__init__.py`, in the "Versioned X.Y.Z" sentence of `llms.txt`, and in
+   `site/index.html`. `scripts/build_claude_plugin.py` stops with an error when
+   `pyproject.toml` and `package.json` disagree.
+3. The kit stamp `*GABBE Kit version: …*` at the end of `agents/AGENTS.md`,
+   `agents/CONSTITUTION.md` and `agents/templates/coordination/AGENTS_TEMPLATE.md`
+   is what `agents/scripts/state_export.sh` and `scripts/registry_export.py` report.
+   These files are in the emitter golden vault: after changing them, recapture it
+   (`python scripts/gates/capture_emitter_baseline.py scripts/tests/golden/baseline_v0.8.0`)
+   and review the diff.
+4. Run `python3 scripts/build_claude_plugin.py` (it writes the version into
+   `.claude-plugin/marketplace.json`), then `bash scripts/verify_all.sh` on the final tree.
+5. Merge to `main`, then tag the merge commit and push the tag:
+
+   ```bash
+   git tag vX.Y.Z
+   git push origin vX.Y.Z
+   ```
+
+   The tag starts three workflows (see [TESTING.md](TESTING.md#ci)):
+   `publish-npm.yml` publishes `gabbe-kit` with npm trusted publishing (it fails when the
+   tag is not `v` + the `package.json` version; tags with a `-` are not published);
+   `release.yml` builds the GitHub release assets and, when the `PYPI_API_TOKEN` secret is
+   set, publishes to PyPI and verifies the published package on three OSes;
+   `publish-github-packages.yml` mirrors the npm package to GitHub Packages.
+6. If only the npm publish failed, run `publish-npm.yml` by hand (Actions → Publish npm →
+   Run workflow, optional `dist_tag`): it publishes without a new tag and without
+   re-running the PyPI publish.
 
 ---
 

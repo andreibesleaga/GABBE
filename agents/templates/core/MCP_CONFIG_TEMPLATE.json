@@ -23,6 +23,7 @@
     },
     "brave-search": {
       "_description": "Authoritative web research with source filtering.",
+      "_note": "Deprecated: npm marks this package 'no longer supported' (checked 2026-10-30); it still installs. Prefer an actively maintained alternative.",
       "command": "npx",
       "args": [
         "-y",
@@ -45,6 +46,7 @@
     "_section_version_control": "=== VERSION CONTROL & PROJECT MANAGEMENT ===",
     "github": {
       "_description": "PR review, code search, issue management, git history.",
+      "_note": "Deprecated: npm marks this package 'no longer supported' (checked 2026-10-30); it still installs. Prefer an actively maintained alternative.",
       "command": "npx",
       "args": [
         "-y",
@@ -69,6 +71,7 @@
     "_section_database": "=== DATABASES ===",
     "postgres-dev": {
       "_description": "PostgreSQL for development \u2014 READ-WRITE allowed.",
+      "_note": "Deprecated: npm marks this package 'no longer supported' (checked 2026-10-30); it still installs. Prefer an actively maintained alternative.",
       "_security": "DEVELOPMENT ONLY \u2014 never use read-write in production",
       "command": "npx",
       "args": [
@@ -108,6 +111,7 @@
     },
     "postgres-prod": {
       "_description": "PostgreSQL for production \u2014 READ-ONLY. Schema introspection only.",
+      "_note": "Deprecated: npm marks this package 'no longer supported' (checked 2026-10-30); it still installs. Prefer an actively maintained alternative.",
       "_security": "PRODUCTION \u2014 read-only access enforced by database user permissions",
       "_enable_only_when_needed": true,
       "command": "npx",
@@ -192,6 +196,8 @@
     "_section_infrastructure": "=== CLOUD & INFRASTRUCTURE ===",
     "terraform": {
       "_description": "Agentic Infrastructure as Code (IaC) via HashiCorp Terraform.",
+      "_note": "No npm package (E404 checked 2026-10-30). HashiCorp ships terraform-mcp-server as a Go binary and Docker image.",
+      "_enabled": false,
       "command": "npx",
       "args": [
         "-y",
@@ -205,6 +211,7 @@
     "docker": {
       "_enabled": false,
       "_description": "Docker daemon integration \u2014 manage containers, images, and read local logs.",
+      "_note": "No npm package (E404 checked 2026-10-30). Desktop server: use the MCP Toolkit in Docker Desktop.",
       "command": "npx",
       "args": [
         "-y",
@@ -215,6 +222,7 @@
     "google-cloud": {
       "_enabled": false,
       "_description": "Google Cloud Platform access \u2014 manage Firebase, Cloud Run, GKE, BigQuery.",
+      "_note": "No npm package (E404 checked 2026-10-30). Use Google Cloud's own MCP documentation instead of npx.",
       "command": "npx",
       "args": [
         "-y",
@@ -241,6 +249,7 @@
     "vercel": {
       "_enabled": false,
       "_description": "Vercel deployments, aliases, and serverless log integration.",
+      "_note": "No npm package (E404 checked 2026-10-30). Hosted server: use Vercel's hosted MCP; @vercel/mcp-adapter builds your own.",
       "command": "npx",
       "args": [
         "-y",
@@ -253,6 +262,7 @@
     "gitlab": {
       "_enabled": false,
       "_description": "GitLab alternative to GitHub MCP.",
+      "_note": "Deprecated: npm marks this package 'no longer supported' (checked 2026-10-30); it still installs. Prefer an actively maintained alternative.",
       "command": "npx",
       "args": [
         "-y",
@@ -306,6 +316,7 @@
     "datadog": {
       "_enabled": false,
       "_description": "Monitoring, alerts, observability queries.",
+      "_note": "No npm package (E404 checked 2026-10-30). Hosted server: connect to Datadog's hosted MCP.",
       "command": "npx",
       "args": [
         "-y",
@@ -319,6 +330,7 @@
     "grafana": {
       "_enabled": false,
       "_description": "Dashboard search, datasource queries, incident management.",
+      "_note": "No npm package (E404 checked 2026-10-30). Grafana ships the Go mcp-grafana server.",
       "command": "npx",
       "args": [
         "-y",
@@ -332,6 +344,7 @@
     "aws-core": {
       "_enabled": false,
       "_description": "AWS core services \u2014 documentation, CDK, Lambda.",
+      "_note": "No npm package (E404 checked 2026-10-30). AWS ships awslabs.* servers on PyPI (run with uvx).",
       "command": "npx",
       "args": [
         "-y",
@@ -373,6 +386,7 @@
     "figma": {
       "_enabled": false,
       "_description": "UI/UX semantic understanding, component specs, and design-to-code.",
+      "_note": "No npm package (E404 checked 2026-10-30). Desktop server: enable the Dev Mode MCP server in the Figma desktop app.",
       "command": "npx",
       "args": [
         "-y",
@@ -417,6 +431,7 @@
     "miro": {
       "_enabled": false,
       "_description": "Read context from virtual whiteboards and continuously sync architecture PRDs.",
+      "_note": "No npm package (E404 checked 2026-10-30). Connect through Miro's own MCP documentation instead of npx.",
       "command": "npx",
       "args": [
         "-y",
@@ -461,6 +476,7 @@
     "redis": {
       "_enabled": false,
       "_description": "Redis interaction and key management.",
+      "_note": "Deprecated: npm marks this package 'no longer supported' (checked 2026-10-30); it still installs. Prefer an actively maintained alternative.",
       "command": "npx",
       "args": [
         "-y",
@@ -520,6 +536,7 @@
     "confluence": {
       "_enabled": false,
       "_description": "Confluence pages and spaces.",
+      "_note": "No npm package (E404 checked 2026-10-30). Use a community Atlassian server such as mcp-atlassian.",
       "command": "npx",
       "args": [
         "-y",
@@ -613,6 +630,7 @@
     "zapier": {
       "_enabled": false,
       "_description": "Connect to 6,000+ apps via Zapier.",
+      "_note": "No npm package (E404 checked 2026-10-30). Hosted server: connect to your per-user URL at mcp.zapier.com.",
       "command": "npx",
       "args": [
         "-y",
@@ -665,6 +683,7 @@
       "_enabled": false,
       "_security": "DEVELOPMENT ONLY \u2014 restrict to project directory. Never enable in production.",
       "_description": "Execute shell commands for local build, test, and system introspection (internal RAG).",
+      "_note": "No npm package (E404 checked 2026-10-30). Do not use; run shell commands through your agent's own tools.",
       "command": "npx",
       "args": [
         "-y",

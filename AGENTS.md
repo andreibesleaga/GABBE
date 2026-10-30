@@ -12,7 +12,7 @@ instructions, the ones GABBE installs into other projects, are in
 - `scripts/`: `init.py` (the wizard), registry export/import, gates, `scripts/tests/`.
 - `plugins/`: Claude Code plugins, generated from `agents/skills/`.
 - `docs/`: the documentation; `site/`: the project website.
-- `project/`: runtime state. `project/state.db` is tracked as a seed; never stage local changes to it.
+- `project/`: runtime state, git-ignored except `project/TASKS.md`. `gabbe init` creates `project/state.db`; it is not tracked.
 
 ## Rules
 

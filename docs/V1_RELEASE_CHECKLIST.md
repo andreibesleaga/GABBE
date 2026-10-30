@@ -1,6 +1,8 @@
 <!-- SPDX-License-Identifier: CC-BY-SA-4.0 -->
 # GABBE v1.0 Release Checklist
 
+Historical: the acceptance gate used for v1.0.0 (released 2026-06-17). The current release procedure is in [CONTRIBUTING.md](../CONTRIBUTING.md#releasing).
+
 A human-runnable release gate that mirrors the v1.0 acceptance matrix in
 `GABBE-v1.0-MASTER-PLAN.md` (the maintainer's plan, kept outside the repository). Tag `v1.0.0` only when **every** box below is
 ticked on a clean checkout and in CI. No item may be waived.

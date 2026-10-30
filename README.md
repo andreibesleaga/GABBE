@@ -549,6 +549,8 @@ Sits **above** Loki. Decides *how* to execute, not just *what* to execute.
 | **Episodic Memory** | Recalls past project outcomes to avoid repeated mistakes |
 | **System 2 Thinking** | Strategic planning before execution |
 
+These are the agent-mode behaviours of `brain-mode.skill`. The `gabbe brain` CLI is smaller: it reads task counts, picks a prompt gene (epsilon-greedy), makes one LLM call and rewards the gene; routing is `gabbe route`, and it does no episodic recall (see [ADR-0002](docs/adr/0002-brain-active-inference-runtime.md)).
+
 ---
 
 ## 🔧 Setup by Project Type
@@ -635,9 +637,9 @@ Full catalog: `agents/skills/00-index.md`
 | **Security** | 5+ | Threat Model, Safety Case, Ethical Impact |
 | **Product** | 10+ | PRD, Spec, User Story Map, Visual Spec, Green Software |
 | **Core** | 5+ | Plan, Tasks, Audit Log, Project State, Continuity |
-| **Coordination** | 5+ | Agent Profile, Swarm Config, Handshake, Voting Log |
+| **Coordination** | 5+ | Agent Profile, Swarm Config, Handshake, Swarm Architecture |
 | **Brain** | 5+ | Active Inference Loop, Episodic Memory, OODA Trace |
-| **Data** | 5+ | Data Pipeline, Database Schema, OWL Ontology |
+| **Data** | 3 | Data Pipeline, Database Schema, OWL Ontology |
 | **Industry** | 5+ | FHIR Interop, IoT Telemetry, Telecom API, Global SDLC Audit |
 
 Full catalog: `agents/templates/00-index.md`
@@ -748,7 +750,7 @@ Agents are explicitly configured to **Fail-Closed**—they must wait for human a
 
 ## 🚀 GABBE CLI (Experimental)
 
-GABBE has also an experimental helper, **Zero-Dependency CLI** (`gabbe`) for a "Hybrid Mode" (Markdown files and a SQLite database) and launching different commands. It is a work-in-progress and you can do without it, only with the rest of the kit.
+GABBE has also an experimental helper, **lightweight CLI** (`gabbe`; three runtime dependencies: `requests`, `PyYAML`, `jsonschema`) for a "Hybrid Mode" (Markdown files and a SQLite database) and launching different commands. It is a work-in-progress and you can do without it, only with the rest of the kit.
 
 ### Prerequisites
 - Python 3.9+
@@ -801,7 +803,7 @@ gabbe --help
 | `gabbe verify`| **Enforcer**: programmable integrity check (files, tests, lint). |
 | `gabbe status`| **Dashboard**: Visualizes project phase and task progress. |
 | `gabbe brain` | **Meta-Cognition**: Activates Active Inference loop or Evolutionary Prompt Optimization (Requires API Key). |
-| `gabbe route` | **Cost Router**: Arbitrates between Local and Remote LLMs based on task complexity (Requires API Key). |
+| `gabbe route` | **Cost Router**: Arbitrates between Local and Remote LLMs based on task complexity (prompts of 100+ characters or with code blocks are rated by the LLM and need `GABBE_API_KEY`; without a key a fallback heuristic is used). |
 | `gabbe forecast`| **Strategic Forecast**: Projects remaining work cost and tokens based on historical run data. |
 | `gabbe serve-mcp` | **MCP Gateway**: Zero-dependency JSON-RPC Model Context Protocol server for standalone agents to access tools safely. |
 | `gabbe runs` | **Run History**: List recent agent runs with status, cost, and timestamps. |

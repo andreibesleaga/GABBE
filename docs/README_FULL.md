@@ -105,6 +105,8 @@ Or ask your agent in chat: "Activate Brain Mode. Goal: Build a SaaS platform."
 - **Dynamic Cost Routing**: Routes simple tasks to **Local LLMs** and complex ones to **Remote SOTA Models**.
 - **Episodic Memory**: Learns from past failures and successes across projects.
 
+These are the agent-mode behaviours of `brain-mode.skill`. The `gabbe brain` CLI is smaller: it reads task counts, picks a prompt gene (epsilon-greedy), makes one LLM call and rewards the gene; routing is `gabbe route`, and it does no episodic recall (see [ADR-0002](adr/0002-brain-active-inference-runtime.md)).
+
 Read more in [AGENTS.md](../agents/AGENTS.md).
 
 ---
@@ -135,7 +137,7 @@ python3 scripts/init.py
 
 ## 3.1. GABBE CLI (experimental)
 
-GABBE has a **Zero-Dependency CLI** (`gabbe`) CLI which powers the "Hybrid Mode". It bridges the gap between flexible Markdown files and a robust SQLite database.
+GABBE has a **lightweight CLI** (`gabbe`; three runtime dependencies: `requests`, `PyYAML`, `jsonschema`) which powers the "Hybrid Mode". It bridges the gap between flexible Markdown files and a robust SQLite database.
 It's an experimental work-in-progress and you can do without the whole package only with the rest of the kit.
 
 ### Prerequisites
@@ -191,7 +193,7 @@ gabbe --help
 | `gabbe update` / `gabbe uninstall` | **Reversible install**: additive refresh / manifest-backed removal (`--dry-run`, `--purge`, `--global`, `--dir`). |
 | `gabbe status`| **Dashboard**: Visualizes project phase and task progress. |
 | `gabbe brain` | **Meta-Cognition**: Activates Active Inference loop or Evolutionary Prompt Optimization (Requires API Key). |
-| `gabbe route` | **Cost Router**: Arbitrates between Local and Remote LLMs based on task complexity (Requires API Key). |
+| `gabbe route` | **Cost Router**: Arbitrates between Local and Remote LLMs based on task complexity (prompts of 100+ characters or with code blocks are rated by the LLM and need `GABBE_API_KEY`; without a key a fallback heuristic is used). |
 | `gabbe forecast`| **Strategic Forecast**: Projects remaining work cost and tokens based on historical run data. |
 | `gabbe serve-mcp` | **MCP Gateway**: Zero-dependency JSON-RPC Model Context Protocol server for standalone agents to access tools safely. |
 | `gabbe runs [--status STATUS] [--limit N]` | **Run History**: List recent agent runs with status, cost, and timestamps. |
@@ -356,7 +358,7 @@ Uses Active Inference to plan, route between local/remote models, and learn from
 ### Activate Loki Mode (Large Projects)
 
 **Using the CLI:**
-> `gabbe brain activate` (Loki may be triggered autonomously by the Brain based on context cost).
+> `gabbe brain activate` prints the model's recommended next action; it does not start Loki. Start Loki with the skill below.
 Or activate the swarm skill explicitly:
 > Activate `agents/skills/brain/loki-mode.skill.md` with your goal.
 
@@ -686,7 +688,7 @@ GABBE's true power lies in its **Meta-Cognitive triad**: Active Inference (`acti
 
 ### 8.1. Sensory MCPs to Working Memory
 When an agent uses a sensory tool (like `visual-specs` or `excalidraw`), the parsed visual context is directly committed to the `WORKING_MEMORY.md`. 
-When `gabbe route` or `gabbe brain activate` runs, the **Cost-Benefit Router** actively reads this memory. If the visual data is highly complex, the router will automatically escalate the task to a **REMOTE** LLM to preserve reasoning quality, overriding local restrictions.
+The `gabbe` CLI does not read `WORKING_MEMORY.md`; routing by `gabbe route` uses the prompt text only.
 
 ### 8.2. Enforcing Brain Mode (`activate`)
 Brain Mode should be integrated into your development loop after significant milestones:
@@ -719,7 +721,7 @@ gabbe brain evolve --skill code-review
 The healing protocol acts as an infrastructure watchdog to recover from failures.
 
 **Using the CLI:**
-Checks for missing files (`AGENTS.md`, `CONSTITUTION.md`), corrupted SQLite databases, and network reachability. Run this in your CI/CD pipeline.
+Checks that the database is reachable and that `agents/AGENTS.md`, `agents/CONSTITUTION.md` and `project/TASKS.md` exist. Run this in your CI/CD pipeline.
 ```bash
 gabbe brain heal
 ```
@@ -1114,7 +1116,7 @@ All templates now live in categorized subdirectories under `agents/templates/`.
 | `coordination/SWARM_CONFIG_TEMPLATE.json` | Multi-agent configuration |
 | `coordination/AGENT_PROFILE_TEMPLATE.md` | Agent Profile | Persona definition |
 | `coordination/AGENT_HANDSHAKE_TEMPLATE.json` | Agent Handshake | Protocol negotiation |
-| `agents/memory/episodic/VOTING_LOG_TEMPLATE.md` | Agent Consensus Voting Record |
+| `agents/memory/episodic/VOTING_LOG.md` (created by `swarm-consensus`; no template file) | Agent Consensus Voting Record |
 | `coordination/SWARM_ARCHITECTURE_TEMPLATE.md` | Swarm Architecture | Multi-agent topology |
 | `brain/ACTIVE_INFERENCE_LOOP_TEMPLATE.md` | Cognitive loop structure |
 | `brain/GLOBAL_WORKSPACE_CONFIG_TEMPLATE.md` | GWT Blackboard config |
@@ -1325,7 +1327,7 @@ Copy and paste these exact prompts into your AI chat window to kick off standard
 ### Activate Loki Mode (Large Projects)
 
 **Using the CLI:**
-> `gabbe brain activate` (Loki may be triggered autonomously by the Brain based on context cost).
+> `gabbe brain activate` prints the model's recommended next action; it does not start Loki. Start Loki with the skill below.
 Or activate the swarm skill explicitly:
 > Activate `agents/skills/brain/loki-mode.skill.md` with your goal.
 
@@ -1435,7 +1437,7 @@ Or activate the swarm skill explicitly:
 
 **Agent makes architecture decisions without asking:**
 - Add to AGENTS.md Human-in-the-Loop section: "Architecture changes require human approval"
-- Check `CONSTITUTION.md` — Article VII should cover this
+- Check `CONSTITUTION.md` — Article VIII should cover this
 
 **Context window too large / slow responses:**
 - Use `context_cost: low` skills for routine tasks

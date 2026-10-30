@@ -30,7 +30,7 @@ This guide provides a quick reference for the most common commands, setup instru
 | `gabbe brain activate` | Activates Active Inference loop (requires API key). |
 | `gabbe brain evolve --skill NAME` | Evolutionary Prompt Optimization for a named skill. |
 | `gabbe brain heal` | Self-healing watchdog: checks DB and required files. |
-| `gabbe route <prompt>` | Arbitrates prompt between Local and Remote LLMs (requires API key). |
+| `gabbe route <prompt>` | Arbitrates prompt between Local and Remote LLMs (prompts of 100+ characters or with code blocks are rated by the LLM and need `GABBE_API_KEY`; without a key a fallback heuristic is used). |
 | `gabbe forecast` | Strategic Forecast projects remaining work cost and tokens. |
 | `gabbe serve-mcp` | Zero-dependency JSON-RPC MCP server for agent integration. |
 | `gabbe runs [--status STATUS] [--limit N]` | List recent agent runs with status, cost, and timestamps. |

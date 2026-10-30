@@ -13,6 +13,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - **npm publishing uses npm trusted publishing (OIDC).** `publish-npm.yml` is now the only npm publisher: it runs
   on every version tag and by hand, needs no `NPM_TOKEN`, and adds npm provenance. `release.yml` no longer
   publishes to npm. A token-based publish had started to fail because npm now asks for a one-time password.
+- Docs: final audit corrections (CLI dependencies, `gabbe brain` and `gabbe route` behaviour, template counts, lifecycle stage names, test counts, `compile_skills.py` command, `--wizard` flag).
 - Docs: corrected stale commands, paths, flags and claims found by a documentation audit (`gabbe doctor` vs the npm `gabbe`, the QUICK_GUIDE install line, `GABBE_MCP_TOKEN` and `GABBE_AUTONOMY` behaviour, `setup-context.sh` and guide paths, Python 3.9+); added `docs/ARCHITECTURE.md`, a CI workflow table in `TESTING.md` and a release procedure in `CONTRIBUTING.md`.
 - `gabbe setup --force` passes `--force` to the wizard; `npx gabbe-kit init --help` lists `--force`.
 - Kit: Security & Guardrails sections in `visual-whiteboarding` and `performant-php` (all 214 skills now have one);

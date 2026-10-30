@@ -256,6 +256,8 @@ GOOD (EARS — testable):
 }
 ```
 
+> The `server-github` and `server-postgres` packages above are deprecated: npm marks them "no longer supported" (checked 2026-10-30), though they still install. See `docs/MCP_CONFIGURATIONS.md` for current alternatives.
+
 **Key MCP servers for agentic engineering:**
 - **Context-7**: Up-to-date library docs (prevents hallucinated API usage)
 - **Sequential Thinking**: Forces structured reasoning before acting

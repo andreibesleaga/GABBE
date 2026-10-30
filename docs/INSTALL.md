@@ -46,6 +46,8 @@ validation), see `docs/POST_INSTALL.md`.
 
 Resolution order for `update` / `uninstall`: `--dir` > `--global` > project (cwd).
 
+The wizard's own "Global" choice installs to `~/agents` and is not manifest-tracked; `--global` of `update`/`uninstall` targets `$XDG_DATA_HOME/gabbe` only.
+
 ## Updating
 
 ```bash

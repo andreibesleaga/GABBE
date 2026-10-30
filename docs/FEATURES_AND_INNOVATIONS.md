@@ -29,8 +29,8 @@ Each line is a feature → the concrete value it delivers.
   `.github/skills/…`, `.gemini/…`, universal `.agents/skills/…`). *Value:* a single, consistent
   engineering standard across a mixed-tool team instead of per-tool rule drift.
 - **Cradle-to-grave ADLC** — a 14-phase lifecycle (Day-0 strategy `S00`; core build loop
-  `S01–S10`: requirements → architecture → spec → design → implement → test → review →
-  integrate → release → production; Day-2 `S11–S13`: operate → evolve → sunset). *Value:* the
+  `S01–S10`: requirements → architecture → tech spec → task decomposition → implement → test →
+  security review → human review → staging → production; Day-2 `S11–S13`: operate → evolve → sunset). *Value:* the
   agent is driven by an actual engineering process, not ad-hoc "vibe coding".
 - **Human-in-the-loop gates** at `S00/S01/S02/S07/S08`. *Value:* humans stay managers, not
   spectators — approval is required at the expensive/irreversible decision points.

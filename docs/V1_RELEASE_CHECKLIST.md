@@ -81,8 +81,8 @@ gabbe verify --chaos                                 # all fault-injection self-
 ## 5. Compatibility & emission proven (works standalone, every target agent)
 
 ```bash
-# For each supported client (claude, cursor, copilot, gemini, codex, + new additive ones):
-python3 agents/scripts/compile_skills.py --platform <client> --skills-dir agents/skills --target-dir /tmp/gabbe-<client>
+# For each platform: Cursor, "VS Code", "GitHub Copilot", "Claude Code", Antigravity, OpenCode, Universal (or All):
+python3 agents/scripts/compile_skills.py --platform "<platform>" --skills-dir agents/skills --target-dir /tmp/gabbe-out --project-root /tmp/gabbe-proj
 python3 scripts/init.py     # (or: npx gabbe-kit init) — clean init succeeds end-to-end with new content
 ```
 

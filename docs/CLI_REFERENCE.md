@@ -480,6 +480,7 @@ supports the same never-clobber/`--force` behavior plus non-interactive install:
 | `--yes` | Non-interactive; accept defaults without prompting |
 | `--agents <list>` | Comma-separated agents to wire (e.g. `--agents claude,cursor`) |
 | `--force` | Re-template even preserve-set files (each backed up to `<name>.gabbe-bak` first) |
+| `--wizard` | Delegate to the full Python wizard (`scripts/init.py`) when `python3` is available (interactive) |
 
 ```bash
 npx gabbe-kit init --yes --agents claude,cursor

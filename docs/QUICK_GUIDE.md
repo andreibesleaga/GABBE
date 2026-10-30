@@ -62,7 +62,7 @@ python3 GABBE/scripts/init.py
     - Open `agents/AGENTS.md`: Check `Tech Stack` section.
     - Verify `test_cmd` and `lint_cmd` match your project.
     - Open `agents/CONSTITUTION.md`: Review project laws.
-    - Adjust Article I (Directives) if needed.
+    - Adjust Article I (Test-First Mandate) if needed.
 
 ## 6. Git Tracking (Important)
     - To keep the initial structure of `agents/memory/` and `project/` in your repository but prevent Git from tracking the continuous autonomous modifications your agents will make to them locally, run:
@@ -74,7 +74,7 @@ python3 GABBE/scripts/init.py
 
 ## 🚀 GABBE CLI (Experimental)
 
-GABBE contains a **Zero-Dependency CLI** (`gabbe`) CLI which powers the "Hybrid Mode". It bridges the gap between flexible Markdown files and a robust SQLite database. It's an experimental work-in-progress and you can do without the whole package only with the rest of the kit.
+GABBE contains a **lightweight CLI** (`gabbe`; three runtime dependencies: `requests`, `PyYAML`, `jsonschema`) which powers the "Hybrid Mode". It bridges the gap between flexible Markdown files and a robust SQLite database. It's an experimental work-in-progress and you can do without the whole package only with the rest of the kit.
 
 ### Prerequisites
 - Python 3.9+
@@ -132,7 +132,7 @@ python scripts/fill_placeholders.py
 | `gabbe update` / `gabbe uninstall` | Additive refresh / manifest-backed removal (for `gabbe`-CLI-managed kits and wizard installs; npx/curl installs aren't manifest-tracked). |
 | `gabbe status`| **Dashboard**: Visualizes project phase and task progress. |
 | `gabbe brain` | **Meta-Cognition**: Activates Active Inference loop or Evolutionary Prompt Optimization (Requires API Key). |
-| `gabbe route` | **Cost Router**: Arbitrates between Local and Remote LLMs based on task complexity (Requires API Key). |
+| `gabbe route` | **Cost Router**: Arbitrates between Local and Remote LLMs based on task complexity (prompts of 100+ characters or with code blocks are rated by the LLM and need `GABBE_API_KEY`; without a key a fallback heuristic is used). |
 | `gabbe forecast`| **Strategic Forecast**: Projects remaining work cost and tokens based on historical run data. |
 | `gabbe serve-mcp` | **MCP Gateway**: Zero-dependency JSON-RPC Model Context Protocol server for standalone agents to access tools safely. |
 | `gabbe runs` | **Run History**: List recent agent runs with status, cost, and timestamps. |
@@ -297,7 +297,7 @@ Uses Active Inference to plan, route between local/remote models, and learn from
 ### Activate Loki Mode (Large Projects)
 
 **Using the CLI:**
-> `gabbe brain activate` (Loki may be triggered autonomously)
+> `gabbe brain activate` prints the model's recommended next action; it does not start Loki.
 Or activate the swarm skill explicitly:
 > Activate `agents/skills/brain/loki-mode.skill.md` with your goal.
 
@@ -838,7 +838,7 @@ No human needed for:
 
 | Category | Templates |
 |---|---|
-| **Core** | `AGENTS`, `MCP_CONFIG`, `DEVCONTAINER`, `DEV_SPACE`, `PLAN`, `TASKS`, `AUDIT_LOG`, `SDLC_TRACKER`, `SESSION_SNAPSHOT`, `SWARM_CONFIG`, `AGENT_HANDSHAKE`, `SYSTEM_ANALYSIS` (project state, continuity and the voting log live in `agents/memory/`: `PROJECT_STATE.md`, `CONTINUITY.md`, `episodic/VOTING_LOG_TEMPLATE.md`) |
+| **Core** | `AGENTS`, `MCP_CONFIG`, `DEVCONTAINER`, `DEV_SPACE`, `PLAN`, `TASKS`, `AUDIT_LOG`, `SDLC_TRACKER`, `SESSION_SNAPSHOT`, `SWARM_CONFIG`, `AGENT_HANDSHAKE`, `SYSTEM_ANALYSIS` (project state, continuity and the voting log live in `agents/memory/`: `PROJECT_STATE.md`, `CONTINUITY.md`, `episodic/VOTING_LOG.md` (created at run time)) |
 | **Arch** | `ADR`, `ARCH_DECISION_FRAMEWORK`, `ARCHITECTURE_DECISION_MATRIX`, `ARCHITECTURE_REVIEW`, `ARCHITECTURE_VIEWS`, `C4_ARCHITECTURE`, `CONTEXT_MAP`, `DOMAIN_MODEL`, `SYSTEM_CONTEXT`, `SWARM_ARCHITECTURE`, `DESIGN_PATTERN_USAGE`, `CAPABILITY_MAP`, `LEGACY_AUDIT` |
 | **Reqs** | `PRD`, `SPEC`, `BUSINESS_CASE`, `CAPABILITY_MAP`, `EMPATHY_MAP`, `NFR`, `QUALITY_ATTRIBUTES`, `REQUIREMENTS_REVIEW`, `STAKEHOLDER_REGISTER`, `TRACEABILITY_MATRIX`, `ETHICAL_IMPACT_ASSESSMENT` |
 | **Eng** | `CLEAN_CODE_CHECKLIST`, `SECURITY_CHECKLIST`, `THREAT_MODEL`, `TECH_DEBT`, `TEST_PLAN`, `TEST_CASE`, `INTEGRATION_SPEC`, `DATA_PIPELINE`, `DATABASE_SCHEMA`, `DESIGN_TOKENS`, `E2E_TEST_SUITE`, `SAFETY_POLICY` |

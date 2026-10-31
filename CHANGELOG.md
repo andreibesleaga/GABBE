@@ -8,6 +8,10 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.1.3] — 2026-10-31
+
+Fixes from the documentation audit of 29–30 October 2026; no new feature, no change to a default.
+
 ### Changed
 - `project/state.db` is no longer tracked. It is runtime state that `gabbe init` and `gabbe db --init` create and that tests and agents change on every run; contributors no longer need `git update-index --skip-worktree` for it.
 - **npm publishing uses npm trusted publishing (OIDC).** `publish-npm.yml` is now the only npm publisher: it runs

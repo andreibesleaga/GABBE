@@ -6,13 +6,13 @@
   },
   "metadata": {
     "description": "GABBE agent skills for Claude Code: the core SDLC loop plus topic plugins (AI, architecture, brain, coding, coordination, data, industry, ops, product, security).",
-    "version": "1.1.2"
+    "version": "1.1.3"
   },
   "plugins": [
     {
       "name": "gabbe",
       "source": "./plugins/gabbe",
-      "version": "1.1.2",
+      "version": "1.1.3",
       "description": "GABBE core: 44 agent skills for the everyday engineering loop — spec, plan, TDD, review, research, security, memory and audit, with Brain and Loki mode. Add the gabbe-* topic plugins from the same marketplace for the rest of the 214.",
       "author": {
         "name": "Andrei Nicolae Besleaga"
@@ -31,7 +31,7 @@
     {
       "name": "gabbe-ai",
       "source": "./plugins/gabbe-ai",
-      "version": "1.1.2",
+      "version": "1.1.3",
       "description": "GABBE ai skills (11): AI and agent engineering: multi-agent systems, agent UIs and protocols, context engineering, RAG evaluation, LLM-as-judge and reasoning patterns.",
       "author": {
         "name": "Andrei Nicolae Besleaga"
@@ -51,7 +51,7 @@
     {
       "name": "gabbe-architecture",
       "source": "./plugins/gabbe-architecture",
-      "version": "1.1.2",
+      "version": "1.1.3",
       "description": "GABBE architecture skills (29): software architecture: patterns, C4 and diagrams, domain models, event-driven and microservice design, governance, migration and scalability.",
       "author": {
         "name": "Andrei Nicolae Besleaga"
@@ -71,7 +71,7 @@
     {
       "name": "gabbe-brain",
       "source": "./plugins/gabbe-brain",
-      "version": "1.1.2",
+      "version": "1.1.3",
       "description": "GABBE brain skills (13): Brain Mode internals: cognitive architectures, active inference, global workspace, working and episodic memory, self-improvement.",
       "author": {
         "name": "Andrei Nicolae Besleaga"
@@ -91,7 +91,7 @@
     {
       "name": "gabbe-coding",
       "source": "./plugins/gabbe-coding",
-      "version": "1.1.2",
+      "version": "1.1.3",
       "description": "GABBE coding skills (28): coding: language performance, testing strategies (browser TDD, property-based, metamorphic, chaos), evals, UI generation and diagram canvases.",
       "author": {
         "name": "Andrei Nicolae Besleaga"
@@ -111,7 +111,7 @@
     {
       "name": "gabbe-coordination",
       "source": "./plugins/gabbe-coordination",
-      "version": "1.1.2",
+      "version": "1.1.3",
       "description": "GABBE coordination skills (7): multi-agent coordination: interop and protocols, workflow patterns, orchestration and swarm consensus.",
       "author": {
         "name": "Andrei Nicolae Besleaga"
@@ -131,7 +131,7 @@
     {
       "name": "gabbe-data",
       "source": "./plugins/gabbe-data",
-      "version": "1.1.2",
+      "version": "1.1.3",
       "description": "GABBE data skills (5): data: pipelines, governance, database migrations, SQL optimisation and the semantic web.",
       "author": {
         "name": "Andrei Nicolae Besleaga"
@@ -151,7 +151,7 @@
     {
       "name": "gabbe-industry",
       "source": "./plugins/gabbe-industry",
-      "version": "1.1.2",
+      "version": "1.1.3",
       "description": "GABBE industry skills (5): industry standards and domains: engineering standards, healthcare FHIR, industrial IoT and telecom networks.",
       "author": {
         "name": "Andrei Nicolae Besleaga"
@@ -171,7 +171,7 @@
     {
       "name": "gabbe-ops",
       "source": "./plugins/gabbe-ops",
-      "version": "1.1.2",
+      "version": "1.1.3",
       "description": "GABBE ops skills (30): operations: deployment, environments, observability, incidents, performance, cost and release management.",
       "author": {
         "name": "Andrei Nicolae Besleaga"
@@ -191,7 +191,7 @@
     {
       "name": "gabbe-product",
       "source": "./plugins/gabbe-product",
-      "version": "1.1.2",
+      "version": "1.1.3",
       "description": "GABBE product skills (21): product: requirements review, user research, story maps, business case, estimation, accessibility, sustainability and change management.",
       "author": {
         "name": "Andrei Nicolae Besleaga"
@@ -211,7 +211,7 @@
     {
       "name": "gabbe-security",
       "source": "./plugins/gabbe-security",
-      "version": "1.1.2",
+      "version": "1.1.3",
       "description": "GABBE security skills (21): security, privacy and AI safety: access control, secrets, cryptography, prompt-injection defence, red teaming, compliance and legal review.",
       "author": {
         "name": "Andrei Nicolae Besleaga"

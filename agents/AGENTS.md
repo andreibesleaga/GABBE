@@ -569,7 +569,7 @@ the same operating spine in §5/§13 (preflight → clarify → act → state-pr
 ---
 
 *Last updated: [DATE]*
-*GABBE Kit version: 1.1.2*
+*GABBE Kit version: 1.1.3*
 *This file is maintained by the team and updated when project conventions change.*
 
 ---

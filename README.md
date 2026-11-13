@@ -7,19 +7,45 @@
 
 ## What is this?
 
-- Agentic code development and governance via capability layers and software development cycle gates verifications and alignment (including best practices for security and human-in-the-loop, complete framework).
-- An open-source project that features a complete agentic coding kit/framework with cognitive brain loop, skills, SDLC workflow, etc.
-- Universal kit for Software and AI coding agents: Claude Code, Cursor, Windsurf, Cline, Aider, Devin, Gemini, **Antigravity**, **OpenCode**, **Zed**, **Continue**, **Roo Code**, **Kilo Code**, OpenAI/Codex, GitHub Copilot, VS Code.
-- Drop-in context kit that turns any AI coding agent into a governed engineering team for developing software.
-- Based on Software Engineering & Architecture Practices and Procedures.
-- Works for any project type, new or existing, any language, any team size.
-- **Write Once, Run Everywhere**: SKILLS for Cursor (`.mdc`), VS Code / Copilot (`folder/SKILL.md`), Claude (`.claude/skills`), Gemini, and the universal `.agents/skills/` tree read by Antigravity, OpenCode, and any agentskills.io tool.
-- **Trivially installable**: `npx gabbe-kit init` (Python-independent) or `curl -fsSL …/install.sh | sh`, plus the Python wizard / PyPI. Move work between agents anytime (portable state export/import).
-- **First-class** Observability (decision/cost traces, OTel GenAI conventions), Spec-Driven development (spec → evals → test → code), and a manager-not-operator human↔agent collaboration model.
-- The system features an experimental **Meta-Cognitive Orchestrator "Brain"** (Neurocognitive based architecture derived from Neuroscience, Cognitive Psychology, Epistemology, treating the Software System not as a machine, but as a **Cognitive Entity**), using Active Inference to plan, route, and optimize work.
-- The system features a **Multi-Agent Swarm "Loki" Engineering Team** (30+ specialized agent roles for large projects), providing episodic and semantic memory, project history auditing and checkpoints.
-- Experimental support for budget enforcement, tokens, hard stops, policy rules, cli tool gateway (via MCP server), audit tracing and logs, human escalation, and deterministic replay, with built-in rules for agents to select the best specialized skills/guides, proactively recommend necessary MCP servers, and default to continuous cost & budget optimization—always requiring human approval for expensive operations.
-- **v1.0** extends the framework to a **cradle-to-grave ADLC (S00–S13)** — Day-0 Strategy & Discovery (S00) through the S01–S10 SDLC to Day-2 Operate/Evolve/Decommission (S11–S13), grounded in named industry methods (ADD 3.0, ATAM, Wardley, JTBD, RICE, DORA/SPACE, ADKAR) — and adds an **evals + standards-grounded guardrails layer** (eval-driven development, LLM-as-judge, RAG/trajectory evals, plus prompt-injection-defense and output-validation mapped to OWASP LLM Top 10 / NIST AI RMF / MITRE ATLAS / ISO 42001 / EU AI Act), **advanced testing** (property-based, metamorphic, chaos/fault-injection, and mutation testing; `gabbe verify --chaos`), and **one-command, multi-OS install with autodetect** (`gabbe doctor` reports OS/arch, runtimes, and detected agents; `update`/`uninstall` are manifest-backed for `gabbe`-CLI-managed kits via `.gabbe/manifest.json`). The "world-first" framing stays honest: the **self-evolving "genes" / brain-inference-via-skills** model is a conceptual framing — the production brain is epsilon-greedy with a monotonic success-rate, and evals/PBT **sample and raise confidence, they do not prove**.
+**GABBE turns the AI coding agent you already use into a governed software engineering team.**
+It plans, writes specs, designs, tests and ships through quality gates, follows proven engineering
+methods, and stops for your approval where it matters. Open source, for any language, any project
+(new or existing) and any team size.
+
+**Why use it**
+
+- **One kit for every agent.** Claude Code, Cursor, Windsurf, GitHub Copilot / VS Code, Gemini,
+  OpenAI Codex, Cline, Aider, Devin, Antigravity, OpenCode, Zed, Continue, Roo Code and Kilo Code.
+  Skills are written once and installed in each tool's own format (Cursor `.mdc`, Copilot
+  `SKILL.md`, `.claude/skills`, and `.agents/skills/` for agentskills.io tools). Switch agents
+  mid-project: the project state exports and imports.
+- **Engineering discipline built in.** One lifecycle from idea to retirement (S00–S13): strategy
+  and discovery, the S01–S10 build loop, then operate, evolve and decommission. Every phase ends at
+  a gate. Work is spec-driven (spec → evals → tests → code) and grounded in named methods: ADD 3.0,
+  ATAM, Wardley mapping, JTBD, RICE, DORA/SPACE, ADKAR.
+- **You stay in charge.** Human approval for risky or expensive steps; budgets, token limits and
+  hard stops; policy rules; an audit trail and deterministic replay. You manage the agents instead
+  of operating them.
+- **Safer AI output.** Evals (LLM-as-judge, RAG and trajectory evals) and guardrails (prompt-injection
+  defence, output validation) mapped to the OWASP LLM Top 10, NIST AI RMF, MITRE ATLAS, ISO 42001
+  and the EU AI Act.
+- **Tests that look for real failures.** Property-based, metamorphic, chaos / fault-injection and
+  mutation testing (`gabbe verify --chaos`).
+- **See what the agents did and what it cost.** Decision and cost traces in the OpenTelemetry GenAI
+  conventions.
+- **Scales from a bug fix to a large programme.** **Loki Mode** runs a swarm of 30+ specialist roles
+  with episodic and semantic memory, checkpoints and a project history. **Brain Mode** (experimental)
+  is a meta-cognitive orchestrator, inspired by neuroscience and cognitive psychology (Active
+  Inference), that plans, routes work between local and remote models and learns from past outcomes.
+  Agents pick the right skills and guides for each task and recommend the MCP servers it needs.
+- **Installs in one command.** `npx gabbe-kit init` (no Python needed) or
+  `curl -fsSL …/install.sh | sh`; `pipx install gabbe` adds the CLI. `gabbe doctor` detects your OS,
+  runtimes and agents; updates and uninstalls are tracked in a manifest.
+
+**Honest limits.** Budgets, policy rules, the tool gateway (MCP server) and replay are experimental.
+The self-evolving "genes" model is a conceptual framing: the shipped brain chooses prompts by
+epsilon-greedy selection on their success rate. Evals and property-based tests sample behaviour and
+raise confidence; they do not prove correctness.
 
 It contains:
 - **214 Skills** (specialized capabilities)
@@ -61,7 +87,7 @@ It contains:
 | **Shell bootstrap** | `curl -fsSL https://raw.githubusercontent.com/andreibesleaga/GABBE/main/install.sh \| sh` | picks the best available installer |
 | **Git checkout** | `git clone https://github.com/andreibesleaga/GABBE && cd GABBE && python3 scripts/init.py` | the interactive wizard |
 
-> On npm the package is **`gabbe-kit`** (npm refuses the unscoped `gabbe`); on PyPI it is **`gabbe`**; the npm package is additionally mirrored on GitHub Packages as `@andreibesleaga/gabbe-kit` (npmjs stays canonical). Both packages install a command named `gabbe`, but not the same one: on npm it is the kit installer (`gabbe init` only), on PyPI it is the CLI. After installing the PyPI CLI, run `gabbe doctor` for an environment + install report. Full guide: [`docs/INSTALL.md`](docs/INSTALL.md).
+> The npm package **`gabbe-kit`** installs the kit; the PyPI package **`gabbe`** installs the CLI. Full guide: [`docs/INSTALL.md`](docs/INSTALL.md).
 
 **Universal, Python-independent (one command):**
 ```bash
@@ -72,12 +98,7 @@ npx gabbe-kit init --force               # re-template even preserved files (eac
 curl -fsSL https://raw.githubusercontent.com/andreibesleaga/GABBE/main/install.sh | sh
 ```
 
-> **Never-clobber.** Both installers — the Node installer (`npx gabbe-kit init`) and
-> the Python wizard (`gabbe setup` / `python scripts/init.py`) — back up ANY differing
-> pre-existing file to `<name>.gabbe-bak` before refreshing it; nothing you already had
-> is silently overwritten. The preserve-set (`AGENTS.md`, `CONSTITUTION.md`, `TASKS.md`,
-> `policies.yml`, `config.json`) is left untouched unless you pass `--force`, which
-> opts into re-templating them too (still backing each up first).
+> **Safe on existing projects.** Any file the installer would change is backed up first (`<name>.gabbe-bak`), and your `AGENTS.md`, `CONSTITUTION.md`, `TASKS.md`, `policies.yml` and `config.json` are only replaced with `--force`.
 
 **Python / PyPI:**
 ```bash
@@ -96,19 +117,13 @@ The installer is a **Universal Skill Compiler** — it generates the correct for
 - **Zed / Continue / Roo Code / Kilo Code**: root `AGENTS.md` (agents.md standard) + each tool's rules file
 - Every install also writes a root `AGENTS.md` (the agents.md open standard).
 
-**Greenfield vs. brownfield (autodetect).** In an empty directory the wizard runs the
-greenfield flow unchanged. In an **existing codebase** (detected via `package.json`,
-`pyproject.toml`, `go.mod`, `Cargo.toml`, `composer.json`, `pom.xml`, `Gemfile`, a `.git`
-repo, etc.) it adds a **Mode** question — greenfield build vs **Upgrade / Refactor
-existing** — prefills the detected language / framework / package-manager / project-name
-as defaults, and in refactor mode scaffolds a `BROWNFIELD_ONBOARDING.md` discovery brief
-(map → assess → baseline → backlog) instead of greenfield mission docs.
+**New or existing project.** The wizard notices an existing codebase, asks whether you are building something new or upgrading it, and pre-fills your language and framework ([details](docs/INSTALL.md#new-or-existing-project)).
 
 Steps after running the wizard:
 
 1. **Verify Context**
    - Open `agents/AGENTS.md` and check the `Tech Stack` section and other [PLACEHOLDER] or Optional sections.
-   - The wizard auto-fills derivable `[PLACEHOLDER:]` fields — dev/test/lint/format/typecheck/coverage commands (by package manager), `repo_url` (from the git remote), and `ci_cd` / `deployment_target` (from detected files). Fields it can't derive are kept and tagged `<!-- OPTIONAL: fill this in yourself -->`, and the installer prints an end-of-install warning listing them so blank fields are never shipped silently. Fill them in or re-run `gabbe setup`.
+   - The wizard fills in what it can detect (commands, repository URL, CI) and lists the fields you still need to fill. Fill them in or re-run `gabbe setup`.
    - Open `agents/CONSTITUTION.md` and review project laws.
 
 2. **Feed the Mission**
@@ -142,13 +157,9 @@ claude plugin install gabbe@gabbe
 marked `core: true`). The other skills come as topic plugins from the same marketplace:
 `gabbe-ai`, `gabbe-architecture`, `gabbe-brain`, `gabbe-coding`, `gabbe-coordination`,
 `gabbe-data`, `gabbe-industry`, `gabbe-ops`, `gabbe-product` and `gabbe-security`
-(for example `claude plugin install gabbe-security@gabbe`). Claude Code keeps every
-installed skill's name and description in context, within about 1% of the context
-window. All 214 skills would need far more than that; the core plugin alone costs about
-2,700 tokens per session (`claude plugin details gabbe`), a little over the ~2,000-token
-budget of a 200k context and well within that of a 1M context. Over budget, Claude Code
-drops the descriptions of the least-used skills; nothing fails. Install only the topics
-you use.
+(for example `claude plugin install gabbe-security@gabbe`). Each installed skill costs a
+little context (the core plugin about 2,700 tokens per session), so install only the topics
+you use ([details](docs/INSTALL.md#claude-code-plugins-and-the-context-budget)).
 
 The same skills install one by one with the skills CLI ([skills.sh](https://skills.sh)):
 
@@ -549,7 +560,7 @@ Sits **above** Loki. Decides *how* to execute, not just *what* to execute.
 | **Episodic Memory** | Recalls past project outcomes to avoid repeated mistakes |
 | **System 2 Thinking** | Strategic planning before execution |
 
-These are the agent-mode behaviours of `brain-mode.skill`. The `gabbe brain` CLI is smaller: it reads task counts, picks a prompt gene (epsilon-greedy), makes one LLM call and rewards the gene; routing is `gabbe route`, and it does no episodic recall (see [ADR-0002](docs/adr/0002-brain-active-inference-runtime.md)).
+These are the behaviours of the Brain Mode skill. The `gabbe brain` CLI implements a smaller part of them ([ADR-0002](docs/adr/0002-brain-active-inference-runtime.md)).
 
 ---
 
@@ -750,7 +761,7 @@ Agents are explicitly configured to **Fail-Closed**—they must wait for human a
 
 ## 🚀 GABBE CLI (Experimental)
 
-GABBE has also an experimental helper, **lightweight CLI** (`gabbe`; three runtime dependencies: `requests`, `PyYAML`, `jsonschema`) for a "Hybrid Mode" (Markdown files and a SQLite database) and launching different commands. It is a work-in-progress and you can do without it, only with the rest of the kit.
+GABBE also has an optional, experimental Python CLI (`gabbe`) that keeps project state in Markdown files plus a SQLite database. The kit works fully without it.
 
 ### Prerequisites
 - Python 3.9+

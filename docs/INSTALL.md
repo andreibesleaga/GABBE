@@ -31,12 +31,46 @@ nothing you already had is silently overwritten. The preserve-set (`AGENTS.md`,
 pass `--force` (e.g. `npx gabbe-kit init --force`), which opts into re-templating those
 too — and still backs each one up first.
 
+**Package names.** On npm the package is **`gabbe-kit`** (npm refuses the unscoped `gabbe`);
+on PyPI it is **`gabbe`**; the npm package is also mirrored on GitHub Packages as
+`@andreibesleaga/gabbe-kit` (npmjs stays canonical). Both packages install a command named
+`gabbe`, but not the same one: on npm it is the kit installer (`gabbe init` only), on PyPI it
+is the CLI.
+
+### New or existing project
+
+In an empty directory the wizard runs the greenfield flow unchanged. In an **existing
+codebase** (detected via `package.json`, `pyproject.toml`, `go.mod`, `Cargo.toml`,
+`composer.json`, `pom.xml`, `Gemfile`, a `.git` repo, etc.) it adds a **Mode** question —
+greenfield build vs **Upgrade / Refactor existing** — prefills the detected language /
+framework / package-manager / project-name as defaults, and in refactor mode scaffolds a
+`BROWNFIELD_ONBOARDING.md` discovery brief (map → assess → baseline → backlog) instead of
+greenfield mission docs.
+
+**Placeholders.** The wizard auto-fills derivable `[PLACEHOLDER:]` fields in `AGENTS.md` —
+dev/test/lint/format/typecheck/coverage commands (by package manager), `repo_url` (from the
+git remote), and `ci_cd` / `deployment_target` (from detected files). Fields it can't derive
+are kept and tagged `<!-- OPTIONAL: fill this in yourself -->`, and the installer prints an
+end-of-install warning listing them so blank fields are never shipped silently. Fill them in
+or re-run `gabbe setup`.
+
 After installing, run `gabbe doctor` (a command of the PyPI CLI; the npm package's
 `gabbe` command is the kit installer and has no `doctor`) to print an environment + install report
 (detected OS/arch, runtimes, agent clients, and per-check PASS/WARN). It also prints
 **post-install next steps** — which MCP servers to enable and how. For the full
 environment-setup walkthrough (MCP servers, local-GitHub servers, policy/budgets,
 validation), see `docs/POST_INSTALL.md`.
+
+## Claude Code plugins and the context budget
+
+The skills also ship as Claude Code plugins (`claude plugin marketplace add andreibesleaga/GABBE`,
+then `claude plugin install gabbe@gabbe` for the core skills and `gabbe-<topic>@gabbe` for the
+topic plugins). Claude Code keeps every installed skill's name and description in context,
+within about 1% of the context window. All 214 skills would need far more than that; the core
+plugin alone costs about 2,700 tokens per session (`claude plugin details gabbe`), a little over
+the ~2,000-token budget of a 200k context and well within that of a 1M context. Over budget,
+Claude Code drops the descriptions of the least-used skills; nothing fails. Install only the
+topics you use.
 
 ## Install scopes (targets)
 

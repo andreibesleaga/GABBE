@@ -40,7 +40,9 @@ methods, and stops for your approval where it matters. Open source, for any lang
   Agents pick the right skills and guides for each task and recommend the MCP servers it needs.
 - **Installs in one command.** `npx gabbe-kit init` (no Python needed) or
   `curl -fsSL …/install.sh | sh`; `pipx install gabbe` adds the CLI. `gabbe doctor` detects your OS,
-  runtimes and agents; updates and uninstalls are tracked in a manifest.
+  runtimes and agents; installs made with the `gabbe` CLI or the wizard are recorded in
+  `.gabbe/manifest.json`, so `gabbe update` / `gabbe uninstall` can reverse them
+  ([scope](docs/INSTALL.md#uninstalling-manifest-backed-installs)).
 
 **Honest limits.** Budgets, policy rules, the tool gateway (MCP server) and replay are experimental.
 The self-evolving "genes" model is a conceptual framing: the shipped brain chooses prompts by

@@ -52,11 +52,11 @@ It contains:
 - **100 Templates** (standardized documents)
 - **86 Guides** (language & domain expertise)
 - **36 Personas** (specialized roles)
-- **50+ MCP servers** (configuration and guides for AI tools)
+- **66 MCP servers** (configuration and guides for AI tools)
 - **Brain Mode** (meta-cognitive orchestration)
 - **Loki Mode** (multi-agent swarm engineering personas team for large projects)
 
-> **214 Skills · 100 Templates · 86 Guides · 36 Personas · 50+ MCPs · Loki / Brain Mode CLI**
+> **214 Skills · 100 Templates · 86 Guides · 36 Personas · 66 MCPs · Loki / Brain Mode CLI**
 
 ---
 
@@ -82,7 +82,7 @@ It contains:
 
 | Channel | One-command install | Notes |
 |---|---|---|
-| **npm / Node** | `npx gabbe-kit init` | Python-independent; bundles the kit & wires detected agents |
+| **npm / Node** | `npx gabbe-kit init` | Python-independent; bundles the kit & wires the agents you name with `--agents` |
 | **PyPI** | `pipx install gabbe` | adds the `gabbe` **CLI** (doctor/brain/route/gateway); install the kit via npx / curl / checkout |
 | **Shell bootstrap** | `curl -fsSL https://raw.githubusercontent.com/andreibesleaga/GABBE/main/install.sh \| sh` | picks the best available installer |
 | **Git checkout** | `git clone https://github.com/andreibesleaga/GABBE && cd GABBE && python3 scripts/init.py` | the interactive wizard |
@@ -91,21 +91,14 @@ It contains:
 
 **Universal, Python-independent (one command):**
 ```bash
-npx gabbe-kit init                       # Node installer — bundles the kit, wires every agent
+npx gabbe-kit init                       # Node installer — bundles the kit, wires AGENTS.md + .agents/skills
 npx gabbe-kit init --agents claude,cursor,antigravity,opencode --yes   # non-interactive
 npx gabbe-kit init --force               # re-template even preserved files (each is backed up first)
 # or, without npm:
 curl -fsSL https://raw.githubusercontent.com/andreibesleaga/GABBE/main/install.sh | sh
 ```
 
-**Existing projects: back up first.** Inside `agents/`, the installer keeps your `AGENTS.md`, `CONSTITUTION.md`, `TASKS.md`, `policies.yml` and `config.json` unless you pass `--force`, and backs up other files it changes as `<name>.gabbe-bak`. A root `AGENTS.md` that already exists is different: in 1.1.3 it is replaced by a link to the kit's file and your original is kept as `AGENTS.md.bak`, which you then merge by hand. See the known issues below.
-
-> [!WARNING]
-> **Known issues in 1.1.3** (fixed in 1.1.4, in preparation):
->
-> - **Installing into an existing project.** Copy your root `AGENTS.md`, `.github/copilot-instructions.md`, your `agents/` folder and your `docs/` folder somewhere safe first. The npm installer replaces the root `AGENTS.md`, and the Copilot file when Copilot is selected (originals moved to `<name>.bak`; a `.bak` left by an earlier run can be overwritten, so keep your own copy), merges the kit into an `agents/` folder you already have, and copies the kit's documents into `docs/`, replacing files of the same name (originals kept as `<name>.gabbe-bak`).
-> - **Do not run `gabbe update` on a project installed with the wizard** (`python3 scripts/init.py` or `gabbe setup`). It replaces `agents/AGENTS.md` and `agents/CONSTITUTION.md` without a backup, and on an install that has generated skill folders it then stops with an error part-way.
-> - **Do not run `gabbe uninstall --purge`.** It removes the whole `agents/` folder, including your own files, your memory files and the backups. Plain `gabbe uninstall` also removes your own files inside `.claude/skills`, `.github/skills` and `.cursor/rules`. Run `gabbe uninstall --dry-run` first and move your own files out of the listed folders.
+> **Safe on existing projects (since 1.1.4).** A file you already have is kept or backed up first (`<name>.gabbe-bak`; a backup is never overwritten). Your root `AGENTS.md` and other instruction files stay yours: the installer adds a short block that points to `agents/AGENTS.md`. Your `docs/` folder is not touched. Every path is recorded in `.gabbe/manifest.json`, so `gabbe uninstall` removes exactly what was installed. Details: [`docs/INSTALL.md`](docs/INSTALL.md).
 
 **Python / PyPI:**
 ```bash
@@ -668,7 +661,7 @@ Full catalog: `agents/templates/00-index.md`
 
 | Server | Purpose |
 |---|---|
-| **Context-7** | Up-to-date SDK docs (prevents hallucination) |
+| **Context-7** | Up-to-date SDK docs (reduces guessed or outdated API calls) |
 | **Sequential Thinking** | Chain-of-thought reasoning |
 | **GitHub MCP** | PR review, code search |
 | **GitHits** | Navigate open-source dependency source/docs (no clone, no key) |
@@ -823,7 +816,7 @@ gabbe --help
 | `gabbe brain` | **Meta-Cognition**: Activates Active Inference loop or Evolutionary Prompt Optimization (Requires API Key). |
 | `gabbe route` | **Cost Router**: Arbitrates between Local and Remote LLMs based on task complexity (prompts of 100+ characters or with code blocks are rated by the LLM and need `GABBE_API_KEY`; without a key a fallback heuristic is used). |
 | `gabbe forecast`| **Strategic Forecast**: Projects remaining work cost and tokens based on historical run data. |
-| `gabbe serve-mcp` | **MCP Gateway**: Zero-dependency JSON-RPC Model Context Protocol server for standalone agents to access tools safely. |
+| `gabbe serve-mcp` | **MCP Gateway**: Minimal-dependency JSON-RPC Model Context Protocol server for standalone agents to access tools safely. |
 | `gabbe runs` | **Run History**: List recent agent runs with status, cost, and timestamps. |
 | `gabbe audit <run-id>` | **Audit Trace**: Display structured span-level trace for a past run (`--format json\|table`). |
 | `gabbe replay <run-id>` | **Deterministic Replay**: Replay a past run from its checkpoints (`--from-step N`). |

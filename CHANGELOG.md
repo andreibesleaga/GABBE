@@ -8,6 +8,125 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.1.4] — 2026-11-21 — safety and truth
+
+Fixes for defects that could lose a user's files, weaken security, or made a document false. No new
+feature. Found by a full audit of 1.1.3 on 21 November 2026.
+
+### Fixed — installing, updating and uninstalling
+
+- **`gabbe update` no longer damages a wizard install.** In 1.1.3 it replaced `agents/AGENTS.md` and
+  `agents/CONSTITUTION.md` without a backup, removed wiring links and stopped with
+  `Is a directory`. It now keeps the earlier install record and everything in it, keeps the
+  preserved files you changed, and copies a kit file you edited to `<name>.gabbe-bak` before
+  replacing it. A kit file that is no longer shipped is removed only if you never changed it.
+- **`gabbe uninstall` removes only what an install recorded.** It no longer deletes your own files
+  inside `.claude/skills`, `.github/skills` or `.cursor/rules`. `--purge` no longer deletes the
+  whole `agents/` folder: your own files, files you changed, memory files and backups stay, and
+  the command says how many files it kept. `--dry-run` lists exactly what a real run removes. A
+  preserved kit file you never changed (`agents/CONSTITUTION.md`, …) is now removed too, so an
+  untouched install uninstalls to the exact state before it. A link you later replaced with a
+  file of your own is left alone.
+- **The npm installer keeps an instruction file you already have.** A root `AGENTS.md`,
+  `.github/copilot-instructions.md`, `.cursorrules` and the other per-agent files are no longer
+  replaced by a link: the installer appends a short marked block that points to
+  `agents/AGENTS.md` and saves the original as `<name>.gabbe-bak`. The wizard does the same.
+  `--force` still replaces the file, after moving it to a backup name that is not in use.
+- **The npm installer records what it installs** in `.gabbe/manifest.json`, like the wizard, so
+  `gabbe uninstall` can reverse it. On an install without a record, `gabbe uninstall` now exits
+  with status 1 and an explanation; it used to print "Removed 0 path(s)" and exit 0.
+- **A backup is never overwritten.** If `<name>.gabbe-bak` (or `<name>.bak`) exists and holds
+  something else, the next backup is `<name>.gabbe-bak.1`. Re-running an installer after a second
+  edit no longer loses that edit.
+- **Your own skill or rule with the same name as a kit skill** is saved next to the kit's file
+  instead of being overwritten (npm installer and wizard).
+- **Symbolic links of yours are kept and never written through.** A link at a path the kit wants
+  (`AGENTS.md -> CLAUDE.md`, a linked `.claude/skills`, a linked file under `agents/`) used to be
+  removed or followed, which could overwrite a file outside the project. `gabbe update` refuses
+  an `agents/` folder that links outside the project.
+- **A failed backup stops the install** before anything is overwritten (it used to continue). An
+  install that stops part-way still records what it had written.
+- **The pointer block keeps your bytes.** It is added and removed without changing the encoding or
+  the line endings of your file. A read-only instruction file is left alone with a message.
+- **A damaged install record is never acted on and never deleted**: `gabbe uninstall` and
+  `gabbe update` stop with an explanation. A recorded path that you replaced by a folder or a link
+  no longer stops `update` or `uninstall`; it is left alone.
+- `gabbe uninstall --dry-run` prints every path. `--purge` is kept for compatibility and is the
+  same as a plain uninstall, which now also removes the empty folders left under `agents/`.
+- `agents` that is a regular file is refused with a message; `agents` that is a link is used as it
+  is, and nothing is copied into it.
+- A file that was already there and equals the kit's is not recorded as installed, so uninstall
+  does not remove it.
+- **The npm installer no longer copies the kit's documents into your `docs/` folder.**
+- **The wizard no longer overwrites** an existing `.gemini/settings.json` (kept), `SETUP_MISSION.md`,
+  `BOOTSTRAP_MISSION.md` or `BROWNFIELD_ONBOARDING.md` (backed up first), and records
+  `BOOTSTRAP_MISSION.md` for uninstall.
+- **Credentials in the git remote address are no longer written into `agents/AGENTS.md`.** A remote
+  such as `https://user:token@host/o/r.git` is recorded as `https://host/o/r`.
+- **The npm installer writes `BOOTSTRAP_MISSION.md`**, the first prompt the guides tell you to give
+  your agent, prints that next step, and says how many `[PLACEHOLDER]` fields `agents/AGENTS.md`
+  still has. An unknown option now exits with status 2; it used to print the help and exit 0.
+- Three memory templates named in the template index were missing from the repository and the
+  packages: `PROJECT_STATE_TEMPLATE.md`, `CONTINUITY_TEMPLATE.md`, `VOTING_LOG_TEMPLATE.md`.
+- `agents/scripts/state_import.sh` runs under `dash` (`/bin/sh` on Debian and Ubuntu), removes its
+  temporary directory on every exit, and exits 0 after a successful `--apply` without a backup.
+
+### Security
+
+- **A project `.env` can no longer switch off the tool server's protection or redirect your API
+  key.** Only an allow-list of keys is read from `.env` (see `SECURITY.md`). `GABBE_MCP_*` and
+  `GABBE_POLICY_FILE` are never read from it, and no non-GABBE variable is. `GABBE_API_URL` is read
+  from `.env` only when `GABBE_API_KEY` does not come from your shell. **If you keep `GABBE_API_URL`
+  in `.env` and export the key in your shell, export the URL as well**; a warning names any refused
+  key.
+- Redaction of long strings no longer takes seconds (an email pattern was quadratic: 8 s on 40 kB).
+- The tool server refuses oversize requests before it traces or validates them.
+
+### Changed — tool server (`gabbe serve-mcp`)
+
+- A command that fails (non-zero exit, blocked by the allow-list, timed out) is returned with
+  `isError: true`.
+- An unknown tool or invalid arguments answer `-32602` (was `-32603`); a request that is not a JSON
+  object, or has non-object `params`, answers `-32600`; a parse error carries `"id": null`; a
+  policy denial answers `-32001` with the reason; an open circuit, rate limit or exhausted budget
+  answers `-32002`.
+- `ping` is answered. `initialize` returns the protocol version the client asked for when the
+  server supports it (`2025-11-25`, `2025-06-18`, `2025-03-26`, `2024-11-05`). A notification (a
+  message without `id`) is never answered. The MCP revision `2026-07-28`, which has no
+  `initialize` handshake, is not implemented.
+- A malformed command (unbalanced quote, missing executable) is an error result and no longer
+  counts against the circuit breaker; an open circuit lets one trial call through after 30 seconds.
+- A tool's `allowed_roles` are enforced.
+- Notice: in 1.2.0 the server will offer read-only tools by default, and `run_command` only behind
+  an explicit flag.
+
+### Changed — kit and documents
+
+- Skills: destructive steps ask first. `production-health` (`kill -9`, deleting working memory),
+  `safety-scan` (removing a secret), `ci-autofix` (commit and push), `sdlc-checkpoint` (`git tag`)
+  and `dev-workflow` (rebase) now propose the action and run it only after the human confirms or
+  asked for it in that request.
+- The Loki activation prompt no longer says "Do not ask me for permission": it stops at every Human
+  Approval Gate and before any commit, push, publish or deploy (README, guides).
+- Documents corrected against the code: what the installers do to existing files, `update` and
+  `uninstall`, the budget keys that are and are not enforced, "zero-dependency" (true for the npm
+  installer and the kit; the Python CLI needs three packages), 66 MCP entries, agent counts, roadmap
+  version and hook rows, unsupported figures in the quick guide.
+- `agents/AGENTS.md` points to the online kit documentation instead of a `docs/` path that only
+  existed in npm installs.
+
+### CI
+
+- The vulnerability gate (`scripts/gates/run_gates.sh`, gate 6) compares against the baseline
+  whenever `pip-audit` produced results; it used to compare only when there were none. It audits
+  the pinned dependency set (`requirements-lock.txt`), not the tools of the environment it runs in.
+- The Node installer tests run in CI, with an install → `gabbe uninstall --purge` round trip, and
+  the state export/import round trip runs under `sh`.
+- The nightly mutation job writes its result to the job summary and stores it as an artifact.
+- New tests: install, edit, update and uninstall round trips in a project that has its own files
+  (`scripts/tests/test_install_roundtrip.py`), `.env` cases (`gabbe/tests/test_env_file.py`),
+  tool-server protocol cases (`gabbe/tests/test_mcp_protocol.py`).
+
 ## [1.1.3] — 2026-10-31
 
 Fixes from the documentation audit of 29–30 October 2026; no new feature, no change to a default.

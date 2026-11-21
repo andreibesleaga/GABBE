@@ -1,8 +1,10 @@
 # Post-Install Setup — Full Environment
 
 After `npx gabbe-kit init` (or `gabbe setup` / `curl … | sh`) lands the kit and wires
-your detected agents, run **`gabbe doctor`** (from the PyPI CLI: `pipx install gabbe`)
+the agents you chose, run **`gabbe doctor`** (from the PyPI CLI: `pipx install gabbe`)
 for an environment report, then follow these steps to finish a full setup. Steps are safe for a human OR an agent to execute.
+
+No Python? Skip steps 1, 4 and 5: they use the `gabbe` CLI from PyPI. The kit itself needs no Python.
 
 ## 1. Verify the install
 
@@ -10,7 +12,7 @@ for an environment report, then follow these steps to finish a full setup. Steps
 gabbe doctor          # autodetects OS/arch, runtimes, agent clients; prints next steps
 ```
 
-All agent clients GABBE detected are already wired. Anything missing is reported.
+`doctor` lists the agent clients it finds and whether each is wired. The Node installer wires only the agents named with `--agents`; re-run it to add one.
 
 ## 2. Enable MCP servers (the main post-install task)
 
@@ -23,7 +25,7 @@ at the config (e.g. `.mcp.json`, `.cursor/mcp.json`, or your client's MCP settin
 
 | Server | Purpose | Setup |
 |---|---|---|
-| `context7` | Up-to-date SDK docs (prevents API hallucination) | npx; no key |
+| `context7` | Up-to-date SDK docs (reduces guessed or outdated API calls) | npx; no key |
 | `filesystem` | Read-only project file access (internal RAG) | npx; set root path |
 | `sequential-thinking` | Chain-of-thought reasoning | npx; no key |
 | `github` | PR review, code search, issue mgmt | npx; `GITHUB_TOKEN` |

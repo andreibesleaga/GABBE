@@ -1,6 +1,6 @@
 # GABBE roadmap
 
-What is planned after 1.1.1, in the order it should be built. Nothing here ships until it is written, tested and released; the [CHANGELOG](../CHANGELOG.md) records what did.
+What is planned after 1.1.4, in the order it should be built. Nothing here ships until it is written, tested and released; the [CHANGELOG](../CHANGELOG.md) records what did.
 
 ## 1. Agent hooks
 
@@ -14,7 +14,7 @@ Today almost every gate and rule in the kit is enforced only by the agent readin
 
 | Rule | Enforced today by | A hook can add |
 |---|---|---|
-| The agent never commits, pushes, tags, publishes or deploys unless told to in that request | nothing yet: not stated in AGENTS.md or CONSTITUTION.md | a block on the git and publish commands before they run |
+| The agent never commits, pushes, tags, publishes or deploys unless told to in that request | nothing yet: only "push directly to main" is stated (AGENTS.md section 6); commit, tag, publish and deploy are not | a block on the git and publish commands before they run |
 | Protected files (the constitution, AGENTS.md, golden baselines, lockfiles, CI) are not edited | prose; `protected_files` in `project/gabbe.config.json` is read by no code | a block on edits to the configured globs |
 | Checks run on the final tree before work is reported as done | prose (Step 7 of the operating spine) | a refusal to end the turn when files changed after the last green run |
 | The session is recorded in memory before it ends | prose (AGENTS.md section 13) | a refusal to end the turn after edits when no memory file was updated; the resume pointer injected at session start |
@@ -28,11 +28,11 @@ One zero-dependency Node script, `agents/hooks/gabbe-hooks.js`, with templates t
 
 | Event | Matcher | Command | Purpose | When it fails or is absent |
 |---|---|---|---|---|
-| `PreToolUse` | `Bash` | `node agents/hooks/gabbe-hooks.js guard-bash` | denies git writes (`commit`, `push`, `tag`, `merge`, `rebase`, `reset --hard`, `clean -f`, `--no-verify`, `config core.hooksPath`), `gh pr merge`/`release`/`repo create`, package publishes and deploy commands, including `git -C <dir>` and `cd x && git …` forms; denies shell writes that name a protected path | fails closed on unreadable input; a timeout is treated by the host as non-blocking |
+| `PreToolUse` | `Bash` | `node agents/hooks/gabbe-hooks.js guard-bash` | denies git writes (`commit`, `push`, `tag`, `merge`, `rebase`, `reset --hard`, `clean -f`, `--no-verify`, `config core.hooksPath`), `gh pr merge`/`release`/`repo create`, package publishes and deploy commands, including `git -C <dir>` and `cd x && git …` forms; denies shell writes that name a protected path | fails closed on unreadable input; a timeout is non-blocking in Claude Code unless the hook sets `"onFailure": "block"` |
 | `PreToolUse` | `Edit\|Write\|MultiEdit\|NotebookEdit` | `… guard-edit` | denies edits to `protected_files` (or the kit defaults) and to the hook files and their state | fails closed |
 | `PostToolUse` | `Edit\|Write\|MultiEdit\|NotebookEdit\|Bash` | `… ledger` | records that this session changed files, so read-only sessions never meet the Stop check | never blocks |
 | `Stop` | every stop | `… stop` | after edits, refuses to end the turn when the tree differs from the tree the last green `gate` run saw, or when no memory file was updated since the first edit; tells the agent what to run | fails open; at most three refusals per session, then a warning, so a session whose tests cannot pass is never trapped |
-| `SessionStart` | `startup\|resume\|clear` | `… session-start` | prints the first lines of the resume pointer and the date of the last green gate into the session | cannot block |
+| `SessionStart` | `startup\|resume\|clear\|compact` | `… session-start` | prints the first lines of the resume pointer and the date of the last green gate into the session | cannot block |
 | (a command) | — | `… gate` | the only writer of the green stamp: runs `hooks.gate_command`, or the test, lint and security-scan commands of the AGENTS.md Commands section, and records the tree hash on success | exit 1 and no stamp when a command fails |
 
 Escape hatches live where the agent's shell cannot reach them: environment variables of the host process (`GABBE_HOOKS_OFF=1`, `GABBE_ALLOW_GIT_WRITE=1`, `GABBE_UNLOCK=<globs>`), and a one-shot written authorization of one exact command line, consumed when used.
@@ -53,7 +53,7 @@ A second, script-free layer ships in the same Claude Code template: `permissions
       { "matcher": "Edit|Write|MultiEdit|NotebookEdit|Bash", "hooks": [{ "type": "command", "command": "node agents/hooks/gabbe-hooks.js ledger", "timeout": 10 }] }
     ],
     "Stop": [{ "hooks": [{ "type": "command", "command": "node agents/hooks/gabbe-hooks.js stop", "timeout": 30 }] }],
-    "SessionStart": [{ "matcher": "startup|resume|clear", "hooks": [{ "type": "command", "command": "node agents/hooks/gabbe-hooks.js session-start", "timeout": 10 }] }]
+    "SessionStart": [{ "matcher": "startup|resume|clear|compact", "hooks": [{ "type": "command", "command": "node agents/hooks/gabbe-hooks.js session-start", "timeout": 10 }] }]
   }
 }
 ```
@@ -62,9 +62,11 @@ A second, script-free layer ships in the same Claude Code template: `permissions
 
 | Agent | What it gets |
 |---|---|
-| Cursor | `.cursor/hooks.json`: `beforeShellExecution` runs the shell guard; `afterFileEdit` records edits and reports a protected-file edit after the fact. Cursor has no pre-edit block and no blocking stop, so the last two rules are warnings there. |
-| Gemini CLI, GitHub Copilot (CLI and coding agent), OpenCode, Windsurf | each has a hook or plugin surface; the installer prints a note naming it, and wiring follows once verified |
-| Codex, Aider, Cline, Roo Code, Kilo Code, Zed, Continue, Devin, Antigravity | prose, plus the git-side guard below; for Aider the installer also sets `auto-commits: false` |
+| Cursor | `.cursor/hooks.json`: `beforeShellExecution` runs the shell guard; `afterFileEdit` records edits and reports a protected-file edit after the fact. `preToolUse` with the matcher `Write` can deny an edit, and `stop` can return a `followup_message` that sends the agent back (a limit of 5, not a hard block); `afterFileEdit` only observes. The template needs `"version": 1`. |
+| GitHub Copilot (CLI and coding agent), OpenAI Codex CLI | both have the same four events (`PreToolUse`, `PostToolUse`, `Stop`, `SessionStart`), checked 21 Nov 2026; each needs its own template (`.github/hooks/gabbe.json`, `.codex/hooks.json`) |
+| Gemini CLI, OpenCode, Windsurf | each has a hook or plugin surface; the installer prints a note naming it, and wiring follows once verified. Gemini CLI is being replaced by Antigravity CLI. |
+| Devin | reads the Claude Code hook settings (`.claude/settings.json`), checked 21 Nov 2026 |
+| Aider, Cline, Roo Code, Kilo Code, Zed, Continue, Antigravity | prose, plus the git-side guard below; for Aider the installer also sets `auto-commits: false` |
 | every agent | `.githooks/pre-commit` and `pre-push` (POSIX sh), copied but not activated: a commit or push passes only from a shell that carries `GABBE_HUMAN_COMMIT=1`, staged protected files are refused, and the staged tree must match the green stamp when one exists. Activating them (`git config core.hooksPath .githooks`) is the project owner's choice. |
 
 The forge stays the final layer for every agent: a required CI check on the default branch blocks an unchecked change whichever agent produced it.
@@ -77,7 +79,7 @@ The forge stays the final layer for every agent: a required CI check on the defa
 
 ### Files and changes
 
-- Add `agents/hooks/gabbe-hooks.js`, `agents/hooks/claude-settings.template.json`, `agents/hooks/cursor-hooks.template.json`, `agents/hooks/githooks/pre-commit`, `agents/hooks/githooks/pre-push` and `agents/hooks/README.md` (one table: rule, hook, enforced, still prose).
+- Add `agents/hooks/gabbe-hooks.js`, `agents/hooks/claude-settings.template.json`, `agents/hooks/cursor-hooks.template.json`, `agents/hooks/copilot-hooks.template.json`, `agents/hooks/codex-hooks.template.json`, `agents/hooks/githooks/pre-commit`, `agents/hooks/githooks/pre-push` and `agents/hooks/README.md` (one table: rule, hook, enforced, still prose).
 - `bin/install.js`: a `--hooks` flag that merges the templates (union of `permissions.deny`; a hook group added per event only when its command is not already there).
 - `scripts/init.py`: a wizard question, default No, so the emitter vault of Gate 4 is unchanged.
 - `project/gabbe.config.json` schema: `hooks.gate_command`, `hooks.memory_files`, `hooks.resume_lines` (documented in `docs/SCHEMA.md`, additive only, Gate 3).

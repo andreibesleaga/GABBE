@@ -128,7 +128,7 @@ Create durable snapshots at each SDLC gate so the project can be resumed, audite
    | [timestamp] | [session] | [agent] | PHASE_TRANSITION | S0[X] [Phase] checkpoint created | SUCCESS | episodic/SESSION_SNAPSHOT/S0[X]_[name].md |
    ```
 
-7. **Tag git commit**
+7. **Tag git commit** (propose the command below to the human; run it only when the human asked for a tag in this request)
    ```bash
    git tag checkpoint/S0[X]-[phase-name] -m "SDLC checkpoint: [phase] completed"
    # Note: only tag if working directory is clean (all changes committed)

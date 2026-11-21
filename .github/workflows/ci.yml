@@ -118,6 +118,31 @@ jobs:
     - name: One-command-install + autodetect tests
       run: pytest scripts/tests/test_autodetect.py scripts/tests/test_one_command_install.py -v
 
+  node-and-shell:
+    name: Node installer tests + state export/import under sh (dash)
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v7
+    # Uses the Node that the ubuntu runner image ships (no pin needed for these tests).
+    # Python + the CLI are installed so the install -> `gabbe uninstall --purge`
+    # round-trip test runs here instead of being skipped.
+    - uses: actions/setup-python@v7
+      with:
+        python-version: '3.12'
+        cache: pip
+    - name: Install the CLI (for the uninstall round trip)
+      run: pip install -e .
+    - name: Node installer tests (npm test)
+      run: npm test
+    - name: State export/import round trip under sh (dash on Ubuntu)
+      run: |
+        set -eu
+        W="$RUNNER_TEMP/state-lab"; mkdir -p "$W/src/agents/memory" "$W/src/project" "$W/out" "$W/dst"
+        echo "GABBE Kit version: 0" > "$W/src/agents/CONSTITUTION.md"; echo m > "$W/src/agents/memory/PROJECT_STATE.md"; echo t > "$W/src/project/TASKS.md"
+        sh agents/scripts/state_export.sh "$W/src" "$W/out"
+        sh agents/scripts/state_import.sh --apply "$W"/out/gabbe-state-*.tar.gz "$W/dst"
+        test "$(cat "$W/dst/agents/memory/PROJECT_STATE.md")" = m
+
   nightly-evals:
     name: Nightly skill evals (live, non-blocking)
     if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
@@ -138,8 +163,20 @@ jobs:
     - name: Mutation testing on core modules (non-blocking)
       continue-on-error: true   # mutation score is a quality signal, not a gate
       run: |
-        mutmut run --paths-to-mutate "gabbe/budget.py,gabbe/sync.py,gabbe/route.py" || true
-        mutmut results || true
+        mutmut run --paths-to-mutate "gabbe/budget.py,gabbe/sync.py,gabbe/route.py" 2>&1 | tee mutation-run.txt || true
+        mutmut results 2>&1 | tee mutation-results.txt || true
+        # Make the score visible (no threshold yet): the last progress line carries the
+        # killed/survived counters as mutmut prints them; survivors are listed below it.
+        {
+          echo "### Mutation testing (mutmut)"
+          echo '```'
+          tr '\r' '\n' < mutation-run.txt | grep . | tail -n 3
+          echo '```'
+          echo "Survivors:"
+          echo '```'
+          cat mutation-results.txt
+          echo '```'
+        } >> "$GITHUB_STEP_SUMMARY"
     - name: Live skill evals (scores against the model — non-blocking)
       continue-on-error: true   # nondeterministic; reports drift, never blocks (v1.1 makes it a gate)
       env:
@@ -152,4 +189,13 @@ jobs:
       with:
         name: eval-scorecard
         path: eval-scorecard.json
+        if-no-files-found: ignore
+    - name: Upload mutation result
+      if: always()
+      uses: actions/upload-artifact@v7
+      with:
+        name: mutation-result
+        path: |
+          mutation-run.txt
+          mutation-results.txt
         if-no-files-found: ignore

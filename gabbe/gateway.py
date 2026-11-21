@@ -40,16 +40,25 @@ class ToolDefinition:
     circuit_breaker_threshold: int = 3
 
 
+# Seconds an open circuit stays closed to calls before one trial call is let
+# through (half-open). A successful trial closes the circuit again.
+_CIRCUIT_COOLDOWN_S = 30.0
+
+
 class ToolGateway:
     def __init__(self) -> None:
         self.registry: Dict[str, ToolDefinition] = {}
         self._call_times: Dict[str, deque[float]] = {}
         self._failure_counts: Dict[str, int] = {}
+        self._opened_at: Dict[str, float] = {}
+        # Injectable clock (tests replace it) used for the circuit cool-down.
+        self._clock: Callable[[], float] = time.monotonic
 
     def register(self, tool_def: ToolDefinition) -> None:
         self.registry[tool_def.name] = tool_def
         self._call_times[tool_def.name] = deque()
         self._failure_counts[tool_def.name] = 0
+        self._opened_at.pop(tool_def.name, None)
 
     def _check_rate_limit(self, name: str) -> None:
         tool = self.registry[name]
@@ -67,8 +76,14 @@ class ToolGateway:
 
     def _check_circuit_breaker(self, name: str) -> None:
         tool = self.registry[name]
-        if self._failure_counts[name] >= tool.circuit_breaker_threshold:
+        if self._failure_counts[name] < tool.circuit_breaker_threshold:
+            return
+        now = self._clock()
+        if now - self._opened_at.get(name, now) < _CIRCUIT_COOLDOWN_S:
             raise CircuitOpen(f"Circuit open for tool {name} due to consecutive failures.")
+        # Half-open: let this one trial call through. A failure re-opens the
+        # circuit with a fresh cool-down; a success closes it (see execute).
+        self._opened_at[name] = now
 
     def execute(self, name: str, arguments: Dict[str, Any], role: str, run_context: Any) -> Any:
         span_ctx = run_context.tracer.start_span(
@@ -80,6 +95,11 @@ class ToolGateway:
                 raise ToolNotFound(f"Tool {name} is not registered.")
 
             tool_def = self.registry[name]
+
+            # Role check: when a tool lists allowed roles, the caller's role must
+            # be one of them. An empty set means "no role restriction".
+            if tool_def.allowed_roles and role not in tool_def.allowed_roles:
+                raise PolicyDenied(f"Role '{role}' is not allowed to call tool {name}.")
 
             # Policy Check — fail-closed. A missing policy engine is a
             # misconfiguration, not a license to run every tool unchecked; deny
@@ -123,10 +143,13 @@ class ToolGateway:
             except Exception:
                 if name in self._failure_counts:
                     self._failure_counts[name] += 1
+                    if self._failure_counts[name] >= tool_def.circuit_breaker_threshold:
+                        self._opened_at[name] = self._clock()
                 raise
 
             # Success => reset circuit breaker
             self._failure_counts[name] = 0
+            self._opened_at.pop(name, None)
 
             run_context.tracer.end_span(span_ctx, output_data={"result": result}, status="ok")
             return result

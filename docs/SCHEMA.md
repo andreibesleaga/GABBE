@@ -153,11 +153,13 @@ keys are optional; each falls back to a safe default. Unknown keys are ignored.
 | Key | Type | Default | Meaning |
 |---|---|---|---|
 | `autonomy` | `"ask" \| "auto" \| "hybrid"` | `hybrid` | Autonomy posture. Env `GABBE_AUTONOMY` overrides this. |
-| `budgets` | object | CLI defaults | Per-run cost/token ceilings (advisory to the Markdown agent; enforced by the CLI budget when used). |
+| `budgets` | object | CLI defaults | Per-run cost/token ceilings (advisory to the Markdown agent; the CLI does not read this key). |
 | `model_tiers` | object | provider defaults | Named tiers for cheap/default/SOTA routing (`cost-benefit-router`, `persona-selector`). |
 | `enabled_mcps` | string[] | `[]` | MCP servers the agent may assume are available. |
 | `registries` | string[] | `[]` | Skill registries `update-scan`/`skills-registry` may publish to / import from. |
 | `protected_files` | string[] (globs) | build/IaC/CI/manifests | Files never auto-edited outside the dependency-specific self-heal allowlist. |
+
+Only `autonomy` is read by the `gabbe` CLI today. The other keys are guidance for the Markdown agent; no code enforces them. The CLI budget takes its limits from the `GABBE_MAX_*` environment variables. Of its limits, only the tool-call and wall-time limits are enforced today: nothing records token or cost use, so the token and cost limits cannot trip.
 
 **Precedence (autonomy):** environment `GABBE_AUTONOMY` > `gabbe.config.json` `autonomy` > default `hybrid`. Invalid values warn and fall back to `hybrid`.
 

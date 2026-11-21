@@ -473,7 +473,7 @@ Guides:               agents/guides/00-index.md
 Templates:            agents/templates/00-index.md
 Personas (Loki):      agents/personas/00-index.md (36 roles)
 Brain patterns:       agents/skills/brain/README.md
-Quick reference:      docs/QUICK_GUIDE.md
+Quick reference:      https://github.com/andreibesleaga/GABBE/blob/main/docs/QUICK_GUIDE.md
 Project memory:       agents/memory/{PROJECT_STATE,CONTINUITY,AUDIT_LOG,RESUME_POINTER}.md
 ```
 
@@ -529,12 +529,13 @@ END of session:
 
 A runtime-agnostic policy file the agent reads to tune itself to this project —
 autonomy posture, budgets, model tiers, enabled MCPs, skill registries, and
-protected files. Copy `docs/gabbe.config.example.json` to
+protected files. Copy `gabbe.config.example.json` from the kit documentation
+(https://github.com/andreibesleaga/GABBE/tree/main/docs) to
 `project/gabbe.config.json` and edit. The agent
 applies it via `coordination/self-optimize.skill`; the optional `gabbe` CLI
 surfaces it via `gabbe/config.py` (`GABBE_AUTONOMY`, `GABBE_PROJECT_CONFIG`).
 Precedence for autonomy: env `GABBE_AUTONOMY` > config `autonomy` > `hybrid`.
-See `docs/SCHEMA.md` → *Project policy config*.
+See `SCHEMA.md` in the kit documentation → *Project policy config*.
 
 ---
 
@@ -569,7 +570,7 @@ the same operating spine in §5/§13 (preflight → clarify → act → state-pr
 ---
 
 *Last updated: [DATE]*
-*GABBE Kit version: 1.1.3*
+*GABBE Kit version: 1.1.4*
 *This file is maintained by the team and updated when project conventions change.*
 
 ---

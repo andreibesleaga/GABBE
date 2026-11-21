@@ -192,6 +192,7 @@ def test_serve_tools_call_gateway_error_returns_json_error(tmp_project, mcp_inse
     """If gateway.execute raises, the response contains an error code."""
     import io
 
+    from gabbe.gateway import ToolNotFound
     from gabbe.mcp_server import serve
 
     call_req = _make_request(
@@ -210,14 +211,16 @@ def test_serve_tools_call_gateway_error_returns_json_error(tmp_project, mcp_inse
         MockCtx.return_value.__exit__ = MagicMock(return_value=False)
         mock_ctx.gateway.registry = {}
         mock_ctx.gateway.register = MagicMock()
-        mock_ctx.gateway.execute.side_effect = Exception("tool not found")
+        mock_ctx.gateway.execute.side_effect = ToolNotFound("tool not found")
 
         serve()
 
     responses = [json.loads(o) for o in outputs if o.strip()]
     assert len(responses) == 1
     assert "error" in responses[0]
-    assert responses[0]["error"]["code"] == -32603
+    # Unknown tool is an invalid-params error (JSON-RPC -32602), not an internal one.
+    assert responses[0]["error"]["code"] == -32602
+    assert "no_such_tool" in responses[0]["error"]["message"]
 
 
 def test_serve_malformed_json_returns_parse_error(tmp_project):
@@ -241,6 +244,7 @@ def test_serve_malformed_json_returns_parse_error(tmp_project):
     responses = [json.loads(o) for o in outputs if o.strip()]
     assert len(responses) == 1
     assert responses[0]["error"]["code"] == -32700
+    assert responses[0]["id"] is None
 
 
 # ---------------------------------------------------------------------------

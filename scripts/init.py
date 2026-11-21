@@ -72,6 +72,42 @@ def _record(path, kind, agent="shared", backup_of=None):
     _RECORDED_PATHS.add(rel)
 
 
+_PRIOR_CACHE: dict = {}
+
+
+def _prior_manifest_entries():
+    """Entries of the manifest an earlier install wrote, keyed by path ({} if none).
+
+    Read once per manifest version (the wizard asks about every file it touches).
+    """
+    mp = PROJECT_ROOT / ".gabbe" / "manifest.json"
+    try:
+        stat = mp.stat()
+    except OSError:
+        return {}
+    key = (str(mp), stat.st_mtime_ns, stat.st_size)
+    if key not in _PRIOR_CACHE:
+        _PRIOR_CACHE.clear()
+        try:
+            prior = json.loads(mp.read_text())
+            _PRIOR_CACHE[key] = {
+                e["path"]: e
+                for e in prior.get("entries", [])
+                if isinstance(e, dict) and "path" in e
+            }
+        except (ValueError, OSError, AttributeError):
+            _PRIOR_CACHE[key] = {}
+    return _PRIOR_CACHE[key]
+
+
+def _is_unchanged_kit_file(path, data):
+    """True if `data` (the bytes of `path`) is exactly what an earlier install recorded."""
+    import hashlib
+
+    entry = _prior_manifest_entries().get(_rel_to_project(path) or "")
+    return bool(entry and entry.get("hash") == hashlib.sha256(data).hexdigest())
+
+
 def _record_tree(root):
     """Record every file under an installed kit dir (kind=copy) for reversal."""
     root = Path(root)
@@ -93,6 +129,9 @@ def write_install_manifest():
     except Exception:
         version = "wizard"
     mp = PROJECT_ROOT / ".gabbe" / "manifest.json"
+    if mp.parent.is_symlink():
+        print(f"  {YELLOW}! .gabbe is a link of yours: no install record was written{NC}")
+        return
     # Merge with any prior manifest so a re-run never drops earlier wiring (e.g.
     # agents selected in a previous install). New entries win on path collisions.
     merged: dict[str, dict] = {}
@@ -105,6 +144,11 @@ def write_install_manifest():
         except (ValueError, OSError):
             pass
     for e in _MANIFEST_ENTRIES:
+        prior_entry = merged.get(e["path"])
+        # A re-run finds its own link or file in place, so it records no backup.
+        # Keep the link to the user's original that the first run recorded.
+        if prior_entry and prior_entry.get("backup_of") and not e.get("backup_of"):
+            e = dict(e, backup_of=prior_entry["backup_of"])
         merged[e["path"]] = e
     entries = sorted(merged.values(), key=lambda e: e["path"])
     agents = sorted({e.get("agent", "shared") for e in entries if e.get("agent") != "shared"})
@@ -262,15 +306,35 @@ def _detect_repo_url(base):
             text=True,
             timeout=5,
         )
-        url = out.stdout.strip()
-        if url:
-            if url.startswith("git@") and ":" in url:
-                host, path = url[4:].split(":", 1)
-                url = f"https://{host}/{path}"
-            return url.removesuffix(".git")
+        return _clean_repo_url(out.stdout.strip())
     except Exception:
         pass
     return None
+
+
+def _clean_repo_url(url):
+    """Remote URL in https form without credentials, or None.
+
+    A remote such as `https://user:token@host/o/r.git` must never reach AGENTS.md,
+    a file that agents read and people commit: the `user:token@` part is dropped.
+    A value that could break out of the quoted field it is written into is refused.
+    """
+    from urllib.parse import urlsplit
+
+    if not url:
+        return None
+    if url.startswith("git@") and ":" in url:
+        host, path = url[4:].split(":", 1)
+        url = f"https://{host}/{path}"
+    parts = urlsplit(url)
+    if parts.scheme and parts.hostname:
+        host = parts.hostname + (f":{parts.port}" if parts.port else "")
+        url = f"{parts.scheme}://{host}{parts.path}"
+    elif "@" in url:
+        return None
+    if any(c in url for c in '"\\\n\r'):
+        return None
+    return url.removesuffix(".git")
 
 
 def _detect_ci_cd(base):
@@ -452,20 +516,171 @@ def ask_multiselect(question, options):
     return selected
 
 
+def _free_backup_path(path, suffix=".gabbe-bak"):
+    """First unused backup name: `<name>.gabbe-bak`, then `<name>.gabbe-bak.1`, ..."""
+    candidate = Path(str(path) + suffix)
+    n = 0
+    while candidate.exists() or candidate.is_symlink():
+        n += 1
+        candidate = Path(f"{path}{suffix}.{n}")
+    return candidate
+
+
 def _backup_before_overwrite(dst_file):
-    """Back up an existing target file to <name>.gabbe-bak before it is overwritten.
+    """Back up an existing target file before it is overwritten. Returns the backup.
 
     Guarantees the never-clobber invariant: any pre-existing content is always
-    recoverable. The first backup wins (we never overwrite an existing .gabbe-bak,
-    so re-running install keeps the user's ORIGINAL, not a kit copy from a prior run).
+    recoverable. An existing backup is never overwritten: the first one keeps the
+    user's ORIGINAL, and a later, different version of the file gets the next free
+    name (`.gabbe-bak.1`, ...). A file whose bytes are already in a backup, or that
+    an earlier install wrote and nobody changed, needs no new backup.
     """
-    backup = Path(str(dst_file) + ".gabbe-bak")
-    if not backup.exists():
+    dst_file = Path(dst_file)
+    try:
+        data = dst_file.read_bytes()
+    except OSError as e:
+        _backup_failed(dst_file, e)
+    first = Path(str(dst_file) + ".gabbe-bak")
+    if _is_unchanged_kit_file(dst_file, data):
+        return first if first.exists() else None
+    existing = [first] + sorted(dst_file.parent.glob(dst_file.name + ".gabbe-bak.*"))
+    for backup in existing:
         try:
-            shutil.copy2(dst_file, backup)
-            print(f"  {YELLOW}! Backed up existing {dst_file.name} -> {backup.name}{NC}")
-        except Exception:
-            pass
+            if backup.is_file() and backup.read_bytes() == data:
+                return backup
+        except OSError:
+            continue
+    backup = _free_backup_path(dst_file)
+    try:
+        shutil.copy2(dst_file, backup)
+    except OSError as e:
+        _backup_failed(dst_file, e)
+    print(f"  {YELLOW}! Backed up existing {dst_file.name} -> {backup.name}{NC}")
+    return backup
+
+
+def _backup_failed(path, error):
+    """Stop the install: without a backup the file would be the user's only copy."""
+    raise SystemExit(
+        f"{RED}x Could not back up {path} ({error}). Nothing was overwritten; "
+        f"fix the cause and run the installer again.{NC}"
+    )
+
+
+def _is_behind_link(path):
+    """True if `path` is a symbolic link, or a directory between PROJECT_ROOT and it
+    is one. Such a path is the user's: writing there could land outside the project."""
+    path = Path(path)
+    if path.is_symlink():
+        return True
+    try:
+        rel = path.absolute().relative_to(PROJECT_ROOT.absolute())
+    except ValueError:
+        return False  # a kit location the user chose outside the project
+    current = PROJECT_ROOT.absolute()
+    for part in rel.parts[:-1]:
+        current = current / part
+        if current.is_symlink():
+            return True
+    return False
+
+
+def write_generated_file(path, text, agent="shared"):
+    """Write a file the wizard generates, backing up a different file already there.
+
+    Records the file for uninstall. The backup is linked for restore only when the
+    file was not written by an earlier install (so it is the user's own).
+    """
+    path = Path(path)
+    backup_of = None
+    if _is_behind_link(path):
+        print(f"  {YELLOW}! {path.name} is a link, or sits behind one: left as is{NC}")
+        return
+    if path.is_file() and path.read_text(errors="replace") != text:
+        ours = (_rel_to_project(path) or "") in _prior_manifest_entries()
+        backup = _backup_before_overwrite(path)
+        if backup is not None and not ours:
+            backup_of = _rel_to_project(backup)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(text)
+    _record(path, "copy", agent=agent, backup_of=backup_of)
+
+
+# The block appended to an instruction file the user already had. `bin/install.js`
+# writes the same text; `gabbe uninstall` removes it by its two marker lines.
+POINTER_BEGIN = (
+    "<!-- GABBE-KIT:BEGIN (added by the GABBE installer; delete this block to detach the kit) -->"
+)
+POINTER_END = "<!-- GABBE-KIT:END -->"
+
+
+def pointer_block(kit_agents_md):
+    return (
+        f"{POINTER_BEGIN}\n"
+        "## GABBE kit\n\n"
+        f"This project also uses the GABBE engineering kit. Read `{kit_agents_md}` together with\n"
+        "this file: it holds the kit's rules, lifecycle and skills index. Where the two disagree,\n"
+        "this file wins.\n"
+        f"{POINTER_END}\n"
+    )
+
+
+def with_pointer_block(data, kit_agents_md):
+    """The bytes of a user's file with the pointer block appended.
+
+    Works on bytes and uses the file's own line ending, so the user's encoding and
+    line endings are never changed.
+    """
+    nl = b"\r\n" if b"\r\n" in data else b"\n"
+    block = pointer_block(kit_agents_md).encode("utf-8").replace(b"\n", nl)
+    if not data or data.endswith(nl + nl):
+        joiner = b""
+    elif data.endswith(nl):
+        joiner = nl
+    else:
+        joiner = nl + nl
+    return data + joiner + block
+
+
+def without_pointer_block(data):
+    """The bytes of a user's file without the pointer block (same rule as
+    `gabbe/installer.py` strip_pointer_block)."""
+    import re
+
+    m = re.search(rb"<!-- GABBE-KIT:BEGIN.*?<!-- GABBE-KIT:END -->(\r?\n)?", data, re.DOTALL)
+    if not m:
+        return data
+    before = data[: m.start()]
+    for blank in (b"\r\n\r\n", b"\n\n"):
+        if before.endswith(blank):
+            before = before[: len(before) - len(blank) // 2]  # drop one line end
+            break
+    return before + data[m.end() :]
+
+
+def add_pointer_block(target, kit_agents_md, agent="shared"):
+    """Keep the user's own instruction file and append a pointer to the kit's.
+
+    The original is copied to a backup first and the change is recorded, so
+    `gabbe uninstall` takes the block out again. Idempotent.
+    """
+    data = target.read_bytes()
+    if POINTER_BEGIN.encode() in data:
+        print(f"  {BLUE}→ {target.name} already points to the kit; left as is{NC}")
+        return
+    if not os.access(target, os.W_OK):
+        print(
+            f"  {YELLOW}! {target.name} is read-only: left as is. Add a line that points to "
+            f"{kit_agents_md} yourself{NC}"
+        )
+        return
+    backup = _backup_before_overwrite(target)
+    target.write_bytes(with_pointer_block(data, kit_agents_md))
+    _record(target, "block", agent=agent, backup_of=_rel_to_project(backup) if backup else None)
+    print(
+        f"  {YELLOW}! Kept your {target.name} and added a pointer to {kit_agents_md} "
+        f"(original saved as {backup.name if backup else 'a backup'}){NC}"
+    )
 
 
 def safe_merge_directory(src_root, dst_root, is_kit_root=False, force=None):
@@ -489,9 +704,18 @@ def safe_merge_directory(src_root, dst_root, is_kit_root=False, force=None):
         in_memory = "memory" in Path(rel_path).parts
         in_project = "project" in Path(rel_path).parts
 
+        if dst_dir != Path(dst_root) and dst_dir.is_symlink():
+            # A folder of the user's that is a link: never copy through it.
+            print(f"  {YELLOW}! {dst_dir} is a link: left as is, nothing copied into it{NC}")
+            dirs[:] = []
+            continue
+
         for file_ in files:
             src_file = Path(src_dir) / file_
             dst_file = dst_dir / file_
+            if dst_file.is_symlink():
+                print(f"  {YELLOW}! {dst_file.name} is a link of yours: left as is{NC}")
+                continue
 
             preserve = False
             # Honor the preserve-set unconditionally. Previously this only ran
@@ -537,12 +761,46 @@ def safe_merge_directory(src_root, dst_root, is_kit_root=False, force=None):
                 except Exception:
                     pass
             shutil.copy2(src_file, dst_file)
+            # Link the FIRST backup (the user's original) for restore on uninstall.
             bak = str(dst_file) + ".gabbe-bak"
             _record(
                 dst_file,
                 "copy",
                 backup_of=_rel_to_project(bak) if os.path.exists(bak) else None,
             )
+
+
+def _move_aside_without_block(target):
+    """Remove `target` (a user's file that carries the pointer block) so a link can
+    take its place; return the manifest path of the backup that holds the user's text.
+
+    If the file is unchanged since the block was added, the backup made then already
+    is the original. Otherwise the text without the block goes to a new `.bak`.
+    """
+    stripped = without_pointer_block(target.read_bytes())
+    entry = _prior_manifest_entries().get(_rel_to_project(target) or "", {})
+    earlier = PROJECT_ROOT / entry["backup_of"] if entry.get("backup_of") else None
+    if earlier and earlier.is_file():
+        if earlier.read_bytes().rstrip(b"\r\n") == stripped.rstrip(b"\r\n"):
+            target.unlink()
+            return entry["backup_of"]
+    backup = _free_backup_path(target, suffix=".bak")
+    backup.write_bytes(stripped)
+    target.unlink()
+    print(f"  {YELLOW}! Moved your {target.name} to {backup.name}{NC}")
+    return _rel_to_project(backup)
+
+
+def _is_our_link(target, source):
+    """True if the link at `target` was made by an installer: an earlier install
+    recorded it, or it already points at the kit file we are about to link."""
+    entry = _prior_manifest_entries().get(_rel_to_project(target) or "")
+    if entry and entry.get("kind") == "symlink":
+        return True
+    try:
+        return target.resolve() == Path(source).resolve()
+    except OSError:
+        return False
 
 
 def create_symlink(source, target, agent="shared"):
@@ -552,19 +810,52 @@ def create_symlink(source, target, agent="shared"):
     `gabbe uninstall` can reverse it and restore the user's original.
     """
     backup_of = None
-    if target.is_symlink():
+    if _is_behind_link(target.parent):
+        print(
+            f"  {YELLOW}! {target.parent} is a link, or sits behind one: {target.name} not wired{NC}"
+        )
+        return
+    if target.is_symlink() and not _is_our_link(target, source):
+        # A link of the user's (for example AGENTS.md -> CLAUDE.md): keep it.
+        if not FORCE:
+            print(
+                f"  {YELLOW}! {target.name} is a link of yours: left as is. Point it at the "
+                f"kit yourself, or re-run with --force (it is moved to a backup first){NC}"
+            )
+            return
+        backup = _free_backup_path(target, suffix=".bak")
+        target.rename(backup)
+        backup_of = _rel_to_project(backup)
+        print(f"  {YELLOW}! Moved your link {target.name} to {backup.name}{NC}")
+    elif target.is_symlink():
         target.unlink()
     elif target.exists():
+        # An existing backup is never overwritten: take the next free name.
+        backup = _free_backup_path(target, suffix=".bak")
         if target.is_dir():
-            print(
-                f"  {YELLOW}! Backing up existing directory {target.name} to {target.name}.bak{NC}"
-            )
-            shutil.move(str(target), str(target) + ".bak")
-            backup_of = _rel_to_project(str(target) + ".bak")
+            print(f"  {YELLOW}! Backing up existing directory {target.name} to {backup.name}{NC}")
+            shutil.move(str(target), str(backup))
+            backup_of = _rel_to_project(backup)
+        elif source.is_file() and FORCE and POINTER_BEGIN.encode() in target.read_bytes():
+            # --force after an earlier run that added the pointer block: put the
+            # user's file back without the block before it is moved aside.
+            backup_of = _move_aside_without_block(target)
+        elif (
+            source.is_file()
+            and not FORCE
+            and not _is_unchanged_kit_file(target, target.read_bytes())
+        ):
+            # The user's own instruction file: keep it, point it at the kit's file.
+            try:
+                shown = str(source.absolute().relative_to(PROJECT_ROOT.resolve()))
+            except ValueError:
+                shown = str(source.absolute())
+            add_pointer_block(target, shown.replace(os.sep, "/"), agent=agent)
+            return
         else:
-            print(f"  {YELLOW}! Backing up existing file {target.name} to {target.name}.bak{NC}")
-            target.rename(Path(str(target) + ".bak"))
-            backup_of = _rel_to_project(str(target) + ".bak")
+            print(f"  {YELLOW}! Backing up existing file {target.name} to {backup.name}{NC}")
+            target.rename(backup)
+            backup_of = _rel_to_project(backup)
 
     # Ensure parent dir exists
     target.parent.mkdir(parents=True, exist_ok=True)
@@ -639,6 +930,37 @@ author: GABBE-Kit
     return {"name": name}, frontmatter + content
 
 
+def _snapshot_files(root):
+    """Bytes of every regular file under `root`, keyed by path ({} if absent)."""
+    root = Path(root)
+    if not root.is_dir() or root.is_symlink():
+        return {}
+    return {p: p.read_bytes() for p in root.rglob("*") if p.is_file() and not p.is_symlink()}
+
+
+def _record_generated_files(target_dir, before, agent):
+    """Record each file the skill compiler wrote into `target_dir`, one entry per file.
+
+    The directory may hold the user's own skills or rules, so it is never recorded
+    as a whole. A user's file the compiler replaced (same name as a kit skill) is
+    written back next to it as a backup and linked for restore on uninstall.
+    """
+    for path, data in sorted(_snapshot_files(target_dir).items()):
+        old = before.get(path)
+        if old is None:
+            _record(path, "copy", agent=agent)
+        elif old != data:
+            backup_of = None
+            if not _is_unchanged_kit_file(path, old):
+                backup = _free_backup_path(path)
+                backup.write_bytes(old)
+                backup_of = _rel_to_project(backup)
+                print(f"  {YELLOW}! Kept your {path.name} as {backup.name}{NC}")
+            _record(path, "copy", agent=agent, backup_of=backup_of)
+        elif (_rel_to_project(path) or "") in _prior_manifest_entries():
+            _record(path, "copy", agent=agent)
+
+
 def setup_skills_for_platform(platform, agents_dir, target_dir):
     """
     Setup Skills for selected platform using the external compiler script.
@@ -647,6 +969,13 @@ def setup_skills_for_platform(platform, agents_dir, target_dir):
 
     # Use external script for skill compilation to ensure consistency with setup-context.sh
     compile_script = agents_dir / "scripts" / "compile_skills.py"
+    if _is_behind_link(target_dir):
+        # e.g. `.claude/skills -> agents/skills` made by another tool: compiling
+        # into it would write through the link.
+        print(
+            f"  {YELLOW}! {target_dir} is a link, or sits behind one: skills not emitted there{NC}"
+        )
+        return
     if compile_script.exists():
         try:
             import subprocess
@@ -671,11 +1000,11 @@ def setup_skills_for_platform(platform, agents_dir, target_dir):
                 "--project-root",
                 str(PROJECT_ROOT),
             ]
+            before = _snapshot_files(target_dir)
             subprocess.run(cmd, check=True)
             print(f"  {GREEN}✓ Processed skills for {platform}{NC}")
-            # Record the generated skills tree so uninstall removes exactly it.
             _slug = "".join(c if (c.isalnum() or c in "-_") else "-" for c in platform.lower())
-            _record(target_dir, "tree", agent=_slug.strip("-") or "shared")
+            _record_generated_files(target_dir, before, agent=_slug.strip("-") or "shared")
         except Exception as e:
             print(f"{RED}Error running skill compiler: {e}{NC}")
     else:
@@ -713,6 +1042,19 @@ def run_bench():
 
 
 def main():
+    """Run the wizard. If it stops part-way, what it had written is still recorded,
+    so `gabbe uninstall` can remove it."""
+    try:
+        _run_wizard()
+    except BaseException:
+        try:
+            write_install_manifest()
+        except Exception:
+            pass
+        raise
+
+
+def _run_wizard():
     global PROJECT_ROOT, FORCE
     # Start each run with a clean manifest recorder (globals persist in-process).
     _MANIFEST_ENTRIES.clear()
@@ -774,7 +1116,19 @@ def main():
 
     # Perform Install / Copy
     IS_UPDATE = False
-    if target_agents_dir.exists():
+    if target_agents_dir.exists() and not target_agents_dir.is_dir():
+        raise SystemExit(
+            f"{RED}x {target_agents_dir} exists and is not a folder. Move it away and run "
+            f"the installer again. Nothing was changed.{NC}"
+        )
+    if target_agents_dir.is_symlink():
+        # A link of the user's to a kit kept elsewhere: use it, never copy into it.
+        print(
+            f"  {BLUE}→ {target_agents_dir} is a link to {target_agents_dir.resolve()}: "
+            f"using the kit there as it is; nothing is copied into it.{NC}"
+        )
+        IS_UPDATE = True
+    elif target_agents_dir.exists():
         if target_agents_dir.resolve() == SOURCE_AGENTS_DIR.resolve():
             print(
                 f"  {BLUE}→ Target is the same as source directory ({target_agents_dir}), skipping copy.{NC}"
@@ -1243,8 +1597,16 @@ def main():
             "gabbe-schema-version": 1,
             "notes": "Managed by init.py",
         }
-        (gemini_dir / "settings.json").write_text(json.dumps(settings_content, indent=2))
-        _record(gemini_dir / "settings.json", "copy", agent="gemini")
+        gemini_settings = gemini_dir / "settings.json"
+        if gemini_settings.exists() and not _is_unchanged_kit_file(
+            gemini_settings, gemini_settings.read_bytes()
+        ):
+            # The user's own settings: never replace them (same as the Node installer).
+            print(f"  {BLUE}→ .gemini/settings.json exists, leaving as-is{NC}")
+        else:
+            write_generated_file(
+                gemini_settings, json.dumps(settings_content, indent=2), agent="gemini"
+            )
         # Gemini CLI natively reads a GEMINI.md context file; point it at AGENTS.md.
         create_symlink(agents_md_src, PROJECT_ROOT / "GEMINI.md", agent="gemini")
         print(f"  {GREEN}✓ Wired .gemini/settings.json + GEMINI.md{NC}")
@@ -1374,7 +1736,7 @@ You MUST NOT write implementation code until these artifacts are approved:
 Start by running: `agents/scripts/setup-context.sh` to confirm your environment.
 """
         mission_file = PROJECT_ROOT / "BOOTSTRAP_MISSION.md"
-        mission_file.write_text(mission)
+        write_generated_file(mission_file, mission)
         print(f"\n{GREEN}✓ Generated Dynamic BOOTSTRAP_MISSION.md{NC}")
         print(
             f"{BLUE}>> INSTRUCTION: Agent, please read BOOTSTRAP_MISSION.md and begin Phase 1 immediately.{NC}"
@@ -1423,8 +1785,7 @@ Here is your mission to finalize the setup:
         print("-" * 60)
 
         mission_file = PROJECT_ROOT / "SETUP_MISSION.md"
-        mission_file.write_text(mission)
-        _record(mission_file, "copy", agent="shared")
+        write_generated_file(mission_file, mission)
         print(f"\n{GREEN}✓ Mission saved to SETUP_MISSION.md{NC}")
 
     # --- Brownfield onboarding artifact ---
@@ -1495,8 +1856,7 @@ def write_brownfield_assessment(project_name, detected):
   the install and restores backups.
 """
     out = PROJECT_ROOT / "BROWNFIELD_ONBOARDING.md"
-    out.write_text(doc)
-    _record(out, "copy", agent="shared")
+    write_generated_file(out, doc)
     print(f"  {GREEN}✓ Brownfield onboarding brief saved to BROWNFIELD_ONBOARDING.md{NC}")
 
 

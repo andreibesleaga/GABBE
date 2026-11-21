@@ -31,7 +31,7 @@ The GABBE CLI can run in three modes, configured during `python3 scripts/init.py
 | `gabbe brain evolve --skill <name>` | Evolutionary Prompt Optimization | **Yes** |
 | `gabbe brain heal` | Self-Healing Watchdog | No |
 | `gabbe forecast` | Strategic cost/token forecast | No |
-| `gabbe serve-mcp` | Zero-dependency MCP JSON-RPC server | No |
+| `gabbe serve-mcp` | Minimal-dependency MCP JSON-RPC server | No |
 | `gabbe runs [--status S] [--limit N]` | List recent agent runs | No |
 | `gabbe audit <run-id> [--format json]` | Structured audit trace for a run | No |
 | `gabbe replay <run-id> [--from-step N]` | Deterministic replay from checkpoints | No |

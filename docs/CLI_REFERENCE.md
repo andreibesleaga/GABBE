@@ -17,7 +17,7 @@ Entry point: `gabbe` (defined in `pyproject.toml → [project.scripts]`)
 
 | Variable | Default | Description |
 |---|---|---|
-| `GABBE_API_URL` | `https://api.openai.com/v1/chat/completions` | OpenAI-compatible endpoint |
+| `GABBE_API_URL` | `https://api.openai.com/v1/chat/completions` | OpenAI-compatible endpoint. Read from a project `.env` only when `GABBE_API_KEY` is not set in your shell (see `SECURITY.md`) |
 | `GABBE_API_KEY` | *(required for LLM features)* | Bearer token for the LLM API |
 | `GABBE_API_MODEL` | `gpt-4o` | Model name sent in API requests |
 | `GABBE_LLM_TEMPERATURE` | `0.7` | Sampling temperature (0.0–1.0) |
@@ -209,7 +209,7 @@ Run a strategic forecast evaluating remaining tasks and projecting future costs 
 
 ### `gabbe serve-mcp`
 
-Starts a zero-dependency JSON-RPC Model Context Protocol (MCP) server on `stdin`/`stdout`. It wraps internal tools in the `ToolGateway` for strict budget, role, and rate-limit enforcement. Includes telemetry and context tracing.
+Starts a minimal-dependency JSON-RPC Model Context Protocol (MCP) server on `stdin`/`stdout`. A command that fails is returned with `isError: true`; an unknown tool or invalid arguments answer `-32602`; `ping` is answered; the protocol version is negotiated in `initialize`. The server implements the MCP revisions that open with an `initialize` handshake (`2025-11-25` and earlier); the `2026-07-28` revision is not implemented. It wraps internal tools in the `ToolGateway` for strict budget, role, and rate-limit enforcement. Includes telemetry and context tracing.
 
 ---
 
@@ -524,9 +524,14 @@ gabbe doctor
 
 ### `gabbe update [--agents LIST] [--global] [--dir PATH]`
 
-Additively refresh the installed kit from source: updates kit files, prunes
-orphaned emitted files, and preserves user/preserve files (`CONSTITUTION.md`,
-`policies.yml`). Target resolution: `--dir` > `--global` > project (cwd).
+Refresh the installed kit from a checkout of this repository (not available from the
+PyPI package alone). A kit file you changed is copied to `<name>.gabbe-bak` before it is
+replaced; `AGENTS.md`, `CONSTITUTION.md`, `TASKS.md`, `policies.yml`, `config.json` and
+your memory and project files are kept once you have changed them; a kit file that is no
+longer shipped is removed only if you never changed it. The earlier install record is
+merged, not replaced, so wiring links and generated skill folders stay. Generated skill
+folders are not regenerated: re-run the installer for that. Target resolution: `--dir` >
+`--global` > project (cwd).
 
 ```bash
 gabbe update
@@ -537,11 +542,15 @@ gabbe update
 ### `gabbe uninstall [--agents LIST] [--dry-run] [--purge] [--global] [--dir PATH]`
 
 Reverse a GABBE install using its `.gabbe/manifest.json`: removes exactly what was
-installed, restores any `.gabbe-bak`/`.bak` backups, preserves any file you edited after
+recorded, restores a file of yours that the install replaced, takes the kit's pointer block
+out of your instruction files, preserves any file you edited after
 install as `<name>.gabbe-bak` (rather than deleting it), prunes now-empty wiring dirs, and
-never touches unrelated files. Wizard installs (`gabbe setup`) are manifest-tracked and so
-fully reversible. `--agents` deselects specific agents only; `--dry-run` prints the plan
-without changing anything; `--purge` also removes the `agents/` kit and `.gabbe/`.
+never touches unrelated files. Since 1.1.4 every installer writes the record (`gabbe setup`,
+`npx gabbe-kit init`, `gabbe update`). Without a record the command exits with status 1 and
+removes nothing. `--agents` deselects specific agents only; `--dry-run` prints the plan
+without changing anything; `--purge` is kept for compatibility and is the same as a plain uninstall; your own files,
+changed files, memory files and backups always stay. A record that cannot be read is never
+acted on.
 Idempotent and isolated (never writes outside the target).
 
 ```bash

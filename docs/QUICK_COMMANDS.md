@@ -32,7 +32,7 @@ This guide provides a quick reference for the most common commands, setup instru
 | `gabbe brain heal` | Self-healing watchdog: checks DB and required files. |
 | `gabbe route <prompt>` | Arbitrates prompt between Local and Remote LLMs (prompts of 100+ characters or with code blocks are rated by the LLM and need `GABBE_API_KEY`; without a key a fallback heuristic is used). |
 | `gabbe forecast` | Strategic Forecast projects remaining work cost and tokens. |
-| `gabbe serve-mcp` | Zero-dependency JSON-RPC MCP server for agent integration. |
+| `gabbe serve-mcp` | Minimal-dependency JSON-RPC MCP server for agent integration. |
 | `gabbe runs [--status STATUS] [--limit N]` | List recent agent runs with status, cost, and timestamps. |
 | `gabbe audit <run-id> [--format json\|table]` | Display structured span-level audit trace for a past run. |
 | `gabbe replay <run-id> [--from-step N]` | Replay a past run deterministically from its checkpoints. |

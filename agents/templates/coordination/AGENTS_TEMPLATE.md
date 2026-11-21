@@ -541,7 +541,7 @@ Guides:               agents/guides/00-index.md
 Templates:            agents/templates/00-index.md
 Personas (Loki):      agents/personas/00-index.md
 Brain patterns:       agents/skills/brain/README.md
-Quick reference:      docs/QUICK_GUIDE.md
+Quick reference:      https://github.com/andreibesleaga/GABBE/blob/main/docs/QUICK_GUIDE.md
 Project memory:       agents/memory/PROJECT_STATE.md
 Past failures:        agents/memory/CONTINUITY.md
 Decision log:         agents/memory/AUDIT_LOG.md
@@ -653,5 +653,5 @@ the same operating spine in §5/§13 (preflight → clarify → act → state-pr
 ---
 
 *Last updated: [DATE]*
-*GABBE Kit version: 1.1.3*
+*GABBE Kit version: 1.1.4*
 *This file is maintained by the team and updated when project conventions change.*

@@ -34,7 +34,7 @@ Restore the "Green Build" state by autonomously fixing common CI failures.
 1.  **Isolate**: Create a temporary fix branch (optional) or stash.
 2.  **Fix**: Apply the code change.
 3.  **Local Verify**: Run the specific failing command locally (e.g., `npm run lint`).
-    *   *If Pass*: Commit and Push.
+    *   *If Pass*: Commit and push only if the human asked for that in this request. Otherwise leave the changes in the working tree and report.
     *   *If Fail*: Retry with "Self-Correction" context (feed error back to LLM).
 
 ### 4. Safety

@@ -14,7 +14,7 @@ positional arguments:
     status              Show project dashboard
     route               Cost-Effective Router
     brain               Brain Mode Interface
-    serve-mcp           Run the zero-dependency JSON-RPC MCP Server
+    serve-mcp           Run the JSON-RPC MCP Server (stdio)
     forecast            Strategic Forecast of Remaining Work and Budgets
     runs                List recent agent runs
     audit               Display structured trace for a run
@@ -25,7 +25,7 @@ positional arguments:
     eval                Run skill eval suites (deterministic self-check; --live scores via the model)
     doctor              Auto-detect OS, runtimes, and agent clients; print an install report
     uninstall           Reverse a GABBE install from its manifest (restores backups)
-    update              Additively refresh kit files; prune orphans; preserve user files
+    update              Refresh kit files; keep your changes (backed up) and the install record
 
 options:
   -h, --help            show this help message and exit

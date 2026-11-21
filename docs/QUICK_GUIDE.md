@@ -13,19 +13,19 @@
 
 AI coding agents suffer from three compounding problems:
 
-1. **Velocity mismatch** — Agents generate code 10-100x faster than humans can review. Without guardrails, they skip critical steps (spec approval, security review, test coverage) and the human only discovers problems after the damage is done.
+1. **Velocity mismatch** — Agents generate code much faster than humans can review. Without guardrails, they skip critical steps (spec approval, security review, test coverage) and the human only discovers problems after the damage is done.
 
 2. **Non-determinism** — Same prompt, different output every time. Without structured context (AGENTS.md, CONSTITUTION.md, skill constraints), agents make inconsistent architectural decisions across sessions.
 
-3. **Cost asymmetry ("context rot")** — Wrong decisions compound. A missed security check at S01 (Requirements) costs 100x more to fix at S08 (Review). Architectural debt chosen in hour 1 creates exponential rework.
+3. **Cost asymmetry ("context rot")** — Wrong decisions compound. A missed security check at S01 (Requirements) costs more to fix the later it is found (for example at S08, Review). Architectural debt chosen in hour 1 creates exponential rework.
 
 **This kit solves all three** through:
 - Explicit context (AGENTS.md — single source of truth for every agent)
-- Deterministic workflows (SDD Lifecycle, TDD Cycle, RARV Loop)
+- Repeatable step-by-step workflows (SDD Lifecycle, TDD Cycle, RARV Loop)
 - Enforced checkpoints (10-Gate Quality System, human-in-the-loop triggers)
 - Persistent memory (SESSION_SNAPSHOT, CONTINUITY.md, AUDIT_LOG.md)
 
-**ROI:** Repositories using this approach could see reduction in agent runtime and in token usage through explicit context, cached decisions, and SDLC memory.
+**ROI:** Repositories using this approach could see reduction in agent runtime and in token usage through explicit context, cached decisions, and SDLC memory. This is not measured.
 
 ---
 
@@ -134,7 +134,7 @@ python scripts/fill_placeholders.py
 | `gabbe brain` | **Meta-Cognition**: Activates Active Inference loop or Evolutionary Prompt Optimization (Requires API Key). |
 | `gabbe route` | **Cost Router**: Arbitrates between Local and Remote LLMs based on task complexity (prompts of 100+ characters or with code blocks are rated by the LLM and need `GABBE_API_KEY`; without a key a fallback heuristic is used). |
 | `gabbe forecast`| **Strategic Forecast**: Projects remaining work cost and tokens based on historical run data. |
-| `gabbe serve-mcp` | **MCP Gateway**: Zero-dependency JSON-RPC Model Context Protocol server for standalone agents to access tools safely. |
+| `gabbe serve-mcp` | **MCP Gateway**: Minimal-dependency JSON-RPC Model Context Protocol server for standalone agents to access tools safely. |
 | `gabbe runs` | **Run History**: List recent agent runs with status, cost, and timestamps. |
 | `gabbe audit <run-id>` | **Audit Trace**: Display structured span-level trace for a past run (`--format json\|table`). |
 | `gabbe replay <run-id>` | **Deterministic Replay**: Replay a past run from its checkpoints (`--from-step N`). |
@@ -678,7 +678,7 @@ Actions:
 
 | Server | Install | Why |
 |---|---|---|
-| **Context-7** | `npx @upstash/context7-mcp` | Up-to-date SDK docs (prevents API hallucination) |
+| **Context-7** | `npx @upstash/context7-mcp` | Up-to-date SDK docs (reduces guessed or outdated API calls) |
 | **Sequential Thinking** | `npx @modelcontextprotocol/server-sequential-thinking` | Chain-of-thought before acting |
 | **GitHub MCP** | `npx @modelcontextprotocol/server-github` | PR review, issues, code search |
 | **GitHits** | `npx githits@latest init` | Navigate open-source dependency source/docs (no clone, no key) |

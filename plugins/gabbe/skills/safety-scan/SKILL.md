@@ -19,12 +19,12 @@ Prevent "Insecure Code" from entering the codebase by strictly enforcing securit
 ## 1. Credentials Check (Gitleaks)
 **Command**: `gitleaks detect --source . -v` (or regex fallback)
 **Check**: Are there API Keys, Tokens, or Passwords in the diff?
-*   *If Found*: **BLOCK COMMIT**. Auto-delete or `.gitignore` the secret. Alert Human.
+*   *If Found*: **BLOCK COMMIT**. Report the finding. Propose removing the secret and rotating the key. Act only after the human confirms. Alert Human.
 
 ### 2. Static Analysis (SAST)
 **Command**: `semgrep scan --config=p/security-audit` (if installed) OR `npm audit` / `pip-audit`.
 **Check**: High-Severity vulnerabilities (RCE, SQLi, XSS).
-*   *If Found*: **BLOCK COMMIT**. Invoke `ci-autofix` to patch.
+*   *If Found*: **BLOCK COMMIT**. Report the finding and propose `ci-autofix`; invoke it only after the human agrees.
 
 ### 3. Logic & PII Check
 **Action**: LLM Review of the diff.

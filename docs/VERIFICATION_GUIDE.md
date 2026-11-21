@@ -62,7 +62,7 @@ pytest scripts/tests/test_init.py -v
 | `test_database.py` | Schema tables, schema version, unique constraint, row factory, idempotent `init_db` |
 | `test_e2e.py` | Sync import/export, brain evolve, cost router, status dashboard, verify pass/fail, brain activate/heal |
 | `test_e2e_workflow.py` | Full 14-step golden path workflow (init → sync → status → verify → route → brain → forecast → runs → audit → replay → resume → MCP); platform controls (budget, hardstop, policy, gateway, escalation, replay); MCP JSON-RPC protocol |
-| `test_edge_cases.py` | **NEW v0.8.0** — See Section 2.2 |
+| `test_edge_cases.py` | See Section 2.2 |
 | `test_escalation.py` | `EscalationHandler` modes (silent, file, interactive), `EscalationPaused` |
 | `test_forecast.py` | `run_forecast` with history data, empty DB, cost projections |
 | `test_gateway.py` | `ToolGateway` register/execute, policy enforcement |
@@ -91,7 +91,7 @@ pytest scripts/tests/test_init.py -v
 
 ---
 
-### 2.2 Edge Case Tests (`gabbe/tests/test_edge_cases.py`) — NEW in v0.8.0
+### 2.2 Edge Case Tests (`gabbe/tests/test_edge_cases.py`)
 
 Run all edge case tests:
 ```bash

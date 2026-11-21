@@ -3,31 +3,19 @@
 GABBE installs are **isolated**: nothing is ever written outside the chosen target
 unless you pass `--global`.
 
-> **Reversibility — scope.** Manifest-backed, precise `update`/`uninstall` (recorded
-> in `.gabbe/manifest.json`) covers kits managed by the Python `gabbe` CLI **and**
-> the Python wizard (`gabbe setup` / `python scripts/init.py`), which now writes a
-> manifest recording everything it created under the project (copied kit files,
-> wiring symlinks, generated skill trees, config files). So `gabbe uninstall` fully
-> reverses a wizard install too. The remaining Python-independent installers
-> (`npx gabbe-kit init`, `curl … | sh`) copy the kit but do **not** write a manifest,
-> so `gabbe uninstall` cannot auto-reverse them — remove those manually (delete the
-> created `agents/`, `.agents/`, per-agent dirs, and root `AGENTS.md`), or run
-> `gabbe update` from a checkout to begin manifest tracking.
-
-> **Known issues in 1.1.3 (fixed in 1.1.4, in preparation).** The statements on this page about
-> `update` and `uninstall` do not all hold in 1.1.3. Before installing into an existing project,
-> copy your root `AGENTS.md`, your `agents/` folder and your `docs/` folder somewhere safe. Do not
-> run `gabbe update` on a wizard install: it replaces `agents/AGENTS.md` and
-> `agents/CONSTITUTION.md` without a backup. Do not run `gabbe uninstall --purge`: it removes the
-> whole `agents/` folder, including your own files, memory files and backups. Plain
-> `gabbe uninstall` also removes your own files inside `.claude/skills`, `.github/skills` and
-> `.cursor/rules`; run `gabbe uninstall --dry-run` first and move your files out.
+> **Reversibility — scope.** Since 1.1.4 every installer records what it creates in
+> `.gabbe/manifest.json`: the Node installer (`npx gabbe-kit init`, also reached through
+> `curl … | sh`), the Python wizard (`gabbe setup` / `python scripts/init.py`) and
+> `gabbe update`. `gabbe uninstall` removes exactly what is recorded and nothing else.
+> An install made by `npx gabbe-kit init` 1.1.3 or earlier has no record: `gabbe uninstall`
+> then stops with an error and removes nothing. Re-run `npx gabbe-kit init` (1.1.4 or later)
+> with the same `--agents` to create the record, or run `gabbe update` from a checkout.
 
 ## One-command install (every channel)
 
 | Channel | Command | Notes |
 |---|---|---|
-| npm / Node | `npx gabbe-kit init` | Python-independent; bundles the kit and wires detected agents |
+| npm / Node | `npx gabbe-kit init` | Python-independent; bundles the kit and wires the agents you name with `--agents` (none named: the root `AGENTS.md` and `.agents/skills` only) |
 | PyPI | `pipx install gabbe` (or `pip install gabbe` / `uvx gabbe`) | adds the `gabbe` **CLI** (doctor/brain/route/gateway). The kit is Python-independent — land it with `npx gabbe-kit init` / `curl … \| sh` / a checkout. `gabbe setup` wires the kit only from a checkout. |
 | Shell bootstrap | `curl -fsSL https://raw.githubusercontent.com/andreibesleaga/GABBE/main/install.sh \| sh` | picks the best available installer |
 | Git checkout | `git clone … && python3 scripts/init.py` | the interactive wizard |
@@ -35,10 +23,35 @@ unless you pass `--global`.
 **Never-clobber + `--force`.** Both installers — the Node installer
 (`npx gabbe-kit init`) and the Python wizard (`gabbe setup` / `python scripts/init.py`)
 — back up ANY differing pre-existing file to `<name>.gabbe-bak` before refreshing it, so
-nothing you already had is silently overwritten. The preserve-set (`AGENTS.md`,
-`CONSTITUTION.md`, `TASKS.md`, `policies.yml`, `config.json`) is left as-is unless you
-pass `--force` (e.g. `npx gabbe-kit init --force`), which opts into re-templating those
-too — and still backs each one up first.
+nothing you already had is silently overwritten. A backup is never overwritten: if
+`<name>.gabbe-bak` exists and holds something else, the next one is `<name>.gabbe-bak.1`,
+and so on. The preserve-set (`AGENTS.md`, `CONSTITUTION.md`, `TASKS.md`, `policies.yml`,
+`config.json`) is left as-is unless you pass `--force` (e.g. `npx gabbe-kit init --force`),
+which opts into re-templating those too — and still backs each one up first.
+
+**Files you already have (since 1.1.4).**
+
+- **Instruction files** (root `AGENTS.md`, `.github/copilot-instructions.md`,
+  `.claude/CLAUDE.md`, `.cursorrules`, `GEMINI.md` and the other per-agent rule files): your
+  file is kept. The installer appends a short marked block that points to `agents/AGENTS.md`
+  and saves the original as `<name>.gabbe-bak`. `gabbe uninstall` takes the block out again.
+  With `--force` the file is replaced by a link to the kit's file after it is moved to
+  `<name>.bak` (or `<name>.bak.1` if that name is taken).
+- **Your own skills and rules** in `.claude/skills`, `.github/skills`, `.cursor/rules` and
+  the like stay. If one has the same name as a kit skill, yours is saved next to the kit's
+  file as `<name>.gabbe-bak`.
+- **Your `docs/` folder** is not touched. (Up to 1.1.3 the Node installer copied the kit's
+  documents into it.) The kit's documents are online:
+  <https://github.com/andreibesleaga/GABBE/tree/main/docs>.
+- **An `agents/` folder of your own:** your files in it are kept, and so is your
+  `agents/AGENTS.md`. The Node installer then says that the kit's own `agents/AGENTS.md` was
+  not installed; `--force` installs it and backs yours up first.
+- **`.gemini/settings.json`, `.aider.conf.yml`, `opencode.json`:** kept if they exist.
+
+**First prompt.** The wizard writes `BOOTSTRAP_MISSION.md` (or `SETUP_MISSION.md`) from your
+answers. The Node installer asks no questions and writes a general `BOOTSTRAP_MISSION.md`;
+it is not replaced if you already have one. Tell your agent: "Read BOOTSTRAP_MISSION.md and
+follow it."
 
 **Package names.** On npm the package is **`gabbe-kit`** (npm refuses the unscoped `gabbe`);
 on PyPI it is **`gabbe`**; the npm package is also mirrored on GitHub Packages as
@@ -94,20 +107,31 @@ The wizard's own "Global" choice installs to `~/agents` and is not manifest-trac
 ## Updating
 
 ```bash
-gabbe update                 # additive refresh of kit files; prunes orphans
+gabbe update                 # refresh kit files; keep your changes and the install record
 ```
 
-`update` preserves user/preserve files (`CONSTITUTION.md`, `policies.yml`) and
-your memory/project files; it only refreshes managed kit artifacts and removes
-ones that are no longer emitted.
+`update` runs from a checkout of this repository (the PyPI package does not contain the
+kit). For each kit file under `agents/`:
+
+- unchanged since install: replaced by the new version;
+- changed by you: copied to `<name>.gabbe-bak` (never over an existing backup), then replaced;
+- `AGENTS.md`, `CONSTITUTION.md`, `TASKS.md`, `policies.yml`, `config.json` and anything
+  under `memory/` or `project/`: kept as they are once you have changed them;
+- no longer shipped by the kit: removed only if you never changed it.
+
+The earlier install record is merged, not replaced: wiring links and generated skill folders
+stay as they are, on disk and in the record. `update` does not regenerate the skill folders
+of your agents (`.claude/skills`, `.cursor/rules`, …); re-run the installer you used to
+refresh them. On an install without a record, `update` adopts the files that are identical
+to the kit's and starts the record.
 
 ## Uninstalling (manifest-backed installs)
 
 ```bash
 gabbe uninstall --dry-run          # print exactly what would be removed
-gabbe uninstall                    # remove it; restore any .bak backups
+gabbe uninstall                    # remove it; restore linked backups
 gabbe uninstall --agents cursor    # deselect one agent's wiring only
-gabbe uninstall --purge            # also remove the agents/ kit and .gabbe/
+gabbe uninstall --purge            # also remove empty folders left under agents/
 ```
 
 Or use the bootstrap scripts when the CLI is not on `PATH`:
@@ -117,20 +141,36 @@ sh uninstall.sh --dry-run          # POSIX
 pwsh ./uninstall.ps1 -DryRun       # Windows / PowerShell
 ```
 
-Uninstall reads `.gabbe/manifest.json`, removes **exactly** what was installed,
-restores any shadowed user files from their `.gabbe-bak`/`.bak` backup, preserves any
-file you edited after install as `<name>.gabbe-bak` instead of deleting it, prunes
-now-empty wiring directories, and is idempotent (safe to run twice). When a manifest is
-present the result is byte-identical to the pre-install state. The wizard
-(`gabbe setup` / `python scripts/init.py`) now writes a manifest, so its installs are
-fully reversible too. **Note:** only `npx` / `curl` installs remain non-manifest-tracked
-(see the scope note at the top); for those, delete the kit directories manually or run
-`gabbe update` from a checkout first.
+Uninstall reads `.gabbe/manifest.json` and removes **exactly** what is recorded there. It
+restores a file of yours that the install replaced from its backup, takes the pointer block
+out of your instruction files, keeps any installed file you edited as `<name>.gabbe-bak`
+instead of deleting it, prunes now-empty directories, and is idempotent (safe to run twice).
+
+It never deletes a file the install did not record. These always stay: your own files
+(including your own skills inside `.claude/skills` and similar folders), files under
+`agents/memory/` that you changed, and backups. A preserved kit file (`agents/AGENTS.md`,
+`agents/CONSTITUTION.md`, …) is removed only if you never changed it; one you changed stays
+where it is. `--purge` also removes the empty folders left under `agents/`. The command
+prints how many files are left under `agents/`. In a project where you changed none of the
+installed files, the result is byte-identical to the state before the install.
+
+Without a record (`.gabbe/manifest.json` missing) `gabbe uninstall` exits with status 1 and
+removes nothing; see the scope note at the top. A directory that 1.1.3 or earlier recorded
+as a whole (for example `.claude/skills`) is no longer removed as a whole: only the files
+the installer generated in it are removed.
+
+To remove an unrecorded install by hand: delete `agents/` (after copying out anything of
+yours), `.agents/skills/`, the per-agent folders and files the installer created
+(`.claude/skills/<kit skill>/`, `.cursor/rules/<kit skill>.mdc`, `.github/skills/<kit skill>/`,
+links such as `.claude/CLAUDE.md`, `.cursorrules`, `GEMINI.md`), the kit documents that
+1.1.3 copied into `docs/`, and the root `AGENTS.md` link; then restore your originals from
+`AGENTS.md.bak`, `copilot-instructions.md.bak` and any `<name>.gabbe-bak`.
 
 ## Verification
 
 The reversibility and isolation guarantees are regression-tested
 (`scripts/tests/test_install_manifest.py`, `test_uninstall.py`,
-`test_install_isolation.py`, `test_remove_agents.py`) and exercised across
+`test_install_isolation.py`, `test_remove_agents.py`, `test_install_roundtrip.py`,
+`test_node_install.js`) and exercised across
 `{ubuntu, macos, windows}` by the CI `install-matrix` job plus the post-publish
 `release-verify` job (which installs the published package and runs `gabbe doctor`).

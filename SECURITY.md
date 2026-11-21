@@ -25,6 +25,14 @@ OpenAI-compatible provider such as OpenRouter works via `GABBE_API_URL`).
 
 - **Never commit a real key.** No env file is tracked; real keys belong in a
   gitignored `.env` (read by `gabbe/config.py`) or in the process environment.
+- **What a project `.env` may set (since 1.1.4).** A `.env` travels with a repository, so
+  it is not trusted with security settings. Only these keys are read from it:
+  `GABBE_API_KEY`, `GABBE_API_MODEL`, `GABBE_LLM_*`, `GABBE_MAX_*`, `GABBE_LOG_LEVEL`,
+  `GABBE_ESCALATION_MODE`, `GABBE_ROUTE_THRESHOLD`, `GABBE_SUBPROCESS_TIMEOUT`. `GABBE_MCP_*`
+  and `GABBE_POLICY_FILE` are never read from it, and no other variable (`PATH`,
+  `PYTHONPATH`, …) is. `GABBE_API_URL` is read from `.env` only when `GABBE_API_KEY` does
+  not come from your shell: otherwise a cloned repository could send your own key to a URL
+  of its choosing. A refused `GABBE_*` key is named in a warning; export it in your shell.
 - **Never log the key.** `gabbe/llm.py` keeps the key in the `Authorization`
   header only and never logs headers or payloads (see `test_llm_sanitizes_errors`).
 - **Use a project-scoped key**; rotate at least every 90 days.
@@ -53,6 +61,11 @@ runs **fail-closed**:
   This blunts injection-via-tool-feedback and oversized payloads (per the MCP-38
   threat taxonomy and NSA MCP security guidance) and is regression-guarded by
   `gabbe/tests/test_mcp_contract.py`.
+- **An allowlist is not a sandbox.** An entry is matched by name and its arguments are
+  not restricted, so allowing an interpreter or a tool that runs code (`python`, `npm`,
+  `git`) allows arbitrary commands. The child process inherits the server's environment.
+- **Planned for 1.2.0:** read-only tools by default; `run_command` only behind an explicit
+  flag.
 
 Treat `agents/AGENTS.md` `## Commands` (run by `gabbe verify`) and
 `project/policies.yml` as trust boundaries: anything written there is executed.

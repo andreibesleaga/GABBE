@@ -69,9 +69,10 @@ flowchart TB
     gates -.->|checks| cliPkg
 ```
 
-- `bin/install.js` copies `agents/` and `docs/`, writes a root `AGENTS.md`, emits the universal
-  `.agents/skills/<slug>/SKILL.md` tree and wires the agents named with `--agents`. It writes no
-  manifest ([INSTALL.md](INSTALL.md)).
+- `bin/install.js` copies `agents/`, writes a root `AGENTS.md` (or adds a pointer block to one
+  that exists), emits the universal `.agents/skills/<slug>/SKILL.md` tree, wires the agents named
+  with `--agents`, writes `BOOTSTRAP_MISSION.md` and records what it created in
+  `.gabbe/manifest.json` ([INSTALL.md](INSTALL.md)).
 - `scripts/init.py` asks questions, copies the kit, calls `agents/scripts/compile_skills.py` for
   each selected agent's format, and records what it created in `.gabbe/manifest.json` so
   `gabbe uninstall` can reverse it. It uses `gabbe/detect.py` for brownfield detection when the

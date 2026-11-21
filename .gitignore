@@ -1,4 +1,8 @@
-agents/memory/
+# Memory files change on every agent run and are not tracked, except the templates
+# the kit ships (a blanket `agents/memory/` rule once hid three of them).
+agents/memory/**
+!agents/memory/**/
+!agents/memory/**/*_TEMPLATE.*
 project/
 # project/state.db is runtime state: `gabbe init` / `gabbe db --init` create it,
 # and tests and agents change it on every run. It is not tracked.

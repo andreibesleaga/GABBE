@@ -10,7 +10,7 @@
 - Drop-in context kit that turns any AI coding agent into a governed engineering team for developing software.
 - Based on Software Engineering & Architecture Practices and Procedures.
 - Works for any project type, new or existing, any language, any team size.
-- **Write Once, Run Everywhere**: Skills work on Cursor (`.mdc`), VS Code (`folder/skill`), Claude (`.skill.md`), Gemini.
+- **Write Once, Run Everywhere**: Skills work on Cursor (`.mdc`), VS Code (`folder/skill`), Claude (`.claude/skills/<slug>/SKILL.md`), Gemini.
 - The system features an experimental **Meta-Cognitive Orchestrator "Brain"** (Neurocognitive based architecture derived from Neuroscience, Cognitive Psychology, Epistemology, treating the Software System not as a machine, but as a **Cognitive Entity**), using Active Inference to plan, route, and optimize work.
 - The system features a **Multi-Agent Swarm "Loki" Engineering Team** (30+ specialized agent roles for large projects), providing episodic and semantic memory, project history auditing and checkpoints.
 
@@ -23,7 +23,7 @@ It contains:
 - **Brain Mode** (meta-cognitive orchestration)
 - **Loki Mode** (multi-agent swarm engineering personas team for large projects)
 
-> **214 Skills · 100 Templates · 86 Guides · 36 Personas · 50+ MCPs · Loki / Brain Mode CLI**
+> **214 Skills · 100 Templates · 86 Guides · 36 Personas · 66 MCPs · Loki / Brain Mode CLI**
 
 ---
 
@@ -195,7 +195,7 @@ gabbe --help
 | `gabbe brain` | **Meta-Cognition**: Activates Active Inference loop or Evolutionary Prompt Optimization (Requires API Key). |
 | `gabbe route` | **Cost Router**: Arbitrates between Local and Remote LLMs based on task complexity (prompts of 100+ characters or with code blocks are rated by the LLM and need `GABBE_API_KEY`; without a key a fallback heuristic is used). |
 | `gabbe forecast`| **Strategic Forecast**: Projects remaining work cost and tokens based on historical run data. |
-| `gabbe serve-mcp` | **MCP Gateway**: Zero-dependency JSON-RPC Model Context Protocol server for standalone agents to access tools safely. |
+| `gabbe serve-mcp` | **MCP Gateway**: Minimal-dependency JSON-RPC Model Context Protocol server for standalone agents to access tools safely. |
 | `gabbe runs [--status STATUS] [--limit N]` | **Run History**: List recent agent runs with status, cost, and timestamps. |
 | `gabbe audit <run-id> [--format json\|table]` | **Audit Trace**: Display structured span-level audit trace for a past run. |
 | `gabbe replay <run-id> [--from-step N]` | **Deterministic Replay**: Replay a past run from its checkpoints. |
@@ -1161,7 +1161,7 @@ MCP (Model Context Protocol) servers extend agent capabilities. Configure them i
 
 | Category | Server | Purpose |
 |---|---|---|
-| **Docs** | Context-7 MCP | Up-to-date SDK docs (prevents API hallucination) |
+| **Docs** | Context-7 MCP | Up-to-date SDK docs (reduces guessed or outdated API calls) |
 | **Reasoning** | Sequential Thinking | Chain-of-thought before acting |
 | **Code Search** | GitHub MCP | PR review, code search, issue management |
 | **Dependencies** | GitHits MCP | Navigate open-source dependency source/docs (no clone, no key) |

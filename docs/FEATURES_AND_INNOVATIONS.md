@@ -7,8 +7,8 @@
 > Windsurf, Cline, Aider) into a **governed software-engineering team**, with an optional
 > Python control plane for budgets, policy, audit, and MCP tooling.
 >
-> **At a glance (written for v1.1.1; counts re-checked 2026-10-29 on v1.1.2):** 214 skills · 86 guides · 100 templates · 36 personas · 24 runtime
-> modules · 14 supported agents · install via `npx gabbe-kit init` / `pip install gabbe` /
+> **At a glance (written for v1.1.1; counts re-checked 2026-10-29 on v1.1.2 and 2026-11-21 on 1.1.3):** 214 skills · 86 guides · 100 templates · 36 personas · 24 runtime
+> modules · 15 supported agents · install via `npx gabbe-kit init` / `pip install gabbe` /
 > `curl …/install.sh | sh` / git checkout.
 >
 > **Honesty note (by design):** this document follows GABBE's own anti-overclaim doctrine
@@ -110,11 +110,11 @@ Framed honestly against the 2026 landscape. These are **distinctive combinations
 not aware of a direct equivalent — *not* bald "world-first" claims. Where the broader market
 already does something, it's noted.
 
-1. **A universal *skill compiler* across 14 agents, not a single-agent rule set.** The market has
+1. **A universal *skill compiler* across 15 agents, not a single-agent rule set.** The market has
    plenty of per-agent rule files (`CLAUDE.md`, `.cursor/rules`, Copilot instructions) and curated
    rule packs; **AGENTS.md** itself is now a Linux-Foundation standard. GABBE is unusual in
    *compiling one source kit into each agent's native format* — so a mixed-tool team shares one
-   engineering standard. *Distinctive: the breadth (14 targets) + an `agentskills.io` registry
+   engineering standard. *Distinctive: the breadth (16 installer targets) + an `agentskills.io` registry
    import/export for sharing skills.*
 
 2. **A methodology kit, not a runtime framework.** MetaGPT, CrewAI, AutoGen, LangGraph, OpenHands

@@ -109,7 +109,7 @@ workflow stays green when it is absent); npm is published by
 
 | Workflow | Runs on | What it does |
 | --- | --- | --- |
-| `ci.yml` | push and PR to `main`/`master`, nightly 04:00 UTC, manual | validators + pytest on Python 3.9–3.13; lint (ruff, black, mypy); the gates; one-command install + `gabbe doctor` on Linux, macOS, Windows; nightly: mutation testing and live skill evals (both non-blocking) |
+| `ci.yml` | push and PR to `main`/`master`, nightly 04:00 UTC, manual | validators + pytest on Python 3.9–3.13; lint (ruff, black, mypy); the gates; one-command install + `gabbe doctor` on Linux, macOS, Windows; the Node installer tests (`npm test`, with an install → `gabbe uninstall --purge` round trip) and the state export/import round trip under `sh`; nightly: mutation testing (result in the job summary and as an artifact) and live skill evals (both non-blocking) |
 | `docs-lint.yml` | push and PR to `main` | markdownlint-cli2 and lychee, both report-only |
 | `security-baseline.yml` | push and PR to `main`, Mondays 06:00 UTC | OSV-Scanner, pip-audit (CVE delta), Trivy filesystem scan |
 | `scorecard.yml` | push to `main`, Mondays 07:00 UTC, branch-protection changes | OpenSSF Scorecard |

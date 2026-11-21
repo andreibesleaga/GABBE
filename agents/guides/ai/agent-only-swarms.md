@@ -19,7 +19,7 @@ There are two primary ways to operate Swarms in "Agent-Only" mode:
 If you have a massive project and want the agent to meticulously follow the 10-Phase framework (from `S01` to `S10`), you can invoke `loki-mode` directly.
 
 ### The Agent Prompt
-> "Activate `agents/skills/brain/loki-mode.skill.md`. Our goal is to [build a new payment gateway]. We are starting from Phase S01. Do not ask me for permission unless you hit a mandatory Human Approval Gate or a task requires True A2A Delegation."
+> "Activate `agents/skills/brain/loki-mode.skill.md`. Our goal is to [build a new payment gateway]. We are starting from Phase S01. Work through the phases on your own and stop at every Human Approval Gate, before any commit, push, publish or deploy, and when a task requires True A2A Delegation."
 
 ### What the Agent Does Automatically
 1. Read `AGENTS.md` and define the required Personas.

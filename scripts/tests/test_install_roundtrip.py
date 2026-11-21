@@ -600,12 +600,15 @@ def test_wizard_keeps_a_link_of_the_users_at_a_wiring_path(tmp_path):
 
 def test_wizard_stops_when_a_backup_cannot_be_made(tmp_path):
     """Without a backup the file would be the user's only copy: nothing is overwritten."""
-    src = _kit(tmp_path)
+    # One file only: the order in which a folder is listed differs between filesystems,
+    # and the failing copy below must be the backup, not an ordinary kit copy.
+    src = tmp_path / "kit-one-file"
+    src.mkdir()
+    (src / "README.md").write_text("KIT README\n")
     dst = tmp_path / "proj" / "agents"
     dst.mkdir(parents=True)
     init.PROJECT_ROOT = tmp_path / "proj"
     (dst / "README.md").write_text("MY README\n")
-    (src / "README.md").write_text("KIT README\n")
 
     with patch("shutil.copy2", side_effect=OSError("disk full")):
         with pytest.raises(SystemExit, match="Could not back up"):

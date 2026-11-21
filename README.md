@@ -98,7 +98,14 @@ npx gabbe-kit init --force               # re-template even preserved files (eac
 curl -fsSL https://raw.githubusercontent.com/andreibesleaga/GABBE/main/install.sh | sh
 ```
 
-> **Safe on existing projects.** Any file the installer would change is backed up first (`<name>.gabbe-bak`), and your `AGENTS.md`, `CONSTITUTION.md`, `TASKS.md`, `policies.yml` and `config.json` are only replaced with `--force`.
+**Existing projects: back up first.** Inside `agents/`, the installer keeps your `AGENTS.md`, `CONSTITUTION.md`, `TASKS.md`, `policies.yml` and `config.json` unless you pass `--force`, and backs up other files it changes as `<name>.gabbe-bak`. A root `AGENTS.md` that already exists is different: in 1.1.3 it is replaced by a link to the kit's file and your original is kept as `AGENTS.md.bak`, which you then merge by hand. See the known issues below.
+
+> [!WARNING]
+> **Known issues in 1.1.3** (fixed in 1.1.4, in preparation):
+>
+> - **Installing into an existing project.** Copy your root `AGENTS.md`, `.github/copilot-instructions.md`, your `agents/` folder and your `docs/` folder somewhere safe first. The npm installer replaces the root `AGENTS.md`, and the Copilot file when Copilot is selected (originals moved to `<name>.bak`; a `.bak` left by an earlier run can be overwritten, so keep your own copy), merges the kit into an `agents/` folder you already have, and copies the kit's documents into `docs/`, replacing files of the same name (originals kept as `<name>.gabbe-bak`).
+> - **Do not run `gabbe update` on a project installed with the wizard** (`python3 scripts/init.py` or `gabbe setup`). It replaces `agents/AGENTS.md` and `agents/CONSTITUTION.md` without a backup, and on an install that has generated skill folders it then stops with an error part-way.
+> - **Do not run `gabbe uninstall --purge`.** It removes the whole `agents/` folder, including your own files, your memory files and the backups. Plain `gabbe uninstall` also removes your own files inside `.claude/skills`, `.github/skills` and `.cursor/rules`. Run `gabbe uninstall --dry-run` first and move your own files out of the listed folders.
 
 **Python / PyPI:**
 ```bash
@@ -266,7 +273,7 @@ Uses Active Inference to plan, route between local/remote models, and learn from
 
 ### Activate Loki Mode (Large Projects)
 **Using Pure Agent Mode (No CLI):**
-> "Activate `agents/skills/brain/loki-mode.skill.md`. Goal: [build X]. Do not ask me for permission unless you hit a mandatory Human Approval Gate or a task requires True A2A Delegation."
+> "Activate `agents/skills/brain/loki-mode.skill.md`. Goal: [build X]. Work through the phases on your own and stop at every Human Approval Gate, before any commit, push, publish or deploy, and when a task requires True A2A Delegation."
 
 Multi-agent swarm with 30+ specialized personas for projects >5 features or >20 files.
 

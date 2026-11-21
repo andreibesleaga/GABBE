@@ -14,6 +14,15 @@ unless you pass `--global`.
 > created `agents/`, `.agents/`, per-agent dirs, and root `AGENTS.md`), or run
 > `gabbe update` from a checkout to begin manifest tracking.
 
+> **Known issues in 1.1.3 (fixed in 1.1.4, in preparation).** The statements on this page about
+> `update` and `uninstall` do not all hold in 1.1.3. Before installing into an existing project,
+> copy your root `AGENTS.md`, your `agents/` folder and your `docs/` folder somewhere safe. Do not
+> run `gabbe update` on a wizard install: it replaces `agents/AGENTS.md` and
+> `agents/CONSTITUTION.md` without a backup. Do not run `gabbe uninstall --purge`: it removes the
+> whole `agents/` folder, including your own files, memory files and backups. Plain
+> `gabbe uninstall` also removes your own files inside `.claude/skills`, `.github/skills` and
+> `.cursor/rules`; run `gabbe uninstall --dry-run` first and move your files out.
+
 ## One-command install (every channel)
 
 | Channel | Command | Notes |

@@ -1,6 +1,6 @@
 ---
 name: episodic-consolidation
-description: "Consolidate short-term events into long-term 'Semantic' memory. Use when: episodic consolidation."
+description: "Turns a finished task's audit log into reusable rules and prunes scratch files. Use at the end of a long task to record lessons and to detect drift in the project's world model. Use when: episodic consolidation, consolidate lessons, end of long task, prune scratch files, world model drift."
 license: CC-BY-SA-4.0
 metadata:
   source: "agents/skills/brain/episodic-consolidation.skill.md"
@@ -19,27 +19,27 @@ This skill mimics the brain's "Sleep" process (Hippocampus to Neocortex transfer
 2.  **Extract:** Identify "Generalized Rules" from specific events.
     *   *Event:* "I fixed a bug in `auth.go` caused by nil pointer."
     *   *Rule:* "Always check for nil in `auth.go` User structs."
-3.  **Store:** Write this Rule to `memory/semantic/rules.md`.
+3.  **Store:** Write this Rule to `agents/memory/semantic/rules.md` (create the file if it does not exist).
 
 ## 2. Identifying Episodic Drifts
 Check if the "Story" of the project has changed.
 *   **Drift:** "We used to use SQL, now we use NoSQL."
-*   **Action:** Update the `PROJECT_CONTEXT.md` (The World Model) to reflect this new reality.
+*   **Action:** Update `PROJECT_CONTEXT.md` (the world model; create it from `templates/brain/PROJECT_CONTEXT_TEMPLATE.md` if missing) to reflect this new reality.
 
 ## 3. Pruning (Forgetting)
 Active forgetting is crucial.
-*   **Action:** Delete temporary scratchpads, logs, or `tmp/` files that are no longer predicting the future.
+*   **Action:** List temporary scratchpads and `tmp/` files that are no longer needed, then delete them only after the human confirms the list. Never list audit logs, snapshots or deployment records.
 
-## Security & Guardrails
+## Constraints
+- A rule needs at least 3 observations and a source (log row, test or file).
+- Rules are additive; a rule must not contradict the Constitution or an architecture rule.
 
-### 1. Skill Security (Episodic Consolidation)
-- **Malicious Rule Extraction**: During the "Extract" phase, an attacker might have deliberately failed a test with a highly specific error message designed to trick the agent into formulating a dangerous "Generalized Rule" (e.g., "Always disable TLS when contacting `internal-api.com`"). The agent must rigorously validate any extracted rule against the immutable `architecture-governance.skill.md` constraints before committing it to Semantic Memory.
-- **Overzealous Pruning (Audit Destruction)**: In the "Pruning" phase, the agent deletes temporary logs. The agent must differentiate between "scratchpads" (safe to delete) and "Security/Audit Logs" (never delete). If the agent mistakenly prunes cryptographic signatures or deployment receipts because they "are no longer predicting the future," it destroys the project's non-repudiation guarantees.
+## Output Format
+The new or changed rules (with their sources), any change to `PROJECT_CONTEXT.md`, and the list of scratch files proposed for deletion.
 
-### 2. System Integration Security
-- **Cross-Session Data Leakage**: When consolidating episodic memories from a session that handled highly sensitive data (e.g., PII, database passwords), the agent must ensure that the "Generalized Rule" (Step 1.2) is perfectly abstracted. If a rule is saved as "Always check for nil when parsing `user=john_doe, pwd=secret123`," the agent has permanently leaked a credential into its long-term semantic knowledge base.
-- **Drift Justification of Vulnerabilities**: The "Identifying Episodic Drifts" phase (Step 2) updates the World Model. The agent must never interpret a temporary security waiver or a "quick hack" (e.g., opening a firewall port for debugging) as a permanent "Drift" in the system architecture. Security downgrades are incidents, not structural drifts.
-
-### 3. LLM & Agent Guardrails
-- **Consolidation Hallucination**: The LLM might hallucinate patterns bridging unrelated events to create a generalized rule that does not exist empirically (Pareidolia). The agent must require a strict minimum threshold of occurrences (e.g., "Observation seen >= 3 times") before granting an event the status of a "Generalized Rule" in Semantic memory.
-- **Self-Confirming Bias Loop**: If an insecure coding practice is accidentally consolidated into Semantic Memory, future Active Inference cycles will use it as a "True" prior, actively enforcing the vulnerability across the codebase. The agent must routinely subject its own Semantic Memory (`rules.md`) to external, asynchronous adversarial review (e.g., via `security-audit.skill`) to break self-confirming bias loops.
+## Limits and safety
+- Write a rule only after the pattern appeared at least 3 times and a source backs it; check it against `architecture-governance.skill` and the Constitution.
+- Strip names, credentials and personal data from every rule; keep the rule general.
+- Never prune `AUDIT_LOG.md`, snapshots or deployment records. Delete scratch files only after the human confirms your list.
+- A temporary waiver or hack is an incident, not a change to the world model; do not record it as drift.
+- Ask the human to review `rules.md` at the next checkpoint.

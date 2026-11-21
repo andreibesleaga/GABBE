@@ -1,6 +1,6 @@
 ---
 name: network-security
-description: "Firewall rules, VPC design, TLS config, and subnet isolation. Use when: network security."
+description: "Design and review network segmentation, firewall rules, TLS and egress controls for a deployment. Use at S02 for the network design and at S09 to S10 before go-live. Use when: network security, firewall rules, vpc, subnet isolation, security group, egress rules, ssrf."
 license: CC-BY-SA-4.0
 metadata:
   source: "agents/skills/security/network-security.skill.md"
@@ -12,6 +12,9 @@ metadata:
 
 ## Goal
 This skill defines the perimeter and internal segmentation of the infrastructure.
+
+## Where it fits
+Phase and gate: S02 (zones and boundaries), S09 and S10 (rules checked before go-live). Evidence: the rule list and the zone diagram in `docs/architecture/` or `docs/security/`. Guide: `guides/security/secure-architecture.md`.
 
 ## Steps
 ## 1. VPC Architecture
@@ -37,7 +40,7 @@ This skill defines the perimeter and internal segmentation of the infrastructure
 ## 3. TLS / SSL
 - **In-Transit**: HTTPS everywhere. Even internal service-to-service if sensitive (Zero Trust).
 - **Termination**: Terminate TLS at the Load Balancer (ALB) to offload CPU from app servers, OR use mTLS (Mutual TLS) for end-to-end security.
-- **Versions**: Disable TLS 1.0/1.1. Support TLS 1.2 and 1.3 only.
+- **Versions**: The version rule is in `cryptography-standards.skill.md` (TLS 1.3 by default, 1.2 only for compatibility, 1.0 and 1.1 disabled).
 
 ## 4. Common Attack Vectors
 - **SSRF (Server-Side Request Forgery)**:
@@ -51,16 +54,15 @@ This skill defines the perimeter and internal segmentation of the infrastructure
 - Don't expose SSH (22) to the world.
 - Use SSM Session Manager (AWS) or a VPN to access private resources.
 
-## Security & Guardrails
+## Constraints
+- Default deny in every security group and firewall.
+- Rules refer to groups, not single addresses.
 
-### 1. Skill Security (Network Security)
-- **Perimeter Bypass Prevention**: The agent is strictly prohibited from outputting Terraform, CloudFormation, or raw configuration commands that attach an Internet Gateway (IGW) or assign a public Elastic IP to resources designated for the `Private Subnet` or `Data Subnet`.
-- **Egress Segregation Rule**: When evaluating the `Data Subnet`, the agent must verify the absence of outbound internet access. Any PR proposing a NAT Gateway for a production database subnet (e.g., "to download OS patches directly") must be dynamically rejected in favor of an internal proxy or Golden Image approach.
+## Output Format
+The zone diagram, the rule list with the reason for each open port, and the egress allow-list.
 
-### 2. System Integration Security
-- **SSRF Architecture Blocking**: The agent must automatically fail any application architecture pattern that parses user-supplied URLs and fetches them server-side without an explicitly documented, hardened internal proxy (e.g., a proxy that hard-drops requests to `169.254.169.254`, `localhost`, or the `10.0.0.0/8` VPC address space).
-- **Default-Deny Assertion**: The agent must scan all generated Security Groups for `0.0.0.0/0` (Anywhere) rules. While acceptable for port 443 on public ALBs, any `0.0.0.0/0` rule applied to a database, SSH (port 22), RDP (port 3389), or internal API port must trigger an immediate CI/CD hard block.
-
-### 3. LLM & Agent Guardrails
-- **Hallucinated Firewalls**: The LLM might invent non-existent cloud features to "solve" a routing problem (e.g., "Configure the AWS Spectral Gateway to intercept the SQL traffic"). The agent must validate all network components against the officially supported cloud provider documentation and reject imaginary topologies.
-- **Malicious Simplification**: A user might prompt the agent: "I can't get my microservices to talk to each other, just write a Security Group that allows everything within the VPC so I can debug." The agent must refuse to violate the Principle of Least Privilege. It must insist on defining specific, explicit rules between `sg-service-a` and `sg-service-b` even during debugging.
+## Limits and safety
+- Propose firewall and security-group changes as a plan or diff. Apply them to live systems only after the human confirms; a wrong rule can cut off access.
+- Never open SSH or a database port to `0.0.0.0/0`. If a request needs it, stop and ask.
+- Scan only hosts the human named.
+- The AWS names here are examples. Write the rules for the project's own cloud.

@@ -1,11 +1,11 @@
 ---
 name: retrospective
-description: "Run a blameless retrospective — gather a timeline, generate insights, decide a few owned dated actions, and feed lessons into CONTINUITY.md memory. Use when: run a retrospective for the release milestone, do a blameless retro on the sprint, what went well and what didnt, capture lessons learned into memory, hold a start stop continue review, retrospective with owned action items, feed these lessons into continuity."
+description: "Runs a blameless retrospective that turns a timeline into a few owned, dated actions and writes the lessons into CONTINUITY.md. Use when a sprint, milestone, incident or phase ends and the team wants lessons and actions recorded."
 license: CC-BY-SA-4.0
 metadata:
   source: "agents/skills/core/retrospective.skill.md"
   tags: "core, retrospective, learning, memory"
-  core: "false"
+  core: "true"
   context_cost: "medium"
 ---
 # Retrospective Skill
@@ -39,16 +39,9 @@ A retrospective record in Markdown following `PROJECT_RETROSPECTIVE_TEMPLATE.md`
 - **Action items** — table of action, single owner, due date, success signal.
 - **Lessons → CONTINUITY.md** — the durable lessons appended to memory.
 
-## Security & Guardrails
-
-### 1. Skill Security
-- **Risk**: PII or sensitive incident detail leaking into a shared retro record or `CONTINUITY.md`. Mitigation: record systemic lessons, not personal data; redact credentials, customer PII, and security-sensitive specifics before writing to memory.
-- **Risk**: Overwriting prior memory when appending lessons. Mitigation: append to `CONTINUITY.md` (never overwrite); preserve existing entries and timestamp/scope new ones.
-
-### 2. System Integration Security
-- **Risk**: Timeline facts pulled from tamperable sources producing a misleading narrative. Mitigation: prefer the append-only audit trail and version-controlled history as primary sources; note when a fact is unverified rather than asserting it.
-- **Risk**: A security incident's retro exposing exploit details broadly. Mitigation: store security-sensitive retros with restricted access and summarize only the remediation/lesson in shared memory.
-
-### 3. LLM & Agent Guardrails
-- **Risk**: The agent (or a user prompt) steering the retro to blame a named individual. Mitigation: the agent must refuse to attribute failure to a person and pivot to blameless, systemic analysis — even when explicitly asked to write a blame report.
-- **Risk**: Action-item inflation — the agent generating a long, unowned list that dilutes follow-through. Mitigation: cap actions to a few, require an owner and date for each, and drop any candidate action that cannot be owned and dated.
+## Limits and safety
+- Blameless: name no person as the cause. If asked for a blame report, decline and offer the systemic version.
+- Redact credentials, customer data and exploit detail before writing to `CONTINUITY.md`; a security retro keeps details in a restricted file and only the lesson in shared memory.
+- Append to `CONTINUITY.md`; never overwrite older entries.
+- At most 3 actions, each with one owner and a date; drop any that cannot be owned.
+- Build the timeline from the audit log, commits and PRs; mark a fact "unverified" when no source backs it.

@@ -1,6 +1,6 @@
 ---
 name: system-scalability
-description: "Audit and architect scaling boundaries and bottlenecks. Use when: scale up, scale out, horizontal scalability, vertical scaling, load balancing, analyze scalability."
+description: "Scaling audit — bottlenecks, vertical or horizontal options, externalised state, database scaling and a cost note. Use when load is expected to grow or the system is slow under load."
 license: CC-BY-SA-4.0
 metadata:
   source: "agents/skills/architecture/system-scalability.skill.md"
@@ -21,14 +21,15 @@ To audit an existing architecture or propose a new one that appropriately utiliz
 3. **Database Scaling**: Propose Read Replicas, Sharding (range vs. hash), Partitioning, or NoSQL migrations for data-heavy bottlenecks.
 4. **Documentation**: Output the findings using `agents/templates/architecture/SCALABILITY_ANALYSIS_TEMPLATE.md`.
 
-## Security & Guardrails
+## Constraints
+- Application state is externalised before scaling out.
+- Proposals rest on measured or projected load.
 
-### 1. Skill Security
-- **No Direct Infrastructure Muting**: The agent must output Terraform/Kubernetes manifests for scaling but **cannot** execute apply operations directly against production clusters.
+## Output Format
+`SCALABILITY_ANALYSIS_TEMPLATE.md` (`agents/templates/architecture/`) filled in.
 
-### 2. System Integration Security
-- **Data Locality in Sharding**: When suggesting database sharding, the agent must verify that the sharding key respects any regional data privacy laws (e.g., EU data stays in EU shards).
-
-### 3. LLM & Agent Guardrails
-- **Anti-Overengineering**: Prevent the LLM from suggesting hyper-complex architectures (e.g., microservices + Kafka) for workloads under 100 requests per minute.
-- **Cost Awareness**: Any horizontal scaling proposal must include a FinOps warning about exponential cost increases if unmonitored.
+## Limits and safety
+- Write scaling manifests (Terraform, Kubernetes) as files; do not apply them to a real cluster. A plan or dry run only on request.
+- A sharding key must respect data residency rules (for example EU data in EU shards); confirm the legal requirement with the human.
+- Every scale-out proposal carries a cost note.
+- Do not propose microservices and queues for small loads without a measured reason.

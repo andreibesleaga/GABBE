@@ -1,6 +1,6 @@
 ---
 name: output-validation
-description: "Make LLM and agent outputs safe and machine-reliable via schema validation and PII masking. Use when: output validation, schema validation, structured output, retry on validation, PII masking, Presidio, improper output handling."
+description: "Validate LLM output against a schema with bounded retries, and mask personal data before logs and external APIs. Use when model output feeds code, a tool or a database, or when personal data could reach a log or a third-party API."
 license: CC-BY-SA-4.0
 metadata:
   source: "agents/skills/coding/output-validation.skill.md"
@@ -44,16 +44,10 @@ Make LLM/agent outputs safe and machine-reliable through schema validation and P
 - A validated, typed object (the schema-conformant result) ready for downstream use.
 - A validation report: passed / failed / number of retries, and the PII entities detected and masked (type and masking strategy, never the raw value).
 
-## Security & Guardrails
-
-### 1. Skill Security (Output Validation)
-- **Improper output handling enabling downstream injection**: Unvalidated model output flowing into a SQL query, shell command, HTML sink, or template is a classic OWASP LLM05 path to SQLi/XSS/command injection. Validation MUST run before any side-effecting use, and the consuming sink MUST still apply its own context-appropriate encoding/parameterization — schema validation does not replace output encoding.
-- **Retry-loop resource exhaustion**: The retry-on-validation-failure loop is itself a denial-of-service surface if unbounded — a model stuck producing invalid output burns tokens and budget indefinitely. The retry count, total token spend, and wall-clock per output MUST be hard-capped, failing closed to an error rather than looping.
-
-### 2. System Integration Security
-- **PII leakage into logs / observability (OWASP LLM02)**: Logs, traces, and error payloads are the most common accidental PII exfiltration sink because they are shipped to third-party observability platforms. Masking MUST occur on the path to every external sink, and raw-value fields MUST be excluded from structured logs by schema, not by hoping the logger redacts them.
-- **Masking false-negatives reaching external APIs**: Because the regex+NER hybrid (e.g. `Presidio`) misses entities in unfamiliar contexts, sending "masked" data to an external LLM/API can still leak real PII. High-sensitivity flows MUST set recall-favoring confidence thresholds and, where the sink is untrusted, prefer redaction over placeholder so a missed entity is the exception, not the norm.
-
-### 3. LLM & Agent Guardrails
-- **Schema-valid but semantically false output**: A well-typed object can encode a hallucinated or adversarial value (a fabricated account number, an injected URL). Downstream consumers MUST NOT treat schema-validity as authorization or truth; trifecta-complete or irreversible actions still require independent verification and human approval per `prompt-injection-defense.skill` and `ai-safety-guardrails.skill`.
-- **Validation feedback as an injection vector**: Echoing the model's invalid output and validation error back into the retry prompt can re-inject attacker-controlled content. Feed back only the structured schema/error description, not the raw rejected payload verbatim, so the retry turn cannot be steered by the failed output.
+## Limits and safety
+- Cap retries, token spend and wall-clock time per output, and fail closed with an error when the cap is reached.
+- Validation does not replace encoding: the code that consumes the output still parameterises SQL and escapes HTML and shell arguments.
+- Mask before any external API or log; leave raw-value fields out of structured logs by schema, and report entity types and counts, never raw values.
+- For an untrusted sink redact rather than substitute a placeholder; masking misses entities, so the result is risk-reduced, not PII-free.
+- Send the retry prompt the schema and the error description, not the rejected output verbatim.
+- A schema-valid object is not true or authorised; an irreversible action still needs an independent check and the human's approval.

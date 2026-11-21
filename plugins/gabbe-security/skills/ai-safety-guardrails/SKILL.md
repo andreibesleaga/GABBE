@@ -1,6 +1,6 @@
 ---
 name: ai-safety-guardrails
-description: "Security-by-design for AI (Prompt Injection defense, Hallucination checks, PII filters). Use when: ai safety guardrails."
+description: "Add input, output, retrieval and execution rails around an LLM feature: PII scrubbing, output checks, and human approval for high-stakes actions. Use when building or reviewing a feature that sends user data to a model or acts on model output."
 license: CC-BY-SA-4.0
 metadata:
   source: "agents/skills/security/ai-safety-guardrails.skill.md"
@@ -12,6 +12,9 @@ metadata:
 
 ## Goal
 This skill protects the system from its own AI.
+
+## Where it fits
+Phase and gate: S02 and S03 (rails in the design and spec), S05 (build), S07 (review). Evidence: a table of rails (input, output, dialog, retrieval, execution) in `docs/security/THREAT_MODEL.md`, and a test for each rail. Part of `security-baseline.skill.md` for AI software.
 
 ## Steps
 ## 1. Input Guardrails (Defense)
@@ -56,16 +59,16 @@ Rather than treating guardrails as a single filter, model them as **rails** — 
 
 For how these controls map onto named AI-risk standards (OWASP LLM Top 10, NIST AI RMF, MITRE ATLAS, ISO/IEC 42001, EU AI Act), see the guide ai-risk-standards-map.
 
-## Security & Guardrails
+## Constraints
+- More than one rail is active, so one bypass is caught by another.
+- High-stakes actions need the human's approval in code, not in a prompt.
 
-### 1. Skill Security (AI Safety Guardrails)
-- **Guardrail Circumvention Prevention**: The infrastructure running the `NeMo Guardrails` or `Presidio` PII scrubbing must be physically and logically separated from the primary LLM execution environment. If the primary LLM is successfully jailbroken, it must not possess the system-level permissions required to disable its own outgoing telemetry or content filters.
-- **Filter Evasion Monitoring**: The agent must continuously audit the logs of the Input Guardrails. A sudden spike in rejected prompts or specific keywords (e.g., "DAN", "Ignore previous") must trigger an automated escalation to the Security Operations Center (SOC), indicating an active, coordinated prompt injection attack.
+## Output Format
+The table of rails with the test for each, and the list of actions that need human approval.
 
-### 2. System Integration Security
-- **Fail-Closed Architecture**: If the Output Guardrail service (e.g., the JSON format validator or sentiment analyzer) crashes or times out, the primary application must default to a "Fail-Closed" state. The system is strictly prohibited from bypassing the offline guardrail to deliver unchecked LLM output directly to the end-user.
-- **PII Scrubbing Reversibility**: When `Presidio` or similar tools redact PII from a user prompt before sending it to an external LLM, the mapping mechanism (e.g., swapping `John Doe` for `[USER_1]`) must utilize cryptographically secure, high-entropy tokens. Attackers must not be able to infer the original PII by reverse-engineering the redaction dictionary.
-
-### 3. LLM & Agent Guardrails
-- **Meta-Jailbreak Detection**: Aggressive attackers may attempt to jailbreak the primary LLM by using the guardrail system itself as an attack vector (e.g., embedding a prompt injection payload inside a legitimate string of PII to bypass the initial filter). The agent must apply recursive, multi-layered inspection to all structured inputs.
-- **Hallucinated Authorization**: The agent must recognize that an LLM generating a perfectly formatted JSON response declaring `"action": "transfer_funds", "authorized": true` does NOT equate to a cryptographic authorization grant. The overarching system must never trust the LLM's assertion of authority; it must cryptographically verify the user's session token independently.
+## Limits and safety
+- If the guardrail service fails or times out, the application refuses. It never sends unchecked model output on.
+- Redaction placeholders are random. They must not be derived from the value they replace.
+- A model's statement that an action is "authorised" is not authorisation. Check the user's session and permissions in code.
+- Pattern filters are pre-filters only; structural controls decide.
+- Report a spike in rejected prompts to the human.

@@ -1,7 +1,7 @@
 {
   "name": "gabbe-coding",
   "version": "1.1.4",
-  "description": "GABBE coding skills (28): coding: language performance, testing strategies (browser TDD, property-based, metamorphic, chaos), evals, UI generation and diagram canvases.",
+  "description": "GABBE coding skills (30): coding: language performance, testing strategies (browser TDD, property-based, metamorphic, chaos), evals, UI generation and diagram canvases.",
   "author": {
     "name": "Andrei Nicolae Besleaga",
     "url": "https://github.com/andreibesleaga/GABBE"

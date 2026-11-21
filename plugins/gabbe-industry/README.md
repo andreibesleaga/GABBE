@@ -14,18 +14,18 @@ claude plugin install gabbe-industry@gabbe
 Or install single skills with the skills CLI (skills.sh):
 
 ```bash
-npx skills add andreibesleaga/GABBE -a claude-code
+npx skills@1.9.0 add andreibesleaga/GABBE -a claude-code
 ```
 
 Version 1.1.4. Generated from `agents/skills/` by `scripts/build_claude_plugin.py`; edit the sources, not these files.
 
 ## Skills
 
-- `engineering-standards` — Enforce academic and industry engineering standards (IEEE, ACM, ISO/IEC)
-- `global-standards` — Enforce UN, ITU, and Global Open Source (OSI, OpenSSF) software standards
-- `healthcare-fhir` — Design RESTful clinical data exchanges using HL7 FHIR standards
-- `industrial-iot` — Architect high-throughput industrial telemetry via MQTT & OPC UA
-- `telecom-networks` — Architect Telecom interfaces using TM Forum ODA, GSMA CAMARA, and eSIM standards
+- `engineering-standards` — Compliance review against ISO/IEC/IEEE 42010 and 12207, SWEBOK and the ACM Code of Ethics, written as a report. Use when a project must show conformance to IEEE, ACM or ISO standards.
+- `global-standards` — Audit against UN SDG, ITU-T and open source (OSI, OpenSSF) requirements, written as a report. Use when a public-sector or open source project needs a standards or licence check.
+- `healthcare-fhir` — FHIR resource mapping, profiles and REST interactions for clinical data exchange. Use when integrating with an electronic health record system or building a healthcare API.
+- `industrial-iot` — Edge-to-cloud design for industrial telemetry with Purdue levels, OPC UA, MQTT and cloud ingestion. Use when factory equipment, PLC or SCADA data must reach cloud systems.
+- `telecom-networks` — Telecom API and architecture map using TM Forum ODA and Open APIs, GSMA CAMARA and eSIM provisioning. Use when building for carrier BSS or OSS systems or exposing network capabilities to developers.
 
 ## Licence
 

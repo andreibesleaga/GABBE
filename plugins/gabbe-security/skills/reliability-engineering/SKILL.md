@@ -1,6 +1,6 @@
 ---
 name: reliability-engineering
-description: "Designing failover patterns (Hot Standby, TMR), redundancy, and MTBF/availability calculations. Use when: reliability engineering."
+description: "Design failover, redundancy and stability patterns, and compute availability from MTBF and MTTR. Use when a requirement sets an availability target or when one failure must not stop the service."
 license: CC-BY-SA-4.0
 metadata:
   source: "agents/skills/security/reliability-engineering.skill.md"
@@ -12,6 +12,9 @@ metadata:
 
 ## Goal
 This skill designs systems that continue to function in the presence of faults.
+
+## Where it fits
+Phase and gate: S02 (design), S06 (tests), S09 (failover test in staging). Lead: prod-safety-engineer. Evidence: the calculation with its assumptions in `docs/architecture/`.
 
 ## Steps
 ## 1. Redundancy Patterns
@@ -35,16 +38,14 @@ This skill designs systems that continue to function in the presence of faults.
 - **Bulkhead**: Isolate components so a crash in one doesn't sink the ship.
 - **Backpressure**: Reject new work when overloaded.
 
-## Security & Guardrails
+## Constraints
+- State the failure assumptions behind each availability number.
+- Each redundancy pattern has a test that shows the failover works.
 
-### 1. Skill Security (Reliability Engineering)
-- **Failover State Tampering**: The logic governing the "Heartbeat Loss" in Active/Passive setups is highly sensitive. The agent must mandate that the failover orchestration system requires cryptographically signed heartbeats. If a malicious actor can spoof a "node dead" message, they can force the system into a continuous, thrashing failover state (a localized DoS).
-- **Watchdog Integrity**: The agent must specify that Software Watchdog Timers operate at a higher ring/privilege level than the application they monitor. An application compromised by an attacker or locked in an infinite loop must not be able to indefinitely suspend or disable its own Watchdog timer.
+## Output Format
+The pattern chosen per component, the availability calculation with its assumptions, and the failover test result.
 
-### 2. System Integration Security
-- **Circuit Breaker Data Leakage**: When a Circuit Breaker trips and rejects new work, the fallback response (e.g., an HTTP 503 error) must be strictly sanitized. The agent must verify that the fallback mechanism does not inadvertently leak internal stack traces, database states, or backend IP addresses to the client during the failure mode.
-- **Redundancy as an Attack Vector**: If the architecture uses N-Version Programming (multiple teams writing the same software to avoid common bugs), the agent must ensure strict network and IAM isolation between the N versions. If a single Zero Day exploits `Version A`, the architecture must guarantee the attacker cannot pivot to compromise `Version B`.
-
-### 3. LLM & Agent Guardrails
-- **MTBF Hallucination**: The LLM must not invent arbitrary "Five Nines" (99.999%) availability guarantees for proposed architectures without mathematically backing up the assertion with the combined failure rates ($\lambda$) of the underlying cloud provider SLAs and dependent services.
-- **Cost vs. Reliability Bias**: A user might prompt the agent: "We need 100% uptime for this blog, design an Active/Active multi-region Kubernetes cluster." The agent must act as a rational guardrail. While technically possible, the agent must highlight the extreme cost and complexity for a non-critical workload and suggest a static S3 bucket instead, prioritizing pragmatic architectural security over over-engineering.
+## Limits and safety
+- The numbers are estimates from stated assumptions. Write the assumptions down. Never present an availability figure as a guarantee.
+- Run failover and fault-injection tests in staging or test. In production only with the human's yes in the request.
+- N-version programming is costly. State the cost and ask the human before proposing it.

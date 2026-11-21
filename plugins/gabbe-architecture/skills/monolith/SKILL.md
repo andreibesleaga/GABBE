@@ -1,6 +1,6 @@
 ---
 name: monolith
-description: "Design and refactor Monolithic and Modular Monolithic architectures. Use when: design monolith, build modular monolith, enforce boundaries."
+description: "Module boundaries, dependency rules and architecture checks for a modular monolith. Use when building a monolith that must stay modular, or when module boundaries in an existing one are being violated."
 license: CC-BY-SA-4.0
 metadata:
   source: "agents/skills/architecture/monolith.skill.md"
@@ -19,16 +19,15 @@ Design strictly structured Modular Monoliths or enforce clean boundaries within 
 3. **Implementation**: Ensure database transactions and code execution do not bypass module boundaries.
 4. **Verification**: Run architecture linters to catch dependency violations (e.g., Module A importing internal classes of Module B).
 
-## Security & Guardrails
+## Constraints
+- Modules are reached only through their public interfaces.
+- Transactions and code do not bypass module boundaries.
 
-### 1. Skill Security
-- **Governance Evasion**: Prevent the agent from disabling the CI architectural linters (e.g., `dependency-cruiser.json`) in order to resolve boundary violations.
-- **God-Class Creation**: Prevent the agent from merging domains into single "God Objects" to avoid compilation errors.
+## Output Format
+The module list with public interfaces, and the architecture linter configuration that enforces the dependency rules.
 
-### 2. System Integration Security
-- **Shared Memory Poisoning**: If the monolith uses global state or a shared cache, strictly partition keys by module domain.
-- **Privilege Escalation**: Ensure all modules enforce authorization explicitly; one module cannot assume another module has pre-authorized a request.
-
-### 3. LLM & Agent Guardrails
-- **Boundary Hallucination**: The LLM must not invent exceptions to the dependency rules.
-- **Refactor Avalanche**: When fixing a boundary violation, the agent must not initiate a massive, undirected refactoring avalanche across the entire monolithic codebase.
+## Limits and safety
+- Do not disable or loosen the architecture linter config to clear a violation; fix the dependency or ask for a waiver.
+- Do not invent exceptions to the dependency rules or merge modules into one class to silence errors.
+- Partition cache keys and global state by module; each module checks authorization itself.
+- Fix one violation at a time, scoped to the two modules involved, with tests passing after each step.

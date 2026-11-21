@@ -1,6 +1,6 @@
 ---
 name: browser-tdd
-description: "Browser-based visual TDD using Playwright — verify UI produces correct visual output, not just syntactic correctness. Use when: visual, playwright, frontend, UI, browser, screenshot, sticky, layout, DOM, visual test."
+description: "Write Playwright tests that check a UI in a real browser (DOM, computed styles, scroll, screenshots) before the code. Use when a UI task is about layout, sticky or fixed elements, modals, animations or anything that only works when it renders correctly."
 license: CC-BY-SA-4.0
 metadata:
   source: "agents/skills/coding/browser-tdd.skill.md"
@@ -79,7 +79,7 @@ Verify that UI code produces correct visual output through actual browser execut
    [unit test command]        # All unit tests still pass
    ```
 
-8. **Capture visual regression baseline** (optional but recommended)
+8. **Capture visual regression baseline** (optional but recommended; this overwrites the stored baseline images, so show the human the diff and run it only after they confirm the change is intended)
    ```bash
    npx playwright test --update-snapshots  # Update baseline screenshots
    ```
@@ -119,16 +119,8 @@ await expect(page).toHaveScreenshot('homepage.png');
 ## Output Format
 Passing Playwright test + implemented UI change. Report: "VISUAL TDD GREEN — [test name] passes in [browser]."
 
-## Security & Guardrails
-
-### 1. Skill Security (Browser TDD)
-- **Test Payload Sanitization**: When creating visual tests (Step 2), the agent might accidentally embed real customer PII or sensitive session tokens into the test fixtures or mock responses to make the UI render correctly. The agent must strictly utilize deterministic, anonymized, and synthetic dummy data (e.g., Faker.js) for all UI rendering tests to prevent secrets from being committed to the test repository.
-- **Visual Baseline Tampering**: In Step 8, the agent updates the visual snapshots (`--update-snapshots`). An attacker who compromised the UI could instruct the agent to "update the baseline" to legitimize a malicious visual change (e.g., an invisible phishing overlay). The agent must require explicit Human Authorization before executing any command that overwrites the "Golden Master" visual baselines.
-
-### 2. System Integration Security
-- **Headless Browser Sandbox Escape**: Playwright executes a real browser engine. If the UI being tested contains a zero-day browser exploit, the automated test runner could be compromised. The system integration must ensure that the Playwright browser context runs within a tightly restricted Docker container with dropped capabilities and no access to the host machine's sensitive internal networks or IAM metadata.
-- **Third-Party Script Execution**: During UI tests (Step 5), the browser evaluates all scripts on the page, including tracking pixels, analytics, and external CDN dependencies. This can inadvertently trigger rate limits, pollute production analytics, or execute malicious external code. The Playwright configuration MUST intercept and block requests to all non-essential third-party domains during the test suite execution.
-
-### 3. LLM & Agent Guardrails
-- **Self-Heal Hallucination (CSS Hacks)**: If a visual test fails repeatedly, the LLM might resort to destructive CSS hacks (like `opacity: 0` or `display: none` applied globally, or `!important` tags) just to make the Playwright assertion pass, destroying the actual visual layout for real users. The agent must reject self-healing suggestions that introduce high-risk CSS anti-patterns.
-- **Accessibility (a11y) Erasure**: Visual TDD focuses on how things *look*. The LLM might implement a feature that passes the visual snapshot but completely breaks the semantic DOM structure (e.g., using a visually styled `<div>` instead of a `<button>`), severely damaging accessibility. The agent must mathematically require passing automated DOM accessibility checks (e.g., `axe-core`) alongside visual assertions.
+## Limits and safety
+- Use synthetic fixtures only; no real customer data or session tokens in test code, mock responses or screenshots.
+- `--update-snapshots` overwrites the visual baseline: run it only after the human has seen the diff and confirmed the change is intended.
+- Run against a local or staging server, and block or stub third-party hosts (analytics, ads, CDNs) in the Playwright config.
+- Do not make a test pass with global `display: none`, `opacity: 0` or `!important`; if the project has an accessibility check (for example `axe-core`), run it alongside the visual test and use native elements (`<button>`, not a styled `<div>`).

@@ -1,6 +1,6 @@
 ---
 name: integrity-check
-description: "End-to-end 8-dimension verification — requirements through delivery, all aligned and correct. Use when: integrity, verify all, are we done, is it complete, end-to-end check, check everything, full verification."
+description: "Rates eight dimensions (requirements, architecture, implementation, tests, security, tech debt, docs, lifecycle) GREEN, YELLOW or RED with command evidence. Use when asked whether the project is complete and consistent, before a checkpoint, and before a production deploy."
 license: CC-BY-SA-4.0
 metadata:
   source: "agents/skills/core/integrity-check.skill.md"
@@ -23,7 +23,7 @@ Verify the ENTIRE project is consistent and correct from requirements to deliver
 
 ### Dimension 2 — Architecture Integrity
 - Run agentic-linter.skill: zero architecture boundary violations
-- Run `npx madge --circular src/` or `vendor/bin/deptrac`: zero circular dependencies
+- Run `npx madge@8.0.0 --circular src/` or `vendor/bin/deptrac`: zero circular dependencies
 - Check: all architectural decisions have ADRs in `docs/architecture/decisions/`
 - Result: GREEN / YELLOW / RED
 
@@ -55,7 +55,7 @@ Verify the ENTIRE project is consistent and correct from requirements to deliver
 
 ### Dimension 6 — Tech Debt Integrity
 - No uncatalogued TODO/FIXME/HACK markers (all have task tickets)
-- Cyclomatic complexity < 10 for all modified files
+- Cyclomatic complexity <= 10 for all modified files
 - No dead code in production branches
 - TECH_DEBT_TEMPLATE.md entries are current
 - Result: GREEN / YELLOW / RED
@@ -72,6 +72,7 @@ Verify the ENTIRE project is consistent and correct from requirements to deliver
 - PROJECT_STATE.md current phase is accurate
 - All SESSION_SNAPSHOT files exist for completed phases
 - AUDIT_LOG.md has entries for all major decisions
+- Memory checksums: compare the latest snapshot's `## Memory Checksums` block with the current files (the compare step is in `session-resume.skill`); the first lines of `AUDIT_LOG.md` must be unchanged
 - Result: GREEN / YELLOW / RED
 
 ## Steps
@@ -136,16 +137,8 @@ Verify the ENTIRE project is consistent and correct from requirements to deliver
 ## Output Format
 8-dimension integrity report with GREEN/YELLOW/RED per dimension + OVERALL STATUS + prioritized action list.
 
-## Security & Guardrails
-
-### 1. Skill Security (Integrity Check)
-- **Check-Bypass Prevention**: The integrity checking script/logic must be cryptographically pinned or read-only, preventing a compromised process from modifying the script to universally return `GREEN`.
-- **Secret Scanning Isolation**: The phase detecting secrets (`gitleaks`) must operate in a secure, ephemeral pipeline environment that aggressively wipes memory after execution so the detected secrets themselves aren't cached or leaked.
-
-### 2. System Integration Security
-- **Hard-Blocking Deployments**: The results of Dimension 5 (Security Integrity) must be integrated directly into the CI/CD pipeline as a non-overridable failure block. If `RED`, the deployment system absolutely must refuse to release the artifact.
-- **Comprehensive Dependency Auditing**: Ensure the integrity check includes transitive dependencies (SCA), not just direct imports, detecting supply-chain attacks deep within the dependency graph.
-
-### 3. LLM & Agent Guardrails
-- **Sign-Off Forgery Defense**: The "INTEGRITY VERIFIED" sign-off must require a cryptographic signature or an explicit, out-of-band human 2FA approval step when transitioning from S09 to S10 (Production), preventing an LLM from hallucinating an approval.
-- **Confirmation Bias Mitigation**: The `orch-judge` persona evaluating the 8 dimensions must not rely solely on self-reported agent logs; it must independently execute the underlying validation commands (tests, linters, scanners) to guarantee truth.
+## Limits and safety
+- Run the commands yourself in this session (tests, coverage, linters, scanners); never copy a result from an agent's log.
+- Write "INTEGRITY VERIFIED" only when every dimension is GREEN, and only as orch-judge or on the human's say. For the production step, the sign-off is a `HUMAN_APPROVED` row in `AUDIT_LOG.md`.
+- Dimension 5 includes indirect dependencies (audit the lockfile). If CI provides a required check, use it so a RED security result blocks the release.
+- Secret-scan output can contain the secrets: report file and line, mask the value.

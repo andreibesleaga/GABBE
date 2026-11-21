@@ -1,6 +1,6 @@
 ---
 name: arch-design
-description: "Design system architecture from approved requirements — quality attributes, style selection, arc42/4+1 views, ADRs. Use when: design architecture, new architecture, architect the system, system design, choose architecture, architectural design, create architecture, system structure."
+description: "Architecture design from approved requirements — quality scenarios, style choice, decomposition, 4+1 or arc42 views, ADRs and risks. Use when a new system or major subsystem needs an architecture before implementation planning."
 license: CC-BY-SA-4.0
 metadata:
   source: "agents/skills/architecture/arch-design.skill.md"
@@ -24,6 +24,12 @@ technology-agnostic; specific technology decisions happen via adr-writer.skill.
 - **Scenario 1 (New System)**: Greenfield architecture. Requirements exist and are approved (req-elicitation output). No existing system to constrain design choices.
 - **New major subsystem**: Adding a subsystem with significant architectural impact.
 - **Technology migration**: Redesigning architecture before selecting new technologies.
+
+---
+
+## Steps
+
+Work through Step 1 to Step 8 below in order; each has its own heading.
 
 ---
 
@@ -55,6 +61,8 @@ ISO 25010 Quality Attributes to assess:
   Compatibility:            coexistence, interoperability
 
 Fill: templates/architecture/QUALITY_ATTRIBUTES_TEMPLATE.md before selecting styles.
+See also: system-qualities.skill (measurable requirements), attribute-driven-design.skill
+(iterative rounds from drivers), critical-systems-arch.skill (safety-critical systems).
 ```
 
 ---
@@ -290,17 +298,12 @@ Minimum required sections:
 - Architecture must satisfy ALL MUST-level quality attribute scenarios
 - If a MUST QAS cannot be satisfied: escalate to human before proceeding
 
-## Security & Guardrails
+## Output Format
+The documents in the Output Checklist: `docs/architecture/ARCHITECTURE.md` (or an arc42 document), `docs/architecture/ARCHITECTURE_RISKS.md`, the filled architecture templates and ADR-001 to ADR-005.
 
-### Steps
-## 1. Skill Security (Architecture Design)
-- **Threat Model Prerequisite**: The agent is prohibited from finalizing the "Solution Strategy" (Step 4 of Documentation) without simultaneously invoking the `threat-model.skill.md`. A structural architecture designed without an adversarial mindset is fundamentally incomplete.
-- **Authorization as a Core View**: The agent must not relegate User Identity and Access Management to a secondary "implementation detail." The Logical View and Process View must explicitly diagram how authentication flows through the system boundaries (e.g., Token exchange at the API Gateway, JWT passing to microservices).
-
-### 2. System Integration Security
-- **Zero-Trust Baseline Enforcement**: When defining the Deployment View (Step 4) and Network Topology, the agent must default to a Zero-Trust posture. It must explicitly reject any architectural diagram that implies "implicit trust" within the private network (e.g., microservices communicating over unencrypted HTTP just because they share a VPC).
-- **Data Classification Anchoring**: Before selecting Data Ownership strategies (ADR-004), the agent must categorize the data flowing through the components. High-sensitivity data (PII, PCI) must influence the architecture style, potentially forcing a Microkernel or isolated Service-Oriented approach specifically to contain the compliance blast radius.
-
-### 3. LLM & Agent Guardrails
-- **Resume-Driven Design Bias**: The LLM often biases towards trendy, hyper-scalable architectures (like globally distributed Event-Driven Microservices) regardless of actual requirements. The agent must act as a strict counter-balance, using the Quality Attribute Scenarios (Step 1) as hard mathematical constraints to veto over-engineered patterns.
-- **Security-Washing Detection**: The agent must verify that "Security" listed as a Quality Attribute isn't just a buzzword. If Security is stated as a priority but the resulting Architecture doesn't explicitly allocate components to KMS, WAFs, and Audit Logging, the agent must reject the design for failing its own fitness function.
+## Limits and safety
+- Do not finalise the solution strategy before `threat-model.skill` has been run on the design.
+- Authentication and authorization flows appear in the logical and process views, not left to implementation.
+- Classify the data (personal, payment) before the data ownership ADR; sensitive data can force an isolated component.
+- The deployment view assumes no implicit trust inside the private network.
+- Choose styles from the quality scenarios, not from fashion; if the scenarios do not need a complex style, reject it and say why.

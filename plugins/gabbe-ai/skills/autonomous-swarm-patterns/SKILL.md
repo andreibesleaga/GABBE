@@ -1,6 +1,6 @@
 ---
 name: autonomous-swarm-patterns
-description: "Implement self-organizing autonomous swarm architectures. Use when: implement swarm, deploy autonomous agents, setup swarm consensus."
+description: "Build a self-organising swarm of agents that coordinate through shared markers and simple local rules. Use when one agent cannot cover a decentralised problem and you want many agents with no central planner."
 license: CC-BY-SA-4.0
 metadata:
   source: "agents/skills/ai/autonomous-swarm-patterns.skill.md"
@@ -19,16 +19,16 @@ Implement advanced autonomous swarm patterns (e.g., ant-colony optimization, par
 3. **Consensus Protocols**: Implement decentralized consensus (e.g., voting, threshold signatures) for collective decisions.
 4. **Verification**: Run a simulation to verify the swarm stabilizes and converges on a solution without diverging into chaos.
 
-## Security & Guardrails
+## Constraints
+- Ask the human before starting more than one agent; state the agent count, token cap and run time first.
+- Each agent has local rules only; the whole-swarm behaviour is checked by a simulation, not assumed.
 
-### 1. Skill Security
-- **Swarm Containment**: Explicitly bound the swarm's domain. They must not crawl or interact with external systems outside the predefined whitelist.
-- **Cost Runaway Mitigation**: Hard-cap API token usage and agent iterations. A swarm can bankrupt a project in minutes if unconstrained.
+## Output Format
+`docs/SWARM_DESIGN.md` (marker design, agent rules, consensus rule, caps, stop command) and the simulation result showing the swarm converges.
 
-### 2. System Integration Security
-- **Emergent Malice Detection**: Monitor the aggregate behavior of the swarm. Even if individual rules are safe, the swarm could collectively launch a Denial of Service attack against internal systems.
-- **Rate Limiting**: Enforce strict rate limits on the shared context/database layer to prevent the swarm from crashing infrastructure.
-
-### 3. LLM & Agent Guardrails
-- **Echo Chamber Hallucinations**: Prevent agents from recursively training on or validating each other’s hallucinated markers.
-- **Kill Switch Mandate**: The developer must be able to issue a single `KILL` command that immediately halts all swarm activity universally.
+## Limits and safety
+- Set a hard cap on agents, iterations and tokens before the first run, and confirm it with the human.
+- Bound the swarm to a written list of paths and services; any other target is out of scope.
+- Provide one stop command or stop file that halts every agent; test it before a long run.
+- Rate-limit the shared context store or database the swarm writes to.
+- Agents must not validate each other's markers without a check a command can run.

@@ -21,10 +21,10 @@ Ensure UI features meet WCAG 2.2 Level AA requirements through automated scannin
    npx playwright test --config=playwright.a11y.config.ts
 
    # Pa11y for batch URL testing
-   npx pa11y http://localhost:3000 --standard WCAG2AA
+   npx pa11y@10.0.0 http://localhost:3000 --standard WCAG2AA
 
    # Lighthouse accessibility audit
-   npx lighthouse http://localhost:3000 --only-categories=accessibility --output=json
+   npx lighthouse@13.6.0 http://localhost:3000 --only-categories=accessibility --output=json
    ```
 
    **Playwright + axe-core test:**
@@ -88,7 +88,7 @@ Ensure UI features meet WCAG 2.2 Level AA requirements through automated scannin
    ```
 
 5. **Check WCAG 2.2 specific criteria**
-   - **2.5.3 Target Size (Minimum):** Interactive targets at least 24×24 CSS pixels
+   - **2.5.8 Target Size (Minimum):** Interactive targets at least 24×24 CSS pixels
    - **3.3.7 Redundant Entry:** Don't ask users to re-enter info they've already provided
    - **3.3.8 Accessible Authentication:** No cognitive function test required (CAPTCHAs must have alternative)
 
@@ -131,16 +131,8 @@ Ensure UI features meet WCAG 2.2 Level AA requirements through automated scannin
 ## Output Format
 Accessibility audit report + list of violations with file:line references + recommended fixes.
 
-## Security & Guardrails
-
-### 1. Skill Security (Accessibility)
-- **Scanner Sandbox Integrity**: Automated accessibility scanners (like `axe-core` via Playwright) often execute JavaScript within the context of the audited page. The scanning environment must be strictly isolated to prevent malicious XSS payloads on the target site from compromising the auditing agent.
-- **Audit Report Immutability**: The generated Accessibility Audit Report must be treated as a compliance document. Agents must not be able to retroactively alter past reports to hide newly discovered violations or falsify compliance metrics.
-
-### 2. System Integration Security
-- **Authentication Handlers in Scanning**: When auditing authenticated views, the testing suite must be provisioned with designated, low-privilege `a11y-test` accounts. The agent must NEVER use production admin credentials or real customer session tokens to perform accessibility crawls.
-- **Accessible Authentication (WCAG 3.3.8)**: When verifying that authentication workflows do not require cognitive function tests (like complex puzzles), the agent must ensure that the accessible alternative (e.g., WebAuthn, email magic links) maintains equivalent cryptographic strength and resistance to credential stuffing.
-
-### 3. LLM & Agent Guardrails
-- **Dark Pattern Recognition**: The agent must be explicitly prompted to flag UI designs that use accessibility features maliciously (e.g., using `aria-hidden="true"` to hide the "Cancel Subscription" button from screen readers) as a critical security/compliance violation.
-- **False Negative Veto**: The LLM must not override an automated `[ERROR]` from `axe-core` based on a subjective visual assessment (e.g., "The contrast looks fine to me, I'll ignore the 4.48:1 failure"). Mathematical WCAG thresholds are non-negotiable.
+## Limits and safety
+- Scan only pages you were asked to scan, on a local or staging copy. Use a test account, never a real customer or admin session.
+- Do not override an automated axe-core error by a visual judgement; record a justified exception for the human instead.
+- Automated scans find only part of the WCAG problems; the report says which checks were done by hand.
+- Flag UI that hides controls from assistive technology on purpose (for example `aria-hidden` on a cancel button).

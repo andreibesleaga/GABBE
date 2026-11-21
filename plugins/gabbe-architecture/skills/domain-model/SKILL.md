@@ -1,6 +1,6 @@
 ---
 name: domain-model
-description: "Create or review a domain model — bounded contexts, entities, value objects, aggregates, domain events, relationships. Use when: domain model, bounded context, ubiquitous language, context map, domain design, domain analysis, domain events, aggregate, entities, DDD analysis."
+description: "Domain model document — glossary, bounded contexts, aggregates, domain events and a context map, in business language. Use when starting a product, reviewing a model against the domain, or finding where to split a monolith."
 license: CC-BY-SA-4.0
 metadata:
   source: "agents/skills/architecture/domain-model.skill.md"
@@ -25,6 +25,12 @@ class syntax, no framework artifacts.
 - **Scenario 2 (Existing system review)**: "Does the current system model correctly reflect the domain?"
 - **Before splitting a monolith**: Identify bounded context boundaries.
 - **When teams disagree on terminology**: Model the language explicitly.
+
+---
+
+## Steps
+
+Work through Step 1 to Step 6 below in order; each has its own heading.
 
 ---
 
@@ -281,17 +287,9 @@ For each aggregate:
 - Domain events must have clear, specific payload — "all order data" is not acceptable
 - Model is validated against requirements: every use case must be traceable to domain objects
 
-## Security & Guardrails
-
-### Steps
-## 1. Skill Security (Domain Modeling)
-- **Invariant Immutability**: The agent must establish that business invariants (e.g., "An account balance cannot be negative") defined within an Aggregate Root are inviolable security boundaries. It must forbid any design that attempts to bypass the Aggregate Root to modify internal Entity state directly, as this breaks the mathematical guarantee of system consistency.
-- **Confidentiality in Ubiquitous Language**: The agent must ensure that the Ubiquitous Language does not establish a precedent for mishandling data. For example, if the business uses the term "RawCreditCardNumber" casually, the agent must intervene in the modeling phase to ensure the domain formally processes "TokenizedPaymentMethod" instead, embedding security into the vocabulary.
-
-### 2. System Integration Security
-- **Anti-Corruption Layer (ACL) as a Firewall**: When integrating with a legacy or untrusted external context via an ACL in the Context Map, the agent must define the ACL not just as a data translator, but as a strict validation firewall. The ACL must drop malformed, suspicious, or excessively large payloads from the upstream system before they enter the pristine domain core.
-- **Domain Event Sanitization**: In an Event-Driven architecture, Domain Events are broadcast widely across the Context Map. The agent must explicitly define rules stating that Domain Events must not contain sensitive PII or credentials in their payload (e.g., emitting `UserCreated(Email, HashedPassword)` is a critical violation).
-
-### 3. LLM & Agent Guardrails
-- **Tech-Stack Hallucination**: The agent is strictly forbidden from injecting specific database technologies, ORMs, or caching layers (e.g., "Redis", "JPA") into the Domain Model layout. Introducing technical implementation details during the domain phase biases the security architecture prematurely and violates the purity of the DDD process.
-- **Implicit Trust Bias**: The LLM might assume that because two Bounded Contexts are owned by the same company (e.g., "HR Context" and "Billing Context"), they inherently trust each other's data representations. The agent must enforce the "Shared Kernel" or "Customer/Supplier" relationships explicitly, ensuring boundaries are respected mathematically, not merely organizationally.
+## Limits and safety
+- Business invariants live in the aggregate root; flag any design that changes inner entities directly.
+- Glossary terms and domain events carry no credentials, raw card numbers or personal data; name the safe form (tokenised payment method).
+- An anti-corruption layer towards a legacy or untrusted context validates input and rejects malformed or oversized data.
+- Keep technology (database, ORM, cache) out of the model.
+- Do not assume two contexts trust each other because one company owns both; name the relationship.

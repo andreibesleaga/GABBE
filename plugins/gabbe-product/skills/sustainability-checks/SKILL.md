@@ -20,13 +20,15 @@ To enforce broad sustainability and Environmental, Social, and Governance (ESG) 
 4. **Social & Governance Check**: Verify that the system does not promote systemic bias (social) and handles data transparently (governance).
 5. **Reporting**: Generate a `GREEN_SOFTWARE_REPORT_TEMPLATE.md` with the Software Carbon Intensity (SCI) score estimates and actionable reduction strategies.
 
-## Security & Guardrails
+## Constraints
+- Advice is measurable: a quantity, its unit and the calculation behind it.
+- Estimates carry their inputs and a range.
 
-### 1. Skill Security
-- **Data Privacy**: The sustainability audit must not leak or transmit PII when analyzing database payloads or workload sizes.
+## Output Format
+`GREEN_SOFTWARE_REPORT_TEMPLATE.md`, filled: findings by step, SCI estimate with inputs, and ranked reduction actions.
 
-### 2. System Integration Security
-- **Safe Profiling**: When measuring CPU cycles to determine energy use, the agent must use non-invasive profiling in production to prevent degrading the user experience.
-
-### 3. LLM & Agent Guardrails
-- **Measurable Advice**: The LLM must not output vague "be more green" advice. It must calculate tangible metrics (e.g., "compressing this payload by 20% saves 50GB of transfer per month, equal to X kg of CO2").
+## Limits and safety
+- Do not read or copy personal data from database payloads; use counts and sizes.
+- Profile production only with low-overhead sampling and the human's yes; otherwise measure in staging.
+- Every advice item has a number and its calculation (for example bytes saved per month and the conversion factor with its source); no "be more green".
+- SCI scores are estimates; state the inputs.

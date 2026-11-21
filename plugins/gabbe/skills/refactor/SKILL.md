@@ -1,6 +1,6 @@
 ---
 name: refactor
-description: "Safe refactoring with test guard — improve code quality without changing behavior. Use when: refactor, cleanup, restructure, simplify, extract function, improve code quality."
+description: "Restructure code in small steps while a green test suite guards behaviour, and report tests, coverage and complexity before and after. Use when a green suite already covers the code; with no tests start with characterization-tests."
 license: CC-BY-SA-4.0
 metadata:
   source: "agents/skills/coding/refactor.skill.md"
@@ -15,6 +15,8 @@ Improve code structure, readability, or maintainability while guaranteeing that 
 
 ## Steps
 
+For existing code without tests, start with `characterization-tests.skill`, then `safe-refactoring.skill` (this skill applies once a green suite covers the code).
+
 1. **Establish the safety net**
    - Run the full test suite: `[test command from AGENTS.md]`
    - If tests fail before you start: STOP — fix the failing tests first (they're not a safe net)
@@ -24,7 +26,7 @@ Improve code structure, readability, or maintainability while guaranteeing that 
    - What specific code smell is being addressed?
    - Common targets:
      - Function too long (> 30 lines) → Extract Function
-     - Class too large (> 500 lines) → Extract Class / Split by Responsibility
+     - Class with too many responsibilities → Extract Class / Split by Responsibility
      - Duplicated logic (> 3 occurrences) → Extract Method/Module
      - Magic numbers/strings → Extract Constants
      - Deep nesting (> 3 levels) → Early Returns / Extract Method
@@ -91,7 +93,7 @@ Improve code structure, readability, or maintainability while guaranteeing that 
    - Run: `[test command]` → must pass
    - Run: `[typecheck command]` → must pass
    - Run: `[lint command]` → must pass
-   - Check: complexity still < 10? Length still < 30 lines?
+   - Check: complexity still <= 10? Length still <= 30 lines?
 
 6. **Check architecture boundaries** (agentic-linter)
    - After significant structural changes: run agentic-linter skill
@@ -111,16 +113,9 @@ Improve code structure, readability, or maintainability while guaranteeing that 
 ## Output Format
 Report: "Refactored [target]. All [N] tests still passing. Coverage: [X]%. Complexity reduced from [A] to [B]."
 
-## Security & Guardrails
-
-### 1. Skill Security (Refactor)
-- **Security Check Evasion**: When applying "Extract Function" (Step 4), the agent might accidentally extract a sensitive business operation *outside* of its surrounding authorization boundary (e.g., moving a data fetch out of an `if (isAdmin)` block). The agent must mathematically guarantee that any extracted logic remains strictly within the exact same structural authorization context as its pre-refactored state.
-- **Test Suite Over-Reliance (The Blind Net)**: Step 1 establishes tests as the "safety net." If the existing test suite has poor coverage of critical security paths (e.g., only testing the "Happy Path" of user login), refactoring the code might silently introduce a vulnerability (like bypassing rate limits) that the tests won't catch. The agent must verify that Security/Audit tests explicitly exist and pass before using them as a justification that a refactor is "safe."
-
-### 2. System Integration Security
-- **Data Exposure via De-Nesting**: During "Early Returns" refactoring (Step 4), the agent attempts to flatten deep nesting. A poorly executed early return might inadvertently leak information via timing differences or distinct error messages (e.g., changing from a generic "Auth Failed" to explicitly returning exactly which condition failed first). The agent must ensure that early returns in security-critical paths do not introduce Oracle vulnerabilities or alter the established generic failure contract.
-- **Log Forgetting (The Silent Refactor)**: When decomposing a "God Class" (Step 2), the agent might successfully migrate the core logic but forget to migrate the associated audit logging or SIEM (Security Information and Event Management) telemetry calls into the new, decomposed classes. The agent must execute a specific AST-based diff to guarantee 100% preservation of all `.log`, `.audit`, and `.trace` calls.
-
-### 3. LLM & Agent Guardrails
-- **The "Clever Code" Hallucination**: The LLM might refactor a highly readable, straightforward function into a hyper-dense, "clever" one-liner (e.g., using complex regex or bitwise operators) to satisfy the "minimize lines" heuristic. This destroys auditability and hides potential logical flaws from human reviewers. The agent's linting step (Step 5) must penalize excessive cognitive complexity, forcing the LLM to prioritize readability over brevity.
-- **Silent Behavior Mutation**: The skill dictates "NEVER change behavior" (Constraints). However, LLMs struggle with edge cases. If refactoring a sorting algorithm, the LLM might change it from a stable to an unstable sort, which passes basic tests but causes catastrophic layout shifts in the UI. The agent must generate property-based or fuzz tests *prior* to refactoring complex algorithms to mathematically prove behavioral equivalence.
+## Limits and safety
+- Extracted code must stay inside the same authorisation check; read the diff for fetches or changes that moved out of an `if` that guarded them.
+- Before calling the suite a safety net, confirm tests for the security paths (login, permissions, rate limits, validation) exist and pass; if they do not, say so and start with `characterization-tests.skill`.
+- Early returns in login and permission code keep the same generic failure message and result; no new distinct messages.
+- After splitting a class, search the new code for every log, audit and trace call the old code had (`grep`) and confirm none was lost.
+- For a complex algorithm (sorting, rounding, ordering) compare old and new on generated inputs before refactoring (see `pbt-strategy.skill`); prefer readable code to short code.

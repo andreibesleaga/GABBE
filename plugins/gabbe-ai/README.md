@@ -14,24 +14,24 @@ claude plugin install gabbe-ai@gabbe
 Or install single skills with the skills CLI (skills.sh):
 
 ```bash
-npx skills add andreibesleaga/GABBE -a claude-code
+npx skills@1.9.0 add andreibesleaga/GABBE -a claude-code
 ```
 
 Version 1.1.4. Generated from `agents/skills/` by `scripts/build_claude_plugin.py`; edit the sources, not these files.
 
 ## Skills
 
-- `a2ui-protocols` — Design and enforce Agent-to-UI communication protocols
-- `actor-agent-frameworks` — Implement and manage Actor and Agent Frameworks (e.g. LangGraph)
-- `agent-communication` — Establish Agent-to-Agent (A2A) communication channels and topologies
-- `agent-ui` — Build specialized user interfaces for interacting with Agents
-- `autonomous-swarm-patterns` — Implement self-organizing autonomous swarm architectures
-- `beyond-llms` — Implement advanced neuro-symbolic and genetic algorithm techniques
-- `context-engineering` — Engineer what enters the model's context window for reliability and cost using Write, Select, Compress, and Isolate.
-- `llm-as-judge` — Score open-ended LLM/agent outputs with another LLM as evaluator while controlling for known judge biases.
-- `multi-agent-systems` — Orchestrate Multi-Agent System (MAS) architectures
-- `rag-evaluation` — Evaluate retrieval-augmented-generation pipelines with reference-free metrics to detect silent retrieval and grounding failures.
-- `reasoning-patterns` — Select and apply test-time reasoning techniques (chain-of-thought, self-consistency, tree-of-thoughts, least-to-most, step-back, ReAct, reflexion) by cost, latency, and problem shape.
+- `a2ui-protocols` — Design the message schema and streaming events an agent uses to send UI to a frontend (JSON, WebSocket, SSE, HTMX). Use when an agent must stream components or UI updates to a browser.
+- `actor-agent-frameworks` — Set up an agent or actor graph (LangGraph, Akka or custom) with state schema, checkpoints and failure recovery. Use when you build or change a multi-step agent graph or actor system that must survive restarts.
+- `agent-communication` — Choose and wire the channel between agents - MCP, A2A, ACP, gossip or a broker (Kafka, RabbitMQ, MQTT), with a capability handshake. Use when two or more agents must exchange messages or delegate work across processes or vendors.
+- `agent-ui` — Build a UI that shows what an agent thinks, calls and does - traces, tool calls, streamed markdown or JSON. Use when you add a tracing view, an approval screen or a front end for an agent.
+- `autonomous-swarm-patterns` — Build a self-organising swarm of agents that coordinate through shared markers and simple local rules. Use when one agent cannot cover a decentralised problem and you want many agents with no central planner.
+- `beyond-llms` — Combine an LLM with deterministic rules, genetic algorithms or an active-inference loop so hard constraints override model output. Use when a problem needs guaranteed rules, search or optimisation that a prompt alone cannot give.
+- `context-engineering` — Plan what enters an agent's context window with Write, Select, Compress and Isolate - budget, retrieval, compaction, sub-agents, prompt caching. Use when a long task loses quality or cost grows with history.
+- `llm-as-judge` — Score open-ended LLM or agent output with another LLM as evaluator - rubric, pairwise comparison, bias controls, calibration against human labels. Use when no reference answer exists and you need a repeatable score.
+- `multi-agent-systems` — Design a multi-agent system - topology (hierarchical, network, swarm), role profiles, shared workspace and supervisor. Use when a task needs several agents with defined roles and one result.
+- `rag-evaluation` — Evaluate a RAG pipeline without gold answers - faithfulness, answer relevance, context precision and recall over (query, context, answer) triples. Use when a RAG system gives fluent answers you cannot trust, or after a retrieval change.
+- `reasoning-patterns` — Pick a test-time reasoning technique (chain-of-thought, self-consistency, tree-of-thoughts, least-to-most, step-back, reflexion) by problem shape, cost and latency. Use when one-shot answers are unreliable or reasoning cost needs a budget.
 
 ## Licence
 

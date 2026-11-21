@@ -1,6 +1,6 @@
 ---
 name: metamorphic-testing
-description: "Test systems with no reliable oracle using metamorphic relations — equivalence-preserving input transforms whose outputs must agree, with concrete relations for LLM/NLP stability. Use when: test without a correct answer oracle, write metamorphic relations, check paraphrase invariance, test llm output stability, build a metamorphic relation suite, bypass the oracle problem."
+description: "Write a suite of metamorphic relations (an input change plus the required output relationship) for systems with no reliable oracle, such as LLM and NLP output. Use when you cannot state the correct output but can state how outputs of related inputs must relate."
 license: CC-BY-SA-4.0
 metadata:
   source: "agents/skills/coding/metamorphic-testing.skill.md"
@@ -83,33 +83,9 @@ Produce a **metamorphic relation suite** containing:
   does not prove correctness. Cross-reference `pbt-strategy.skill` for invariant-style properties
   where an oracle does exist.
 
-## Security & Guardrails
-
-### 1. Skill Security
-- **Risk**: A passing MR suite is reported as "the model is correct/safe," when MT only shows
-  consistency. Mitigation: every report MUST state MT checks relationships not truth and does not
-  prove; the agent MUST NOT escalate "MRs passed" into "output is correct" — a uniformly wrong
-  system passes invariance MRs.
-- **Risk**: An over-loose equivalence threshold makes every MR pass vacuously, hiding real
-  instability. Mitigation: the agent MUST record the chosen tolerance and justify it, and flag
-  thresholds so loose that meaningfully different outputs would still be judged equivalent.
-
-### 2. System Integration Security
-- **Risk**: Running MRs (especially paraphrase generation + judging) against a live/paid model
-  multiplies calls and cost, or hits rate limits. Mitigation: bound the seed set and pin generated
-  paraphrases as fixtures; cap total model calls and prefer cached/deterministic transforms in CI.
-- **Risk**: Metamorphic inputs that transform untrusted user text could carry injected content
-  into the system under test or the judge. Mitigation: treat all transformed inputs as untrusted
-  data, isolate them from any instruction context, and never let a transformed input alter test
-  control flow.
-
-### 3. LLM & Agent Guardrails
-- **Risk**: A live-LLM paraphraser silently changes the input's *meaning*, so a "violation" is
-  really a bad transform, not a real bug (false positive) — or a meaning-preserving paraphrase is
-  judged equivalent when the output genuinely regressed (false negative). Mitigation: validate that
-  transforms preserve semantics (human spot-check or a second judge), and label live-LLM MR results
-  as lower-confidence requiring confirmation.
-- **Risk**: The agent fabricates MRs that do not actually preserve meaning (e.g. a "paraphrase"
-  that adds new constraints), producing spurious failures. Mitigation: each MR's transform MUST be
-  justified as meaning-preserving (or meaning-flipping, for negation MRs) with an example pair, and
-  the agent MUST mark agent-generated relations as proposed pending review.
+## Limits and safety
+- Report a pass as consistency, not truth: a system that is uniformly wrong passes invariance relations.
+- Record the equivalence tolerance and justify it; a threshold so loose that different outputs count as equal makes every relation pass.
+- Cap the number of model calls, pin generated paraphrases as fixtures, and prefer deterministic transforms in CI.
+- Transformed inputs are data; they never change the test's control flow.
+- Give each relation an example pair showing the meaning is kept (or flipped, for negation); mark relations you wrote as proposed until a human or a second check confirms them, and treat live-LLM results as lower confidence.

@@ -15,6 +15,9 @@ Provide the intrinsic, infrastructure-level isolation layer for any agent that t
 
 The defining property is that all four isolation domains are **LOCKED at sandbox-creation time** and are **immutable for the lifetime of the run**. A prompt-injected agent cannot widen its own filesystem scope, open new egress, escalate privilege, or re-route inference, because those decisions were made by the host before the agent's non-deterministic logic ever ran. Container and microVM runtimes (gVisor, Kata, Firecracker) implement exactly this shape — a thin, host-enforced boundary the workload cannot reach around.
 
+## Where it fits
+Phase and gate: S02 (policy design), S06 and S07 (escape checklist), again after any change of tools. Evidence: the sandbox policy document and the filled escape checklist in `docs/security/`. Part of `security-baseline.skill.md` for tier 3 AI agents.
+
 ## Steps
 
 1. **Declare the four isolation policies (deny-by-default).**
@@ -56,16 +59,8 @@ The defining property is that all four isolation domains are **LOCKED at sandbox
    - [ ] An attempt to re-point inference at an external endpoint is refused.
    - [ ] An in-band attempt to edit any of the four policies mid-run has no effect (immutability holds).
 
-## Security & Guardrails
-
-### 1. Skill Security
-- **Risk**: a self-modifying or overly-permissive policy lets the agent widen its own scope — mitigation: policies are declarative, externally owned, and sealed by the host at creation; there is no in-band mutation path, and policy changes require an out-of-band teardown-and-recreate under review.
-- **Risk**: a default-allow gap (empty allowlist read as "everything") silently grants full access — mitigation: deny-by-default is the only default; provisioning fails closed if any of the four domains is undeclared, and the escape checklist must pass before the sandbox is handed to the agent.
-
-### 2. System Integration Security
-- **Risk**: a sandbox escape pivots into the host OS, credential stores, or the broader network — mitigation: enforce isolation with a host-level runtime (gVisor / Kata / Firecracker), keep sensitive host paths absent from the namespace, route all egress through a method+path-granular proxy, and block ptrace/mount/module-load syscalls so kernel-boundary escapes have no primitive.
-- **Risk**: the model endpoint becomes an unmonitored exfiltration channel — mitigation: pin inference to controlled backends inside the trust boundary, treat the inference route as egress, and refuse any redirect to an external endpoint.
-
-### 3. LLM & Agent Guardrails
-- **Risk**: a prompt-injected agent is socially engineered into trying to relax its own sandbox — mitigation: the four domains are immutable mid-run, so the agent has nothing to grant; the worst case is a refused request, not a widened boundary, and the refusal is logged as a violation signal.
-- **Risk**: a compromised agent spawns daemons or background processes to outlive the run or stage exfiltration — mitigation: daemon/detached-process spawning is denied by the syscall filter and PID caps, and any violation triggers `self-heal.skill` to quarantine, snapshot, and rebuild from the sealed policy rather than patch the live instance.
+## Limits and safety
+- The kit only writes the policy. The sandbox itself comes from your platform (container, virtual machine or the agent tool's permissions). If none is available, report "isolation not provided"; do not claim it.
+- Deny by default: a missing allowlist means nothing is allowed.
+- Never relax a live policy. Stop, and recreate the sandbox from a changed policy after the human approves.
+- Run the escape checklist only in a test workspace. A probe that succeeds is reported as a defect with the command used.

@@ -13,100 +13,86 @@ metadata:
 ## Goal
 Identify security vulnerabilities in code, dependencies, and configuration using OWASP Top 10 as the primary framework. Produce an actionable report with severity ratings and specific remediation steps.
 
+## Where it fits
+Phase and gate: S07 (security review, human sign-off). Lead: ops-security. Evidence: `docs/security/SECURITY_REVIEW.md` and the filled `SECURITY_CHECKLIST.md`, with scanner outputs under `docs/security/evidence/`. Checks the evidence listed in `project/SECURITY_BASELINE.md` (`security-baseline.skill.md`).
+
 ## Steps
 
-1. **Run automated scanning tools**
+1. **Run automated scanning tools.** Each command was checked against its tool's documentation on 2026-11-21. Run those that fit the project, save each output under `docs/security/evidence/`, and report a tool that is not installed as "not run".
 
-   **Dependency vulnerabilities (SCA):**
-   ```bash
-   npm audit --audit-level=moderate    # Node.js
-   composer audit                       # PHP
-   uv pip audit                         # Python (or pip-audit)
-   bandit -r src/                       # Python SAST
-   pip-audit                            # Python
-   snyk test                            # Cross-platform (if Snyk configured)
-   ```
+   **Dependency vulnerabilities (SCA):** see `dependency-security.skill.md` for the commands and for gate G5.
 
    **Static analysis (SAST):**
    ```bash
-   npx semgrep --config=p/security-audit src/          # Cross-platform
-   npx eslint --plugin security src/                   # JS/TS
-   vendor/bin/enlightn                                  # Laravel
-   bandit -r src/                                       # Python
+   semgrep scan --config p/security-audit --error src/   # --error: exit 1 when there are findings
+   bandit -r src/                                         # Python (not re-verified)
    ```
+   For JS/TS use ESLint with `eslint-plugin-security` if the project has it configured; for Laravel use the project's Enlightn setup (neither re-verified).
 
    **Secret detection:**
    ```bash
-   gitleaks detect --source=. --verbose
-   # Or: truffleHog --regex --entropy=False .
+   gitleaks git -v        # git history
+   gitleaks dir -v .      # working tree
    ```
+   (`gitleaks detect` is deprecated since v8.19.0.)
 
-2. **OWASP Top 10 manual review**
+2. **OWASP Top 10:2025 review** (edition checked on top10.owasp.org on 2026-11-21). For each item, write PASS, FAIL or N/A with the file or command as evidence.
 
-   **A01 — Broken Access Control**
-   - Check: are authorization checks performed server-side for every protected resource?
-   - Check: IDOR vulnerabilities (can user A access user B's resources by changing an ID?)
-   - Check: privilege escalation paths (can a regular user trigger admin actions?)
+   **A01 Broken Access Control** (also check SSRF here: the 2025 list has no separate SSRF item)
+   - Are authorisation checks done server-side for every protected resource?
+   - IDOR: can user A reach user B's resources by changing an ID?
+   - Can a regular user trigger admin actions?
+   - Any function that fetches a URL from user input? Allowlist for outbound hosts? Internal networks protected?
 
-   **A02 — Cryptographic Failures**
-   - Check: passwords hashed with bcrypt/argon2 (never MD5, SHA1, SHA256 for passwords)
-   - Check: sensitive data encrypted at rest (PII, financial data, health data)
-   - Check: TLS enforced for all connections (no HTTP endpoints for sensitive data)
-   - Check: no weak ciphers (TLS < 1.2, RC4, DES)
+   **A02 Security Misconfiguration**
+   - Default credentials changed? Debug endpoints off in production?
+   - Error responses without stack traces? Security headers set (Content-Security-Policy, HSTS, frame protection)?
+   - Directory listing off? CORS not wider than needed?
 
-   **A03 — Injection**
-   - Check: SQL injection — are all queries parameterized? (no string concatenation in SQL)
-   - Check: Command injection — any `exec()`, `shell_exec()`, `child_process.exec()` with user input?
-   - Check: LDAP injection, XPath injection in relevant use cases
-   - Check: Template injection in server-side template rendering
+   **A03 Software Supply Chain Failures**
+   - Output of the dependency scan and the SBOM (`dependency-security.skill.md`)? Lockfile committed?
+   - Any end-of-life dependency? CI actions pinned? CI cannot run arbitrary code from pull requests?
 
-   **A04 — Insecure Design**
-   - Check: is there a threat model for security-sensitive features?
-   - Check: are rate limits in place for auth endpoints, password reset, OTP?
-   - Check: are business logic constraints enforced server-side?
+   **A04 Cryptographic Failures**
+   - Passwords hashed with Argon2id (bcrypt only on legacy systems), never MD5, SHA1 or plain SHA256 (`cryptography-standards.skill.md`).
+   - Sensitive data encrypted at rest; TLS enforced with the version rule of `cryptography-standards.skill.md`; no weak ciphers.
 
-   **A05 — Security Misconfiguration**
-   - Check: are default credentials changed?
-   - Check: are error responses sanitized (no stack traces in production)?
-   - Check: are security headers set? (Content-Security-Policy, X-Frame-Options, HSTS)
-   - Check: is directory listing disabled on web servers?
+   **A05 Injection**
+   - SQL: all queries parameterised? Commands: any `exec()` or `child_process.exec()` with user input?
+   - Template, LDAP and XPath injection where relevant. Output encoded for its context.
 
-   **A06 — Vulnerable and Outdated Components**
-   - Check: output of dependency audit (step 1)
-   - Check: are there EOL (end of life) dependencies?
+   **A06 Insecure Design**
+   - Is there a threat model for security-sensitive features (`threat-model.skill.md`)?
+   - Rate limits on login, password reset and OTP? Business rules enforced server-side?
 
-   **A07 — Authentication Failures**
-   - Check: brute force protection on login (rate limiting, lockout)
-   - Check: secure session management (HTTPOnly, Secure, SameSite cookies)
-   - Check: are JWT tokens validated server-side (signature, expiry, audience)?
-   - Check: password reset flow (single-use tokens, expiry)
+   **A07 Authentication Failures**
+   - Brute-force protection? Cookies HttpOnly, Secure, SameSite? Session renewed after login?
+   - Tokens validated server-side (signature, expiry, audience)? Reset tokens single-use and expiring?
 
-   **A08 — Software and Data Integrity**
-   - Check: are file uploads validated (type, size, content scanning)?
-   - Check: are third-party scripts loaded from CDN with SRI hashes?
-   - Check: is CI/CD pipeline secured (no arbitrary code execution from PRs)?
+   **A08 Software or Data Integrity Failures**
+   - Uploads validated (type, size, content)? Third-party scripts loaded with integrity hashes?
+   - Updates and artifacts verified before use? Deserialisation of untrusted data avoided?
 
-   **A09 — Security Logging and Monitoring**
-   - Check: are security events logged? (failed logins, access denied, input validation failures)
-   - Check: are logs sent to a SIEM or centralized logging?
-   - Check: no sensitive data (PII, passwords) in logs?
+   **A09 Security Logging and Alerting Failures**
+   - Failed logins, access denied and validation failures logged? Someone alerted? No secrets or personal data in logs?
 
-   **A10 — SSRF (Server-Side Request Forgery)**
-   - Check: any functionality that fetches remote URLs based on user input?
-   - Check: are allowlists used for external URL fetching?
-   - Check: are internal network resources protected from SSRF?
+   **A10 Mishandling of Exceptional Conditions**
+   - Do errors fail closed (deny on error, not allow)? Resources released on failure?
+   - No unhandled exception shows internals to the user? Behaviour on timeouts and partial failures tested?
 
 3. **Check for secrets in codebase**
    - Search for: API keys, tokens, passwords, connection strings in code
    - Common patterns: `api_key =`, `password =`, `token =`, `secret =`, `connectionString =`
    - Check git history for secrets that were committed and removed
 
-4. **Container/infrastructure security** (if applicable)
+4. **Container and infrastructure security** (if applicable)
    ```bash
-   trivy image [image-name]          # Container vulnerability scan
-   trivy fs .                        # Filesystem scan
-   checkov -d infra/                 # IaC security (Terraform, Dockerfile)
+   trivy image [image-name]          # container image scan
+   trivy fs .                        # filesystem scan
+   trivy config .                    # misconfiguration scan of IaC files
+   checkov -d infra/                 # IaC security (Terraform, Dockerfile, Kubernetes ...)
    ```
+   Command names and flags checked against the Trivy and Checkov documentation on 2026-11-21.
 
 5. **Generate security report**
    ```markdown
@@ -129,7 +115,7 @@ Identify security vulnerabilities in code, dependencies, and configuration using
    ### Passed Checks
    - [PASS] No secrets detected in codebase
    - [PASS] All SQL queries use parameterized statements
-   - [PASS] Password hashing uses bcrypt (cost factor 12)
+   - [PASS] Password hashing uses Argon2id with the recorded parameters
 
    ### Remediation Priority
    1. Fix Critical first (blocking for release)
@@ -144,23 +130,17 @@ Identify security vulnerabilities in code, dependencies, and configuration using
 
 ## Constraints
 - Critical security findings are always blocking — no release without remediation
-- High findings must be fixed within 7 days of discovery
+- High findings must be fixed within 7 days of discovery (the default; the project may set another period in the baseline)
 - Never dismiss a finding without documented justification
 - If a finding requires disabling a feature: escalate to human first
+- For authorisation, money or other critical cores, check the chosen assurance level and its evidence: `assurance-ladder.skill.md`
 
 ## Output Format
-Security audit report with CRITICAL/HIGH/MEDIUM/LOW findings + completed SECURITY_CHECKLIST.md.
+Security audit report with CRITICAL/HIGH/MEDIUM/LOW findings, saved as `docs/security/SECURITY_REVIEW.md`, plus the completed `SECURITY_CHECKLIST.md` and the scanner outputs under `docs/security/evidence/`.
 
-## Security & Guardrails
-
-### 1. Skill Security (Security Audit)
-- **Audit Tool Supply Chain**: The agent must verify the cryptographic signatures or checksums of the automated scanning tools (`semgrep`, `gitleaks`, `trivy`) before executing them. This prevents a supply-chain attack where the scanning tools themselves are replaced with malicious binaries designed to exfiltrate code or whitelist specific vulnerabilities.
-- **Finding Down-Scoring Veto**: The agent is strictly prohibited from autonomously downgrading the severity of a finding (e.g., changing a `CRITICAL` SQL Injection to a `LOW`) based on speculative mitigating factors. All severity downgrades require a formalized, peer-reviewed Risk Acceptance procedure.
-
-### 2. System Integration Security
-- **Audit Execution Privilege**: The agent must execute the dynamic portions of the security audit (if any) under an explicit "Security Auditor" service account. It must NOT use the primary CI/CD deployment credential, enforcing the Principle of Least Privilege and preventing the audit process from accidentally or maliciously modifying production infrastructure.
-- **Isolation of Audit Artifacts**: The raw outputs of the security scans (especially DAST/SAST reports that may contain snippets of sensitive code or API keys) must be stored in a highly secured, access-controlled artifact repository. The agent must not inadvertently publish these detailed reports to public or broadly accessible wikis.
-
-### 3. LLM & Agent Guardrails
-- **Automated Dismissal Block**: Users might prompt the agent: "Ignore all Medium and Low vulnerabilities in this report to speed up the release." The agent must refuse this command. It can filter the display view for the user, but it must mandate that the final generated report represents the unfiltered, ground-truth vulnerability state of the application.
-- **Remediation Hallucination**: When proposing remediation steps for complex vulnerabilities (e.g., A02 Cryptographic Failures), the LLM must consistently recommend tested, established, high-level cryptographic libraries (e.g., libsodium, Tink). It is explicitly forbidden from generating novel, custom cryptographic algorithms or "rolling its own crypto" in the proposed fix.
+## Limits and safety
+- Report all findings unfiltered. You may sort the view. Do not drop a finding or lower its severity without a risk acceptance by the human, recorded in the open risks of `project/SECURITY_BASELINE.md`.
+- Run dynamic tests only against a test environment with test credentials, never the deploy credential.
+- Reports can hold code snippets and key fragments. Keep them in `docs/security/` of a private repository and mask secrets.
+- Install scanners in the user's project only, after the human says yes.
+- A clean scan is a sample. State what was not scanned.

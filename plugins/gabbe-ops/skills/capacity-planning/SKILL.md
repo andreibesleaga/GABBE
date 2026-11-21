@@ -1,6 +1,6 @@
 ---
 name: capacity-planning
-description: "Forecasting resource usage, load testing interpretation, and scaling limits. Use when: capacity planning."
+description: "Estimate how many instances, how much memory, IO and connections a service needs, from a baseline, a growth factor, a load test and headroom. Use when you plan for a traffic increase, size a cluster or set autoscaling limits."
 license: CC-BY-SA-4.0
 metadata:
   source: "agents/skills/ops/capacity-planning.skill.md"
@@ -54,16 +54,15 @@ Use `templates/ops/CAPACITY_PLAN_TEMPLATE.md`.
 - **Scale Up Fast**: Reaction time < 1 min.
 - **Scale Down Slow**: Stabilization window > 5 mins (prevent flapping).
 
-## Security & Guardrails
+## Constraints
+- Every estimate states its inputs (target RPS, latency, headroom) so another person can redo it.
+- Autoscaling rules always have a maximum.
 
-### 1. Skill Security (Capacity Planning)
-- **Denial of Wallet (DoW) Protection**: Auto-scaling rules proposed by the capacity planner MUST include hard upper boundaries (e.g., `maxReplicas: 20`) to prevent an application layer DDoS attack from spinning up infinite instances and bankrupting the organization.
-- **Forecast Formula Integrity**: The scaling multiplier algorithms used by the agent must be protected from external manipulation. An attacker should not be able to poison telemetry logs to trick the planner into prematurely scaling up or down.
+## Output Format
+`project/CAPACITY_PLAN.md` from `templates/ops/CAPACITY_PLAN_TEMPLATE.md`: baseline, growth factor, headroom, first limit reached, scaling rules, load-test results.
 
-### 2. System Integration Security
-- **Secure Load Testing**: Load tests and stress tests must *never* be executed against Production environments without an explicit, multi-factor authorized maintenance window, preventing accidental self-inflicted Denial of Service (DoS) attacks.
-- **Load Test Data Sanitization**: Virtual Users (VUsers) in test scripts must utilize securely generated synthetic data. Copying real user PII from Production to Staging for capacity planning is a critical data breach risk and is strictly forbidden.
-
-### 3. LLM & Agent Guardrails
-- **Resource Exhaustion Awareness**: The LLM must be explicitly prompted to prioritize security over absolute availability when resources run out. For example, if a DB connection pool is exhausted, it must advocate for graceful degradation (HTTP 503) rather than advising disabling connection timeouts.
-- **Adversarial Input Recognition**: Provide guardrails against user prompts that request the generation of "stress testing" scripts aimed at external third-party URLs. The agent must verify ownership of the target domain before outputting load-generation code.
+## Limits and safety
+- Every autoscaling rule you propose has a maximum replica count and a cost ceiling the human has seen.
+- Run load and stress tests against production only when the human names the window in that request; otherwise use staging.
+- Load-test data is synthetic; do not copy real user data into a test environment.
+- Generate load scripts only for systems the project owns; ask the human to confirm the target before the first run.

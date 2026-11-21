@@ -1,6 +1,6 @@
 ---
 name: enterprise-integration
-description: "Design integrations with ERP/CRM systems and modernize legacy applications. Use when: integration, erp, crm, sap, salesforce, legacy, middleware, esb, kafka, message bus, event bus."
+description: "Design integrations between a modern app and ERP, CRM or legacy systems - messaging patterns, anti-corruption layer, strangler fig, CDC, facade APIs. Use when you connect to SAP, Salesforce or a legacy system, or add a message bus."
 license: CC-BY-SA-4.0
 metadata:
   source: "agents/skills/ops/enterprise-integration.skill.md"
@@ -34,23 +34,23 @@ To solve complex integration challenges between modern apps and enterprise syste
 1.  **Decouple**: Use async messaging (Kafka/RabbitMQ) where possible.
 2.  **Protect**: Always use an Anti-Corruption Layer when talking to legacy.
 3.  **Trace**: Ensure correlation IDs are passed across all systems.
-4.  **Buffer**: Use queues to handle burst loads without crashing legacy systems.
+4.  **Buffer**: Use queues to handle burst loads without crashing legacy systems. For queue retries and dead-letter handling see `queue-management.skill`.
 
 ## Deliverables
 -   Integration Architecture Diagrams (Mermaid).
 -   Adapter/ACL code.
 -   OpenAPI specs for facade APIs.
 
-## Security & Guardrails
+## Constraints
+- Every call to a legacy system goes through the anti-corruption layer; no legacy model leaks into the new code.
+- Every message carries a correlation id.
 
-### 1. Skill Security (Enterprise Integration)
-- **Payload Sanitization (ACL)**: The Anti-Corruption Layer must not just translate data schemas; it must aggressively sanitize and strip dangerous execution payloads (e.g., XML External Entity injection (XXE), SQLi) originating from opaque legacy systems.
-- **Integration Configuration Protection**: Connection strings, API keys, and certificate paths for enterprise systems (SAP, Salesforce) must be injected via secure Vaults at runtime, never hardcoded in the adapter logic or the workflow repository.
+## Output Format
+The files named under Deliverables: a Mermaid integration diagram, adapter and anti-corruption layer code, and the OpenAPI spec of any facade API.
 
-### 2. System Integration Security
-- **Mutual Authentication (mTLS)**: All cross-system Enterprise Service Bus (ESB) or Message Broker communication must be secured with mTLS to prevent Man-in-the-Middle (MitM) attacks and ensure strict identity attestation between integration points.
-- **Data Governance Boundaries**: Event payloads pushed to shared messaging queues (e.g., Kafka) must scrub regulated PII (GDPR/HIPAA) or employ field-level encryption to prevent unauthorized downstream consumers from reading sensitive enterprise data by default.
-
-### 3. LLM & Agent Guardrails
-- **Legacy Credential Harvesting Defense**: Agents interacting with legacy SOAP/REST APIs must never cache basic authentication headers or legacy token strings in episodic memory or audit logs where they might be inadvertently exposed.
-- **Facade Over-Privilege Warning**: If asked to design a REST API facade over a legacy system, the agent must explicitly advocate for narrow, least-privilege endpoints. It must refuse instructions to create a direct SQL-pass-through endpoint that exposes the entire legacy database to the web.
+## Limits and safety
+- Validate and sanitise data coming from legacy systems in the anti-corruption layer; turn off external entity resolution when parsing XML.
+- Connection strings, keys and certificate paths come from the secret store at run time, not from adapter code or the repository.
+- Mask or leave out personal data in events on shared topics, or use field-level encryption; list the consumers of each topic.
+- A facade over a legacy system exposes narrow endpoints only; refuse a SQL pass-through endpoint.
+- Do not store basic-auth headers or legacy tokens in memory files or audit logs.

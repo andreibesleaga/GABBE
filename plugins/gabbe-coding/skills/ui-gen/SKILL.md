@@ -1,6 +1,6 @@
 ---
 name: ui-gen
-description: "Generate User Interfaces (Web, CLI, Mobile) using GenUI, HTMX, or TUI patterns. Use when: ui gen."
+description: "Generate a user interface (React with Tailwind, HTMX fragments, a terminal UI or a Streamlit app) after choosing the paradigm that fits the stack. Use when the user asks for a dashboard, frontend, internal tool UI or CLI interface."
 license: CC-BY-SA-4.0
 metadata:
   source: "agents/skills/coding/ui-gen.skill.md"
@@ -23,6 +23,8 @@ First, determine the best paradigm based on the User's Stack and needs:
 | "Internal Tool", "Go/PHP/Node Backend" | **HTMX** (Hypermedia-driven) |
 | "Dev Tool", "Script", "Server Utils" | **TUI** (Bubble Tea / Ink) |
 | "Quick Prototype", "Data App" | **Streamlit / Gradio** (Python) |
+
+For native iOS, Android or React Native apps use `mobile-dev.skill`.
 
 ## 2. Generative UI Workflow (React/ShadCN)
 1.  **Dependencies:** Ensure `lucide-react`, `clsx`, `tailwind-merge` are installed.
@@ -51,16 +53,17 @@ First, determine the best paradigm based on the User's Stack and needs:
 When generating the UI, create a `UI_SPEC.md` first if the complexity is high ( > 5 components).
 Otherwise, write the code directly.
 
-## Security & Guardrails
+## Constraints
+- Escape all user input in the view layer; validate on the server as well as the client.
+- Hide elements the user may not use by not rendering them, and enforce the same rule on the server.
 
-### 1. Skill Security (UI Gen)
-- **DOM-Based XSS via Props**: In "Generative UI" (Step 2), the LLM might correctly escape standard HTML bodies but incorrectly bind raw, unsanitized user input directly to sensitive DOM properties (e.g., `dangerouslySetInnerHTML`, `href`, `src`, or inline `style` objects). The agent must strictly mandate the use of framework-level safe bindings (e.g., standard React curly braces `{}`) and strictly forbid raw HTML insertion unless passed through a verified HTML sanitizer like DOMPurify.
-- **Client-Side Validation Illusion**: The Security Checklist (Step 5) notes that "Client-side validation is UX, Server-side is Security." However, an LLM might generate a UI that *appears* highly secure (e.g., disabling the "Submit" button if a field is invalid) while neglecting to implement or verify the corresponding backend API constraints. The agent must explicitly tag all UI-level validation code with a warning comment stating it is strictly cosmetic and not a security perimeter.
+## Output Format
+The UI code files, and a `UI_SPEC.md` first when there are more than 5 components.
 
-### 2. System Integration Security
-- **HTMX Route Exposure**: In the "HTMX Workflow" (Step 3), the agent creates backend routes returning HTML fragments (e.g., `GET /partials/dashboard`). If the agent fails to secure these partial routes with the exact same authentication/authorization middleware as the main application routes, an attacker can bypass the UI and directly fetch sensitive HTML fragments. The agent must mandate that all HTMX endpoints inherit the project's global security context.
-- **TUI Command Injection (Terminal Escape Sequences)**: In the "TUI Workflow" (Step 4), returning the String representation of the UI can be dangerous if it includes untrusted data. An attacker might supply input containing malicious ANSI escape sequences designed to spoof terminal history, hide malicious commands, or exploit terminal emulator vulnerabilities. The agent must rigorously strip or securely escape all raw ANSI control characters from dynamic user input before rendering it in the TUI view.
-
-### 3. LLM & Agent Guardrails
-- **The "Admin Dashboard" Hallucination**: When asked to build an "Internal Tool" (Step 1), the LLM might hallucinate standard administrative features (like a "Delete All Users" button or "View Raw Passwords" table) that were never explicitly requested, simply because "Internal Tool" is heavily associated with those features in its training data. The agent must rigidly constrain UI generation to the exact components specified in the user's prompt or the `UI_SPEC.md`.
-- **Third-Party CDN Hijacking**: To quickly style a prototype, the LLM might hallucinate `unpkg` or `cdnjs` script tags for libraries (like Tailwind or Alpine.js) instead of using local `npm` module imports. Pulling executable code from unpinned, external CDNs introduces a severe supply-chain risk (Subresource Integrity issues). The agent must categorically reject UI code that relies on external CDN `<script>` tags, forcing local dependency resolution.
+## Limits and safety
+- Bind user data with the framework's safe bindings; use `dangerouslySetInnerHTML` only after a sanitiser such as DOMPurify.
+- Client-side validation is cosmetic: confirm the server enforces the same rule and name the endpoint.
+- HTMX fragment routes use the same authentication and permission middleware as full pages.
+- In a TUI strip ANSI control sequences from untrusted text before drawing it.
+- Build only the components asked for (or listed in `UI_SPEC.md`); add no unrequested admin actions.
+- Use locally installed packages, not CDN script tags.

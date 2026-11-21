@@ -1,6 +1,6 @@
 ---
 name: global-standards
-description: "Enforce UN, ITU, and Global Open Source (OSI, OpenSSF) software standards. Use when: un standards, itu guidelines, open source compliance, global interoperability, osi, openssf."
+description: "Audit against UN SDG, ITU-T and open source (OSI, OpenSSF) requirements, written as a report. Use when a public-sector or open source project needs a standards or licence check."
 license: CC-BY-SA-4.0
 metadata:
   source: "agents/skills/industry/global-standards.skill.md"
@@ -21,13 +21,15 @@ To audit and architect software systems that comply with global public-sector ma
    - **Open Source (OSI/OpenSSF)**: Verify license compatibility (mitigating copyleft contamination like AGPL in proprietary bases) and apply OpenSSF SLSA (Supply-chain Levels for Software Artifacts) for build provenance.
 3. **Output**: Generate the compliance and strategic layout using `agents/templates/industry/GLOBAL_STANDARDS_AUDIT_TEMPLATE.md`.
 
-## Security & Guardrails
+## Constraints
+- Scope first: infrastructure, social impact or open source dependence.
+- Licence findings state which licences were compared.
 
-### 1. Skill Security
-- **Open Source Supply Chain**: The agent must proactively highlight the risk of relying on unmaintained, single-maintainer open-source repositories when conducting a global standards review.
+## Output Format
+`GLOBAL_STANDARDS_AUDIT_TEMPLATE.md` (`agents/templates/industry/`) filled in.
 
-### 2. System Integration Security
-- **Encryption Baselines**: When applying ITU-T standards, the agent must reject deprecated cryptographic algorithms (e.g., MD5, SHA-1, DES) ensuring X.509 architectures utilize modern (e.g., ECDSA, RSA-2048+) curves.
-
-### 3. LLM & Agent Guardrails
-- **No Legal Counsel**: The LLM must explicitly state that license compatibility checks (e.g., GPL vs MIT interactions) are for architectural guidance only and do not replace formal legal counsel.
+## Limits and safety
+- Licence checks are guidance, not legal advice; tell the human to take legal counsel for copyleft combinations such as AGPL in a proprietary base.
+- Flag unmaintained or single-maintainer dependencies.
+- Reject deprecated algorithms (MD5, SHA-1, DES) in certificate and key designs.
+- Cite an ITU-T or SDG item only from text you have read; otherwise write "unverified".

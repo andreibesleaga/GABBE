@@ -22,7 +22,7 @@ To articulate the *Why* behind a project. This skill generates a structured busi
 
 2.  **Strategic Alignment**
     *   Map the initiative to company goals (OKRs, KPIs).
-    *   Identify stakeholders and distinct user groups.
+    *   Identify stakeholders and distinct user groups (see also `stakeholder-management.skill`). For competitors and market size use `market-analysis.skill`.
 
 3.  **Solution Options (The "how")**
     *   **Option 1: Do Nothing** (Baseline)
@@ -39,7 +39,7 @@ To articulate the *Why* behind a project. This skill generates a structured busi
 5.  **Risk Assessment**
     *   Technical risks (complexity, legacy integration).
     *   Market risks (adoption, competition).
-    *   Organizational risks (change management).
+    *   Organizational risks (change management; see also `change-management.skill`).
 
 6.  **Recommendation**
     *   Select the preferred option.
@@ -58,16 +58,8 @@ A markdown document at `docs/strategic/BUSINESS_CASE.md` following the template.
 *   Always consider "Do Nothing" as a valid option.
 *   Be realistic about costs (include maintenance, not just build).
 
-## Security & Guardrails
-
-### 1. Skill Security (Business Case)
-- **Financial Data Confidentiality**: Business cases often process sensitive internal financial data (salaries, exact infrastructure costs, projected revenue). The agent generating this document must operate in a strictly isolated, untracked context window so this data is not ingested into external training pipelines.
-- **Strategic Leakage Prevention**: The completed `BUSINESS_CASE.md` must be classified as internal/confidential. The agent must not autonomously attach or link this document in public-facing issue trackers or open repositories.
-
-### 2. System Integration Security
-- **Security Cost Factor**: When calculating "Cost" and "ROI", the agent *must* automatically inject security compliance overhead (e.g., Penetration testing costs, SOC2 audit prep time) into the estimate. Ignoring security costs artificially inflates the ROI of a potentially dangerous initiative.
-- **Risk Assessment Depth**: The "Organizational and Technical Risks" section must explicitly mandate a mini-threat model. It cannot simply list "Adoption Risk"; it must include "Data Breach Risk" if the initiative involves processing new categories of PII.
-
-### 3. LLM & Agent Guardrails
-- **Hallucinated ROI Metrics**: The LLM is strictly prohibited from inventing "industry standard" conversion rates or cost-saving percentages to make an option look more favorable. All financial inputs must be derived from user-provided data or cited, authoritative market research.
-- **The "Do Nothing" Security Baseline**: When evaluating "Option 1: Do Nothing", the agent must not assume "zero cost". It must objectively evaluate the carrying cost of existing technical debt and the increasing security vulnerability surface of maintaining legacy, unpatched systems.
+## Limits and safety
+- Mark `BUSINESS_CASE.md` internal; do not paste it into public issues or public repositories.
+- Use only figures the human supplied or sources you cite; label every other number as an assumption.
+- Include security and compliance costs (penetration test, audit) in the cost side, and the carrying cost of "do nothing" (legacy and unpatched systems).
+- Ask the human before including salaries or contract values.

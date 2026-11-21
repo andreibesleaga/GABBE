@@ -1,6 +1,6 @@
 ---
 name: engineering-standards
-description: "Enforce academic and industry engineering standards (IEEE, ACM, ISO/IEC). Use when: ieee standards, acm compliance, iso 12207, swebok, academic standards, ieee 42010."
+description: "Compliance review against ISO/IEC/IEEE 42010 and 12207, SWEBOK and the ACM Code of Ethics, written as a report. Use when a project must show conformance to IEEE, ACM or ISO standards."
 license: CC-BY-SA-4.0
 metadata:
   source: "agents/skills/industry/engineering-standards.skill.md"
@@ -18,17 +18,18 @@ To elevate the software engineering process to meet rigorous international acade
 2. **Apply Standards**:
    - **ISO/IEC/IEEE 42010 (Architecture Description)**: Ensure the architecture explicitly documents Stakeholders, Concerns, Viewpoints, and Views, maintaining clear separation between the model and the stakeholder perspective.
    - **ISO/IEC/IEEE 12207 (Software Life Cycle)**: Verify that the process includes defined Acquisition, Supply, Development, Operation, and Maintenance processes.
-   - **IEEE SWEBOK**: Guide technical decisions based on the 15 Knowledge Areas (e.g., Software Configuration Management, Software Quality).
+   - **IEEE SWEBOK**: Guide technical decisions based on the 18 Knowledge Areas of SWEBOK V4 (e.g., Software Configuration Management, Software Quality).
    - **ACM Code of Ethics**: Ensure the system does not harm human life, respects privacy, and honors confidentiality.
 3. **Output**: Generate the academic/industry compliance report using `agents/templates/industry/ENGINEERING_STANDARDS_REVIEW_TEMPLATE.md`.
 
-## Security & Guardrails
+## Constraints
+- Findings name the standard and the clause they rest on.
+- Opinions not grounded in the standard are labelled as opinions.
 
-### 1. Skill Security
-- **Strict Citation**: The agent must not hallucinate standard clauses. If referencing a specific IEEE standard (e.g., IEEE 754 for floating-point arithmetic), the agent must cite its specific constraints accurately to prevent academic or catastrophic financial/scientific calculation errors.
+## Output Format
+`ENGINEERING_STANDARDS_REVIEW_TEMPLATE.md` (`agents/templates/industry/`) filled in.
 
-### 2. System Integration Security
-- **Safety Criticality**: When applying these standards to life-critical systems (like medical devices or avionics), the agent must enforce the highest rigor of traceability (linking every line of code back to a formal requirement as per IEEE 1012 V&V standards).
-
-### 3. LLM & Agent Guardrails
-- **Academic Neutrality**: The LLM must assess architectures neutrally against the published standard, avoiding trend-based opinions (e.g., not strictly favoring Microservices over Monoliths unless the standard specifically dictates a scaling constraint).
+## Limits and safety
+- Cite a standard's clause or number only from text you have read; otherwise write "unverified".
+- For life-critical systems require traceability from requirement to test and code (IEEE 1012), and say that conformance needs an independent assessor.
+- Assess against the published standard, not against fashion (no microservices-versus-monolith opinions unless the standard sets the constraint).

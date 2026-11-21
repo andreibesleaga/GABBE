@@ -1,6 +1,6 @@
 ---
 name: industrial-iot
-description: "Architect high-throughput industrial telemetry via MQTT & OPC UA. Use when: iiot, opc ua, mqtt, scale telemetry, purdue model, scada, plc."
+description: "Edge-to-cloud design for industrial telemetry with Purdue levels, OPC UA, MQTT and cloud ingestion. Use when factory equipment, PLC or SCADA data must reach cloud systems."
 license: CC-BY-SA-4.0
 metadata:
   source: "agents/skills/industry/industrial-iot.skill.md"
@@ -21,13 +21,15 @@ To architect robust, secure, and low-latency Industrial IoT (IIoT) architectures
 3. **Data Ingestion**: Design the Cloud ingestion pattern (e.g., AWS IoT Core, Azure IoT Hub, Kafka) handling high-velocity time-series data.
 4. **Output**: Generate the telemetry layout and architecture using `agents/templates/industry/IOT_TELEMETRY_TEMPLATE.md`.
 
-## Security & Guardrails
+## Constraints
+- Network boundaries and firewalls are shown per Purdue level.
+- OPC UA stays on the factory floor; MQTT carries edge-to-cloud telemetry.
 
-### 1. Skill Security
-- **Airgap Respect**: The agent must never propose direct inbound connections from the open internet to Level 1/2 OT (Operational Technology) networks (e.g., directly querying a PLC database from AWS).
+## Output Format
+`IOT_TELEMETRY_TEMPLATE.md` (`agents/templates/industry/`) filled in with the topology and ingestion pattern.
 
-### 2. System Integration Security
-- **Data Diode / Gateway Check**: All Edge-to-Cloud telemetry must flow outward via an Edge Gateway or Data Diode using TLS 1.2+ encrypted MQTT payloads.
-
-### 3. LLM & Agent Guardrails
-- **Time-Series Restraint**: The LLM must not propose relational databases (like MySQL/PostgreSQL) for storing raw sub-second sensor telemetry. It must default to Time-Series Databases (TSDB) like InfluxDB or TimescaleDB.
+## Limits and safety
+- Never propose inbound connections from the internet or cloud into Level 1 or 2 OT networks; data flows outward through an edge gateway or data diode.
+- Generated code and tests never write to a PLC or send control commands; against real equipment they are read-only, otherwise use a simulator.
+- Telemetry is encrypted in transit (TLS 1.2 or later).
+- Raw sub-second telemetry goes to a time-series database unless the human justifies another store.

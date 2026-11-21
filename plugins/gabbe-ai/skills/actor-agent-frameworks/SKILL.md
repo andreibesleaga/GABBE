@@ -1,6 +1,6 @@
 ---
 name: actor-agent-frameworks
-description: "Implement and manage Actor and Agent Frameworks (e.g. LangGraph). Use when: setup langgraph, implement actor framework, configure agent framework."
+description: "Set up an agent or actor graph (LangGraph, Akka or custom) with state schema, checkpoints and failure recovery. Use when you build or change a multi-step agent graph or actor system that must survive restarts."
 license: CC-BY-SA-4.0
 metadata:
   source: "agents/skills/ai/actor-agent-frameworks.skill.md"
@@ -19,16 +19,15 @@ Implement, configure, and maintain robust Agent and Actor-based frameworks (such
 3. **Integration**: Connect the framework to persistent memory stores (e.g., SQLite, PostgreSQL) for state checkpoints.
 4. **Verification**: Simulate actor failures and verify that the graph/supervisor recovers state correctly.
 
-## Security & Guardrails
+## Constraints
+- Every message between actors has a schema; a message that does not validate goes to the dead-letter queue.
+- Every graph has a maximum step count and a defined end state.
 
-### 1. Skill Security
-- **Sandbox Isolation**: Ensure actors executing untrusted LLM output run in a sandboxed environment without implicit system access.
-- **State Poisoning Prevention**: Validate all messages passed between actors against a strict schema (e.g., Pydantic).
+## Output Format
+A short topology note `docs/AGENT_GRAPH.md` (nodes, edges, state schema, checkpoint store, failure handling) and the framework code with its failure-recovery test.
 
-### 2. System Integration Security
-- **Secure Persistence**: Checkpoints written to the database must not serialize and log plaintext sensitive secrets (API keys).
-- **Dead-Letter Handling**: Implement secure dead-letter queues for unhandled messages to prevent memory exhaustion.
-
-### 3. LLM & Agent Guardrails
-- **Routing Loop Prevention**: Impose a maximum step/recursion limit on graph traversals to prevent infinite loops.
-- **Fail-Safe Constraints**: When an actor fails repeatedly, gracefully escalate to a human operator instead of dropping the context.
+## Limits and safety
+- Actors that run model output execute in a sandbox without access to the host or project secrets.
+- Checkpoints must not contain API keys or tokens; grep a saved checkpoint for them before relying on the store.
+- Set a maximum number of steps per run and a size limit on the dead-letter queue.
+- After repeated failure of one actor, stop and report to the human with the saved state; do not drop the context.

@@ -1,6 +1,6 @@
 ---
 name: decommission-sunset
-description: "Plan the safe sunset of a service or product — deprecation policy and timeline, data retention/migration/export, user comms, contract wind-down, traffic drain, teardown, and post-sunset verification. Use when: plan to decommission the legacy billing service, sunset and deprecate the old api, draft a shutdown timeline for the product, export and migrate data before teardown, drain traffic and tear down the system, wind down the vendor contract and licenses, verify nothing depends on the retired service."
+description: "Plan the retirement of a service or product - deprecation timeline, data retention and export, user notices, contracts, traffic drain, teardown and checks afterwards. Use when the human decides to retire or shut down a system."
 license: CC-BY-SA-4.0
 metadata:
   source: "agents/skills/ops/decommission-sunset.skill.md"
@@ -44,16 +44,9 @@ A decommission plan in Markdown following `DECOMMISSION_PLAN_TEMPLATE.md`:
 - **Teardown** — infra removal, credential revocation, data disposition.
 - **Post-sunset verification** — dependency checks, orphaned-resource check, audit-trail record.
 
-## Security & Guardrails
-
-### 1. Skill Security
-- **Risk**: Premature or unrecoverable data deletion. Mitigation: deletion is gated behind explicit human approval, occurs only after export + migration + archive are verified, and uses soft-delete/quarantine with a hold period before hard deletion where feasible.
-- **Risk**: Exposing data during export/migration. Mitigation: encrypt exports in transit and at rest, scope access to the data owner, and expire export links; never export PII to an unsecured location.
-
-### 2. System Integration Security
-- **Risk**: Leaving orphaned credentials, keys, or cloud resources after teardown (security and cost exposure). Mitigation: the verification phase explicitly revokes all credentials, removes IAM grants, and reconciles the cloud account for orphaned resources and lingering spend.
-- **Risk**: Tearing down a system still in active use, causing an outage. Mitigation: require telemetry-confirmed near-zero traffic and a dependency scan before teardown; keep deprecation responses live through a grace period.
-
-### 3. LLM & Agent Guardrails
-- **Risk**: The agent executing teardown or deletion autonomously. Mitigation: destructive teardown and any data deletion require explicit human authorization with an audit-trail entry; the agent only produces and sequences the plan.
-- **Risk**: The agent shortcutting notice periods or comms to "finish faster." Mitigation: contractual notice periods and the full comms cadence are hard requirements the agent may not compress; skipping a notification is flagged, not silently dropped.
+## Limits and safety
+- This skill writes the plan. Data deletion and teardown commands are proposed with the exact command and run only after the human confirms.
+- Delete data only after export, migration and archive are checked, and only after the notice periods in contracts and law have passed.
+- Tear down only after traffic is near zero in telemetry and a dependency search finds no callers; keep a deprecation response live during the grace period.
+- Revoke credentials and access and look for leftover cloud resources as part of the verification step.
+- Do not shorten notice periods or skip a notice to finish faster; report the conflict.

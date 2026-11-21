@@ -1,6 +1,6 @@
 ---
 name: data-engineering
-description: "Design and implement data pipelines (ETL/ELT), warehousing, and analytics engineering. Use when: data pipeline, etl, elt, spark, airflow, dbt, warehouse, big data, sql optimization, kafka."
+description: "Pipeline and warehouse design — ELT, orchestration, dbt models, idempotent loads, data quality checks and PII handling. Use when data must be moved or transformed for analytics, or when a pipeline is unreliable."
 license: CC-BY-SA-4.0
 metadata:
   source: "agents/skills/data/data-engineering.skill.md"
@@ -36,24 +36,18 @@ To assist with moving, transforming, and storing data at scale for analytics and
 3.  **Data Quality**: Always include data validation steps (Great Expectations / dbt tests).
 4.  **Privacy**: Identify and hash PII (GDPR/CCPA compliance).
 
-## Deliverables
+## Output Format
 -   `dags/` for Airflow.
 -   `models/` for dbt.
 -   `spark_jobs/` for PySpark.
 
-## Security & Guardrails
+## Constraints
+- Every pipeline is idempotent: a re-run does not duplicate data.
+- Every pipeline has validation steps (Great Expectations or dbt tests).
 
-### 1. Skill Security (Data Engineering)
-- **Credential Protection**: Never hardcode database or warehouse credentials in DAGs or dbt models. Use Secret Managers (e.g., AWS Secrets Manager, HashiCorp Vault).
-- **Least Privilege Access**: ETL/ELT service accounts should only have read access to source systems and write access to specific staging/target schemas.
-- **Data Masking**: Implement dynamic data masking or hashing for PII during the ingestion phase before it lands in the warehouse.
-
-### 2. System Integration Security
-- **Secure Transport**: Ensure all data movement between source systems, message brokers (Kafka), and the warehouse is encrypted in transit (TLS 1.2+).
-- **Network Isolation**: Run processing nodes (Spark clusters, Airflow workers) in private subnets with no direct internet access.
-- **Audit Logging**: Log all pipeline executions, data volume changes, and schema modifications for compliance tracking.
-
-### 3. LLM & Agent Guardrails
-- **Prompt Injection Defense**: If using LLMs to generate SQL or dbt models from natural language, sanitize inputs to prevent injection of malicious commands (e.g., `DROP TABLE`).
-- **Read-Only Agent Access**: Agents generating or testing pipelines must operate with read-only database roles unless executing explicitly approved migrations.
-- **Output Validation**: LLM-generated code (Airflow DAGs, PySpark scripts) must be statically analyzed for security flaws and executed in a sandboxed environment before deployment.
+## Limits and safety
+- Credentials come from a secret manager, never from DAGs or dbt models; grep for them before handing over.
+- Mask or hash personal data at ingestion, before it lands in the warehouse.
+- Test with read-only roles; writes go only to named staging or target schemas.
+- Run generated SQL, DAGs and Spark jobs first on a copy or sample, never on production tables.
+- Data moves over encrypted transport, and pipeline runs and schema changes are logged.

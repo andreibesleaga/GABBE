@@ -62,28 +62,8 @@ Produce a ranked concept shortlist containing:
 - The named selection criteria and their weights, so the ranking is reproducible.
 - A short "parked ideas" note listing strong outliers held back for a later round.
 
-## Security & Guardrails
-
-### 1. Skill Security
-- **Risk**: Premature convergence — a stakeholder pushes a pet idea to the top before divergence runs, so
-  the shortlist merely launders a pre-made decision; mitigation: the agent MUST complete a divergence pass
-  and record idea volume before any scoring, and refuse to produce a ranking from a single seeded idea.
-- **Risk**: Fabricated rationale — the agent invents plausible-sounding justifications for ranks; mitigation:
-  every rationale MUST trace to the stated criteria and weights, and the agent labels any rank it cannot
-  ground as "low-confidence, needs validation."
-
-### 2. System Integration Security
-- **Risk**: Idea provenance leakage — raw ideation logs may quote confidential roadmaps or named customers;
-  mitigation: the agent sanitizes participant-attributed and customer-identifying content before the
-  shortlist leaves the session, keeping raw notes in a restricted working artifact only.
-- **Risk**: Auto-implementation of unvetted concepts — a downstream coding agent treats a brainstormed
-  concept as an approved spec; mitigation: the agent watermarks the shortlist as DRAFT/UNVALIDATED and
-  states that no concept is build-ready until it passes a separate assessment such as `opportunity-assessment.skill`.
-
-### 3. LLM & Agent Guardrails
-- **Risk**: Representation bias — the model defaults to ideas serving a narrow, high-bandwidth user and
-  ignores accessibility or low-resource contexts; mitigation: the agent MUST deliberately generate at least
-  one idea targeting an under-served or constrained user before converging.
-- **Risk**: Harmful ideation — SCAMPER or "worst possible idea" prompts surface privacy-violating or
-  manipulative concepts; mitigation: the agent flags such concepts as out-of-bounds rather than ranking
-  them, and never advances a concept whose value depends on deceiving or surveilling users.
+## Limits and safety
+- Complete a divergence pass and record how many ideas it produced before any scoring; refuse to rank a single seeded idea.
+- Mark the shortlist DRAFT/UNVALIDATED; no concept is ready to build until `opportunity-assessment.skill` or another review passes it.
+- Remove customer names and confidential roadmap items before the shortlist leaves the session.
+- Flag, and do not rank, ideas that depend on deceiving or surveilling users. Include at least one idea for an under-served user.

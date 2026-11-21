@@ -33,7 +33,8 @@ PROJECT_ROOT = _find_project_root(Path(os.getcwd()))
 
 # Regex Patterns
 PII_PATTERNS = [
-    re.compile(r"[\w\.-]+@[\w\.-]+\.[a-zA-Z]{2,}"),  # email
+    # email — bounded repeats keep the scan linear (the unbounded form took ~8 s on 40 kB)
+    re.compile(r"[\w.+-]{1,64}@[\w.-]{1,255}\.[a-zA-Z]{2,}"),
     re.compile(r"\b\d{3}[-.\s]\d{3}[-.\s]\d{4}\b"),  # US phone
     # re.compile(r'\b\d{9}\b'),                               # REMOVED: matches any 9-digit number
     re.compile(r"\b\d{3}-\d{2}-\d{4}\b"),  # SSN (dashes)
@@ -91,21 +92,69 @@ if GABBE_CONFIG_FILE.exists():
 
 
 # LLM Config
+# Keys a project `.env` may set. A `.env` travels with a repository, so it must not be
+# able to weaken security: the tool-server switches (GABBE_MCP_*), the policy file and
+# every non-GABBE variable (PATH, PYTHONPATH, ...) are never read from it.
+_ENV_FILE_ALLOWED_KEYS = frozenset(
+    {
+        "GABBE_API_KEY",
+        "GABBE_API_MODEL",
+        "GABBE_ESCALATION_MODE",
+        "GABBE_LOG_LEVEL",
+        "GABBE_ROUTE_THRESHOLD",
+        "GABBE_SUBPROCESS_TIMEOUT",
+    }
+)
+_ENV_FILE_ALLOWED_PREFIXES = ("GABBE_LLM_", "GABBE_MAX_")
+
+
+def _env_file_key_allowed(key: str) -> bool:
+    return key in _ENV_FILE_ALLOWED_KEYS or key.startswith(_ENV_FILE_ALLOWED_PREFIXES)
+
+
+def _parse_env_file(env_file: Path) -> dict[str, str]:
+    """Return the KEY=VALUE pairs of a .env file (comments and blank lines skipped)."""
+    pairs: dict[str, str] = {}
+    if not env_file.exists():
+        return pairs
+    with open(env_file, "r") as f:
+        for raw in f:
+            stripped = raw.strip()
+            if not stripped or stripped.startswith("#"):
+                continue
+            k, sep, v = stripped.partition("=")
+            if sep:
+                pairs[k.strip()] = v.strip().strip("'\"")
+    return pairs
+
+
 def _load_env_file(env_file: Path) -> None:
-    """Load KEY=VALUE pairs from a .env file into os.environ (real env wins).
+    """Load the allowed KEY=VALUE pairs of a .env file into os.environ (real env wins).
+
+    Only the keys in the allow-list above are read. ``GABBE_API_URL`` is read only when
+    the API key does not come from the real environment: otherwise a cloned repository
+    could send the user's own key to a URL of its choosing.
 
     Wrapped in a function so loop variables do not leak into the module's
     public namespace (which would otherwise vary with whether a .env exists).
     """
-    if not env_file.exists():
-        return
-    with open(env_file, "r") as f:
-        for raw in f:
-            stripped = raw.strip()
-            if stripped and not stripped.startswith("#"):
-                k, sep, v = stripped.partition("=")
-                if sep:
-                    os.environ.setdefault(k.strip(), v.strip().strip("'\""))
+    key_from_real_env = "GABBE_API_KEY" in os.environ
+    refused = []
+    for k, v in _parse_env_file(env_file).items():
+        if k == "GABBE_API_URL":
+            allowed = not key_from_real_env
+        else:
+            allowed = _env_file_key_allowed(k)
+        if allowed:
+            os.environ.setdefault(k, v)
+        elif k.startswith("GABBE_") and k not in os.environ:
+            refused.append(k)
+    if refused:
+        logger.warning(
+            "Ignored %s from %s: a .env file cannot set these. Export them in your shell.",
+            ", ".join(sorted(refused)),
+            env_file,
+        )
 
 
 _load_env_file(PROJECT_ROOT / ".env")

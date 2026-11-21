@@ -27,8 +27,14 @@ KIT_ROOT=${2:-$(CDPATH= cd -- "$SCRIPT_DIR/../.." && pwd)}
 # which requires a template (the XXXXXX keeps the dir name unpredictable).
 STAGE=$(mktemp -d "${TMPDIR:-/tmp}/gabbe-import.XXXXXX") || { echo "ERROR: mktemp failed; refusing to use a predictable temp dir." >&2; exit 1; }
 
+# Remove the staging dir on every exit path; a dry run sets KEEP_STAGE=1 so the
+# directory it reports stays available for inspection.
+KEEP_STAGE=0
+trap '[ "$KEEP_STAGE" = 1 ] || rm -rf "$STAGE"' EXIT
+
 # Fail the link/path checks if any stage of the pipeline errors (e.g. corrupt archive).
-set -o pipefail 2>/dev/null || true
+# dash aborts on an unknown `set -o` option even with `|| true`, so probe in a subshell first.
+(set -o pipefail) 2>/dev/null && set -o pipefail
 
 # The bundle is untrusted input. Reject any member with an absolute path or a
 # ".." traversal component BEFORE extracting, so a crafted archive cannot write
@@ -68,6 +74,7 @@ if [ "$APPLY" -eq 0 ]; then
     echo "Dry run. Re-run with --apply to merge memory + tasks + config into the project."
     echo "  sh agents/scripts/state_import.sh --apply $BUNDLE"
     echo "Staging dir: $STAGE"
+    KEEP_STAGE=1
     exit 0
 fi
 
@@ -96,4 +103,4 @@ copy_in "project/gabbe.config.json"
 
 echo ""
 echo "Hydrated. Now run session-resume.skill then preflight.skill to continue from NEXT ACTION."
-[ -d "$BACKUP" ] && echo "Replaced files were backed up under: $BACKUP"
+if [ -d "$BACKUP" ]; then echo "Replaced files were backed up under: $BACKUP"; fi  # not `&&`: a false test would make the script exit 1

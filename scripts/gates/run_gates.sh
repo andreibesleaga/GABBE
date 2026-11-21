@@ -138,7 +138,15 @@ print("  PASS")
 EOF
 
 note "== Gate 6: CVE delta non-positive =="
-if "$PY" -m pip_audit --format json > /tmp/gabbe-cve-current.json 2>/dev/null; then
+# pip-audit exits 1 when it FINDS vulnerabilities (and still writes its JSON), so
+# the exit code must not decide whether we compare: only usable JSON does.
+# The pinned dependency set is audited (requirements-lock.txt, the same set the
+# Security Baseline workflow scans), not whatever tools sit in the running
+# environment: a venv's own pip would otherwise decide the gate.
+rm -f /tmp/gabbe-cve-current.json
+"$PY" -m pip_audit -r "$ROOT/requirements-lock.txt" --format json > /tmp/gabbe-cve-current.json 2>/dev/null
+AUDIT_RC=$?
+if "$PY" -c 'import json,sys; json.load(open(sys.argv[1]))' /tmp/gabbe-cve-current.json 2>/dev/null; then
   "$PY" - "$BASE/cve-baseline.json" /tmp/gabbe-cve-current.json <<'EOF' || FAIL=1
 import json, sys
 def vulns(path):
@@ -151,7 +159,7 @@ if new:
 print(f"  PASS ({len(cur)} total, {len(base - cur)} resolved)")
 EOF
 else
-  note "  SKIP (pip-audit unavailable/offline)"
+  note "  SKIP (pip-audit unavailable/offline, exit $AUDIT_RC, no usable JSON)"
 fi
 
 note ""

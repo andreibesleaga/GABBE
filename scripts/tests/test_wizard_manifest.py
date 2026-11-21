@@ -62,9 +62,11 @@ def test_wizard_writes_reversible_manifest(tmp_path):
     assert manifest_path.exists(), "wizard did not write an uninstall manifest"
     manifest = json.loads(manifest_path.read_text())
     kinds = {e["kind"] for e in manifest["entries"]}
-    # The wizard created copied kit files AND wiring (symlinks / generated trees).
+    # The wizard created copied kit files AND wiring links. Generated skill folders
+    # are recorded file by file, never as a whole directory.
     assert "copy" in kinds
-    assert {"symlink", "tree"} & kinds, f"no wiring recorded; kinds={kinds}"
+    assert "symlink" in kinds, f"no wiring recorded; kinds={kinds}"
+    assert "tree" not in kinds
 
     # Wiring that should exist after selecting Claude Code + Cursor.
     root_agents = proj / "AGENTS.md"
@@ -79,7 +81,7 @@ def test_wizard_writes_reversible_manifest(tmp_path):
     assert not (proj / ".claude").exists()
 
 
-def test_wizard_backs_up_and_restores_preexisting_wiring(tmp_path):
+def test_wizard_keeps_and_restores_preexisting_wiring(tmp_path):
     proj = tmp_path / "proj"
     proj.mkdir()
     # A pre-existing .cursorrules the user already had (must survive a round-trip).
@@ -87,11 +89,16 @@ def test_wizard_backs_up_and_restores_preexisting_wiring(tmp_path):
 
     _run_wizard(proj, GREENFIELD_INPUTS)
 
-    # The wizard backed up the user's file before wiring its own.
-    backup = proj / ".cursorrules.bak"
-    assert backup.exists(), "pre-existing .cursorrules was not backed up"
+    # The wizard kept the user's file, added a pointer to the kit, and saved the
+    # original first (1.1.3 replaced the file with a link and left a `.bak`).
+    wired = proj / ".cursorrules"
+    assert not wired.is_symlink()
+    assert wired.read_text().startswith("MY EXISTING CURSOR RULES\n")
+    assert "`agents/AGENTS.md`" in wired.read_text()
+    backup = proj / ".cursorrules.gabbe-bak"
     assert backup.read_text() == "MY EXISTING CURSOR RULES\n"
 
-    # Uninstall restores the user's original from the recorded backup.
+    # Uninstall takes the pointer out again: the user's original, byte for byte.
     installer.uninstall(proj, purge=True)
     assert (proj / ".cursorrules").read_text() == "MY EXISTING CURSOR RULES\n"
+    assert not backup.exists()

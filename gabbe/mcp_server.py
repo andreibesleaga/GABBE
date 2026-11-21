@@ -11,13 +11,40 @@ import sys
 from typing import Any
 
 from . import __version__
+from .budget import BudgetExceeded
 from .context import RunContext
-from .gateway import ToolDefinition
+from .gateway import (
+    CircuitOpen,
+    PolicyDenied,
+    RateLimitExceeded,
+    ToolDefinition,
+    ToolNotFound,
+)
 
 logger = logging.getLogger("gabbe.mcp")
 
-# Current MCP protocol revision this server negotiates against.
+# Latest MCP revision this server implements. It is the last revision that opens
+# with an `initialize` handshake; the 2026-07-28 revision (protocol version on every
+# request, `server/discover`) is not implemented.
 MCP_PROTOCOL_VERSION = "2025-11-25"
+# Revisions this server accepts in `initialize`; anything else gets the latest of them.
+_SUPPORTED_PROTOCOL_VERSIONS = ("2025-11-25", "2025-06-18", "2025-03-26", "2024-11-05")
+
+# JSON-RPC 2.0 error codes, plus implementation-defined codes (-32000..-32099).
+_PARSE_ERROR = -32700
+_INVALID_REQUEST = -32600
+_METHOD_NOT_FOUND = -32601
+_INVALID_PARAMS = -32602
+_INTERNAL_ERROR = -32603
+_UNAUTHORIZED = -32000
+_POLICY_DENIED = -32001
+_TOOL_UNAVAILABLE = -32002  # circuit open, rate limit or budget exhausted
+
+# Input caps, checked before any tracing/redaction/schema work (SW-14): a request
+# line above _MAX_LINE_CHARS is refused unparsed; a tools/call line above
+# _MAX_CALL_CHARS or with a string argument above _MAX_COMMAND_LEN is refused.
+_MAX_LINE_CHARS = 1024 * 1024
+_MAX_CALL_CHARS = 64 * 1024
 
 # Hardened input contract for the run_command tool (Track E5). A single source of
 # truth used by BOTH the registered ToolDefinition (gateway-enforced via
@@ -72,7 +99,11 @@ _authenticated = False  # per-process session flag
 
 
 def run_command_handler(command: str) -> dict[str, Any]:
-    tokens = shlex.split(command)
+    try:
+        tokens = shlex.split(command)
+    except ValueError as e:
+        # Unbalanced quotes etc.: the caller's mistake, not a tool fault.
+        return {"stdout": "", "stderr": f"Invalid command: {e}", "returncode": 2}
     if not tokens:
         return {"stdout": "", "stderr": "Empty command", "returncode": 1}
     # Fail-closed: when not in insecure mode, an empty allowlist blocks ALL
@@ -109,6 +140,14 @@ def run_command_handler(command: str) -> dict[str, Any]:
         result = subprocess.run(
             tokens, shell=False, capture_output=True, text=True, timeout=_command_timeout()
         )
+    except FileNotFoundError:
+        return {
+            "stdout": "",
+            "stderr": f"Command '{tokens[0]}' not found",
+            "returncode": 127,
+        }
+    except OSError as e:
+        return {"stdout": "", "stderr": f"Cannot run '{tokens[0]}': {e}", "returncode": 126}
     except subprocess.TimeoutExpired:
         logger.warning("MCP command timed out after %ss: %s", _command_timeout(), tokens[0])
         return {
@@ -119,8 +158,130 @@ def run_command_handler(command: str) -> dict[str, Any]:
     return {"stdout": result.stdout, "stderr": result.stderr, "returncode": result.returncode}
 
 
+class _RpcError(Exception):
+    """A JSON-RPC error to send back for the current request."""
+
+    def __init__(self, code: int, message: str) -> None:
+        super().__init__(message)
+        self.code = code
+        self.message = message
+
+
+def _reply(req_id: Any, result: dict[str, Any]) -> dict[str, Any]:
+    return {"jsonrpc": "2.0", "id": req_id, "result": result}
+
+
+def _error_reply(req_id: Any, code: int, message: str) -> dict[str, Any]:
+    return {"jsonrpc": "2.0", "id": req_id, "error": {"code": code, "message": message}}
+
+
+def _check_call_size(line_chars: int, args: dict[str, Any]) -> None:
+    """Refuse oversize tool calls before the gateway traces or validates them."""
+    too_long = any(isinstance(v, str) and len(v) > _MAX_COMMAND_LEN for v in args.values())
+    if too_long or line_chars > _MAX_CALL_CHARS:
+        raise _RpcError(_INVALID_PARAMS, "Invalid params: arguments exceed the size limit")
+
+
+def _tool_result(tool_res: Any) -> dict[str, Any]:
+    failed = isinstance(tool_res, dict) and tool_res.get("returncode", 0) != 0
+    return {"content": [{"type": "text", "text": json.dumps(tool_res)}], "isError": failed}
+
+
+def _call_tool(ctx: Any, params: dict[str, Any], line_chars: int) -> dict[str, Any]:
+    name = params.get("name")
+    args = params.get("arguments", {})
+    if not isinstance(name, str):
+        raise _RpcError(_INVALID_PARAMS, "Invalid params: 'name' must be a string")
+    if not isinstance(args, dict):
+        raise _RpcError(_INVALID_PARAMS, "Invalid params: 'arguments' must be an object")
+    _check_call_size(line_chars, args)
+    try:
+        tool_res = ctx.gateway.execute(name, args, role="external_agent", run_context=ctx)
+    except ToolNotFound:
+        raise _RpcError(_INVALID_PARAMS, f"Unknown tool: {name}")
+    except ValueError as e:
+        raise _RpcError(_INVALID_PARAMS, f"Invalid params: {e}")
+    except PolicyDenied as e:
+        raise _RpcError(_POLICY_DENIED, str(e))
+    except (CircuitOpen, RateLimitExceeded, BudgetExceeded) as e:
+        raise _RpcError(_TOOL_UNAVAILABLE, str(e))
+    except Exception as e:
+        logger.error("MCP tool execution error: %s", e)
+        raise _RpcError(_INTERNAL_ERROR, "Internal tool execution error")
+    return _tool_result(tool_res)
+
+
+def _initialize(params: dict[str, Any], token: str | None) -> dict[str, Any]:
+    global _authenticated
+    if token:
+        # Constant-time compare: a short-circuiting `!=` leaks the length of the
+        # matching prefix via timing; compare_digest does not.
+        if not hmac.compare_digest(str(params.get("token", "")), str(token)):
+            raise _RpcError(_UNAUTHORIZED, "Unauthorized")
+        _authenticated = True
+    wanted = params.get("protocolVersion")
+    version = wanted if wanted in _SUPPORTED_PROTOCOL_VERSIONS else MCP_PROTOCOL_VERSION
+    return {
+        "protocolVersion": version,
+        "capabilities": {"tools": {}},
+        "serverInfo": {"name": "gabbe-mcp", "version": __version__},
+    }
+
+
+def _list_tools() -> dict[str, Any]:
+    tool = {
+        "name": "run_command",
+        "description": "Run a shell command",
+        "inputSchema": _RUN_COMMAND_SCHEMA,
+    }
+    return {"tools": [tool]}
+
+
+def _dispatch(
+    ctx: Any, method: str, params: dict[str, Any], token: str | None, line_chars: int
+) -> dict[str, Any]:
+    """Run one request and return its result; raise _RpcError for an error reply."""
+    if method == "initialize":
+        return _initialize(params, token)
+    if method == "ping":
+        return {}
+    if not _authenticated:
+        raise _RpcError(_UNAUTHORIZED, "Unauthorized")
+    if method == "tools/list":
+        return _list_tools()
+    if method == "tools/call":
+        return _call_tool(ctx, params, line_chars)
+    raise _RpcError(_METHOD_NOT_FOUND, "Method not found")
+
+
+def _handle_line(ctx: Any, line: str, token: str | None) -> dict[str, Any] | None:
+    """Turn one input line into a reply, or None when no reply is allowed."""
+    if len(line) > _MAX_LINE_CHARS:
+        return _error_reply(None, _INVALID_REQUEST, "Invalid Request: message too large")
+    try:
+        req = json.loads(line)
+    except ValueError:
+        return _error_reply(None, _PARSE_ERROR, "Parse error")
+    if not isinstance(req, dict):
+        return _error_reply(None, _INVALID_REQUEST, "Invalid Request: expected a JSON object")
+    notification = "id" not in req  # notifications never get a reply
+    req_id = req.get("id")
+    method = req.get("method")
+    params = req.get("params", {})
+    try:
+        if not isinstance(method, str) or not isinstance(params, dict):
+            raise _RpcError(_INVALID_REQUEST, "Invalid Request: bad method or params")
+        result = _dispatch(ctx, method, params, token, len(line))
+    except _RpcError as e:
+        return None if notification else _error_reply(req_id, e.code, e.message)
+    except Exception as e:
+        logger.error("MCP Server error processing line: %s", e)
+        return None if notification else _error_reply(req_id, _INTERNAL_ERROR, "Internal error")
+    return None if notification else _reply(req_id, result)
+
+
 def serve() -> None:
-    """Zero-dependency JSON-RPC server implementing the MCP Protocol endpoints."""
+    """JSON-RPC server implementing the MCP Protocol endpoints (stdio)."""
     global _authenticated
     insecure = _insecure_mode()
     token = _mcp_token()
@@ -156,88 +317,6 @@ def serve() -> None:
             line = line.strip()
             if not line:
                 continue
-            try:
-                req = json.loads(line)
-                method = req.get("method")
-                req_id = req.get("id")
-
-                if method == "initialize":
-                    # Validate token if authentication is required.
-                    if token:
-                        provided = (req.get("params") or {}).get("token", "")
-                        # Constant-time compare: a short-circuiting `!=` leaks the
-                        # length of the matching prefix via timing, letting a remote
-                        # client recover the token byte-by-byte. compare_digest is
-                        # length- and content-timing-safe.
-                        if not hmac.compare_digest(str(provided), str(token)):
-                            res = {
-                                "jsonrpc": "2.0",
-                                "id": req_id,
-                                "error": {"code": -32000, "message": "Unauthorized"},
-                            }
-                            print(json.dumps(res), flush=True)
-                            continue
-                        _authenticated = True
-                    res = {
-                        "jsonrpc": "2.0",
-                        "id": req_id,
-                        "result": {
-                            "protocolVersion": MCP_PROTOCOL_VERSION,
-                            "capabilities": {"tools": {}},
-                            "serverInfo": {"name": "gabbe-mcp", "version": __version__},
-                        },
-                    }
-                elif method == "notifications/initialized":
-                    continue  # No response needed
-                elif not _authenticated:
-                    res = {
-                        "jsonrpc": "2.0",
-                        "id": req_id,
-                        "error": {"code": -32000, "message": "Unauthorized"},
-                    }
-                elif method == "tools/list":
-                    res = {
-                        "jsonrpc": "2.0",
-                        "id": req_id,
-                        "result": {
-                            "tools": [
-                                {
-                                    "name": "run_command",
-                                    "description": "Run a shell command",
-                                    "inputSchema": _RUN_COMMAND_SCHEMA,
-                                }
-                            ]
-                        },
-                    }
-                elif method == "tools/call":
-                    params = req.get("params", {})
-                    name = params.get("name")
-                    args = params.get("arguments", {})
-                    try:
-                        tool_res = ctx.gateway.execute(
-                            name, args, role="external_agent", run_context=ctx
-                        )
-                        res = {
-                            "jsonrpc": "2.0",
-                            "id": req_id,
-                            "result": {"content": [{"type": "text", "text": json.dumps(tool_res)}]},
-                        }
-                    except Exception as e:
-                        logger.error("MCP tool execution error: %s", e)
-                        res = {
-                            "jsonrpc": "2.0",
-                            "id": req_id,
-                            "error": {"code": -32603, "message": "Internal tool execution error"},
-                        }
-                else:
-                    res = {
-                        "jsonrpc": "2.0",
-                        "id": req_id,
-                        "error": {"code": -32601, "message": "Method not found"},
-                    }
-
-                print(json.dumps(res), flush=True)
-            except Exception as e:
-                logger.error("MCP Server error processing line: %s", e)
-                res = {"jsonrpc": "2.0", "error": {"code": -32700, "message": "Parse error"}}
+            res = _handle_line(ctx, line, token)
+            if res is not None:
                 print(json.dumps(res), flush=True)

@@ -77,7 +77,7 @@ def main() -> None:
     brain_sub.add_parser("heal", help="Run Self-Healing")
 
     # --- COMMAND: serve-mcp ---
-    subparsers.add_parser("serve-mcp", help="Run the zero-dependency JSON-RPC MCP Server")
+    subparsers.add_parser("serve-mcp", help="Run the JSON-RPC MCP Server (stdio)")
 
     # --- COMMAND: forecast ---
     subparsers.add_parser("forecast", help="Strategic Forecast of Remaining Work and Budgets")
@@ -161,7 +161,9 @@ def main() -> None:
         "--dry-run", action="store_true", help="Print the plan; change nothing"
     )
     uninstall_parser.add_argument(
-        "--purge", action="store_true", help="Also remove the agents/ kit + .gabbe/"
+        "--purge",
+        action="store_true",
+        help="Also remove empty folders left under agents/ (your files stay)",
     )
     uninstall_parser.add_argument(
         "--global", dest="global_scope", action="store_true", help="Target the global install"
@@ -170,7 +172,7 @@ def main() -> None:
 
     # --- COMMAND: update ---
     update_parser = subparsers.add_parser(
-        "update", help="Additively refresh kit files; prune orphans; preserve user files"
+        "update", help="Refresh kit files; keep your changes (backed up) and the install record"
     )
     update_parser.add_argument(
         "--agents", help="Comma-separated agents to refresh (default: manifest set)"
@@ -406,15 +408,35 @@ def main() -> None:
                 sys.exit(rc)
 
         elif args.command == "uninstall":
+            from .installer import manifest_path, remaining_kit_files
             from .installer import uninstall as _uninstall
 
             target = _resolve_install_target(args)
+            if not manifest_path(target).exists():
+                # No record means nothing can be removed safely: say so and fail.
+                print(
+                    f"{Colors.FAIL}No install record ({manifest_path(target)}): nothing was "
+                    f"removed.{Colors.ENDC}\n"
+                    "Installs made by `npx gabbe-kit init` before 1.1.4 wrote no record. "
+                    "Re-run `npx gabbe-kit init` (1.1.4 or later) with the same --agents to "
+                    "create one, then run `gabbe uninstall` again; or remove the kit by hand "
+                    "(docs/INSTALL.md, 'Uninstalling').",
+                    file=sys.stderr,
+                )
+                sys.exit(1)
             agents = (
                 [a.strip() for a in args.agents.split(",") if a.strip()] if args.agents else None
             )
             removed = _uninstall(target, agents=agents, dry_run=args.dry_run, purge=args.purge)
             verb = "Would remove" if args.dry_run else "Removed"
             print(f"{verb} {len(removed)} path(s) from {target}")
+            left = [] if args.dry_run or agents else remaining_kit_files(target)
+            if left:
+                print(
+                    f"Kept {len(left)} file(s) under agents/ that the install did not create "
+                    "or that you changed (your own files, memory, backups). Delete them "
+                    "yourself if you no longer need them."
+                )
 
         elif args.command == "update":
             from pathlib import Path as _Path
@@ -429,11 +451,27 @@ def main() -> None:
                 )
                 sys.exit(2)
             target = _resolve_install_target(args)
+            if (target / "agents").resolve() == source.resolve():
+                print(
+                    f"{Colors.WARNING}{target} is the kit's own checkout: there is nothing to "
+                    f"update. Run `gabbe update` in the project that uses the kit, or pass "
+                    f"--dir.{Colors.ENDC}"
+                )
+                sys.exit(2)
             agents = (
                 [a.strip() for a in args.agents.split(",") if a.strip()] if args.agents else None
             )
             manifest = update_kit(target, source, agents=agents)
             print(f"Updated kit at {target} ({len(manifest['entries'])} artifacts)")
+            if any(
+                e.get("kind") in ("copy", "tree") and e.get("agent") != "shared"
+                for e in manifest["entries"]
+            ):
+                print(
+                    "Note: the skill folders generated for your agents (.claude/skills, "
+                    ".cursor/rules, ...) were not regenerated. Re-run the installer you used "
+                    "(`npx gabbe-kit init --agents ...` or `gabbe setup`) to refresh them."
+                )
 
         else:
             parser.print_help()

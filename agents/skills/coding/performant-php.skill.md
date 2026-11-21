@@ -1,6 +1,6 @@
 ---
 name: performant-php
-description: High-performance modern PHP — PHP 8.4/8.5, OPcache+JIT, FrankenPHP workers, Composer, Symfony/Laravel, PHPStan/Psalm, Pest.
+description: "Speed up modern PHP (8.4 and later): OPcache and JIT, worker-mode servers, N+1 fixes, static analysis, tests with Pest. Use when a PHP or Symfony service is slow, or when upgrading PHP versions and tooling."
 triggers: [php, php 8.4, php 8.5, composer, symfony, laravel, frankenphp, opcache, jit, phpstan, psalm, pest, phpunit, php performance]
 tags: [coding, php, architecture]
 context_cost: medium
@@ -46,25 +46,22 @@ Build fast, type-safe, maintainable PHP services using the current ecosystem (ve
 4. **Raise the static-analysis level** (PHPStan/Psalm) and let it fail CI; apply Rector for safe upgrades.
 5. **Re-profile** and record the before/after numbers.
 
-## Security & Guardrails
+## Constraints
+- Measure before optimising: no JIT, preloading or worker mode without a before and after profile.
+- Check the PHP and framework versions in `composer.json` before using 8.4 or 8.5 syntax.
+- Production settings: `display_errors=Off`, `expose_php=Off`, secrets from the environment.
 
-### 1. Skill Security
-
-- **Parameterized queries only**: Use PDO prepared statements or the ORM's bindings; never interpolate user input into SQL, shell commands (`exec`, `shell_exec`) or `unserialize()`.
-- **Dependency hygiene**: Run `composer audit` in CI and keep `roave/security-advisories` installed so a vulnerable package fails the install.
-
-### 2. System Integration Security
-
-- **Worker-mode state**: In FrankenPHP worker mode, RoadRunner or Swoole the process outlives the request. Reset per-request state (auth, tenant, static caches) so data cannot leak between users.
-- **Production settings**: Keep `display_errors=Off` and `expose_php=Off`; load secrets from the environment, never from committed files.
-
-### 3. LLM & Agent Guardrails
-
-- **Measure before optimizing**: Do not enable JIT, preloading or worker mode without a before/after profile; record both numbers.
-- **Version claims**: Check the PHP and framework versions in `composer.json` before using 8.4/8.5-only syntax.
+## Output Format
+Changed files plus a record of the before and after profile numbers for each optimisation.
 
 ## Sources (verified 2026-06-10)
 - PHP 8.5 / 8.4 features: <https://www.php.net/releases/8.5/en.php> · <https://php.watch/versions>
 - Laravel 12: <https://laravel.com/docs/12.x/releases>
 - Symfony 7.4 LTS: <https://symfony.com/releases>
 - FrankenPHP: <https://frankenphp.dev/>
+
+## Limits and safety
+- Use PDO prepared statements or the ORM's bindings; never put user input into SQL, shell commands (`exec`, `shell_exec`) or `unserialize()`.
+- In FrankenPHP worker mode, RoadRunner or Swoole the process outlives the request: reset per-request state (auth, tenant, static caches) so data cannot leak between users.
+- Run `composer audit` in CI; changing dependency versions to fix an audit result needs the human's approval.
+- Load secrets from the environment, never from committed files.

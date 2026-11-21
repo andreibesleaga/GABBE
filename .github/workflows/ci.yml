@@ -23,10 +23,10 @@ jobs:
         python-version: ['3.9', '3.10', '3.11', '3.12', '3.13']
 
     steps:
-    - uses: actions/checkout@v7
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v7
+      uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
       with:
         python-version: ${{ matrix.python-version }}
         cache: pip
@@ -42,6 +42,12 @@ jobs:
 
     - name: Validate Markdown Links
       run: python3 agents/scripts/validate_links.py
+
+    - name: Validate Lifecycle Wording
+      run: python3 agents/scripts/validate_lifecycle.py
+
+    - name: Check the lite skills index is up to date
+      run: python3 agents/scripts/build_skills_index_lite.py --check
 
     - name: Verify Setup Simulation
       run: python3 agents/scripts/verify_setup_simulation.py
@@ -68,8 +74,8 @@ jobs:
     name: Lint & type-check (ruff, black, mypy)
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v7
-    - uses: actions/setup-python@v7
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+    - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
       with:
         python-version: '3.12'
         cache: pip
@@ -86,15 +92,20 @@ jobs:
     name: Backward-compatibility gates
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v7
-    - uses: actions/setup-python@v7
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+    - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
       with:
         python-version: '3.12'
         cache: pip
     - name: Install
+      # Python 3.12 gate: test exactly what is locked (hashed lock, generated for
+      # 3.12), then the package itself without dependencies. pip-audit is a gate
+      # tool, not a dependency of the package, so it is added after the lock.
       run: |
         python -m venv .venv
-        .venv/bin/pip install -e ".[dev]" pip-audit
+        .venv/bin/pip install --require-hashes -r requirements-lock.txt
+        .venv/bin/pip install --no-deps -e .
+        .venv/bin/pip install pip-audit
     - name: Run verification gates
       run: ./scripts/gates/run_gates.sh
 
@@ -106,8 +117,8 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
     steps:
-    - uses: actions/checkout@v7
-    - uses: actions/setup-python@v7
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+    - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
       with:
         python-version: '3.12'
         cache: pip
@@ -122,11 +133,11 @@ jobs:
     name: Node installer tests + state export/import under sh (dash)
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v7
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
     # Uses the Node that the ubuntu runner image ships (no pin needed for these tests).
     # Python + the CLI are installed so the install -> `gabbe uninstall --purge`
     # round-trip test runs here instead of being skipped.
-    - uses: actions/setup-python@v7
+    - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
       with:
         python-version: '3.12'
         cache: pip
@@ -143,13 +154,57 @@ jobs:
         sh agents/scripts/state_import.sh --apply "$W"/out/gabbe-state-*.tar.gz "$W/dst"
         test "$(cat "$W/dst/agents/memory/PROJECT_STATE.md")" = m
 
+  bootstrap-scripts-windows:
+    name: PowerShell bootstrap scripts (Windows)
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+    - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
+      with:
+        python-version: '3.12'
+        cache: pip
+    - name: Install the CLI
+      run: pip install -e .
+    - name: install.ps1 -Help exits 0
+      shell: pwsh
+      run: |
+        $out = ./install.ps1 -Help | Out-String
+        if ($LASTEXITCODE -ne 0) { throw "install.ps1 -Help exited $LASTEXITCODE" }
+        if ($out -notmatch 'Usage') { throw 'install.ps1 -Help printed no usage' }
+    - name: Install into a temporary folder with the Node installer
+      shell: pwsh
+      run: |
+        $proj = Join-Path $env:RUNNER_TEMP 'gabbe-proj'
+        New-Item -ItemType Directory -Path $proj | Out-Null
+        Push-Location $proj
+        node "$env:GITHUB_WORKSPACE/bin/install.js" init --yes --agents claude
+        $code = $LASTEXITCODE
+        Pop-Location
+        if ($code -ne 0) { throw "node bin/install.js init exited $code" }
+        if (-not (Test-Path "$proj/agents/AGENTS.md")) { throw 'the kit was not installed' }
+    - name: uninstall.ps1 -DryRun lists what it would remove
+      shell: pwsh
+      run: |
+        $proj = Join-Path $env:RUNNER_TEMP 'gabbe-proj'
+        $out = ./uninstall.ps1 -DryRun -Dir $proj | Out-String
+        if ($LASTEXITCODE -ne 0) { throw "uninstall.ps1 -DryRun exited $LASTEXITCODE" }
+        if ($out -notmatch 'Would remove') { throw "no 'Would remove' line in: $out" }
+        if (-not (Test-Path "$proj/agents/AGENTS.md")) { throw 'the dry run changed the project' }
+    - name: uninstall.ps1 removes the kit
+      shell: pwsh
+      run: |
+        $proj = Join-Path $env:RUNNER_TEMP 'gabbe-proj'
+        ./uninstall.ps1 -Dir $proj
+        if ($LASTEXITCODE -ne 0) { throw "uninstall.ps1 exited $LASTEXITCODE" }
+        if (Test-Path "$proj/agents") { throw 'the agents folder is still there' }
+
   nightly-evals:
     name: Nightly skill evals (live, non-blocking)
     if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v7
-    - uses: actions/setup-python@v7
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+    - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
       with:
         python-version: '3.12'
         cache: pip
@@ -160,13 +215,36 @@ jobs:
       run: pip install -e ".[dev]"
     - name: Eval suites self-check (deterministic)
       run: python3 agents/scripts/eval_skills.py
-    - name: Mutation testing on core modules (non-blocking)
-      continue-on-error: true   # mutation score is a quality signal, not a gate
+    - name: Mutation testing on core modules (score checked in the last step)
+      continue-on-error: true   # a failed run must not stop the live evals; the floor step reports it
       run: |
-        mutmut run --paths-to-mutate "gabbe/budget.py,gabbe/sync.py,gabbe/route.py" 2>&1 | tee mutation-run.txt || true
+        # mutmut 3.x reads its settings from setup.cfg; the 2.x option --paths-to-mutate is gone.
+        # The tests listed are the ones that cover the three modules (same list as the measured floor).
+        pip install "mutmut==3.8.1"
+        cat > setup.cfg <<'EOF'
+        [mutmut]
+        source_paths=gabbe
+        only_mutate=
+            gabbe/budget.py
+            gabbe/sync.py
+            gabbe/route.py
+        pytest_add_cli_args_test_selection=
+            gabbe/tests/test_budget.py
+            gabbe/tests/test_budget_properties.py
+            gabbe/tests/test_sync.py
+            gabbe/tests/test_sync_fallback.py
+            gabbe/tests/test_sync_markers.py
+            gabbe/tests/test_sync_properties.py
+            gabbe/tests/test_sync_stateful.py
+            gabbe/tests/test_route.py
+            gabbe/tests/test_route_properties.py
+        EOF
+        mutmut run 2>&1 | tee mutation-run.txt || true
         mutmut results 2>&1 | tee mutation-results.txt || true
-        # Make the score visible (no threshold yet): the last progress line carries the
-        # killed/survived counters as mutmut prints them; survivors are listed below it.
+        mutmut export-cicd-stats 2>&1 | tee -a mutation-run.txt || true
+        cp mutants/mutmut-cicd-stats.json mutation-stats.json || true
+        # Make the score visible: the last progress line carries the killed/survived
+        # counters as mutmut prints them; survivors are listed below it.
         {
           echo "### Mutation testing (mutmut)"
           echo '```'
@@ -178,6 +256,9 @@ jobs:
           echo '```'
         } >> "$GITHUB_STEP_SUMMARY"
     - name: Live skill evals (scores against the model — non-blocking)
+      # The API key is read only on the default branch (the nightly schedule, or a
+      # manual run started on main); a manual run on another ref skips this step.
+      if: github.ref == 'refs/heads/main'
       continue-on-error: true   # nondeterministic; reports drift, never blocks (v1.1 makes it a gate)
       env:
         GABBE_LIVE_LLM: '1'
@@ -185,17 +266,21 @@ jobs:
       run: python3 agents/scripts/eval_skills.py --live --out eval-scorecard.json
     - name: Upload eval scorecard
       if: always()
-      uses: actions/upload-artifact@v7
+      uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
       with:
         name: eval-scorecard
         path: eval-scorecard.json
         if-no-files-found: ignore
     - name: Upload mutation result
       if: always()
-      uses: actions/upload-artifact@v7
+      uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
       with:
         name: mutation-result
         path: |
           mutation-run.txt
           mutation-results.txt
+          mutation-stats.json
         if-no-files-found: ignore
+    - name: Mutation score floor (fails this nightly job below the floor, never a pull request)
+      if: ${{ !cancelled() }}
+      run: python3 scripts/gates/check_mutation_floor.py --stats mutation-stats.json | tee -a "$GITHUB_STEP_SUMMARY"

@@ -1,13 +1,58 @@
 # SPDX-License-Identifier: Apache-2.0
 from __future__ import annotations
 
+import os
 import sqlite3
 import time
+from pathlib import Path
 
 from .config import DB_PATH, GABBE_DIR, Colors
 
 # Increment this whenever the schema changes.
 SCHEMA_VERSION = 3
+
+
+class StateLinkError(RuntimeError):
+    """A state path (project/, state.db or logs/) is a link or leaves the project."""
+
+
+def _link_problem(path: Path, root: Path) -> str | None:
+    """Why `path` must not be written, or None. A missing path is fine."""
+    if path.is_symlink():
+        return f"{path} is a symbolic link; GABBE will not write through it"
+    if path.exists() and not path.resolve().is_relative_to(root):
+        return f"{path} leads outside the project folder; GABBE will not write there"
+    return None
+
+
+def state_path_problem(gabbe_dir: Path | None = None) -> str | None:
+    """Say why the state paths cannot be used (a link, or a path outside the project root).
+
+    Checks `project/`, `project/state.db` and `project/logs`. Nothing is created here."""
+    folder = GABBE_DIR if gabbe_dir is None else gabbe_dir
+    root = folder.parent.resolve()
+    for path in (folder, DB_PATH if gabbe_dir is None else folder / "state.db", folder / "logs"):
+        problem = _link_problem(path, root)
+        if problem:
+            return problem
+    return None
+
+
+def refuse_state_links() -> None:
+    """Raise StateLinkError before the database or the audit log is opened."""
+    problem = state_path_problem()
+    if problem:
+        raise StateLinkError(problem)
+
+
+def create_private_file(path: Path) -> None:
+    """Create an empty file readable by its owner only, if it does not exist yet.
+
+    A file that exists keeps its mode. The mode is ignored where the platform has none."""
+    try:
+        os.close(os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600))
+    except OSError:
+        pass  # exists already, or cannot be created: the caller's own open reports it
 
 
 def _migrate(conn: sqlite3.Connection) -> None:
@@ -179,10 +224,12 @@ def _migrate(conn: sqlite3.Connection) -> None:
 
 def init_db() -> None:
     """Initialize (or migrate) the SQLite database schema."""
+    refuse_state_links()
     if not GABBE_DIR.exists():
         GABBE_DIR.mkdir(parents=True, exist_ok=True)
         print(f"{Colors.GREEN}Created project directory{Colors.ENDC}")
 
+    create_private_file(DB_PATH)
     conn = sqlite3.connect(DB_PATH)
     try:
         _migrate(conn)
@@ -193,6 +240,9 @@ def init_db() -> None:
 
 def get_db() -> sqlite3.Connection:
     """Return a database connection with row_factory set."""
+    refuse_state_links()
+    if GABBE_DIR.is_dir():
+        create_private_file(DB_PATH)
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     return conn

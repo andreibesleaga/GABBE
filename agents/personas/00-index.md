@@ -7,7 +7,7 @@
 
 ## The 4 Swarms
 
-> The diagram below names representative personas per swarm; the full set of **36**
+> The diagram below names representative personas per swarm; the full set of **37**
 > is in the detailed tables further down (the box is a summary, not the complete list).
 
 ```
@@ -60,6 +60,7 @@
 | `eng-data` | [eng-data.md](eng-data.md) | Pipelines, ETL, Spark, dbt | Data pipelines, dbt models |
 | `eng-ml` | [eng-ml.md](eng-ml.md) | Model training, MLOps, inference | Model APIs, training pipelines |
 | `eng-messaging` | [eng-messaging.md](eng-messaging.md) | Queues, Event Schemas, Async | Event Specifications, DLQ Configs |
+| `eng-maintainer` | [eng-maintainer.md](eng-maintainer.md) | Existing code: map, pin behaviour, refactor in small steps, upgrades | CODEBASE_MAP.md, ASSESSMENT.md, characterisation tests |
 
 ---
 
@@ -102,7 +103,7 @@
 | Persona | File | Role | Primary Output |
 |---|---|---|---|
 | `orch-planner` | [orch-planner.md](orch-planner.md) | Task scheduling, dependency resolution, assignments | Task assignments (from project/TASKS.md) |
-| `orch-judge` | [orch-judge.md](orch-judge.md) | 7-gate quality checks, EARS compliance | Quality gate verdicts |
+| `orch-judge` | [orch-judge.md](orch-judge.md) | Quality gates G1–G9, EARS compliance, veto register | Quality gate verdicts |
 | `orch-coordinator` | [orch-coordinator.md](orch-coordinator.md) | State tracking, failure routing, escalations | Escalation reports, status updates |
 | `orch-researcher` | [orch-researcher.md](orch-researcher.md) | Authoritative research, knowledge gaps | Research findings in semantic/ |
 
@@ -138,7 +139,7 @@
 ## Persona Constraints
 
 All personas share these universal constraints:
-- Always read AGENTS.md and CONSTITUTION.md before acting
+- A subagent gets Constitution Article 0 and the task's artefact list; the orchestrator holds the rest (AGENTS.md, the full Constitution)
 - Always check CONTINUITY.md for past failures before starting
 - Never skip the RARV Cycle (guides/processes/RARV_CYCLE.md)
 - Never exceed own scope (e.g., eng-backend never touches UI)

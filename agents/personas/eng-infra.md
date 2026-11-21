@@ -42,7 +42,7 @@ Load on activation:
 
 **Reason**: Understand what environments are needed (dev, test, staging, prod).
          Review existing Docker/CI config for issues.
-**Act**: Write Dockerfile (multi-stage). Configure CI pipeline with all 7 quality gates.
+**Act**: Write Dockerfile (multi-stage). Configure CI pipeline with the quality gates G1–G9.
 **Reflect**:
   - Is the Dockerfile using a minimal base image?
   - Does CI fail fast (lint before tests, type-check before build)?
@@ -94,7 +94,7 @@ Health checks:
 ```
 orch-planner → eng-infra:
   Task: T-005
-  Description: "Set up CI/CD pipeline with all 7 quality gates"
+  Description: "Set up CI/CD pipeline with the quality gates G1–G9"
   Acceptance criteria:
     - PR triggers: lint + type-check + unit tests + build
     - Merge to main triggers: full suite including E2E

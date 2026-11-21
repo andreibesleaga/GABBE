@@ -1,7 +1,7 @@
 ---
 name: realtime-comm
-description: WebSocket handling, Pub/Sub patterns, and persistent connections.
-triggers: [realtime comm]
+description: Design of real-time features — WebSocket, SSE or long polling choice, scaling with Redis pub/sub, heartbeats, authentication and limits. Use when adding chat, live updates or any persistent connection.
+triggers: [realtime comm, websocket, server-sent events, pub/sub, live updates, long polling]
 tags: [architecture]
 role: eng-backend
 context_cost: low
@@ -37,16 +37,15 @@ This skill guides the implementation of bi-directional, stateful communication.
 - **DoS Protection**: Limit message size (e.g., max 1KB).
 - **Auth**: Validate token on every distinct action if connection is long-lived.
 
-## Security & Guardrails
+## Constraints
+- State lives in shared storage (Redis), not in local memory.
+- Clients reconnect with exponential backoff.
 
-### 1. Skill Security (Realtime Communication)
-- **Pre-Upgrade Authentication Mandate**: The agent must strictly forbid architectures that upgrade the HTTP connection to a WebSocket *before* verifying authentication. WebSocket connections consume significant stateful resources (RAM/TCP ports) per user. Authenticating *after* the upgrade exposes the server to trivial layer-7 DoS attacks holding open dead connections.
-- **Message Size Limiting (BOMB Deflection)**: The agent must hardcode maximum payload sizes for incoming WebSocket messages (e.g., 1KB for chat, 10KB for sync). Without rigid chunking or drop limits, an attacker can crash the Node.js/Python event loop by streaming a gigabyte-sized JSON payload over a single persistent socket.
+## Output Format
+The protocol choice with its reason and the implementation following the checklist in section 3.
 
-### 2. System Integration Security
-- **Cross-Site WebSocket Hijacking (CSWSH)**: Unlike standard CORS, WebSockets do not strictly enforce Same-Origin Policies by default. The agent must explicitly configure the WebSocket server to validate the `Origin` header during the initial HTTP handshake, dropping connections from unapproved external domains attempting to hijack the user's active session.
-- **Pub/Sub Tenant Isolation**: When scaling horizontally via a Redis Pub/Sub adapter (Step 2), the agent must heavily scrutinize channel naming conventions. A flaw in channel names (e.g., `room:user_input`) could allow a malicious user to subscribe to or publish messages to a different tenant's WebSocket stream, breaking data isolation bounds.
-
-### 3. LLM & Agent Guardrails
-- **Hallucinated Stateful Immunity**: The LLM might assume that because a user authenticated at connection time, they are trusted forever. The agent must correct this: if a JWT expires or a user's permissions are revoked mid-session, the architecture must include a mechanism to forcefully sever active WebSocket connections or re-validate authorization on every distinct incoming message.
-- **Protocol Downgrade Exploits**: When configuring fallback mechanisms (e.g., Long Polling if WebSockets fail), the LLM might suggest loosening security rules for the fallback transport. The agent must enforce that all fallback mechanisms require the exact same stringent Authentication and Rate Limiting constraints as the primary WebSocket protocol.
+## Limits and safety
+- Authenticate before the upgrade to WebSocket and check the `Origin` header in the handshake.
+- Set a maximum message size and a rate limit on the server; a fallback transport (long polling) gets the same authentication and limits.
+- Handle token expiry or revoked permissions mid-session: close the connection or re-check authorization on each message.
+- Channel names include the tenant; a user can subscribe only to channels they may read.

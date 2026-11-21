@@ -39,9 +39,11 @@ Entry point: `gabbe` (defined in `pyproject.toml → [project.scripts]`)
 | `GABBE_ESCALATION_MODE` | `cli` | Escalation mode: `cli` (interactive), `file` (pause), `silent` (auto-reject) |
 | `GABBE_OTEL_ENABLED` | `false` | Enable OpenTelemetry tracing |
 | `GABBE_OTEL_CAPTURE_CONTENT` | `false` | Opt-in: capture prompt/response content on GenAI spans (off by default — content may contain PII/secrets) |
-| `GABBE_MCP_TOKEN` | *(unset)* | MCP clients must send this token in `initialize` params (constant-time compared). While it is unset (and `GABBE_MCP_INSECURE` is off) the server starts but refuses every tool call. |
-| `GABBE_MCP_ALLOWED_COMMANDS` | *(unset)* | Comma-separated list of allowed executables for `run_command` via MCP, matched by exact command or basename (a directory entry is **not** a wildcard). When unset, all commands are blocked. Example: `pytest,ruff,bandit` |
-| `GABBE_MCP_INSECURE` | *(unset)* | Set to `1`/`true` to restore legacy permissive MCP mode (no auth, all commands allowed). Trusted, isolated hosts only. |
+| `GABBE_MCP_ENABLE_RUN_COMMAND` | *(unset)* | Set to `1`/`true` to offer the `run_command` tool (same as `gabbe serve-mcp --enable-run-command`). Off by default since 1.2.0. |
+| `GABBE_MCP_TOKEN` | *(unset)* | Needed only for `run_command`. Legacy clients send it in `initialize` params; modern clients send it in each request's `_meta` under `io.github.andreibesleaga.gabbe/token` (constant-time compared). While it is unset (and `GABBE_MCP_INSECURE` is off) `run_command` refuses every call. The read-only tools need no token. |
+| `GABBE_MCP_ALLOWED_COMMANDS` | *(unset)* | Comma-separated allow-list for `run_command`. An entry is a bare command name (matches that name and the one path your `PATH` resolves it to) or an absolute path (matches only that path); `./git` never matches. A directory entry is **not** a wildcard. When unset, all commands are blocked. Example: `pytest,ruff,/usr/bin/git` |
+| `GABBE_MCP_PASS_ENV` | *(unset)* | Comma-separated names of extra environment variables passed to `run_command` children. The child gets only `PATH`, `HOME`, `LANG`, `LC_ALL`, `TERM` and these, so `GABBE_API_KEY` and other secrets do not reach it. |
+| `GABBE_MCP_INSECURE` | *(unset)* | Set to `1`/`true` for permissive `run_command` (no token, all commands allowed). It does not turn `run_command` on by itself. Trusted, isolated hosts only. |
 | `GABBE_MCP_COMMAND_TIMEOUT` | `300` | Timeout (seconds) for a command executed via the MCP `run_command` tool |
 
 ---
@@ -92,8 +94,9 @@ Bidirectional sync between `project/TASKS.md` and the SQLite `tasks` table.
     - Preserves all other content (notes, headers) in `project/TASKS.md`.
 2. **Legacy Fallback**: If no markers are found, it behaves as a full-file overwrite (or wraps content in markers on first export).
 3. **Conflict Resolution**:
-    - File newer than DB → Import tasks between markers.
-    - DB newer than file → Export tasks between markers (atomic write).
+    - Both sides are merged (since 1.2.0): a task found on only one side is added to the other.
+    - For a task on both sides the newer side's status wins; a tie goes to the file. The file is written atomically, between the markers.
+    - A deletion is not propagated: a task removed from only one side comes back at the next sync, so delete it from both before syncing.
 
 ```bash
 gabbe sync
@@ -114,7 +117,7 @@ sqlite3 project/state.db "INSERT OR REPLACE INTO project_state (key, value) VALU
 
 ---
 
-### `gabbe verify [--chaos]`
+### `gabbe verify [--chaos] [--allow-empty]`
 
 Run project integrity checks:
 
@@ -127,6 +130,10 @@ asserts GABBE's resilience mechanisms recover safely — the MCP tool stays
 fail-closed without an allowlist, the hard-stop caps a runaway loop, PII forces
 LOCAL routing, and escalation degrades gracefully under an injected DB fault.
 Read-only; exits non-zero if any self-check fails.
+
+**Exit codes:** `0` everything that was checked passed; `1` a check failed; `3` nothing was
+verified because `agents/AGENTS.md` has no `test` command (set one under `## Commands`).
+`--allow-empty` turns that case into exit `0`.
 
 **`AGENTS.md` Commands section format:**
 ```markdown
@@ -171,7 +178,10 @@ Run one cycle of the Active Inference Loop:
 2. Send state description to LLM
 3. Print recommended next action
 
-Requires `GABBE_API_KEY`.
+Requires `GABBE_API_KEY`: without it the command says so and exits `1`, before any policy
+or escalation message. Exits `1` on an API error or when platform controls stop the run.
+With escalation mode `cli` and no terminal on standard input (CI, an agent), the escalation
+is auto-rejected as in `silent` mode instead of asking.
 
 ---
 
@@ -197,19 +207,30 @@ Run the Self-Healing Watchdog:
 2. Check required project files exist
 3. Print health report
 
-Does **not** require `GABBE_API_KEY`.
+Does **not** require `GABBE_API_KEY`. Exits `1` when it reports health issues.
 
 ---
 
 ### `gabbe forecast`
 
-Run a strategic forecast evaluating remaining tasks and projecting future costs and token usage based on historical run data. Captures a snapshot to `forecast_snapshots`.
+Run a strategic forecast evaluating remaining tasks and projecting future costs and token usage based on historical run data. Captures a snapshot to `forecast_snapshots`. Exits `1` on a database or unexpected error.
 
 ---
 
-### `gabbe serve-mcp`
+### `gabbe serve-mcp [--enable-run-command]`
 
-Starts a minimal-dependency JSON-RPC Model Context Protocol (MCP) server on `stdin`/`stdout`. A command that fails is returned with `isError: true`; an unknown tool or invalid arguments answer `-32602`; `ping` is answered; the protocol version is negotiated in `initialize`. The server implements the MCP revisions that open with an `initialize` handshake (`2025-11-25` and earlier); the `2026-07-28` revision is not implemented. It wraps internal tools in the `ToolGateway` for strict budget, role, and rate-limit enforcement. Includes telemetry and context tracing.
+Starts a minimal-dependency JSON-RPC Model Context Protocol (MCP) server on `stdin`/`stdout`. It serves the project it is started in (the folder with `project/`, found upwards from the current directory).
+
+**On by default (read-only, no token, no allow-list):** `list_skills` (optional `category`), `read_skill` (`name`), `search_skills` (`query`, optional `limit`), `get_template` (`name`) and `project_status`. They read only inside `<project root>/agents` and `<project root>/project` (links that point elsewhere are refused), return at most 64 KiB of text (longer text is cut, with a note) and are listed with `readOnlyHint: true`. A folder without the kit gives a normal tool result with `isError: true` that says where the kit was looked for.
+
+**Off by default:** `run_command`. Turn it on with `--enable-run-command` or `GABBE_MCP_ENABLE_RUN_COMMAND=1`; it then stays fail-closed (token, command allow-list; see the `GABBE_MCP_*` variables above) and its child process gets a minimal environment. If you set a token, an allow-list or `GABBE_MCP_INSECURE` without enabling it, the server logs one start-up warning that says how to enable it.
+
+**Two protocol generations on the same process:**
+
+- Legacy (`2025-11-25`, `2025-06-18`, `2025-03-26`, `2024-11-05`): `initialize` first; the version is negotiated there; the token (only for `run_command`) goes in `params.token`.
+- Modern (`2026-07-28`): no handshake. Every request carries `params._meta` with `io.modelcontextprotocol/protocolVersion` and `io.modelcontextprotocol/clientCapabilities` and is served on its own. `server/discover` returns the supported versions (modern first, then legacy), the capabilities and the server identity. An unsupported version is answered with error `-32022`, `Unsupported protocol version`, `data: {supported, requested}`; a request without the two `_meta` fields gets `-32602`. The token (only for `run_command`) goes in the same `_meta` under `io.github.andreibesleaga.gabbe/token`; a legacy login does not authorise modern requests.
+
+A command that fails is returned with `isError: true`; an unknown tool or invalid arguments answer `-32602`; `ping` is answered. Calls go through the `ToolGateway` (role, rate limit, circuit breaker, audit trace). If the folder has no `project/` or the database cannot be opened, the server still serves the read-only tools (without an audit trail) and refuses `run_command` with a message; a database that was never initialised is set up at start. See [`SECURITY.md`](../SECURITY.md).
 
 ---
 
@@ -444,11 +465,12 @@ gabbe registry add https://example/skill.skill.md --apply
 Run the interactive install wizard (`scripts/init.py`) to wire the kit into your
 coding agents. (For a Python-independent install, use `npx gabbe-kit init` or
 `curl -fsSL .../install.sh | sh`.) `gabbe setup --force` passes `--force` to the
-wizard.
+wizard, and `gabbe setup --hooks` passes `--hooks`.
 
 ```bash
 gabbe setup
 gabbe setup --force               # re-template even preserved files (each backed up first)
+gabbe setup --hooks               # also install the optional hooks (off by default)
 ```
 
 **Behavior:**
@@ -515,6 +537,12 @@ Copilot, Gemini, Codex, Windsurf, Cline, Aider, Zed, Antigravity, OpenCode,
 Continue, Roo, Kilo), then prints a PASS/WARN per check. Used by the multi-OS
 `install-matrix` and post-publish `release-verify` CI jobs to confirm a
 one-command install succeeded.
+
+Upgrade check: it reads the `*GABBE Kit version: X.Y.Z*` stamp of the project's
+`agents/AGENTS.md` and `agents/CONSTITUTION.md` and warns (exit code unchanged) when a
+stamp is missing or older than the CLI, or when the constitution has no `### Article 0`.
+The installers keep edited files, so new kit rules do not arrive by themselves; see
+`docs/UPGRADING.md`.
 
 ```bash
 gabbe doctor

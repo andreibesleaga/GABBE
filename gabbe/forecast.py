@@ -9,8 +9,14 @@ from .database import get_db
 
 def run_forecast() -> None:
     """Evaluate done vs remaining work, and forecast remaining budget costs based on historical run data."""
+    run_forecast_status()
+
+
+def run_forecast_status() -> bool:
+    """run_forecast, returning False on a database or unexpected error (CLI exit code 1)."""
     print(f"{Colors.HEADER}📈 GABBE Strategic Forecast{Colors.ENDC}")
     conn = None
+    ok = True
     try:
         conn = get_db()
         cursor = conn.cursor()
@@ -69,8 +75,11 @@ def run_forecast() -> None:
 
     except sqlite3.Error as e:
         print(f"  {Colors.FAIL}Database Error:{Colors.ENDC} {e}")
+        ok = False
     except Exception as e:
         print(f"  {Colors.FAIL}Unexpected Error:{Colors.ENDC} {e}")
+        ok = False
     finally:
         if conn:
             conn.close()
+    return ok

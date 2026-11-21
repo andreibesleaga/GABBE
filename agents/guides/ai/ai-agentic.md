@@ -266,19 +266,12 @@ GOOD (EARS — testable):
 
 ---
 
-## 7-Gate Quality System
+## Quality Gates (G1–G9)
 
-| Gate | Tool | Command | Pass Criteria |
-|---|---|---|---|
-| 1 Syntax/Lint | ESLint / Pint | `[lint command]` | 0 errors |
-| 2 Type Safety | TypeScript / PHPStan | `[typecheck command]` | 0 errors |
-| 3 Test Coverage | Vitest / Pest | `[coverage command]` | ≥ 99% |
-| 4 Integration | Docker Compose | `docker compose run tests` | Pass |
-| 5 Security | npm audit / Semgrep | `[security_scan]` | 0 critical CVEs |
-| 6 Complexity | complexity-report | `npx complexity-report` | Max < 10 |
-| 7 EARS Compliance | spec-analyze.skill | Manual | All reqs have tests |
-
-All 7 gates must pass before any SDLC checkpoint after S05.
+The nine quality gates G1–G9 (lint, types, coverage, integration, dependency security,
+complexity, architecture fitness, end-to-end, EARS coverage) are defined once in
+`agents/personas/orch-judge.md`. They run at S06. All of them must pass (G7 and G8 may be
+`N/A` with a written reason) before the S06 checkpoint and every phase after it.
 
 ---
 

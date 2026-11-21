@@ -61,10 +61,10 @@ def setup_test_project():
 
 
 def simulate_sdlc_flow(ctx, memory_dir, episodic_dir):
-    print(f"\\n{BLUE}=== 2. Simulating Loki Mode Golden Path (S0-S10) ==={NC}")
+    print(f"\\n{BLUE}=== 2. Simulating Loki Mode Golden Path (S00-S10) ==={NC}")
 
     phases = [
-        ("S0", "strategy", ["templates/product/BUSINESS_CASE_TEMPLATE.md"]),
+        ("S00", "strategy", ["templates/product/BUSINESS_CASE_TEMPLATE.md"]),
         (
             "S01",
             "requirements",

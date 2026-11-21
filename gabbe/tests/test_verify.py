@@ -33,6 +33,7 @@ def test_run_verification_pass(tmp_project):
     (agents / "CONSTITUTION.md").touch()
     (tmp_project / "project/TASKS.md").touch()
 
+    (agents / "AGENTS.md").write_text('## Commands\ntest: "true"\n')
     result = verify_mod.run_verification()
     assert result is True
 

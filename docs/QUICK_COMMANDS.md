@@ -65,10 +65,10 @@ You can invoke these skills directly in your IDE chat (e.g., Cursor, GitHub Copi
 | **Security**| `safety-scan` | "safety scan" | Pre-commit safety guardrails. |
 | **Core** | `research` | "research", "find" | Deep research using authoritative sources. |
 | **Core** | `self-heal` | "fix error" | Autonomous auto-recovery loop. |
-| **Modes** | `loki-mode` | "loki", "swarm" | 10-phase SDLC orchestration. |
+| **Modes** | `loki-mode` | "loki mode", "activate loki", "run the lifecycle" | 14-phase lifecycle orchestration (S00–S13). |
 | **Modes** | `brain-mode` | "brain activate" | Meta-cognitive orchestrator. |
 
-*(For the complete 214 skills list, see `agents/skills/00-index.md`)*
+*(For the complete 231 skills list, see `agents/skills/00-index.md`)*
 
 ---
 
@@ -98,8 +98,8 @@ Copy and paste these exact prompts into your AI chat window to kick off standard
 ### Security Audit
 > "Run security-audit skill on the entire codebase."
 
-### Acknowledge Security & Guardrails
-> "Please acknowledge and enforce the Security & Guardrails constraints defined for the current skill."
+### Acknowledge limits and safety
+> "Please acknowledge and follow the Limits and safety section of the current skill, and Constitution Article 0."
 
 ### Architecture Review
 > "Run arch-review skill. Check for SOLID violations and coupling."

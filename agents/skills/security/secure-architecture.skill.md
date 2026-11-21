@@ -1,7 +1,7 @@
 ---
 name: secure-architecture
-description: Architect systems with defense-in-depth and Zero Trust principles
-triggers: [design secure system, enforce zero trust, audit architecture security]
+description: "Design defence in depth: trust zones, least-privilege access policy and encryption boundaries. Use at S02 when drawing the architecture of a system that handles untrusted input, personal data or money."
+triggers: [design secure system, enforce zero trust, audit architecture security, defence in depth, trust zones]
 tags: [security]
 context_cost: high
 ---
@@ -10,22 +10,23 @@ context_cost: high
 ## Goal
 Enforce robust, defense-in-depth architectural patterns including Zero Trust boundaries, secure access service edge (SASE), network segmentation, and strict IAM.
 
+## Where it fits
+Phase and gate: S02. Evidence: trust zones and boundaries marked on the C4 diagram, and the matching rows in `docs/security/THREAT_MODEL.md`. Guide: `guides/security/secure-architecture.md`.
+
 ## Steps
 1. **Perimeter Audit**: Assume breach. Establish micro-perimeters around critical logical domains.
 2. **Access Policy**: Design the Authorization logic (e.g., using OPA or AWS IAM) ensuring least privilege access across all services.
 3. **Data Protection**: Mandate explicit data transit TLS boundaries and rest encryption.
 4. **Verification**: Verify that the C4 diagrams explicitly mark trusted vs untrusted zones and the security boundary implementations.
 
-## Security & Guardrails
+## Constraints
+- Every cross-zone flow has an authentication and an encryption decision.
+- Trust zones in the diagram match the threat model.
 
-### 1. Skill Security
-- **Config Drift Ban**: The agent must not manually execute cloud IAM changes without outputting them as declarative Infrastructure as Code (e.g., Terraform/CloudFormation) for review.
-- **Root Veto**: Explicitly forbid creating or assigning "Admin", "*", or equivalent root-level global actions to any service role inside the generated documentation.
+## Output Format
+The C4 diagram with trust zones marked, the access policy proposal, and the data protection decisions.
 
-### 2. System Integration Security
-- **MFA Enforcement**: Any external/remote access vectors defined in the architecture must explicitly mandate Multi-Factor Authentication.
-- **Fail Closed Mechanism**: All network authorization services, if unavailable, must fail-closed (denying access), never fail-open.
-
-### 3. LLM & Agent Guardrails
-- **Trust Assumption Bias**: The LLM must not implicitly trust an internal network. Every node must re-validate the identity and authorization of the caller (Zero Trust).
-- **Compliance Illusion**: The LLM cannot authorize itself or the architecture as "HIPAA Compliant" or "SOC2 Compliant" because it enforces Zero Trust; formal auditor attestation remains legally required.
+## Limits and safety
+- Mark every trust zone and boundary on the C4 diagram. An unmarked boundary is a review finding.
+- Policy examples (OPA, IAM) are proposals. Applying policy to live infrastructure needs the human's yes.
+- A diagram alone does not show zero trust or any certification. Say what was checked.

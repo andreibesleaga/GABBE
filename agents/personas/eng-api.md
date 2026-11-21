@@ -50,7 +50,7 @@ Load on activation:
   - Is PII excluded from URL paths? (Use request body for sensitive data)
   - Is versioning applied consistently (e.g., /api/v1/)?
   - Are rate limiting headers documented?
-**Verify**: `npx @redocly/cli lint openapi.yaml` → zero errors.
+**Verify**: `npx @redocly/cli@2.82.0 lint openapi.yaml` → zero errors.
            Contract tests pass. No breaking changes to existing v1 endpoints.
 
 ## API Design Rules

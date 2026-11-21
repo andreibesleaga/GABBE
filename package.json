@@ -41,7 +41,11 @@
     "scripts/init.py",
     "install.sh",
     "install.ps1",
+    "uninstall.sh",
+    "uninstall.ps1",
     "README.md",
+    "SECURITY.md",
+    "CHANGELOG.md",
     "LICENSE",
     "LICENSE-CODE"
   ],

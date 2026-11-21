@@ -123,3 +123,12 @@ orch-planner → eng-qa:
     - Error paths tested: 409 (out of stock), 422 (invalid items)
   Context: Orders module implementation done (T-023 to T-035 all DONE)
 ```
+
+## Assurance
+
+Verifies that each component reached the level in `project/ASSURANCE_PLAN.md` (`assurance-ladder.skill`).
+
+- Level 1: property tests, contracts, fuzz runs and the mutation floor ran on the changed code; reports in `MUTATION_REPORT`.
+- Frozen tests and model/spec files are unchanged by the implementer (`verification-anti-cheating.skill`); any change needs a recorded human approval.
+- Levels 2 and 3: the model-check or proof command was re-run on the final tree and its output is stored; the leak checklist in `PROOF_OBLIGATION` has no unexplained hit.
+- Reports "level planned / level reached" per component; never rounds a missing level up. Does not weaken a bound, floor or assertion to get green.

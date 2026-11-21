@@ -6,7 +6,7 @@
 
 ---
 
-> **Total Guides**: 86
+> **Total Guides**: 95
 > *Registry categorized by domain.*
 
 ## Guides Registry
@@ -31,15 +31,17 @@
 | Dynamic Capability Loading | `ai/dynamic-capability-loading.md` | Loading skills/capabilities at runtime |
 | GABBE Innovations | `ai/gabbe-innovations.md` | Novel techniques introduced by GABBE |
 | Self-Evolving Skills | `ai/self-evolving-skills.md` | Skills that improve themselves over time |
+| Guardrail Probes | `ai/guardrail-probes.md` | Scripted checks of Article 0 against your own agent |
 
 ### 1b. Processes (`processes/`)
 | Guide | File | Purpose |
 |---|---|---|
 | RARV Cycle | `processes/RARV_CYCLE.md` | Reason Act Reflect Verify loop |
-| Loki SDLC Phases | `processes/loki-sdlc-phases.md` | Detailed S01–S10 phase specs (referenced by loki-mode) |
+| Loki SDLC Phases | `processes/loki-sdlc-phases.md` | Canonical S00–S13 lifecycle table and detailed phase specs (referenced by loki-mode) |
 | System Lifecycle | `processes/full-system-lifecycle.md` | SDLC and traceability |
 | Knowledge Integration | `processes/knowledge-integration.md` | Connectors and RAG overview |
 | Extension Protocol | `processes/extension-protocol.md` | How to extend the kit with new capabilities |
+| Brownfield Lifecycle | `processes/brownfield-lifecycle.md` | Stages B0 to B4 for an existing codebase |
 
 ### 2. Architecture (`architecture/`)
 | Guide | File | Purpose |
@@ -83,6 +85,9 @@
 | Cost Opt. | `ops/cost-optimization.md` | FinOps & Resource reduction |
 | Dev Workflow | `ops/dev-workflow.md` | Git/GitHub ops + Diátaxis docs |
 | GABBE CLI Workflows | `ops/gabbe-cli-workflows.md` | Using the gabbe CLI platform controls |
+| Agent Tool Setup | `ops/agent-tool-setup.md` | What the installers write for each coding tool; checking the wiring |
+| Hooks (optional) | `ops/hooks.md` | Off-by-default checks: git hooks, Claude Code and Cursor hooks; install, undo, limits |
+| Self-Healing & Evolution | `ops/self-healing-and-evolution.md` | Fix limits, escalation report, bounded self-evolution, autonomy posture |
 
 ### 6. Implementation Patterns (`patterns/`)
 | Guide | File | Purpose |
@@ -120,6 +125,9 @@
 | Mathematical Foundations | `principles/mathematical-foundations.md` | Logic, sets, graphs, probability/statistics (SWEBOK v4) |
 | Computing Foundations | `principles/computing-foundations.md` | CS fundamentals → engineering decisions (SWEBOK v4) |
 | Modeling Methods | `principles/modeling-methods.md` | Model types + formal/semi-formal method selection (SWEBOK v4) |
+| Assurance Ladder | `principles/assurance-ladder.md` | Verification levels 0-3 by risk, standards map, honest limits |
+| Skill Guardrails | `principles/skill-guardrails.md` | Rules every skill follows; controls only your platform can provide |
+| Security Baseline | `principles/security-baseline.md` | Security path S01-S13 by tier; standards map checked 2026-11-21 |
 | Visual Design | `principles/visual-design-system.md` | Design tokens and accessibility |
 
 ### 9. Security & Privacy (`security/`)
@@ -136,6 +144,7 @@
 | Guide | File | Purpose |
 |---|---|---|
 | Engineering Std. | `industry/engineering-standards.md` | IEEE/ISO code quality levels |
+| SWEBOK v4 Map | `industry/swebok-v4-map.md` | SWEBOK v4 knowledge areas mapped to kit skills, guides, phases |
 | Global Standards | `industry/global-standards.md` | Regulatory & SDLC compliance |
 | Healthcare FHIR | `industry/healthcare-fhir.md` | Medical data interoperability |
 | Industrial IoT | `industry/industrial-iot.md` | OT/IT connectivity standards |

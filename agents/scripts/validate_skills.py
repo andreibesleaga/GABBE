@@ -3,6 +3,9 @@
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from check_limits_section import problems as limits_problems  # noqa: E402
+
 # Configuration
 AGENTS_DIR = Path(__file__).parent.parent
 SKILLS_DIR = AGENTS_DIR / "skills"
@@ -67,6 +70,11 @@ def main():
             errors += 1
         # else:
         # print(f"{GREEN}[OK] {skill_file.name}{NC}")
+        # Since 1.2.0: every skill ends with one short "Limits and safety" section.
+        limits = limits_problems(skill_file)
+        if limits:
+            print(f"{RED}[FAIL] {skill_file.name}: {'; '.join(limits)}{NC}")
+            errors += 1
 
     print("-" * 40)
     if errors > 0:

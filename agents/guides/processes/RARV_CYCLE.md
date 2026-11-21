@@ -207,7 +207,7 @@ Tests:
 [test command]              # All tests MUST be green
 [typecheck command]         # Zero type errors
 [lint command]              # Zero lint errors
-npx madge --circular src/   # Zero circular dependencies (optional, run periodically)
+npx madge@8.0.0 --circular src/   # Zero circular dependencies (optional, run periodically)
 ```
 
 ### Verification Failures → self-heal.skill

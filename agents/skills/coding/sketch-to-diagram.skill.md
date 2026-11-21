@@ -1,6 +1,6 @@
 ---
 name: sketch-to-diagram
-description: Convert hand-drawn sketches and photos into formal digital diagrams using image recognition + diagram generation.
+description: "Turn a hand-drawn sketch or whiteboard photo into an editable diagram (Excalidraw, Mermaid or Draw.io) after the human approves the recognised elements. Use when the user supplies an image of a diagram, wireframe or event-storming board."
 triggers: [sketch, hand-drawn, whiteboard photo, napkin, wireframe scan, recognize diagram]
 tags: [coding, architecture, visual, recognition, AI]
 context_cost: high
@@ -93,14 +93,12 @@ Transform hand-drawn sketches (whiteboard photos, napkin drawings, paper wirefra
 - `SKETCH_TO_DIAGRAM_TEMPLATE.md`: Structured report with original image description, recognized elements, and generated diagram
 - Generated diagram file (`.excalidraw`, `.md` with Mermaid, or `.drawio`)
 
-## Security & Guardrails
+## Constraints
+- Do not redraw before the human has approved the element list.
+- Every node and edge comes from the image or the human's description.
 
-### 1. Image Processing Security
-- **Vision API Only**: Images are sent to the configured vision API (Anthropic/OpenAI/Cloudflare) for description. No images are stored or transmitted elsewhere.
-- **Sensitive Content**: If the sketch contains sensitive information (credentials, internal IPs, PII), warn the user before sending to external vision APIs.
-- **Local Alternatives**: For sensitive sketches, use Tesseract OCR (local, no network) for text extraction and have the agent infer structure from text + basic shape description.
-
-### 2. Agent Guardrails
-- **Human Verification**: Always present the structured element list to the user before redrawing. Recognition may miss or misinterpret elements.
-- **Iterative Refinement**: After first redraw, ask user to verify and suggest corrections.
-- **Fallback**: If recognition quality is poor (blurry image, complex overlapping), ask the user to describe the diagram verbally and generate from that.
+## Limits and safety
+- If the sketch may show credentials, internal addresses or personal data, ask the human before sending it to an external vision service; the local option is Tesseract OCR for text plus a description of the shapes.
+- Show the structured element list and get the human's approval before redrawing; after the first redraw ask for corrections.
+- Mark low-confidence elements in the list; do not invent nodes or edges the image does not show.
+- If recognition is poor (blurry, overlapping), ask the human to describe the diagram instead of guessing.

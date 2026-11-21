@@ -1,6 +1,6 @@
 ---
 name: emerging-tech
-description: Architecture assistance for 2026-2030 technologies (6G, Matter IoT, Vector DBs).
+description: Gives design guidance and a short plan for 6G edge placement, Matter IoT devices and vector search with RAG. Use when a design involves low-latency edge compute, smart-home devices, embeddings or semantic search.
 triggers: [6g, iot, matter, vector, embedding, semantic search, rag, edge native, post-quantum]
 tags: [core]
 context_cost: medium
@@ -37,16 +37,16 @@ To future-proof applications for the next wave of connectivity and intelligence.
 -   `matter-config.yaml`: Device capability profile.
 -   `edge-placement.drawio`: Diagram of compute distribution.
 
-## Security & Guardrails
+## Constraints
+- Say for each standard whether it is final or a draft; do not build on a draft as if it were final.
+- Cite a source for every latency figure, date or protocol claim, or mark it "unverified".
+- Check security advisories for any new protocol library before recommending it.
 
-### 1. Skill Security (Emerging Tech)
-- **Protocol Vulnerability Awareness**: When implementing bleeding-edge protocols (Matter, 6G), explicitly track and enforce the latest CVEs and security advisories, as novel tech often experiences a "wild west" period of rapid vulnerability discovery.
-- **Vector DB Poisoning Protection**: Ensure the vector embedding pipeline sanitizes input data to prevent "Semantic Poisoning," where adversarial text is injected to skew RAG retrieval toward malicious recommendations or prompt injections.
+## Output Format
+The deliverables above (`vector-strategy.md`, `matter-config.yaml`, `edge-placement.drawio`) plus a list of the sources used and the claims marked "unverified".
 
-### 2. System Integration Security
-- **IoT Matter Isolation**: Matter local-network device configuration must employ micro-segmentation, ensuring that compromised Smart Home devices cannot pivot to attack the primary Application layer or the user's secure subnet.
-- **Post-Quantum Cryptography Readiness**: For designs spanning into 2030, architectural recommendations must advocate for cryptographic agility, replacing hardcoded RSA/ECC implementations with PQC-ready hybrid negotiation protocols.
-
-### 3. LLM & Agent Guardrails
-- **Speculative Hallucination Constraints**: Agents advising on 6G or future IoT standards must clearly delineate between ratified standards and speculative draft RFCs, preventing the implementation of unstable, insecure proprietary extensions.
-- **RAG Data Leakage**: When pulling memory from Vector DBs, the LLM must obey strict tenant boundaries (Access Control Lists attached to vector metadata) to ensure User A's embedded data is never retrieved to answer User B's query.
+## Limits and safety
+- State whether each standard is final or a draft; never recommend building on a draft extension as if it were stable.
+- In a RAG design, store access rules in the vector metadata so one user's data is never retrieved for another; strip secrets and personal data before embedding.
+- Put Matter and other IoT devices on their own network segment, apart from the application network.
+- Design for replaceable cryptography (no hard-coded RSA or ECC choice) when the system must live past 2030.

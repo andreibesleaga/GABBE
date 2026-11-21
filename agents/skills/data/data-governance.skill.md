@@ -1,7 +1,7 @@
 ---
 name: data-governance
-description: Data lineage, classification (PII/Confidential), and integrity checks (checksums).
-triggers: [data governance]
+description: Data classification, lineage, integrity and retention rules with a deletion workflow. Use when handling personal or confidential data, or when asked where a value came from or how long data may be kept.
+triggers: [data governance, data classification, data lineage, retention policy, right to be forgotten, pii]
 tags: [data]
 role: biz-compliance, eng-data
 context_cost: low
@@ -32,18 +32,16 @@ Before storing any field, tag it:
 - **TTL**: Auto-delete logs after X days.
 - **Right to be Forgotten**: Implementation of a `HardDeleteUser` workflow that purges PII from all tables/backups (crypto-shredding).
 
-## Security & Guardrails
+## Constraints
+- Every field is classified before it is stored.
+- Critical data is versioned, never overwritten.
 
-### 1. Skill Security (Data Governance)
-- **Classification Tampering Prevention**: Restrict permissions to modify data classification tags (Public, Internal, Confidential, PII). Only authorized governance roles should alter these definitions.
-- **Immutability of Audit Logs**: Ensure that data lineage and access logs are stored in append-only, immutable storage to prevent tampering by malicious actors.
+## Output Format
+A field classification table, a lineage map (source, job, warehouse, report) and the retention and deletion rules, in the project's docs folder.
 
-### 2. System Integration Security
-- **Encryption Enforcement**: Systems integrating with governed data must enforce Encryption at Rest for any data classified as Restricted/PII.
-- **Access Control Verification**: Governance tools must integrate with identity providers (IAM/SSO) to continuously verify that only users with the correct clearance access sensitive datasets.
-- **Automated Compliance Checks**: Implement automated scanning in CI/CD pipelines to block deployments that violate data retention or geographical residency rules (e.g., GDPR data leaving the EU).
-
-### 3. LLM & Agent Guardrails
-- **Data Exfiltration Prevention**: Agents analyzing data lineage or governance policies must be blocked from exporting raw PII or Confidential data in their outputs or external API calls.
-- **Context Boundary Enforcement**: When an LLM queries metadata or schemas, ensure the context window does not inadvertently ingest actual user data or sensitive records.
-- **Hallucination Mitigation for Compliance**: LLM-generated compliance reports must be verified against hardcoded rules. An agent must not "hallucinate" compliance approval for a system failing legal checks.
+## Limits and safety
+- Only governance roles change classification tags; the agent proposes changes.
+- Work from metadata and schemas; do not load real records, and do not copy personal or confidential values into outputs.
+- Restricted and personal fields are encrypted at rest; lineage and access logs go to append-only storage where the platform has it.
+- A deletion workflow (purge of personal data from tables and backups) is proposed as a plan; the human approves it before anything runs.
+- A compliance report says what was checked and what was not; never mark a system compliant without running the rule check.

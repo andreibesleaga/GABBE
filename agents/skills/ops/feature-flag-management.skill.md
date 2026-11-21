@@ -1,14 +1,7 @@
 ---
 name: feature-flag-management
-description: Manage the full feature-flag lifecycle — create, roll out, measure, and clean up — across release, ops/kill-switch, experiment, and permission flag types with progressive delivery.
-triggers:
-  - add a feature flag for the checkout rollout
-  - plan a canary release with flags
-  - set up a kill switch for the search feature
-  - clean up stale feature flags
-  - do a percentage rollout
-  - track flag debt and ownership
-  - ring deployment plan for the new feature
+description: Plan a feature flag from dark launch to removal - flag type, safe default, progressive rollout, kill switch, metrics, cleanup owner and date. Use when you add a flag, plan a canary or percentage rollout, or clean up stale flags.
+triggers: [add a feature flag, plan a canary release with flags, set up a kill switch, clean up stale feature flags, percentage rollout, track flag debt]
 tags: [ops, feature-flags, progressive-delivery, release]
 core: false
 context_cost: medium
@@ -44,16 +37,9 @@ A flag plan in Markdown:
 - **Lifecycle & cleanup** — cleanup owner, target removal date, follow-up task reference.
 - **Flag debt** — table of existing flags with status (active / stale / remove) and recommended action.
 
-## Security & Guardrails
-
-### 1. Skill Security
-- **Risk**: A permission/entitlement flag misconfigured to grant broader access than intended. Mitigation: permission flags default to deny, require review of the targeting rule, and are tested for the deny path before rollout.
-- **Risk**: Flag evaluation context carrying PII (raw email, IDs) to a third-party flag service. Mitigation: pass hashed/opaque identifiers in evaluation context; do not send raw PII to external flag providers.
-
-### 2. System Integration Security
-- **Risk**: Unauthorized or untracked changes to flag targeting flipping a feature on for everyone. Mitigation: flag changes go through audited, access-controlled tooling with change records; production targeting changes are logged to the audit trail.
-- **Risk**: Flag-service outage silently changing behavior. Mitigation: clients cache last-known values and fail to the documented safe default; alert on flag-service unavailability rather than failing open.
-
-### 3. LLM & Agent Guardrails
-- **Risk**: The agent flipping a production kill switch or ramping a rollout autonomously. Mitigation: live flag state changes require explicit human approval; the agent only proposes the plan and the ramp steps.
-- **Risk**: The agent recommending deletion of an ops/kill-switch flag because it "looks unused," removing an incident control. Mitigation: ops/kill-switch flags are exempt from automatic stale-cleanup; their removal requires deliberate human sign-off.
+## Limits and safety
+- Changes to live flags or targeting rules are proposed with the exact change and made only after the human confirms.
+- Permission flags default to deny; test the deny path before rollout.
+- Send hashed or opaque ids, not raw email or personal data, to an external flag service.
+- Do not propose deleting an ops or kill-switch flag as stale; removal needs the human's decision.
+- Code falls back to the safe default when the flag service is unreachable; check this in a test.

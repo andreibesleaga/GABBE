@@ -62,27 +62,9 @@ Produce a financial governance summary containing:
 - Cloud cost guardrails: budgets, alert thresholds, tagging coverage, and idle/over-provisioning findings.
 - Owners and review cadence.
 
-## Security & Guardrails
-
-### 1. Skill Security
-- **Risk**: Flattering-number bias — assumptions are tuned (long LTV horizon, excluded costs) to make
-  economics look healthy; mitigation: the agent fixes and exposes the time window and cost inclusions,
-  marks projected vs realized, and refuses to publish a ratio without its assumptions.
-- **Risk**: Allocation manipulation — costs are shifted off a team to dodge accountability; mitigation: the
-  agent uses a documented, consistent allocation basis and flags reallocations that lack a stated rationale.
-
-### 2. System Integration Security
-- **Risk**: Sensitive financial-data exposure — budgets, margins, CAC, and contract costs are confidential;
-  mitigation: the agent treats the summary as restricted, routes it only to authorized finance/leadership
-  audiences, and scrubs sensitive figures from any broadly shared version.
-- **Risk**: Unauthorized cost actions — automated guardrails terminate or rescale production resources;
-  mitigation: the agent limits automation to alerting and recommendations and requires human approval before
-  any spend-affecting infrastructure change.
-
-### 3. LLM & Agent Guardrails
-- **Risk**: Hallucinated financials — the model invents a plausible CAC, margin, or ROI figure to complete
-  the summary; mitigation: every number must trace to a named source, and the agent labels any value it
-  cannot ground as an explicit assumption requiring finance validation.
-- **Risk**: False precision and overconfidence — projected returns are presented as certainty; mitigation:
-  the agent attaches ranges and confidence to forecasts, separates booked from projected results, and states
-  the assumption most likely to break the conclusion.
+## Limits and safety
+- Report every ratio with its period and assumptions, and mark figures as projected or realized.
+- Every figure traces to a named source; otherwise label it "assumption, needs finance validation".
+- Budget, margin and CAC figures are confidential: share only with the audience the human names.
+- Guardrails alert and recommend only. Any change that affects spend (stop, resize, delete) needs the human's yes after you show the exact command.
+- Report cost reallocations that have no stated reason.

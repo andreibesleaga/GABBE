@@ -3,14 +3,22 @@ name: Publish npm
 # The single npm publisher for the `gabbe-kit` package (the unscoped name `gabbe`
 # is refused by npm's name-similarity policy, so npm ships as `gabbe-kit`; PyPI
 # stays `gabbe`). Runs on every non-prerelease version tag, and manually to
-# (re)publish from the default-branch HEAD without re-tagging or re-triggering
-# the PyPI publish in release.yml (which would fail on a duplicate version).
+# (re)publish an existing release without re-tagging or re-triggering the PyPI
+# publish in release.yml (which would fail on a duplicate version). A manual run
+# is accepted only when the selected ref is a `v*` tag: choose the tag in the
+# "Run workflow" dialog. Every run first passes the shared gate (gate.yml): tag
+# equals every version number, Python tests, Node installer tests.
 #
 # Authentication is npm trusted publishing (OIDC): no NPM_TOKEN. npm exchanges
 # the job's GitHub id-token for a short-lived publish token and adds provenance
 # automatically. The trusted publisher on npmjs.com must name this file:
 #   npm trust github gabbe-kit --file publish-npm.yml --repo andreibesleaga/GABBE --allow-publish
 # Requires npm >= 11.5.1 and Node >= 22.14 on a GitHub-hosted runner.
+# The publishing job stays in THIS file: npm checks the name of the workflow that
+# was triggered (the caller), so the gate is only a called workflow for a
+# preceding job. No `environment:` is set on the publishing job: it must match the
+# trusted publisher registered on npmjs.com, which has none (an environment would
+# have to be added on both sides together).
 
 on:
   push:
@@ -27,8 +35,33 @@ permissions:
   contents: read
 
 jobs:
+  require-tag:
+    name: Run only from a v* tag
+    runs-on: ubuntu-latest
+    permissions: {}
+    steps:
+      - name: Refuse any ref that is not a version tag
+        env:
+          REF_TYPE: ${{ github.ref_type }}
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          case "$REF_TYPE:$REF_NAME" in
+            tag:v[0-9]*) echo "ok: $REF_NAME" ;;
+            *) echo "::error::Run this workflow from a version tag (v*), not from $REF_TYPE '$REF_NAME'. In the Run workflow dialog choose the tag in 'Use workflow from'."; exit 1 ;;
+          esac
+
+  gate:
+    name: Gate (tests + tag equals version)
+    needs: [require-tag]
+    permissions:
+      contents: read
+    uses: ./.github/workflows/gate.yml
+    with:
+      ref_name: ${{ github.ref_name }}
+
   publish-npm:
     name: Publish gabbe-kit to npm
+    needs: [require-tag, gate]
     runs-on: ubuntu-latest
     # Prerelease tags (a '-' in the name) never go to the `latest` dist-tag.
     if: ${{ github.event_name == 'workflow_dispatch' || !contains(github.ref_name, '-') }}
@@ -36,8 +69,8 @@ jobs:
       contents: read
       id-token: write # npm trusted publishing (OIDC) + provenance
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
           node-version: '24'
           registry-url: 'https://registry.npmjs.org'
@@ -47,6 +80,10 @@ jobs:
 
       - name: Smoke-test the Node installer
         run: node bin/install.js --help
+
+      # Nothing is published when the installer's own tests fail.
+      - name: Node installer tests
+        run: node scripts/tests/test_node_install.js
 
       - name: Show package identity
         run: node -e "const p=require('./package.json');console.log(p.name+'@'+p.version)"

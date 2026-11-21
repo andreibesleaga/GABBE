@@ -27,6 +27,8 @@
 | `DECISION` | Significant decision made |
 | `HUMAN_ESCALATION` | Human decision requested |
 | `HUMAN_DECISION` | Human decision received and applied |
+| `HUMAN_APPROVED` | Human approved a gate or phase (phase, date, the human's words) |
+| `VETO` | Phase set to BLOCKED by orch-judge, ops-security or prod-ethicist (reason) |
 | `SELF_HEAL_ATTEMPT` | Self-heal iteration (attempt N of 5) |
 | `SELF_HEAL_RESOLVED` | Self-heal succeeded |
 | `RESEARCH_FINDING` | orch-researcher found authoritative fact |
@@ -43,6 +45,6 @@
 
 | Timestamp | Session | Actor | Type | Description | Outcome | References |
 |---|---|---|---|---|---|---|
-| [YYYY-MM-DDTHH:MM:SSZ] | [S001] | loki-mode | `LOKI_INIT` | Audit log initialized for [PROJECT_NAME] | OK | — |
+| [YYYY-MM-DDTHH:MM:SSZ] | [SES-001] | loki-mode | `LOKI_INIT` | Audit log initialized for [PROJECT_NAME] | OK | — |
 
 <!-- Append new entries below this line. Never edit rows above. -->

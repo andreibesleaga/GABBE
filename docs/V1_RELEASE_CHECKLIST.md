@@ -36,7 +36,7 @@ python3 agents/scripts/validate_methodology_graph.py # lifecycle DAG + persona h
 - [ ] `verify_triggers_and_mcps.py` exits 0 (triggers non-empty/non-placeholder; referenced MCPs exist)
 - [ ] `verify_use_cases.py` exits 0 (every documented scenario resolves to real skills)
 - [ ] `validate_methodology_graph.py` exits 0 (lifecycle state machine is a valid DAG with human-approval gates; persona handoffs resolve; memory state model coherent; skill shape valid)
-- [ ] Manual cross-check: every `S00`–`S13` phase + every new gate (`S02.5`/`S04.5`/`S06.5`/`S07.5`) references an existing skill/template/persona, and every new skill/template/persona appears in its `00-index.md`
+- [ ] Manual cross-check: every `S00`–`S13` phase + every exit criterion that replaced a sub-gate (S02, S04, S06, S07) references an existing skill/template/persona, and every new skill/template/persona appears in its `00-index.md`
 
 ## 2. Backward-compatibility gates green
 

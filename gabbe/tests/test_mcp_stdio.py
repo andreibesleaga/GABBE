@@ -61,6 +61,7 @@ def _serve(cwd, env_extra, *requests):
 SECURE_ENV = {
     "GABBE_MCP_TOKEN": "test-secret-token",
     "GABBE_MCP_ALLOWED_COMMANDS": "echo",
+    "GABBE_MCP_ENABLE_RUN_COMMAND": "1",
 }
 
 
@@ -108,13 +109,16 @@ def test_bad_token_is_rejected(project_dir):
     assert responses[0].get("error", {}).get("message") == "Unauthorized"
 
 
-def test_unauthenticated_tools_list_is_blocked(project_dir):
-    # No initialize → tools/list must be refused (fail-closed).
-    responses, _ = _serve(
-        project_dir,
-        SECURE_ENV,
-        {"jsonrpc": "2.0", "id": 9, "method": "tools/list"},
-    )
+def test_run_command_without_token_is_blocked(project_dir):
+    # No initialize and no token: run_command is refused (fail-closed). The read-only
+    # tools/list needs no token.
+    call = {
+        "jsonrpc": "2.0",
+        "id": 9,
+        "method": "tools/call",
+        "params": {"name": "run_command", "arguments": {"command": "echo hi"}},
+    }
+    responses, _ = _serve(project_dir, SECURE_ENV, call)
     assert responses[0].get("error", {}).get("message") == "Unauthorized"
 
 

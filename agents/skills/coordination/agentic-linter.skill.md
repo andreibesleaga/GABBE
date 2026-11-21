@@ -3,7 +3,6 @@ name: agentic-linter
 description: Enforce architecture layer boundaries defined in AGENTS.md — detect and fix import violations
 triggers: [architecture lint, boundary, import violation, layer check, ADD, circular dependency, dependency check]
 tags: [coordination]
-core: true
 context_cost: medium
 ---
 # Agentic Linter Skill
@@ -23,7 +22,7 @@ Enforce the architectural layer rules defined in AGENTS.md Section 3. Act as a s
    **For TypeScript/JavaScript (Node.js):**
    ```bash
    # Check circular dependencies
-   npx madge --circular --extensions ts,js src/
+   npx madge@8.0.0 --circular --extensions ts,js src/
 
    # Check layer violations (if .dependency-cruiser.cjs configured)
    npx dependency-cruiser --config .dependency-cruiser.cjs src/
@@ -48,7 +47,7 @@ Enforce the architectural layer rules defined in AGENTS.md Section 3. Act as a s
 3. **Classify violations**
    - **Circular dependency:** A → B → A (any length cycle)
    - **Layer inversion:** Inner layer imports outer layer (domain imports infrastructure)
-   - **God object:** Class > 500 lines or > 20 public methods
+   - **God object:** Class with > 20 public methods (file length is limited by Constitution Article III, not checked here)
    - **Framework leak:** Domain entity imports from web framework or ORM
 
 4. **For each violation, propose a concrete fix**
@@ -119,16 +118,8 @@ Enforce the architectural layer rules defined in AGENTS.md Section 3. Act as a s
 ## Output Format
 Violation report with file:line references + concrete fix for each. Run summary: "[N] violations found, [N] fixed, [N] proposed for review."
 
-## Security & Guardrails
-
-### 1. Skill Security (Agentic Linter)
-- **Safe Evaluation Environments**: If the linter needs to dynamically evaluate code to trace imports (e.g., running specific Node scripts), it must do so inside a strictly isolated sandbox (container or isolated v8 context) to prevent arbitrary code execution from malicious files.
-- **Configuration Tamper Resistance**: Rule definitions (like `.dependency-cruiser.cjs`) must be write-protected so that compromised processes cannot silently disable critical architectural boundaries.
-
-### 2. System Integration Security
-- **Boundary Enforcement as Security Feature**: Treat deep layer violations not just as bad design, but as potential security threats. For instance, a Web Controller directly accessing a Database Layer bypasses authorization checks in the Application/Domain layer.
-- **Safe Automated Fixes**: Automated refactoring (layer inversion fixes) must never inadvertently expose previously private internal methods or data structures to public interfaces.
-
-### 3. LLM & Agent Guardrails
-- **Refactoring Sandboxing**: Agents utilizing this skill must analyze and propose changes in an isolated git branch or memory workspace, requiring human or strict CI review before merging structural changes.
-- **Logic Preservation Assertions**: AI-proposed interface extractions and dependency inversions must be verified by the LLM to strictly preserve the original access controls and input escaping of the pre-refactored code.
+## Limits and safety
+- Run the analysis tools on a branch or working copy. Do not run project scripts you have not read just to trace imports.
+- Do not edit `.dependency-cruiser.cjs`, `deptrac.yaml` or the import-linter config to make a violation disappear; changing them needs the human's yes.
+- Propose fixes first. Apply them only when asked, on a branch, and run the full tests before and after.
+- A fix must keep access checks and input escaping unchanged; show the diff of any method whose visibility changes.

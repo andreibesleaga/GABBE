@@ -213,3 +213,53 @@ def test_atomic_write_cleans_up_on_os_error(tmp_path):
             _atomic_write(target, "content")
     # No temp files should remain in the directory
     assert list(tmp_path.glob(".tmp_tasks_*")) == []
+
+
+# ---------------------------------------------------------------------------
+# Stale lock recovery (SW-32)
+# ---------------------------------------------------------------------------
+
+
+def test_sync_lock_removes_lock_of_dead_process(tmp_path):
+    import os
+
+    from gabbe.sync import _SyncLock
+
+    with patch("gabbe.config.GABBE_DIR", tmp_path):
+        lock_file = tmp_path / ".sync.lock"
+        lock_file.write_text("99999999999")  # impossible process id
+        with _SyncLock(timeout=0.2, poll=0.01) as lock:
+            assert lock._fd is not None
+            assert lock_file.read_text() == str(os.getpid())
+        assert not lock_file.exists()
+
+
+def test_sync_lock_keeps_lock_of_live_process(tmp_path):
+    import os
+
+    from gabbe.sync import _SyncLock
+
+    with patch("gabbe.config.GABBE_DIR", tmp_path):
+        lock_file = tmp_path / ".sync.lock"
+        lock_file.write_text(str(os.getpid()))  # this process is alive
+        with pytest.raises(TimeoutError):
+            with _SyncLock(timeout=0.05, poll=0.01):
+                pass
+        assert lock_file.exists()
+
+
+def test_sync_lock_unreadable_content_only_stale_when_old(tmp_path):
+    import os
+
+    from gabbe.sync import _SyncLock
+
+    with patch("gabbe.config.GABBE_DIR", tmp_path):
+        lock_file = tmp_path / ".sync.lock"
+        lock_file.write_text("not a pid")
+        with pytest.raises(TimeoutError):  # fresh: kept
+            with _SyncLock(timeout=0.05, poll=0.01):
+                pass
+        old = lock_file.stat().st_mtime - 3600
+        os.utime(lock_file, (old, old))
+        with _SyncLock(timeout=0.2, poll=0.01) as lock:  # old: removed
+            assert lock._fd is not None

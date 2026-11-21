@@ -6,6 +6,7 @@
 
 > Complete reference sheet for the Agentic Engineering Kit.
 > Bookmark this. Read it before your first session.
+> How to work in each situation (new project, existing codebase, small change, Brain mode, Loki mode, resuming): [WORKFLOWS.md](WORKFLOWS.md).
 
 ---
 
@@ -22,7 +23,7 @@ AI coding agents suffer from three compounding problems:
 **This kit solves all three** through:
 - Explicit context (AGENTS.md — single source of truth for every agent)
 - Repeatable step-by-step workflows (SDD Lifecycle, TDD Cycle, RARV Loop)
-- Enforced checkpoints (10-Gate Quality System, human-in-the-loop triggers)
+- Enforced checkpoints (quality gates G1–G9, human-in-the-loop triggers)
 - Persistent memory (SESSION_SNAPSHOT, CONTINUITY.md, AUDIT_LOG.md)
 
 **ROI:** Repositories using this approach could see reduction in agent runtime and in token usage through explicit context, cached decisions, and SDLC memory. This is not measured.
@@ -115,8 +116,8 @@ pip install -e .
 # 2. Verify installation
 gabbe --help
 
-# 3. (Optional) Interactively fill the kit's [PLACEHOLDER: ...] markers
-#    (project name, stack, conventions) across agents/ in one pass
+# 3. (Optional) Fill any [PLACEHOLDER: ...] markers left in agents/.
+#    The wizard (`gabbe setup`) fills the ones it can detect. In a source checkout of GABBE you can also run:
 python scripts/fill_placeholders.py
 ```
 
@@ -306,7 +307,7 @@ Or activate the swarm skill explicitly:
 
 
 ```
-Multi-agent swarm with 30+ specialized personas for projects >5 features or >20 files.
+Multi-agent swarm with 37 specialized personas for projects >5 features or >20 files.
 ```
 
 ---
@@ -322,13 +323,13 @@ GABBE/
       AGENTS.md        <- Universal config template
       CONSTITUTION.md  <- Immutable project law
       scripts/setup-context.sh <- Internal wiring script (wrapped by scripts/init.py)
-      skills/          <- 214 agent capability packages (💯)
+      skills/          <- 231 agent capability packages (💯)
           coding/      <- (tdd, refactor, debug, git...)
           security/    <- (audit, threat-model...)
           architecture/ <- (design, review, patterns...)
-      templates/       <- 100 fill-in-the-blank documents
-      guides/          <- 86 domain & process guides
-      personas/        <- 36 specialized roles (Loki Mode)
+      templates/       <- 107 fill-in-the-blank documents
+      guides/          <- 95 domain & process guides
+      personas/        <- 37 specialized roles (Loki Mode)
       memory/          <- project state, continuity, audit log
 ```
 
@@ -426,7 +427,7 @@ Skills are invoked by mentioning trigger keywords in conversation.
 ```
 
 
-All 214 skills are listed in `agents/skills/00-index.md`.
+All 231 skills are listed in `agents/skills/00-index.md`.
 
 ---
 
@@ -657,7 +658,7 @@ Goal: Mandate SDD for all new features
 Rule: No code without an approved PRD.md
 Actions:
   - Make spec-writer.skill the entry point for all feature requests
-  - Enforce 10-gate quality system in CI/CD
+  - Enforce the quality gates G1–G9 in CI/CD
   - Track and repay tech debt with tech-debt.skill
   - Measure: specification-to-code ratio, coverage, architectural violations
 ```
@@ -681,7 +682,7 @@ Actions:
 | **Context-7** | `npx @upstash/context7-mcp` | Up-to-date SDK docs (reduces guessed or outdated API calls) |
 | **Sequential Thinking** | `npx @modelcontextprotocol/server-sequential-thinking` | Chain-of-thought before acting |
 | **GitHub MCP** | `npx @modelcontextprotocol/server-github` | PR review, issues, code search |
-| **GitHits** | `npx githits@latest init` | Navigate open-source dependency source/docs (no clone, no key) |
+| **GitHits** | `npx githits@0.41.0 init` | Navigate open-source dependency source/docs (no clone, no key) |
 | **PostgreSQL MCP** | `npx @modelcontextprotocol/server-postgres` | Live schema introspection |
 | **Semgrep MCP** | `pip install semgrep-mcp` | In-agent SAST security scanning |
 | **Brave Search MCP** | `npx @modelcontextprotocol/server-brave-search` | Authoritative web research |
@@ -731,7 +732,7 @@ Task assigned
 ```
 
 **Using Pure Agent Mode (No CLI):**
-> "The build is failing. Invoke `agents/skills/core/self-heal.skill.md`. Do not ask me for permission between steps. Diagnose the error, hypothesize a fix, write the code, and run the tests. If it fails again, loop back to step 1. You have a maximum of 5 attempts before you must escalate to me."
+> "The build is failing. Invoke `agents/skills/core/self-heal.skill.md`. Do not ask me for permission between steps. Ask me only at the human gates and for anything expensive, destructive or irreversible. Diagnose the error, hypothesize a fix, write the code, and run the tests. If it fails again, loop back to step 1. You have a maximum of 5 attempts before you must escalate to me."
 
 ### Genetic Evolution (`gabbe brain evolve`)
 If the self-healing loop frequently fails or a specific skill repeatedly produces bad code:
@@ -900,15 +901,11 @@ python3 GABBE/scripts/init.py
 *See agents/skills/brain/loki-mode.skill.md for Loki Mode multi-agent orchestration.*
 *See agents/skills/brain/README.md for complete brain documentation.*
 
-## 🛡️ Security & Guardrails
+## 🛡️ Limits and safety
 
-All 214 skills in the GABBE kit feature a heavily enforced **"Security & Guardrails"** section that binds agents to the project's CONSTITUTION.md. The 3-layer security constraints include:
+All 231 skills in the GABBE kit have a short **"Limits and safety"** section. The shared rules are in `agents/CONSTITUTION.md` (Article 0) and `agents/guides/principles/skill-guardrails.md`; that guide also lists the controls you must provide outside the model (hooks, permissions, branch protection, CI checks).
 
-1.  **Skill Security**: Tool-specific protection (e.g., preventing command injection or sandbox escapes).
-2.  **System Integration Security**: Safe external integration (e.g., verifying boundary enforcement or ensuring test coverage).
-3.  **LLM/Agent Guardrails**: Protection from AI-specific failures (e.g., confirmation bias, or prompt injection).
-
-Agents are explicitly configured to **Fail-Closed**—they must wait for human approval rather than bypassing a guardrail.
+An agent stops and asks the human before anything irreversible or security-relevant that is unclear.
 
 ---
 

@@ -19,7 +19,7 @@ def allowlist_echo():
 def mcp_insecure():
     """Pre-authenticate the session (legacy permissive mode) so dispatch-flow
     tests can exercise JSON-RPC routing without the fail-closed auth gate."""
-    with patch.dict(os.environ, {"GABBE_MCP_INSECURE": "1"}):
+    with patch.dict(os.environ, {"GABBE_MCP_INSECURE": "1", "GABBE_MCP_ENABLE_RUN_COMMAND": "1"}):
         yield
 
 
@@ -49,15 +49,10 @@ def test_run_command_handler_returns_dict(tmp_project, allowlist_echo):
     """run_command_handler returns stdout, stderr, returncode dict."""
     from gabbe.mcp_server import run_command_handler
 
-    mock_result = MagicMock()
-    mock_result.stdout = "output"
-    mock_result.stderr = ""
-    mock_result.returncode = 0
+    # Output is now captured through temporary files (capped), so run a real command.
+    result = run_command_handler("echo output")
 
-    with patch("gabbe.mcp_server.subprocess.run", return_value=mock_result):
-        result = run_command_handler("echo output")
-
-    assert result["stdout"] == "output"
+    assert result["stdout"] == "output\n"
     assert result["returncode"] == 0
 
 
@@ -86,7 +81,10 @@ def test_run_command_handler_no_shell_injection(tmp_project, allowlist_echo):
         # shell=False ensures no shell interpretes ';' as a separator.
         assert kwargs.get("shell") is False
         # Verify all tokens are present exactly as shlex.split produces them.
-        assert cmd_list == ["echo", "safe;", "rm", "-rf", "/tmp/evil"]
+        # argv[0] is the resolved absolute path of the executable (SW-13).
+        import shutil
+
+        assert cmd_list == [shutil.which("echo"), "safe;", "rm", "-rf", "/tmp/evil"]
 
 
 # ---------------------------------------------------------------------------
@@ -138,7 +136,7 @@ def test_serve_initialize(tmp_project):
 
 
 def test_serve_tools_list(tmp_project, mcp_insecure):
-    """tools/list returns the run_command tool definition."""
+    """tools/list returns the run_command tool definition when it is enabled."""
     responses = _run_serve_with_input([_make_request("tools/list")], tmp_project)
     assert len(responses) == 1
     r = responses[0]
@@ -261,6 +259,8 @@ def clean_mcp_env():
             "GABBE_MCP_TOKEN",
             "GABBE_MCP_ALLOWED_COMMANDS",
             "GABBE_MCP_COMMAND_TIMEOUT",
+            "GABBE_MCP_ENABLE_RUN_COMMAND",
+            "GABBE_MCP_PASS_ENV",
         ):
             os.environ.pop(key, None)
         yield
@@ -326,7 +326,8 @@ def test_run_command_times_out(tmp_project, clean_mcp_env):
 
 
 def test_serve_refuses_tools_call_without_auth(tmp_project, clean_mcp_env):
-    """Fail-closed: with no token and no insecure mode, tools/call is Unauthorized."""
+    """Fail-closed: with no token and no insecure mode, run_command is Unauthorized."""
+    os.environ["GABBE_MCP_ENABLE_RUN_COMMAND"] = "1"
     responses = _run_serve_with_input(
         [
             _make_request(
@@ -349,9 +350,9 @@ def test_serve_token_required_and_rejected(tmp_project, clean_mcp_env):
             ],
             tmp_project,
         )
-    # initialize -> Unauthorized; tools/list -> Unauthorized (never authed)
+    # initialize -> Unauthorized; the read-only tools/list needs no token, run_command does
     assert responses[0]["error"]["code"] == -32000
-    assert responses[1]["error"]["code"] == -32000
+    assert "result" in responses[1]
 
 
 def test_serve_initialize_returns_protocol_version(tmp_project, clean_mcp_env):
@@ -364,7 +365,7 @@ def test_serve_initialize_returns_protocol_version(tmp_project, clean_mcp_env):
 
 def test_serve_token_accepted_when_correct(tmp_project, clean_mcp_env):
     """Constant-time auth still accepts the correct token and authorizes the session."""
-    with patch.dict(os.environ, {"GABBE_MCP_TOKEN": "s3cret"}):
+    with patch.dict(os.environ, {"GABBE_MCP_TOKEN": "s3cret", "GABBE_MCP_ENABLE_RUN_COMMAND": "1"}):
         responses = _run_serve_with_input(
             [
                 _make_request("initialize", params={"token": "s3cret"}),

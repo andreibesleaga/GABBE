@@ -12,7 +12,7 @@
 | **Session ID** | [YYYY-MM-DD-HH-MM or sequential number] |
 | **Date** | [YYYY-MM-DD] |
 | **Started by** | [agent persona or human] |
-| **SDLC Phase at Start** | [S01-S10 or COMPLETE] |
+| **SDLC Phase at Start** | [S00–S13 or NOT_STARTED] |
 | **Tasks at Start** | [T-NNN (IN_PROGRESS), T-NNN (BLOCKED), ...] |
 | **Goal for this Session** | [one sentence: what we're trying to accomplish] |
 
@@ -35,7 +35,7 @@
 | **Subject** | [one sentence: what was decided/done/found] |
 | **Rationale** | [why this decision was made] |
 | **Outcome** | [PASS / FAIL / PENDING / DEFERRED] |
-| **References** | [project/tasks.md#T-NNN, ADR-001, SPEC.md#section, etc.] |
+| **References** | [project/TASKS.md#T-NNN, ADR-001, SPEC.md#section, etc.] |
 
 ---
 
@@ -81,7 +81,7 @@
 |---|---|
 | **Tasks Completed** | [T-NNN, T-NNN, ...] |
 | **Tasks Blocked** | [T-NNN (reason), ...] |
-| **SDLC Phase at End** | [S01-S10 or COMPLETE] |
+| **SDLC Phase at End** | [S00–S13] |
 | **Key Decisions Made** | [bullet summary] |
 | **Transferred to CONTINUITY.md** | [Yes/No — list entries] |
 | **Transferred to semantic/** | [Yes/No — list entries] |

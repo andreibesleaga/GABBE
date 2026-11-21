@@ -1,7 +1,7 @@
 ---
 name: privacy-data-protection
-description: Elicit and enforce GDPR, CCPA, and general privacy by design rules
-triggers: [design privacy system, audit gdpr conformity, protect pii]
+description: Map personal data, minimise it, protect it, and design deletion and export for GDPR or CCPA duties. Use when designing a feature that stores personal or payment data.
+triggers: [privacy by design, data minimisation, pseudonymisation, dsar, right to erasure, protect pii]
 tags: [security]
 context_cost: medium
 ---
@@ -10,22 +10,24 @@ context_cost: medium
 ## Goal
 Implement Data Privacy by Design. Ensure PII and PCI data are properly isolated, encrypted, minimal, and subject to Data Subject Access Requests (DSARs).
 
+## Where it fits
+Phase and gate: S01 (privacy requirements), S02 (data classification), S07 (review), S13 (disposal). Evidence: the data map in `docs/privacy/data-flow-map.md`. Guide: `guides/security/privacy-data-protection.md`.
+
 ## Steps
 1. **Data Mapping**: Scan schemas using the `DATA_PIPELINE_TEMPLATE.md` to map exactly where PII resides.
 2. **Minimization**: Flag unnecessary PII collection fields and suggest removal.
 3. **Protection Mechanisms**: Ensure row-level encryption, dynamic masking, or pseudo-anonymization is applied to sensitive columns.
 4. **Verification**: Document the processes for user deletion (Right to be Forgotten) and data export.
 
-## Security & Guardrails
+## Constraints
+- Collect only data a stated purpose needs.
+- Every personal field in the data map has a retention period and a deletion path.
 
-### 1. Skill Security
-- **Data Exfiltration Safety**: When the agent scans schemas for PII, it must never output sample plaintext records from the database to the chat interface. It only operates on schema structure.
-- **Log Overflow**: Prevent the agent from generating excessively large mapping documents that break context limits if scanning a very large ERP database.
+## Output Format
+The data map (`docs/privacy/data-flow-map.md`), the list of fields to remove or protect, and the deletion and export procedure.
 
-### 2. System Integration Security
-- **Masking at the Edge**: PII unmasking must only occur at the absolute periphery (e.g., the front-end view) or explicitly authorized service borders; logs and analytics pipelines must receive obfuscated/hashed fields.
-- **De-Identification**: Enforce strong pseudo-anonymization (using salted hashes) over weak techniques when storing analytics data.
-
-### 3. LLM & Agent Guardrails
-- **Legal Advice Veto**: The agent must state that it provides technical architectural patterns for privacy, not formal legal or compliance defense.
-- **Implicit Consent Bias**: The LLM must not architect systems that assume user tracking/consent is granted by default (opt-out). It must strictly enforce opt-in architectures.
+## Limits and safety
+- Use masked or synthetic data when you scan schemas. Report column names and types, not values.
+- Deletion and export designs cover backups and logs. Propose deletion jobs; run them on real data only after the human confirms.
+- Which law applies is for the human or counsel to decide. Ask; do not assume.
+- Do not add a new personal-data field without the human's yes.

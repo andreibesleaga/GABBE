@@ -22,16 +22,22 @@ import socket
 import sys
 import tarfile
 import tempfile
+import urllib.error
 import urllib.request
 from pathlib import Path
 from urllib.parse import urlparse
 
 KIT_ROOT_DEFAULT = Path(__file__).resolve().parent.parent
 
+# A skill pack is text; anything larger than this is refused while downloading.
+MAX_DOWNLOAD_BYTES = 20 * 1024 * 1024
+
 # Heuristic red flags for a basic egress/secret/executable-payload scan. This is
 # a safety net, not a sandbox — imported skills still require human review.
 _DANGER_PATTERNS = [
-    (re.compile(r"\bcurl\s+[^|]*\|\s*(sh|bash)\b"), "pipe-to-shell"),
+    (re.compile(r"\b(curl|wget|fetch)\b[^|\n]*\|\s*(sh|bash|zsh|dash)\b"), "pipe-to-shell"),
+    (re.compile(r"<\(\s*(curl|wget|fetch)\b"), "process-substitution-download"),
+    (re.compile(r"(~|\$HOME)?/?\.ssh/|\bid_(rsa|ed25519|ecdsa|dsa)\b"), "ssh-key-access"),
     (re.compile(r"\b(eval|exec)\s*\("), "dynamic-exec"),
     (re.compile(r"https?://[^\s)]+\?[^\s)]*=(?:\$|%)"), "templated-exfil-url"),
     (
@@ -89,13 +95,41 @@ def _validate_remote_url(source: str) -> None:
             )
 
 
+class _CheckedRedirects(urllib.request.HTTPRedirectHandler):
+    """Apply the first-URL checks (HTTPS, public address) to every redirect hop."""
+
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        _validate_remote_url(newurl)
+        return super().redirect_request(req, fp, code, msg, headers, newurl)
+
+
+def _read_limited(response, dest: Path, limit: int = MAX_DOWNLOAD_BYTES) -> None:
+    """Copy a response to dest, stopping with a clear error above `limit` bytes."""
+    total = 0
+    with open(dest, "wb") as out:
+        while True:
+            chunk = response.read(65536)
+            if not chunk:
+                return
+            total += len(chunk)
+            if total > limit:
+                raise SystemExit(f"download larger than {limit} bytes; refusing.")
+            out.write(chunk)
+
+
+def _download(source: str, dest: Path) -> None:
+    opener = urllib.request.build_opener(_CheckedRedirects)
+    # nosec: scheme/host validated before and on every redirect; content validated later.
+    with opener.open(source, timeout=60) as response:  # noqa: S310
+        _read_limited(response, dest)
+
+
 def _fetch(source: str, stage: Path) -> Path:
     """Resolve <source> (URL or path) into a staging dir; return the staging root."""
     if source.startswith(("http://", "https://")):
         _validate_remote_url(source)
         dest = stage / Path(source.split("?")[0]).name
-        # nosec: scheme/host validated above; content is validated below.
-        urllib.request.urlretrieve(source, dest)  # noqa: S310
+        _download(source, dest)
         src = dest
     else:
         src = Path(source)
@@ -128,10 +162,15 @@ def _safe_extract(tf: tarfile.TarFile, dest: Path):
     for member in tf.getmembers():
         if member.issym() or member.islnk():
             raise SystemExit(f"refusing link member (symlink/hardlink): {member.name}")
+        if not (member.isfile() or member.isdir()):
+            raise SystemExit(f"refusing special member (device/FIFO): {member.name}")
         target = (dest / member.name).resolve()
         if target != dest and dest not in target.parents:
             raise SystemExit(f"refusing path-traversal member: {member.name}")
-    tf.extractall(dest)  # noqa: S202 - members validated above (no links, contained paths)
+    if hasattr(tarfile, "data_filter"):  # Python 3.12+ (and security backports)
+        tf.extractall(dest, filter="data")  # noqa: S202
+    else:
+        tf.extractall(dest)  # noqa: S202 - members validated above (no links, contained paths)
 
 
 def _scan(text: str):

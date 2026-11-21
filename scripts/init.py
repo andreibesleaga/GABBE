@@ -3,6 +3,7 @@
 import json
 import os
 import shutil
+import subprocess
 import sys
 from pathlib import Path
 from typing import Any
@@ -19,6 +20,10 @@ PROJECT_ROOT = Path.cwd()
 # Set from the --force CLI flag in main(). Default False = never overwrite user files.
 FORCE = False
 
+# HOOKS: when True (the --hooks CLI flag), also install the optional enforcement hooks.
+# Off by default; adds no wizard question (see install_hooks).
+HOOKS = False
+
 # --- Install manifest recorder ---------------------------------------------
 # The wizard records everything it creates under PROJECT_ROOT into
 # `.gabbe/manifest.json` (the same schema gabbe/installer.py reads), so that
@@ -29,6 +34,19 @@ FORCE = False
 MANIFEST_SCHEMA_VERSION = 1
 _MANIFEST_ENTRIES: list[dict] = []
 _RECORDED_PATHS: set[str] = set()
+# Recorded paths this run replaced by something else (an old skills link that became a
+# folder): the merge with the earlier record must not bring them back.
+_DROPPED_PATHS: set[str] = set()
+
+
+def _agent_slug(name):
+    """The slug an agent's artifacts are recorded under: "Claude Code" -> "claude-code".
+
+    Same rule as `agentSlug()` in bin/install.js, so `gabbe uninstall --agents <slug>`
+    removes the same things whichever installer wrote them.
+    """
+    slug = "".join(c if (c.isalnum() or c in "-_") else "-" for c in name.lower())
+    return slug.strip("-") or "shared"
 
 
 def _rel_to_project(path):
@@ -46,12 +64,12 @@ def _rel_to_project(path):
         return None
 
 
-def _record(path, kind, agent="shared", backup_of=None):
+def _record(path, kind, agent="shared", backup_of=None, extra=None):
     """Record a created artifact for the uninstall manifest (idempotent per path)."""
     rel = _rel_to_project(path)
     if rel is None or rel in (".", ""):
         return
-    entry = {"path": rel, "kind": kind, "agent": agent, "backup_of": backup_of}
+    entry = {"path": rel, "kind": kind, "agent": agent, "backup_of": backup_of, **(extra or {})}
     if kind == "copy":
         try:
             import hashlib
@@ -67,9 +85,45 @@ def _record(path, kind, agent="shared", backup_of=None):
                     e["backup_of"] = backup_of
                 if kind == "copy" and "hash" in entry:
                     e["hash"] = entry["hash"]
+                if extra:
+                    e.update(extra)
                 return
     _MANIFEST_ENTRIES.append(entry)
     _RECORDED_PATHS.add(rel)
+
+
+def _recorded_path_problem(rel):
+    """Why a recorded path cannot be used, or None. Same rule as `_check_recorded_path` in
+    gabbe/installer.py: not empty or `.`, not absolute, no `..` part."""
+    if not isinstance(rel, str) or rel in ("", "."):
+        return "it is empty or not text"
+    if "\x00" in rel or Path(rel).is_absolute() or rel.startswith(("/", "\\")):
+        return "it is absolute"
+    parts = rel.replace("\\", "/").split("/")
+    if ".." in parts or all(p in ("", ".") for p in parts):
+        return "it climbs out of the project"
+    return None
+
+
+def _usable_record_entries(raw_entries):
+    """The entries of an earlier record that are dicts with a safe `path`, keyed by path.
+
+    An entry whose path is unsafe is skipped with one message naming it; an unsafe
+    `backup_of` is cleared. Nothing outside the project can be reached through the record.
+    """
+    usable = {}
+    for e in raw_entries:
+        if not isinstance(e, dict) or "path" not in e:
+            continue
+        problem = _recorded_path_problem(e["path"])
+        if problem:
+            print(f"  {YELLOW}! Skipped record entry {e['path']!r}: {problem}{NC}")
+            continue
+        if e.get("backup_of") and _recorded_path_problem(e["backup_of"]):
+            print(f"  {YELLOW}! Ignored backup_of {e['backup_of']!r} of {e['path']!r}{NC}")
+            e = dict(e, backup_of=None)
+        usable[e["path"]] = e
+    return usable
 
 
 _PRIOR_CACHE: dict = {}
@@ -90,11 +144,7 @@ def _prior_manifest_entries():
         _PRIOR_CACHE.clear()
         try:
             prior = json.loads(mp.read_text())
-            _PRIOR_CACHE[key] = {
-                e["path"]: e
-                for e in prior.get("entries", [])
-                if isinstance(e, dict) and "path" in e
-            }
+            _PRIOR_CACHE[key] = _usable_record_entries(prior.get("entries", []))
         except (ValueError, OSError, AttributeError):
             _PRIOR_CACHE[key] = {}
     return _PRIOR_CACHE[key]
@@ -108,6 +158,16 @@ def _is_unchanged_kit_file(path, data):
     return bool(entry and entry.get("hash") == hashlib.sha256(data).hexdigest())
 
 
+def _make_dirs(path):
+    """Create `path` and its parents unless a link of the user's lies on the way to it
+    (a folder created there would land outside the project). Returns True when it exists."""
+    path = Path(path)
+    if _is_behind_link(path) or path.is_symlink():
+        return path.is_dir()
+    path.mkdir(parents=True, exist_ok=True)
+    return True
+
+
 def _record_tree(root):
     """Record every file under an installed kit dir (kind=copy) for reversal."""
     root = Path(root)
@@ -116,6 +176,13 @@ def _record_tree(root):
     for p in sorted(root.rglob("*")):
         if p.is_file() and not p.is_symlink():
             _record(p, "copy")
+
+
+def _manifest_leaf_problem(mp):
+    """A message when the record file is a link (it would be written through), else None."""
+    if Path(mp).is_symlink():
+        return f"{mp} is a symbolic link; nothing is written through it"
+    return None
 
 
 def write_install_manifest():
@@ -138,11 +205,11 @@ def write_install_manifest():
     if mp.exists():
         try:
             prior = json.loads(mp.read_text())
-            for e in prior.get("entries", []):
-                if isinstance(e, dict) and "path" in e:
-                    merged[e["path"]] = e
+            merged.update(_usable_record_entries(prior.get("entries", [])))
         except (ValueError, OSError):
             pass
+    for rel in _DROPPED_PATHS:
+        merged.pop(rel, None)
     for e in _MANIFEST_ENTRIES:
         prior_entry = merged.get(e["path"])
         # A re-run finds its own link or file in place, so it records no backup.
@@ -159,8 +226,17 @@ def write_install_manifest():
         "agents": agents,
         "entries": entries,
     }
+    problem = _manifest_leaf_problem(mp)
+    if problem:
+        print(f"  {RED}x {problem}; the install record was not written{NC}")
+        raise SystemExit(1)
     mp.parent.mkdir(parents=True, exist_ok=True)
-    mp.write_text(json.dumps(manifest, indent=2, sort_keys=True))
+    tmp = mp.with_name(f"{mp.name}.tmp-{os.getpid()}")
+    try:
+        tmp.write_text(json.dumps(manifest, indent=2, sort_keys=True))
+        os.replace(tmp, mp)
+    finally:
+        tmp.unlink(missing_ok=True)
     print(
         f"  {GREEN}✓ Recorded install manifest ({len(_MANIFEST_ENTRIES)} entries) for uninstall{NC}"
     )
@@ -231,7 +307,27 @@ TECH_MAP: dict[str, Any] = {}
 
 # Remaining unfilled [PLACEHOLDER:] fields after population, surfaced as an
 # end-of-install warning so users are never silently shipped blank fields.
+# Field names only; free-text placeholders (not a `name: "..."` field) are counted.
 _UNFILLED_PLACEHOLDERS: list[str] = []
+_UNFILLED_FREE_TEXT = [0]
+
+# Where the value of a field comes from, for the end-of-install list.
+_FIELD_HINTS = {
+    "project_name": "what you call the project",
+    "description": "one sentence about the project",
+    "repo_url": "your git remote (`git remote get-url origin`)",
+    "runtime": "your stack: see your package or build file",
+    "language": "your stack: see your package or build file",
+    "framework": "your stack: see your package or build file",
+    "package_manager": "your lock file (pnpm, npm, yarn, pip, ...)",
+    "database": "your data layer: see your docker-compose or config files",
+    "orm": "your data layer: see your dependencies",
+    "cache": "your data layer: see your docker-compose or config files",
+    "deployment_target": "your Dockerfile, serverless or hosting config",
+    "ci_cd": "your CI files (.github/workflows, .gitlab-ci.yml, ...)",
+    "security_scan": "your CI files or package scripts",
+}
+_FIELD_HINT_DEFAULT = "the command in your package scripts, Makefile or CI"
 
 # Per-package-manager command derivations for the [PLACEHOLDER:] command fields
 # the Jinja substitution does not cover. Keyed by the resolved package manager.
@@ -328,7 +424,8 @@ def _clean_repo_url(url):
         url = f"https://{host}/{path}"
     parts = urlsplit(url)
     if parts.scheme and parts.hostname:
-        host = parts.hostname + (f":{parts.port}" if parts.port else "")
+        name = f"[{parts.hostname}]" if ":" in parts.hostname else parts.hostname
+        host = name + (f":{parts.port}" if parts.port else "")
         url = f"{parts.scheme}://{host}{parts.path}"
     elif "@" in url:
         return None
@@ -394,7 +491,7 @@ def populate_placeholders(content, pm, base):
             continue
         # Prose / inline placeholders: tag the line OPTIONAL (don't fabricate prose).
         if "[PLACEHOLDER" in line:
-            _UNFILLED_PLACEHOLDERS.append(line.strip()[:48])
+            _UNFILLED_FREE_TEXT[0] += 1
             if "OPTIONAL" not in line:
                 out_lines.append(line + "  <!-- OPTIONAL: fill this in yourself -->")
             else:
@@ -456,8 +553,34 @@ def detect_existing_project(cwd):
 # --- Helper Functions ---
 
 
+def _print_unfilled_fields():
+    """List the fields still to fill in agents/AGENTS.md: names with where each value
+    comes from, then how to fill them."""
+    names = list(dict.fromkeys(_UNFILLED_PLACEHOLDERS))
+    free = _UNFILLED_FREE_TEXT[0]
+    total = len(names) + free
+    print(
+        f"\n{YELLOW}⚠ {total} optional field(s) in agents/AGENTS.md still need your input "
+        f"(marked with <!-- OPTIONAL -->):{NC}"
+    )
+    for name in names:
+        print(f"    - {name}: {_FIELD_HINTS.get(name, _FIELD_HINT_DEFAULT)}")
+    if free:
+        print(f"    - {free} free-text spot(s) (architecture, forbidden patterns, secrets, ...)")
+    print(
+        f"  {BLUE}→ Edit agents/AGENTS.md, or ask your agent: it is step 2 of "
+        f"BOOTSTRAP_MISSION.md.{NC}"
+    )
+
+
 def clear_screen():
-    os.system("cls" if os.name == "nt" else "clear")
+    """Clear the terminal; do nothing when there is no `clear` command or no terminal."""
+    if not sys.stdout.isatty():
+        return
+    if os.name == "nt":
+        os.system("cls")
+    elif shutil.which("clear"):
+        os.system("clear")
 
 
 def print_header():
@@ -583,6 +706,202 @@ def _is_behind_link(path):
         if current.is_symlink():
             return True
     return False
+
+
+# --- Optional hooks (--hooks) -------------------------------------------------
+# Same rules as bin/install.js: off unless asked; nothing of the user's is replaced; every
+# touched file is recorded (kind "hook-merge" for a merged settings file, "copy" for a git hook).
+HOOK_MARK = "GABBE-HOOK"
+GIT_HOOKS = ("pre-commit", "pre-push")
+# agent -> (fragment, file it is merged into, script the fragment runs)
+HOOK_MERGES = {
+    "Claude Code": (
+        "claude-code/settings.fragment.json",
+        (".claude", "settings.json"),
+        "claude-code/gabbe-hook.js",
+    ),
+    "Cursor": (
+        "cursor/hooks.fragment.json",
+        (".cursor", "hooks.json"),
+        "cursor/gabbe-hook.js",
+    ),
+}
+
+
+def _hook_command_key(item):
+    """The command strings of one hook entry (a Claude Code group or a Cursor entry)."""
+    if isinstance(item, dict) and isinstance(item.get("hooks"), list):
+        return [h.get("command") if isinstance(h, dict) else None for h in item["hooks"]]
+    return [item.get("command") if isinstance(item, dict) else None]
+
+
+def _same_hook_entry(a, b):
+    """Same event-level matcher and same command strings: the rule of merge-hooks.js."""
+    ma = a.get("matcher") if isinstance(a, dict) else None
+    mb = b.get("matcher") if isinstance(b, dict) else None
+    return ma == mb and _hook_command_key(a) == _hook_command_key(b)
+
+
+def merge_hook_fragment(doc, fragment):
+    """Add the fragment's hook entries that `doc` lacks. Returns (new_doc, changed, added_version).
+
+    The one merge function of the wizard (same result as `mergeFragment` in
+    agents/hooks/merge-hooks.js). Raises ValueError when `doc` has an unexpected shape.
+    """
+    if not isinstance(doc, dict):
+        raise ValueError("it is not a JSON object")
+    if "hooks" in doc and not isinstance(doc["hooks"], dict):
+        raise ValueError('"hooks" has an unexpected shape')
+    for event in fragment["hooks"]:
+        if event in doc.get("hooks", {}) and not isinstance(doc["hooks"][event], list):
+            raise ValueError(f"hooks.{event} is not a list")
+    new = json.loads(json.dumps(doc))
+    changed = False
+    for event, items in fragment["hooks"].items():
+        for item in items:
+            lst = new.setdefault("hooks", {}).setdefault(event, [])
+            if not any(_same_hook_entry(x, item) for x in lst):
+                lst.append(item)
+                changed = True
+    added_version = False
+    if changed and "version" in fragment and "version" not in new:
+        new["version"] = fragment["version"]
+        added_version = True
+    return new, changed, added_version
+
+
+def _hook_by_hand(rel, why, fragment):
+    print(f"  {YELLOW}! {rel}: {why}. Nothing was changed. Add this by hand:{NC}")
+    for line in json.dumps(fragment, indent=2).splitlines():
+        print("      " + line)
+
+
+def _install_hook_merge(agent, agents_dir, lines):
+    """Merge one agent's fragment into the project's hooks file. Never replaces user content."""
+    fragment_name, target_parts, script = HOOK_MERGES[agent]
+    target = PROJECT_ROOT.joinpath(*target_parts)
+    rel = _rel_to_project(target)
+    fragment = json.loads((SOURCE_AGENTS_DIR / "hooks" / fragment_name).read_text(encoding="utf-8"))
+    if not (Path(agents_dir) / "hooks" / script).is_file():
+        print(
+            f"  {YELLOW}! {rel}: agents/hooks/{script} is not in the project, no hook installed{NC}"
+        )
+        return
+    if _is_behind_link(target):
+        print(f"  {YELLOW}! {rel}: a link of yours, or behind one; hooks not installed there{NC}")
+        return
+    exists = target.exists()
+    if exists and not target.is_file():
+        print(f"  {YELLOW}! {rel} is not a regular file; hooks not installed there{NC}")
+        return
+    doc = {}
+    if exists:
+        try:
+            doc = json.loads(target.read_text(encoding="utf-8"))
+        except ValueError:
+            _hook_by_hand(rel, "it is not plain JSON (comments?)", fragment)
+            return
+    try:
+        merged, changed, added_version = merge_hook_fragment(doc, fragment)
+    except ValueError as e:
+        _hook_by_hand(rel, str(e), fragment)
+        return
+    if not changed:
+        print(f"  {BLUE}→ {rel}: the GABBE hook entries are already there{NC}")
+        return
+    earlier = _prior_manifest_entries().get(rel or "")
+    was_ours = bool(earlier and earlier.get("kind") == "hook-merge")
+    created = (not exists and not was_ours) or bool(was_ours and earlier.get("created"))
+    backup_of = earlier.get("backup_of") if was_ours else None
+    if exists and not (was_ours and earlier.get("created")):
+        backup = _backup_before_overwrite(target)
+        if backup is not None and not was_ours:
+            backup_of = _rel_to_project(backup)
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text(json.dumps(merged, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    _record(
+        target,
+        "hook-merge",
+        agent=_agent_slug(agent),
+        backup_of=backup_of,
+        extra={
+            "fragment": "agents/hooks/" + fragment_name,
+            "fragment_doc": fragment,
+            "created": created,
+            "added_version": bool(added_version or (was_ours and earlier.get("added_version"))),
+        },
+    )
+    lines.append(f"{agent} hooks (shell guard, edit guard, session start) -> {rel}")
+
+
+def _git_out(args):
+    try:
+        done = subprocess.run(
+            ["git", *args], cwd=PROJECT_ROOT, capture_output=True, text=True, check=False
+        )
+    except OSError:
+        return None
+    return done.stdout.strip() if done.returncode == 0 else None
+
+
+def _install_git_hooks(lines):
+    """The two git hooks, by the rules of agents/hooks/git/install.sh (fixed git arguments only)."""
+    common = _git_out(["rev-parse", "--git-common-dir"])
+    if common is None:
+        print(f"  {BLUE}→ Git hooks skipped: this folder is not a git repository{NC}")
+        return
+    if _git_out(["config", "--get", "core.hooksPath"]):
+        print(
+            f"  {YELLOW}! Git hooks not installed: core.hooksPath is set. Call "
+            f"agents/hooks/git/pre-commit and pre-push from your own hooks "
+            f"(see agents/guides/ops/hooks.md){NC}"
+        )
+        return
+    hooks_dir = (PROJECT_ROOT / common / "hooks").absolute()
+    if _rel_to_project(hooks_dir / "pre-commit") is None:
+        print(
+            f"  {YELLOW}! Git hooks not installed: the git folder is outside the project "
+            f'(worktree or submodule). Run "sh agents/hooks/git/install.sh" there yourself{NC}'
+        )
+        return
+    for name in GIT_HOOKS:
+        dst = hooks_dir / name
+        rel = _rel_to_project(dst)
+        data = (SOURCE_AGENTS_DIR / "hooks" / "git" / name).read_bytes()
+        if _is_behind_link(dst):
+            print(f"  {YELLOW}! {rel} is a link of yours, or behind one: left alone{NC}")
+            continue
+        exists = dst.exists() or dst.is_symlink()
+        if exists and (not dst.is_file() or HOOK_MARK.encode() not in dst.read_bytes()):
+            print(
+                f"  {YELLOW}! {rel} already exists and is not GABBE's: not replaced. To chain, "
+                f'add a line to it that runs agents/hooks/git/{name} "$@"{NC}'
+            )
+            continue
+        if not exists or dst.read_bytes() != data:
+            if exists:
+                _backup_before_overwrite(dst)
+            dst.parent.mkdir(parents=True, exist_ok=True)
+            dst.write_bytes(data)
+        dst.chmod(0o755)
+        _record(dst, "copy", agent="shared")
+        lines.append(f"git {name} hook -> {rel}")
+
+
+def install_hooks(agents, agents_dir):
+    """`--hooks`: install the optional hooks for the agents chosen in the wizard."""
+    print(f"\n{YELLOW}Optional hooks (--hooks){NC}")
+    lines = []
+    for agent in HOOK_MERGES:
+        if agent in agents:
+            _install_hook_merge(agent, agents_dir, lines)
+    _install_git_hooks(lines)
+    for line in lines:
+        print(f"  {GREEN}✓ Installed {line}{NC}")
+    if lines:
+        print(
+            "  Guide: agents/guides/ops/hooks.md. Remove them with `gabbe uninstall` (1.2.0 or later)."
+        )
 
 
 def write_generated_file(path, text, agent="shared"):
@@ -961,14 +1280,125 @@ def _record_generated_files(target_dir, before, agent):
             _record(path, "copy", agent=agent)
 
 
-def setup_skills_for_platform(platform, agents_dir, target_dir):
+def _kit_compiler():
+    """The skill compiler of the kit being installed (this wizard's own source).
+
+    Never the copy in the target project: that file may be the project's own code, or a
+    link to it, and the wizard must not run it.
+    """
+    return SOURCE_AGENTS_DIR / "scripts" / "compile_skills.py"
+
+
+def _emitted_skill_paths(agents_dir, base):
+    """Every path the skill compiler writes under `base` for this kit, or None when its
+    slug rules cannot be loaded. Uses the compiler's own `safe_slug`, so the two agree."""
+    import importlib.util
+
+    script = _kit_compiler()
+    try:
+        spec = importlib.util.spec_from_file_location("_gabbe_compile_skills", script)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        paths = set()
+        for skill_file in (Path(agents_dir) / "skills").rglob("*.skill.md"):
+            meta, _ = module.ensure_yaml_frontmatter(skill_file.read_text(), skill_file.name)
+            stem = skill_file.stem.replace(".skill", "")
+            slug = module.safe_slug(meta.get("name", stem), fallback=stem)
+            paths.update({f"{base}/{slug}/SKILL.md", f"{base}/{slug}.mdc"})
+        return paths
+    except Exception:
+        return None
+
+
+def _remove_stale_generated_files(target_dir, agents_dir):
+    """Remove generated skill or rule files that an older install recorded and the kit
+    no longer emits.
+
+    Why: a skill renamed between kit versions is emitted under a new folder or file
+    name, and the old copy would stay beside it (the same skill twice). Called after
+    `target_dir` was emitted into. A file is removed only when ALL hold: the earlier
+    record names it; the compiler does not emit it (its slug rules decide, since the
+    record cannot tell a re-written file from a leftover); it lies under `target_dir`; it is a
+    recorded copy with the kit's marker in its first 4 KB; it is a regular file with
+    no link on its path; and its bytes still equal the recorded hash. One the user
+    changed is kept and reported. Removed paths leave the record.
+    """
+    import hashlib
+
+    base = _rel_to_project(target_dir)
+    if base is None or _is_behind_link(target_dir):
+        return
+    emitted = _emitted_skill_paths(agents_dir, base)
+    if emitted is None:
+        return
+    removed, changed = 0, []
+    for rel, entry in sorted(_prior_manifest_entries().items()):
+        if rel in emitted or entry.get("kind") != "copy" or not entry.get("hash"):
+            continue
+        if not rel.startswith(base + "/") or not rel.endswith(("/SKILL.md", ".mdc")):
+            continue
+        path = PROJECT_ROOT / rel
+        try:
+            if _is_behind_link(path) or not path.is_file() or path.is_symlink():
+                continue
+            data = path.read_bytes()
+            if b"gabbe-schema-version:" not in data[:4096]:
+                continue
+            if hashlib.sha256(data).hexdigest() != entry["hash"]:
+                changed.append(rel)
+                continue
+            path.unlink()
+            _DROPPED_PATHS.add(rel)
+            _RECORDED_PATHS.discard(rel)
+            _MANIFEST_ENTRIES[:] = [e for e in _MANIFEST_ENTRIES if e["path"] != rel]
+            removed += 1
+            if rel.endswith("/SKILL.md") and not any(path.parent.iterdir()):
+                path.parent.rmdir()
+        except OSError:
+            continue
+    if removed:
+        print(
+            f"  {GREEN}✓ Removed {removed} generated file(s) the kit no longer emits "
+            f"(renamed skills){NC}"
+        )
+    if changed:
+        print(
+            f"  {YELLOW}! Kept {len(changed)} old generated file(s) you changed: "
+            f"{', '.join(changed[:5])}{NC}"
+        )
+
+
+def _replace_own_skills_link(target_dir):
+    """Take away the link an earlier wizard made at `target_dir` (for example
+    `.windsurf/skills -> agents/skills`) so real `<slug>/SKILL.md` folders can be emitted.
+
+    Only a link the earlier install recorded is the kit's own; any other link is the
+    user's and stays. A folder of the user's that the link had replaced (moved to its
+    recorded backup) is put back first, so their files are still there.
+    """
+    rel = _rel_to_project(target_dir) or ""
+    prior = _prior_manifest_entries().get(rel)
+    if not target_dir.is_symlink() or not prior or prior.get("kind") != "symlink":
+        return
+    target_dir.unlink()
+    _DROPPED_PATHS.add(rel)
+    backup = PROJECT_ROOT / prior["backup_of"] if prior.get("backup_of") else None
+    if backup and _rel_to_project(backup) and backup.is_dir() and not backup.is_symlink():
+        backup.rename(target_dir)
+    print(f"  {BLUE}→ Replaced the kit's old link {rel} by skill folders{NC}")
+
+
+def setup_skills_for_platform(platform, agents_dir, target_dir, agent=None):
     """
     Setup Skills for selected platform using the external compiler script.
+
+    `agent` is the slug the emitted files are recorded under (default: from `platform`).
     """
     print(f"\n{BLUE}→ Setting up skills used by {platform}...{NC}")
 
     # Use external script for skill compilation to ensure consistency with setup-context.sh
-    compile_script = agents_dir / "scripts" / "compile_skills.py"
+    compile_script = _kit_compiler()
+    _replace_own_skills_link(target_dir)
     if _is_behind_link(target_dir):
         # e.g. `.claude/skills -> agents/skills` made by another tool: compiling
         # into it would write through the link.
@@ -982,6 +1412,7 @@ def setup_skills_for_platform(platform, agents_dir, target_dir):
 
             cmd = [
                 sys.executable,
+                "-I",  # isolated: the project folder is not on the child's import path
                 str(compile_script),
                 "--platform",
                 platform,
@@ -1003,8 +1434,8 @@ def setup_skills_for_platform(platform, agents_dir, target_dir):
             before = _snapshot_files(target_dir)
             subprocess.run(cmd, check=True)
             print(f"  {GREEN}✓ Processed skills for {platform}{NC}")
-            _slug = "".join(c if (c.isalnum() or c in "-_") else "-" for c in platform.lower())
-            _record_generated_files(target_dir, before, agent=_slug.strip("-") or "shared")
+            _record_generated_files(target_dir, before, agent=agent or _agent_slug(platform))
+            _remove_stale_generated_files(target_dir, agents_dir)
         except Exception as e:
             print(f"{RED}Error running skill compiler: {e}{NC}")
     else:
@@ -1046,25 +1477,34 @@ def main():
     so `gabbe uninstall` can remove it."""
     try:
         _run_wizard()
-    except BaseException:
+    except BaseException as stop:
         try:
             write_install_manifest()
         except Exception:
             pass
+        if isinstance(stop, EOFError):
+            raise SystemExit(
+                f"{RED}x The wizard asks questions and its input ended. Run it in a terminal, or "
+                f"use `npx gabbe-kit init --yes --agents <list>` for an install without "
+                f"questions.{NC}"
+            ) from None
         raise
 
 
 def _run_wizard():
-    global PROJECT_ROOT, FORCE
+    global PROJECT_ROOT, FORCE, HOOKS
     # Start each run with a clean manifest recorder (globals persist in-process).
     _MANIFEST_ENTRIES.clear()
     _RECORDED_PATHS.clear()
     _UNFILLED_PLACEHOLDERS.clear()
+    _UNFILLED_FREE_TEXT[0] = 0
+    _DROPPED_PATHS.clear()
     if "--bench" in sys.argv:
         run_bench()
         return
     if "--force" in sys.argv:
         FORCE = True
+    HOOKS = "--hooks" in sys.argv
     if not SOURCE_AGENTS_DIR.exists():
         if (KIT_SOURCE / "AGENTS.md").exists():
             pass
@@ -1103,6 +1543,12 @@ def _run_wizard():
         target_agents_dir = PROJECT_ROOT / "agents"
     elif choice_idx == 1:
         target_agents_dir = Path.home() / "agents"
+        print(
+            f"  {YELLOW}! Global installs the kit to {target_agents_dir}. That install is not "
+            f"recorded in .gabbe/manifest.json, and it is not the place that "
+            f"`gabbe update --global` and `gabbe uninstall --global` use "
+            f"($XDG_DATA_HOME/gabbe).{NC}"
+        )
     else:
         path_str = ask("Enter absolute path")
         user_path = Path(path_str).resolve()
@@ -1113,6 +1559,13 @@ def _run_wizard():
         else:
             target_agents_dir = user_path / "agents"
             PROJECT_ROOT = user_path
+
+    leaf_problem = _manifest_leaf_problem(PROJECT_ROOT / ".gabbe" / "manifest.json")
+    if leaf_problem:
+        raise SystemExit(
+            f"{RED}x {leaf_problem}. Remove the link or point it at nothing, then run the "
+            f"installer again. Nothing was changed.{NC}"
+        )
 
     # Perform Install / Copy
     IS_UPDATE = False
@@ -1451,18 +1904,21 @@ def _run_wizard():
         content = populate_placeholders(content, pm, PROJECT_ROOT)
 
         target_agents_md = AGENTS_DIR / "AGENTS.md"
-        target_agents_md.write_text(content)
-        # Refresh the manifest hash now that AGENTS.md holds substituted content
-        # (the earlier copy recorded the raw template hash).
-        _record(target_agents_md, "copy", agent="shared")
-        print(f"  {GREEN}✓ Configured {target_agents_md}{NC}")
+        if _is_behind_link(target_agents_md):
+            print(f"  {YELLOW}! {target_agents_md} is a link of yours: left as is{NC}")
+        else:
+            target_agents_md.write_text(content)
+            # Refresh the manifest hash now that AGENTS.md holds substituted content
+            # (the earlier copy recorded the raw template hash).
+            _record(target_agents_md, "copy", agent="shared")
+            print(f"  {GREEN}✓ Configured {target_agents_md}{NC}")
     else:
         print(f"  {RED}x Template not found: {template_path}{NC}")
 
     # --- Step 4.1: Append to CONSTITUTION.md ---
     if not IS_UPDATE and (compliance or project_type == "Legacy Modernization"):
         const_path = AGENTS_DIR / "CONSTITUTION.md"
-        if const_path.exists():
+        if const_path.exists() and not _is_behind_link(const_path):
             with open(const_path, "a") as f:
                 f.write("\n\n## Project-Specific Articles (Auto-Generated)\n")
                 # Number project-specific articles after the universal set
@@ -1485,15 +1941,21 @@ def _run_wizard():
     print(f"\n{YELLOW}Part 5: Wiring Agent Context{NC}")
 
     loki_mem = AGENTS_DIR / "memory"
-    (loki_mem / "episodic/SESSION_SNAPSHOT").mkdir(parents=True, exist_ok=True)
-    (loki_mem / "semantic").mkdir(parents=True, exist_ok=True)
+    _make_dirs(loki_mem / "episodic/SESSION_SNAPSHOT")
+    _make_dirs(loki_mem / "semantic")
 
     if enable_analytics:
-        (loki_mem / "metrics").mkdir(parents=True, exist_ok=True)
+        _make_dirs(loki_mem / "metrics")
         print(f"  {GREEN}✓ Initialized Analytics Directory{NC}")
 
-        (loki_mem / "PROJECT_STATE.md").write_text("# PROJECT_STATE.md\n\nPhase: S00_INITIALIZED\n")
-        print(f"  {GREEN}✓ Initialized Loki Memory{NC}")
+        state_file = loki_mem / "PROJECT_STATE.md"
+        if _is_behind_link(state_file):
+            print(
+                f"  {YELLOW}! {state_file.name} is a link of yours, or behind one: left as is{NC}"
+            )
+        else:
+            state_file.write_text("# PROJECT_STATE.md\n\nPhase: S00_INITIALIZED\n")
+            print(f"  {GREEN}✓ Initialized Loki Memory{NC}")
 
     _is_windows = sys.platform == "win32"
 
@@ -1538,7 +2000,7 @@ def _run_wizard():
     if "Claude Code" in agents:
         claude_dir = PROJECT_ROOT / ".claude"
         claude_dir.mkdir(exist_ok=True)
-        create_symlink(agents_md_src, claude_dir / "CLAUDE.md")
+        create_symlink(agents_md_src, claude_dir / "CLAUDE.md", agent=_agent_slug("Claude Code"))
         # Generate real .claude/skills/<slug>/SKILL.md directories (the agent-skills
         # open standard). Claude Code only discovers <name>/SKILL.md directories,
         # not the legacy <name>.skill.md file tree, so we must NOT symlink the
@@ -1548,31 +2010,35 @@ def _run_wizard():
     if "Cursor" in agents:
         cursor_dir = PROJECT_ROOT / ".cursor"
         cursor_rules_dir = cursor_dir / "rules"
-        create_symlink(agents_md_src, PROJECT_ROOT / ".cursorrules")
+        create_symlink(agents_md_src, PROJECT_ROOT / ".cursorrules", agent=_agent_slug("Cursor"))
         setup_skills_for_platform("Cursor", AGENTS_DIR, cursor_rules_dir)
 
     if "Windsurf" in agents:
-        create_symlink(agents_md_src, PROJECT_ROOT / ".windsurfrules")
+        slug = _agent_slug("Windsurf")
+        create_symlink(agents_md_src, PROJECT_ROOT / ".windsurfrules", agent=slug)
         windsurf_dir = PROJECT_ROOT / ".windsurf"
         windsurf_dir.mkdir(exist_ok=True)
-        create_symlink(skills_src, windsurf_dir / "skills")
+        # Real <slug>/SKILL.md folders, as the Node installer emits: a tree of
+        # `*.skill.md` files is not discovered by these tools.
+        setup_skills_for_platform("Universal", AGENTS_DIR, windsurf_dir / "skills", agent=slug)
 
     if "Cline" in agents:
-        create_symlink(agents_md_src, PROJECT_ROOT / ".clinerules")
+        slug = _agent_slug("Cline")
+        create_symlink(agents_md_src, PROJECT_ROOT / ".clinerules", agent=slug)
         cline_dir = PROJECT_ROOT / ".cline"
-        if not cline_dir.exists():
-            cline_dir.mkdir(exist_ok=True)
-        create_symlink(skills_src, cline_dir / "skills")
+        cline_dir.mkdir(exist_ok=True)
+        setup_skills_for_platform("Universal", AGENTS_DIR, cline_dir / "skills", agent=slug)
 
     if "Devin / Cognition" in agents:
-        create_symlink(agents_md_src, PROJECT_ROOT / ".devinrules")
+        slug = _agent_slug("Devin / Cognition")
+        create_symlink(agents_md_src, PROJECT_ROOT / ".devinrules", agent=slug)
         devin_dir = PROJECT_ROOT / ".devin"
         devin_dir.mkdir(exist_ok=True)
-        create_symlink(skills_src, devin_dir / "skills")
+        setup_skills_for_platform("Universal", AGENTS_DIR, devin_dir / "skills", agent=slug)
 
     if "Aider" in agents:
         aider_conf = PROJECT_ROOT / ".aider.conf.yml"
-        if not aider_conf.exists():
+        if not (aider_conf.exists() or aider_conf.is_symlink()):
             aider_conf.write_text("read:\n  - agents/AGENTS.md\n  - agents/skills/\n")
             _record(aider_conf, "copy", agent="aider")
             print(f"  {GREEN}✓ Wired .aider.conf.yml{NC}")
@@ -1623,7 +2089,7 @@ def _run_wizard():
     if "OpenCode" in agents:
         # OpenCode reads the root AGENTS.md and an opencode.json `instructions` array.
         opencode_conf = PROJECT_ROOT / "opencode.json"
-        if not opencode_conf.exists():
+        if not (opencode_conf.exists() or opencode_conf.is_symlink()):
             opencode_conf.write_text(
                 json.dumps(
                     {
@@ -1640,37 +2106,45 @@ def _run_wizard():
 
     if "Zed" in agents:
         # Zed reads the root AGENTS.md natively; also wire its `.rules` convention.
-        create_symlink(agents_md_src, PROJECT_ROOT / ".rules")
+        create_symlink(agents_md_src, PROJECT_ROOT / ".rules", agent=_agent_slug("Zed"))
 
     if "Continue" in agents:
         cont_dir = PROJECT_ROOT / ".continue" / "rules"
-        cont_dir.mkdir(parents=True, exist_ok=True)
-        create_symlink(agents_md_src, cont_dir / "agents.md")
+        _make_dirs(cont_dir)
+        create_symlink(agents_md_src, cont_dir / "agents.md", agent=_agent_slug("Continue"))
 
     if "Roo Code" in agents:
         roo_dir = PROJECT_ROOT / ".roo" / "rules"
-        roo_dir.mkdir(parents=True, exist_ok=True)
-        create_symlink(agents_md_src, roo_dir / "agents.md")
+        _make_dirs(roo_dir)
+        create_symlink(agents_md_src, roo_dir / "agents.md", agent=_agent_slug("Roo Code"))
 
     if "Kilo Code" in agents:
         kilo_dir = PROJECT_ROOT / ".kilocode" / "rules"
-        kilo_dir.mkdir(parents=True, exist_ok=True)
-        create_symlink(agents_md_src, kilo_dir / "agents.md")
+        _make_dirs(kilo_dir)
+        create_symlink(agents_md_src, kilo_dir / "agents.md", agent=_agent_slug("Kilo Code"))
 
     if "OpenAI / Codex" in agents:
         codex_dir = PROJECT_ROOT / ".codex"
         codex_dir.mkdir(exist_ok=True)
-        create_symlink(agents_md_src, codex_dir / "AGENTS.md")
+        create_symlink(agents_md_src, codex_dir / "AGENTS.md", agent=_agent_slug("OpenAI / Codex"))
 
     if "GitHub Copilot" in agents:
         gh_dir = PROJECT_ROOT / ".github"
         gh_dir.mkdir(exist_ok=True)
-        create_symlink(agents_md_src, gh_dir / "copilot-instructions.md")
+        create_symlink(
+            agents_md_src,
+            gh_dir / "copilot-instructions.md",
+            agent=_agent_slug("GitHub Copilot"),
+        )
         setup_skills_for_platform("GitHub Copilot", AGENTS_DIR, gh_dir / "skills")
 
     if "VS Code" in agents:  # Added VS Code explicitly if requested, reusing logic
         gh_dir = PROJECT_ROOT / ".github"
         setup_skills_for_platform("VS Code", AGENTS_DIR, gh_dir / "skills")
+
+    # Optional hooks: only with the --hooks flag (no wizard question is asked).
+    if HOOKS:
+        install_hooks(agents, AGENTS_DIR)
 
     # Root AGENTS.md (the agents.md open standard, read by Codex, Cursor,
     # Gemini CLI, and the Copilot coding agent). Emitted once for all agents.
@@ -1681,7 +2155,7 @@ def _run_wizard():
 
     # --- Step 6: Gitignore ---
     gitignore = PROJECT_ROOT / ".gitignore"
-    if gitignore.exists():
+    if gitignore.exists() and not gitignore.is_symlink():
         content = gitignore.read_text()
         if ".env" not in content:
             with open(gitignore, "a") as f:
@@ -1801,20 +2275,8 @@ Here is your mission to finalize the setup:
     # Never ship blank fields silently: if any [PLACEHOLDER:] remain (skipped
     # interactive setup, or genuinely project-specific fields), tell the user
     # exactly what to complete and how.
-    if _UNFILLED_PLACEHOLDERS:
-        n = len(_UNFILLED_PLACEHOLDERS)
-        print(
-            f"\n{YELLOW}⚠ {n} optional field(s) in agents/AGENTS.md still need your input "
-            f"(marked with <!-- OPTIONAL -->):{NC}"
-        )
-        for name in _UNFILLED_PLACEHOLDERS[:12]:
-            print(f"    - {name}")
-        if n > 12:
-            print(f"    ... and {n - 12} more")
-        print(
-            f"  {BLUE}→ Search agents/AGENTS.md for 'OPTIONAL' and fill them in, "
-            f"or re-run `gabbe setup` to be prompted.{NC}"
-        )
+    if _UNFILLED_PLACEHOLDERS or _UNFILLED_FREE_TEXT[0]:
+        _print_unfilled_fields()
 
     print(f"{BLUE}Setup Complete! The kit is installed at: {AGENTS_DIR}{NC}")
 
@@ -1860,5 +2322,29 @@ def write_brownfield_assessment(project_name, detected):
     print(f"  {GREEN}✓ Brownfield onboarding brief saved to BROWNFIELD_ONBOARDING.md{NC}")
 
 
+def _drop_project_from_import_path():
+    """Keep the project folder (the current folder) off `sys.path`, so a `gabbe/` or any
+    module planted there is never imported by the wizard (for example `import gabbe`)."""
+    here = Path.cwd().resolve()
+    sys.path[:] = [p for p in sys.path if p not in ("", ".") and Path(p).resolve() != here]
+
+
+def _run():
+    """Run the wizard; a filesystem error (for example a dangling link where a folder
+    is needed) ends it with one line instead of a traceback."""
+    try:
+        main()
+    except OSError as exc:
+        print(f"\n{RED}Error: {exc}{NC}", file=sys.stderr)
+        print(
+            "The install stopped here. What was written so far is in .gabbe/manifest.json;"
+            " remove what blocks the path and run the installer again, or reverse it with"
+            " the uninstall command.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+
 if __name__ == "__main__":
-    main()
+    _drop_project_from_import_path()
+    _run()

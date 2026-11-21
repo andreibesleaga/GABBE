@@ -6,7 +6,7 @@
 ## 1. Data in Transit
 All network communication must be encrypted.
 
-- **Standard**: TLS 1.3 is mandatory for all external traffic. TLS 1.2 is the absolute minimum acceptable fallback.
+- **Standard**: TLS 1.3 by default; TLS 1.2 allowed for compatibility; TLS 1.0 and 1.1 disabled.
 - **Internal Traffic**: Use mTLS (Mutual TLS) within service meshes (e.g., Istio, Linkerd) so internal services authenticate each other.
 - **HSTS**: Always return `Strict-Transport-Security` headers to force browsers to use HTTPS.
 
@@ -20,7 +20,7 @@ Encrypt sensitive data before storing it in databases or file systems.
 ## 3. Hashing (Passwords & Integrity)
 Hashing is one-way. You cannot decrypt a hash.
 
-- **Passwords**: Use **Argon2id**. If Argon2 is unavailable, use **Bcrypt** (work factor 12+). NEVER use MD5 or SHA-1 for passwords.
+- **Passwords**: Use **Argon2id**. If Argon2 is unavailable, use **Bcrypt** (only on legacy systems, work factor at least 10). NEVER use MD5 or SHA-1 for passwords.
 - **Salts**: A unique, random salt must be generated for every password.
 - **Data Integrity**: Use **SHA-256** or **SHA-3** to verify file/message integrity.
 

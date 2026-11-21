@@ -2,6 +2,8 @@
 
 **Software Architecture modeled after the Human Brain.**
 
+The neuroscience words are analogies for agent design, not claims about how agents work.
+
 This directory contains **Skills** and **Architectures** derived from Neuroscience, Cognitive Psychology, and Epistemology. These patterns treat the Software System not as a machine, but as a **Cognitive Entity**.
 
 ---

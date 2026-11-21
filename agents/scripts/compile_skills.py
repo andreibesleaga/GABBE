@@ -36,6 +36,18 @@ def safe_slug(raw_name, fallback="skill"):
     return slug
 
 
+_LINE_BREAKS_AND_CONTROLS = re.compile(r"[\x00-\x1f\x7f-\x9f\u2028\u2029]+")
+
+
+def one_line(value):
+    """Collapse every line break and control character to one space.
+
+    A frontmatter value copied into a generated file must not be able to add keys
+    (for example `alwaysApply: true`) through a line break.
+    """
+    return _LINE_BREAKS_AND_CONTROLS.sub(" ", str(value)).strip()
+
+
 def inject_schema_version(content):
     """Insert `gabbe-schema-version: <N>` into a leading YAML frontmatter block.
 
@@ -191,7 +203,7 @@ def setup_skills_for_platform(
         # safe_slug() prevents path traversal via a malicious frontmatter name.
         raw_name = meta.get("name", skill_file.stem.replace(".skill", ""))
         skill_slug = safe_slug(raw_name, fallback=skill_file.stem.replace(".skill", ""))
-        skill_desc = meta.get("description", f"Skill for {raw_name}")
+        skill_desc = one_line(meta.get("description", f"Skill for {raw_name}"))
 
         if platform == "Cursor":
             # Flatten structure: .cursor/rules/<slug>.mdc

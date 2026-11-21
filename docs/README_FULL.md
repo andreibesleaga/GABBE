@@ -12,18 +12,18 @@
 - Works for any project type, new or existing, any language, any team size.
 - **Write Once, Run Everywhere**: Skills work on Cursor (`.mdc`), VS Code (`folder/skill`), Claude (`.claude/skills/<slug>/SKILL.md`), Gemini.
 - The system features an experimental **Meta-Cognitive Orchestrator "Brain"** (Neurocognitive based architecture derived from Neuroscience, Cognitive Psychology, Epistemology, treating the Software System not as a machine, but as a **Cognitive Entity**), using Active Inference to plan, route, and optimize work.
-- The system features a **Multi-Agent Swarm "Loki" Engineering Team** (30+ specialized agent roles for large projects), providing episodic and semantic memory, project history auditing and checkpoints.
+- The system features a **Multi-Agent Swarm "Loki" Engineering Team** (37 specialized agent roles for large projects), providing episodic and semantic memory, project history auditing and checkpoints.
 
 It contains:
-- **214 Skills** (specialized capabilities)
-- **100 Templates** (standardized documents)
-- **86 Guides** (language & domain expertise)
-- **36 Personas** (specialized roles)
+- **231 Skills** (specialized capabilities)
+- **107 Templates** (standardized documents)
+- **95 Guides** (language & domain expertise)
+- **37 Personas** (specialized roles)
 - **66 MCP servers** (configuration and guides for AI tools)
 - **Brain Mode** (meta-cognitive orchestration)
 - **Loki Mode** (multi-agent swarm engineering personas team for large projects)
 
-> **214 Skills · 100 Templates · 86 Guides · 36 Personas · 66 MCPs · Loki / Brain Mode CLI**
+> **231 Skills · 107 Templates · 95 Guides · 37 Personas · 66 MCPs · Loki / Brain Mode CLI**
 
 ---
 
@@ -367,7 +367,7 @@ Or activate the swarm skill explicitly:
 
 
 ```
-Multi-agent swarm with 30+ specialized personas for projects >5 features or >20 files.
+Multi-agent swarm with 37 specialized personas for projects >5 features or >20 files.
 ```
 
 ---
@@ -408,11 +408,11 @@ graph TB
         M5[agents/memory/CONTINUITY.md<br/>Past failures - checked every session] --> M6[agents/memory/semantic/<br/>Crystallized project knowledge]
     end
     subgraph "Orchestration Layer — Large Projects"
-        L[agents/skills/brain/loki-mode.skill.md<br/>Master orchestration] --> P[agents/personas/<br/>30+ role-based agent personas]
+        L[agents/skills/brain/loki-mode.skill.md<br/>Master orchestration] --> P[agents/personas/<br/>37 role-based agent personas]
         L --> M1
     end
     subgraph "Templates Layer"
-        T[templates/<br/>100 fill-in-the-blank docs]
+        T[templates/<br/>107 fill-in-the-blank docs]
     end
 ```
 
@@ -422,25 +422,29 @@ graph TB
 
 ### Required Minimum
 
-| SDLC Gate | Required | Optional |
+The lifecycle has 14 phases, S00–S13; the canonical table is in `agents/guides/processes/loki-sdlc-phases.md`. The six human gates are S00, S01, S02, S07, S08 and S10. This table covers the build phases.
+
+| SDLC Phase | Required | Optional |
 |---|---|---|
+| **S00 Strategy & Discovery** | Problem statement, opportunity assessment, human go / no-go | Market scan, Wardley map |
 | **S01 Requirements** | PRD.md with EARS syntax, human approval | User stories, wireframes, CONSTITUTION.md articles |
-| **S02 Design** | Architecture decision + AGENTS.md update | C4 model, formal ADR, threat model (required for security features) |
-| **S03 Specification** | SPEC_TEMPLATE.md, API contracts | Feature flags, rollout plan |
-| **S04 Tasks** | TASKS_TEMPLATE.md, 15-min decomposition | Epic planning, story points |
+| **S02 Architecture** | Architecture decision + AGENTS.md update | C4 model, formal ADR, threat model (required for security features) |
+| **S03 Technical Spec** | SPEC_TEMPLATE.md, API contracts | Feature flags, rollout plan |
+| **S04 Task Decomposition** | TASKS_TEMPLATE.md, atomic tasks (about 15 minutes each) | Epic planning, story points |
 | **S05 Implementation** | TDD (test first), RARV cycle, audit log | Browser-TDD (frontend only), pair-agent review |
-| **S06 Testing** | Unit tests >99% coverage, integration tests | E2E tests, load tests, visual regression |
-| **S07 Security** | SECURITY_CHECKLIST.md, `npm audit` clean, `compliance-review` | DAST, penetration test, formal compliance review |
-| **S08 Review** | Human code review | orch-judge EARS compliance check |
+| **S06 Testing & Quality** | Quality gates G1–G9 (99% coverage of new and changed lines), integration tests | E2E tests, load tests, visual regression |
+| **S07 Security Review** | SECURITY_CHECKLIST.md, human sign-off, `npm audit` clean, `compliance-review` | DAST, penetration test, formal compliance review |
+| **S08 Human Review** | Human review | orch-judge EARS compliance check |
 | **S09 Staging** | Smoke tests | Performance benchmarks, accessibility audit |
-| **S10 Production** | Rollback plan, monitoring | Canary deployment, feature flags |
+| **S10 Production** | Human says "deploy now", rollback plan, monitoring | Canary deployment, feature flags |
 
 ### Full SDLC Flow
 
 ```mermaid
 flowchart TD
     A([Start: User Goal]) --> B[Read AGENTS.md + CONSTITUTION.md]
-    B --> C{Project size?}
+    B --> B0[S00 discovery: problem, opportunity, go / no-go]
+    B0 --> C{Project size?}
     C -->|Small/Medium| D[Single Agent Mode]
     C -->|Large/Complex| E[Loki Swarm Mode]
 
@@ -457,8 +461,10 @@ flowchart TD
     K -->|No| I
     K -->|Yes| L[sdlc-checkpoint S02]
 
-    L --> M[project/TASKS.md decomposition — 15-min rule]
-    M --> N[sdlc-checkpoint S03/S04]
+    L --> L3[SPEC.md + API contracts]
+    L3 --> L4[sdlc-checkpoint S03]
+    L4 --> M[project/TASKS.md decomposition — atomic tasks]
+    M --> N[sdlc-checkpoint S04]
 
     N --> O[Implementation Loop]
     O --> O1[RARV Cycle per task]
@@ -479,14 +485,17 @@ flowchart TD
     U -->|Approved| V[sdlc-checkpoint S08]
     V --> W[deployment.skill → Staging]
     W --> X[sdlc-checkpoint S09]
-    X --> Y[Production Deploy]
-    Y --> Z([sdlc-checkpoint S10 — COMPLETE])
+    X --> Y0{Human says deploy now?}
+    Y0 -->|No| X
+    Y0 -->|Yes| Y[Production Deploy]
+    Y --> Z([sdlc-checkpoint S10 — live; S11–S13 operate, evolve, sunset])
 
     style A fill:#4CAF50,color:#fff
     style Z fill:#4CAF50,color:#fff
     style G fill:#FF9800,color:#fff
     style K fill:#FF9800,color:#fff
     style U fill:#FF9800,color:#fff
+    style Y0 fill:#FF9800,color:#fff
 ```
 
 ### Step-by-Step Instructions
@@ -517,10 +526,10 @@ You review: Architecture decisions, data flow, security mitigations
 Approve: "Approved. Create SDLC checkpoint S02."
 ```
 
-**Step 3 — Specification & Tasks (S03/S04)**
+**Step 3 — Specification & Tasks (S03, S04)**
 ```
 Agent produces: SPEC_TEMPLATE.md with API contracts + TASKS_TEMPLATE.md
-Each task must: Be achievable in ~15 minutes, have testable acceptance criteria
+Each task must: Be atomic (one concern, at most three files, one verifying test, about 15 minutes), have testable acceptance criteria
 You review: Coverage of all PRD requirements in tasks
 Approve: "Approved. Create SDLC checkpoints S03 and S04."
 ```
@@ -727,7 +736,7 @@ gabbe brain heal
 ```
 
 **Using Pure Agent Mode (No CLI):**
-> "The build is failing. Invoke `agents/skills/core/self-heal.skill.md`. Do not ask me for permission between steps. Diagnose the error, hypothesize a fix, write the code, and run the tests. If it fails again, loop back to step 1. You have a maximum of 5 attempts before you must escalate to me."
+> "The build is failing. Invoke `agents/skills/core/self-heal.skill.md`. Do not ask me for permission between steps. Ask me only at the human gates and for anything expensive, destructive or irreversible. Diagnose the error, hypothesize a fix, write the code, and run the tests. If it fails again, loop back to step 1. You have a maximum of 5 attempts before you must escalate to me."
 
 ## 9. Multi-Agent Systems (MAS)
 
@@ -880,7 +889,7 @@ Resources for binding Requirements to Code and Tests (The Golden Thread).
 
 ## 19. Skills Reference
 
-All 214 skills live in `skills/` subdirectories. Invoke by mentioning the trigger keyword or using slash commands in VS Code.
+All 231 skills live in `skills/` subdirectories. Invoke by mentioning the trigger keyword or using slash commands in VS Code.
 
 ### 1. Coding & Development (`coding/`)
 | Skill | Slash Command (VS Code) | Triggers | Purpose |
@@ -911,6 +920,16 @@ All 214 skills live in `skills/` subdirectories. Invoke by mentioning the trigge
 | `coding/excalidraw.skill.md` | excalidraw, whiteboard, visual | Excalidraw diagram creation via MCP |
 | `coding/sketch-to-diagram.skill.md` | sketch, hand-drawn, recognize | Hand-drawn sketch → formal diagram |
 | `coding/tldraw-canvas.skill.md` | tldraw, canvas, wireframe, UI sketch | Visual canvas for wireframing and design |
+| `coding/characterization-tests.skill.md` | `/characterization-tests` | characterization test, golden master, pin behaviour | Pin current behaviour before changing legacy code |
+| `coding/safe-refactoring.skill.md` | `/safe-refactoring` | safe refactoring, strangler fig, branch by abstraction | Reversible steps on code without a safety net |
+| `coding/incremental-feature.skill.md` | `/incremental-feature` | feature in existing system, seam | Add a feature to existing code at a seam |
+| `coding/assurance-ladder.skill.md` | `/assurance-ladder` | assurance level, formal verification, assurance plan | Choose verification level 0-3 by risk |
+| `coding/mutation-testing.skill.md` | `/mutation-testing` | mutation score, surviving mutants, stryker, mutmut | Mutation score floor on changed code |
+| `coding/design-by-contract.skill.md` | `/design-by-contract` | preconditions, postconditions, invariants, contracts | Runnable contracts at module boundaries |
+| `coding/fuzz-differential-testing.skill.md` | `/fuzz-differential-testing` | fuzzing, differential testing, crash triage | Fuzz parsers, compare with a reference |
+| `coding/formal-spec-lightweight.skill.md` | `/formal-spec-lightweight` | tla+, quint, alloy, model checking | Level 2 design model and derived tests |
+| `coding/proof-core-verification.skill.md` | `/proof-core-verification` | dafny, verus, kani, lean, proof, leak checklist | Level 3 machine-checked proof with leak checks |
+| `coding/verification-anti-cheating.skill.md` | `/verification-anti-cheating` | frozen tests, weakened assertion, hidden assume | Stop agents gaming their own checks |
 
 
 ### 2. Architecture (`architecture/`)
@@ -933,6 +952,8 @@ All 214 skills live in `skills/` subdirectories. Invoke by mentioning the trigge
 | `architecture/error-handling-strategy.skill.md` | error, retry | Resiliency design |
 | `architecture/enterprise-migration-scenario.skill.md` | migration, legacy | Enterprise migrations |
 | `architecture/event-governance.skill.md` | event, kafka | Event schema registry |
+| `architecture/existing-project-onboarding.skill.md` | `/existing-project-onboarding` | existing codebase, brownfield, onboard codebase |  |
+| `architecture/code-archaeology.skill.md` | `/code-archaeology` | code archaeology, map the codebase, hot spots |  |
 
 
 ### 3. Operations & SRE (`ops/`)
@@ -955,6 +976,7 @@ All 214 skills live in `skills/` subdirectories. Invoke by mentioning the trigge
 | `ops/capacity-planning.skill.md` | capacity, scale | Resource planning |
 | `ops/release-validation.skill.md` | validation, gate | Compliance gates |
 | `ops/troubleshooting-guide.skill.md` | debug, fix | System recovery |
+| `ops/dependency-upgrade.skill.md` | `/dependency-upgrade` | bump package, upgrade one dependency, breaking change |  |
 
 
 ### 4. Security (`security/`)
@@ -979,6 +1001,9 @@ All 214 skills live in `skills/` subdirectories. Invoke by mentioning the trigge
 
 | `security/network-security.skill.md` | firewall, netsec | Network hardening |
 | `security/hazard-analysis.skill.md` | hazard, fmea | Safety hazard analysis |
+| `security/security-baseline.skill.md` | `/security-baseline` | security baseline, security tier, security by phase, security evidence |  |
+| `security/security-requirements.skill.md` | `/security-requirements` | security requirements, abuse cases, privacy requirements |  |
+| `security/agent-tool-review.skill.md` | `/agent-tool-review` | agent tool permissions, excessive agency, mcp tool review | ### 5. Data & Analytics (`data/`) |
 
 ### 5. Product, Data & Core (`product/`, `data/`, `core/`, `coordination/`)
 | Skill | Triggers | Purpose |
@@ -1013,6 +1038,7 @@ All 214 skills live in `skills/` subdirectories. Invoke by mentioning the trigge
 | `core/system-lifecycle.skill.md` | traceability | Trace Req->Code |
 | `core/agent-analytics.skill.md` | analytics, stats | Agent performance |
 | `core/knowledge-connect.skill.md` | connection, link | Cross-repo knowledge |
+| `core/gabbe-start.skill.md` | | gabbe start, start here, what is gabbe, which skill |  |
 
 
 ### 6. Neuro-Architecture (`brain/`)
@@ -1051,6 +1077,11 @@ All templates now live in categorized subdirectories under `agents/templates/`.
 | `coding/DEV_SPACE_TEMPLATE.yaml` | DevSpace Config | Kubernetes dev environment |
 | `coding/DESIGN_TOKENS_TEMPLATE.json` | Design Tokens | UI Design colors/typography |
 | `architecture/ADR_TEMPLATE.md` | Architecture Decision Record |
+| `architecture/CODEBASE_MAP_TEMPLATE.md` | Map of an existing codebase |
+| `architecture/ASSESSMENT_TEMPLATE.md` | Assessment of an existing codebase |
+| `architecture/FORMAL_SPEC_BRIEF_TEMPLATE.md` | Brief for a lightweight formal spec |
+| `coding/MUTATION_REPORT_TEMPLATE.md` | Mutation testing report |
+| `coding/PROOF_OBLIGATION_TEMPLATE.md` | Proof obligations of a verified core |
 | `architecture/ARCH_DECISION_FRAMEWORK.md` | Critical decision matrix |
 | `architecture/ARCHITECTURE_REVIEW_TEMPLATE.md` | Structured architecture audit |
 | `architecture/ARCHITECTURE_VIEWS_TEMPLATE.md` | C4/UML View documentation |
@@ -1082,6 +1113,7 @@ All templates now live in categorized subdirectories under `agents/templates/`.
 | `ops/TECH_DEBT_TEMPLATE.md` | Tech Debt Log | Debt tracking & payoff plan |
 | `security/THREAT_MODEL_TEMPLATE.md` | STRIDE threat model |
 | `security/SECURITY_CHECKLIST.md` | Pre-release security gate |
+| `security/SECURITY_BASELINE_TEMPLATE.md` | Risk tier and controls per phase |
 | `security/ETHICAL_IMPACT_ASSESSMENT.md` | AI Ethics check |
 | `security/HAZARD_LOG.md` | Hazard Log | Safety-critical hazard tracking |
 | `security/SAFETY_POLICY.md` | Safety Policy | System safety constraints |
@@ -1104,6 +1136,7 @@ All templates now live in categorized subdirectories under `agents/templates/`.
 | `core/SDLC_TRACKER.md` | Phase progress board |
 | `core/SYSTEM_ANALYSIS_TEMPLATE.md` | System Analysis | Root cause & dynamics |
 | `core/SESSION_SNAPSHOT_TEMPLATE.md` | Complete project state |
+| `core/ASSURANCE_PLAN_TEMPLATE.md` | How strongly each component is verified |
 | `core/TRACEABILITY_MATRIX_TEMPLATE.md` | Traceability Matrix | Req -> Code -> Test trace |
 | `core/BUG_REPORT_TEMPLATE.md` | Bug Report | Structured bug reporting |
 | `agents/memory/PROJECT_STATE.md` | Project State | Current SDLC phase & status |
@@ -1268,7 +1301,7 @@ Loki Mode activates a multi-agent swarm for large projects (new product builds, 
 
 ## 24. What's Inside?
 
-> **Stats**: 214 Skills · 100 Templates · 36 Personas · 86 Guides
+> **Stats**: 231 Skills · 107 Templates · 37 Personas · 95 Guides
 
 | Category | Count | Skills Included |
 |---|---|---|
@@ -1351,6 +1384,13 @@ Or activate the swarm skill explicitly:
 | `guides/ops/dev-workflow.md` | Ops/Workflow | Diátaxis Docs, GitHub CLI, Commit Standards |
 | `guides/patterns/enterprise-patterns.md` | Enterprise | Strangler Fig, ACL, CDC, Legacy Migration |
 | `guides/architecture/api-standards.md` | API Design | REST, GraphQL, Versioning, Governance |
+| `guides/processes/brownfield-lifecycle.md` | Existing projects | Stages B0 understand to B4 features |
+| `guides/principles/assurance-ladder.md` | Verification | Levels 0 to 3, from tests to proof |
+| `guides/principles/security-baseline.md` | Security | Risk tier, controls per phase, standards map |
+| `guides/principles/skill-guardrails.md` | Safety | Rules for every skill and platform controls |
+| `guides/ai/guardrail-probes.md` | AI Safety | 18 scripted probes of the Article 0 rules |
+| `guides/ops/hooks.md` | Ops | Optional hooks, off by default |
+| `guides/industry/swebok-v4-map.md` | Standards | SWEBOK v4 knowledge areas mapped to the kit |
 | `guides/principles/testing-strategy.md` | Testing | Pyramid, Trophy, Contract Testing |
 | `guides/architecture/event-driven-architecture.md` | Architecture | EDA, Async, Event Sourcing |
 | `guides/patterns/design-patterns.md` | Design Patterns | Strategy, Factory, Observer, Adapter |

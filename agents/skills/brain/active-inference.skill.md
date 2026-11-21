@@ -1,12 +1,15 @@
 ---
 name: active-inference
-description: Apply Active Inference to minimize prediction error (Surprise).
-triggers: [active inference]
+description: Frames an agent's predict, act, compare loop as surprise minimisation (conceptual, not a solver). Use when a tool result contradicts the agent's expectation and it must choose between probing and fixing.
+triggers: [active inference, prediction error, result contradicts expectation, probe or fix]
 tags: [brain]
 context_cost: medium
 tools: [run_command, read_file]
 ---
 # Active Inference Skill
+
+## Goal
+Give an agent one habit: predict what a step will return, run it, compare, and decide whether to probe for information or fix the code. This is a framing for instructions, not a solver.
 
 > "Action is the process of changing the world to match your prediction."
 
@@ -59,16 +62,23 @@ def active_inference_step(agent, observation):
     return "continue_goal"
 ```
 
-## Security & Guardrails
+## Steps
+1. Before a command, write the expected result in one line.
+2. Run it and read the real output.
+3. If it differs, probe read-only when the cause is unknown; edit the code when the cause is known.
+4. After 5 failed corrections, stop and escalate (`self-heal.skill`).
 
-### 1. Skill Security (Active Inference)
-- **Epistemic Action Containment**: epistemic actions are unpredictable — clamp them to read-only ops (`ls`, `cat`, `kubectl get`). They must NEVER mutate state or write to external APIs, preventing accidental DoS or data corruption during "exploration."
-- **Surprise-Induced Hallucination**: on exceptionally high prediction error (e.g. garbled binary instead of JSON), the agent may panic and hallucinate a justification. Add a circuit breaker: if Surprise exceeds the max threshold, halt Active Inference and escalate to the human rather than acting blindly.
+## Constraints
+- Probes are read-only.
+- Never make a result match a prediction by deleting a test or disabling a check.
+- Do not claim the method guarantees correctness.
 
-### 2. System Integration Security
-- **Prediction Model Poisoning**: the internal model sets expectations; injection in a log file aligns those expectations with the attacker's goals. Sanitize all OODA inputs (user strings, external web payloads) before using them to compute Prediction Error.
-- **Action Rate Limiting**: the loop can spiral if the agent repeatedly "fixes" a failing test via syntax changes. Enforce a max loop limit (e.g. 5 attempts) to prevent runaway compute and API rate-limit exhaustion.
+## Output Format
+A short trace per step: Expected, Observed, Difference, Action (probe, fix or continue).
 
-### 3. LLM & Agent Guardrails
-- **Destructive Pragmatism Bias**: the agent may decide the fastest "match prediction" route is deleting failing tests or disabling security layers. No pragmatic action from Active Inference may bypass `architecture-governance.skill.md` rules or delete source code without explicit human cryptographic approval.
-- **Uncertainty Masking**: the LLM may sound confident while internal uncertainty is high. `active_inference_step` must rely on actual token log-probabilities (if available) or strict parsing constraints — not self-reported "confidence" — to trigger epistemic exploration.
+## Limits and safety
+- Probing actions are read-only (`ls`, `cat`, `git status`, `kubectl get`); they never write or call external APIs.
+- On a very large surprise (garbled or binary output where JSON was expected), stop and ask the human instead of acting.
+- Never make a result match the prediction by deleting a failing test or source code, or by switching off a check.
+- At most 5 correction attempts per failure, then escalate.
+- Measure surprise from the real tool output; the agent's own stated confidence is not a measure.

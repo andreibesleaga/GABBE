@@ -95,7 +95,7 @@ def test_verify_command_dispatches(tmp_project):
 
     with (
         patch("sys.argv", ["gabbe", "verify"]),
-        patch("gabbe.verify.run_verification", return_value=True) as mock_ver,
+        patch("gabbe.verify.verification_exit_code", return_value=0) as mock_ver,
     ):
         main()
     mock_ver.assert_called_once()
@@ -140,7 +140,8 @@ def test_brain_activate_dispatches(tmp_project):
 
     with (
         patch("sys.argv", ["gabbe", "brain", "activate"]),
-        patch("gabbe.brain.activate_brain") as mock_act,
+        patch("gabbe.llm.GABBE_API_KEY", "test-key"),
+        patch("gabbe.brain.activate_brain_status") as mock_act,
     ):
         main()
     mock_act.assert_called_once()
@@ -162,7 +163,7 @@ def test_brain_heal_dispatches(tmp_project):
 
     with (
         patch("sys.argv", ["gabbe", "brain", "heal"]),
-        patch("gabbe.brain.run_healer") as mock_heal,
+        patch("gabbe.brain.run_healer_status") as mock_heal,
     ):
         main()
     mock_heal.assert_called_once()
@@ -187,7 +188,8 @@ def test_environment_error_exits_1(tmp_project, capsys):
 
     with (
         patch("sys.argv", ["gabbe", "brain", "activate"]),
-        patch("gabbe.brain.activate_brain", side_effect=EnvironmentError("no key")),
+        patch("gabbe.llm.GABBE_API_KEY", "test-key"),
+        patch("gabbe.brain.activate_brain_status", side_effect=EnvironmentError("no key")),
     ):
         with pytest.raises(SystemExit) as exc_info:
             main()
@@ -200,7 +202,8 @@ def test_keyboard_interrupt_exits_130(tmp_project):
 
     with (
         patch("sys.argv", ["gabbe", "brain", "activate"]),
-        patch("gabbe.brain.activate_brain", side_effect=KeyboardInterrupt()),
+        patch("gabbe.llm.GABBE_API_KEY", "test-key"),
+        patch("gabbe.brain.activate_brain_status", side_effect=KeyboardInterrupt()),
     ):
         with pytest.raises(SystemExit) as exc_info:
             main()
@@ -230,7 +233,7 @@ def test_verify_failure_exits_1(tmp_project):
 
     with (
         patch("sys.argv", ["gabbe", "verify"]),
-        patch("gabbe.verify.run_verification", return_value=False),
+        patch("gabbe.verify.verification_exit_code", return_value=1),
     ):
         with pytest.raises(SystemExit) as exc_info:
             main()
@@ -242,7 +245,7 @@ def test_verify_success_exits_0(tmp_project):
 
     with (
         patch("sys.argv", ["gabbe", "verify"]),
-        patch("gabbe.verify.run_verification", return_value=True) as mock_verify,
+        patch("gabbe.verify.verification_exit_code", return_value=0) as mock_verify,
     ):
         main()  # must not raise SystemExit
     mock_verify.assert_called_once()

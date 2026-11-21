@@ -30,7 +30,7 @@ STAGE=$(mktemp -d "${TMPDIR:-/tmp}/gabbe-import.XXXXXX") || { echo "ERROR: mktem
 # Remove the staging dir on every exit path; a dry run sets KEEP_STAGE=1 so the
 # directory it reports stays available for inspection.
 KEEP_STAGE=0
-trap '[ "$KEEP_STAGE" = 1 ] || rm -rf "$STAGE"' EXIT
+trap '[ "$KEEP_STAGE" = 1 ] || rm -rf "$STAGE"; rm -f "$STAGE.list"' EXIT
 
 # Fail the link/path checks if any stage of the pipeline errors (e.g. corrupt archive).
 # dash aborts on an unknown `set -o` option even with `|| true`, so probe in a subshell first.
@@ -39,7 +39,19 @@ trap '[ "$KEEP_STAGE" = 1 ] || rm -rf "$STAGE"' EXIT
 # The bundle is untrusted input. Reject any member with an absolute path or a
 # ".." traversal component BEFORE extracting, so a crafted archive cannot write
 # outside $STAGE. (GNU tar's --no-absolute-names is not portable, so validate.)
-if tar -tzf "$BUNDLE" | grep -qE '^/|(^|/)\.\.(/|$)'; then
+# Write the listing to a file first: a pipe into `grep -q` can end tar early (SIGPIPE),
+# and under pipefail that would silently skip the check.
+LIST="$STAGE.list"
+tar -tzf "$BUNDLE" > "$LIST" || { echo "ERROR: cannot read archive listing; refusing to extract." >&2; rm -rf "$STAGE" "$LIST"; exit 1; }
+# A backslash or control character in a member name (GNU tar prints a line break as
+# the two characters backslash-n) can hide a ".." component from the checks below and
+# from the copy loop, so refuse such archives outright.
+if LC_ALL=C grep -q '[[:cntrl:]\\]' "$LIST"; then
+    echo "ERROR: archive member name contains a backslash or control character; refusing to extract." >&2
+    rm -rf "$STAGE" "$LIST"
+    exit 1
+fi
+if grep -qE '^/|(^|/)\.\.(/|$)' "$LIST"; then
     echo "ERROR: archive contains unsafe paths (absolute or '..'); refusing to extract." >&2
     rm -rf "$STAGE"
     exit 1
@@ -82,6 +94,10 @@ fi
 BACKUP="$KIT_ROOT/agents/memory/.import-backup-$(date -u +%Y%m%dT%H%M%SZ 2>/dev/null || echo bak)"
 copy_in() {
     # $1 = relative path under bundle/project
+    # Refuse an absolute path or any ".." component: the copy must stay inside KIT_ROOT.
+    case "$1" in
+        /*|..|../*|*/..|*/../*) echo "ERROR: refusing unsafe path: $1" >&2; exit 1 ;;
+    esac
     SRC="$STAGE/$1"; DST="$KIT_ROOT/$1"
     [ -e "$SRC" ] || return 0
     if [ -e "$DST" ] && ! cmp -s "$SRC" "$DST" 2>/dev/null; then
@@ -95,9 +111,11 @@ copy_in() {
 }
 
 # Merge the memory tree and task/config; leave AGENTS/CONSTITUTION to human review.
-( cd "$STAGE/agents/memory" 2>/dev/null && find . -type f | while read -r rel; do
-    copy_in "agents/memory/${rel#./}"
-done ) || true
+if [ -d "$STAGE/agents/memory" ]; then
+    ( cd "$STAGE/agents/memory" && find . -type f | while IFS= read -r rel; do
+        copy_in "agents/memory/${rel#./}"
+    done ) || exit 1
+fi
 copy_in "project/TASKS.md"
 copy_in "project/gabbe.config.json"
 

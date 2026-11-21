@@ -83,6 +83,14 @@
       "kind": "function",
       "signature": "(run_context: 'RunContext | None' = None) -> 'None'"
     },
+    "activate_brain_status": {
+      "kind": "function",
+      "signature": "(run_context: 'RunContext | None' = None) -> 'bool'"
+    },
+    "api_key_missing": {
+      "kind": "function",
+      "signature": "() -> 'bool'"
+    },
     "evolve_prompts": {
       "kind": "function",
       "signature": "(skill_name: 'str') -> 'None'"
@@ -90,6 +98,10 @@
     "run_healer": {
       "kind": "function",
       "signature": "() -> 'None'"
+    },
+    "run_healer_status": {
+      "kind": "function",
+      "signature": "() -> 'bool'"
     }
   },
   "gabbe.budget": {
@@ -217,6 +229,9 @@
     "ROUTE_COMPLEXITY_THRESHOLD": {
       "kind": "int"
     },
+    "SECRET_PATTERNS": {
+      "kind": "list"
+    },
     "SUBPROCESS_TIMEOUT": {
       "kind": "int"
     },
@@ -242,6 +257,14 @@
     "SCHEMA_VERSION": {
       "kind": "int"
     },
+    "StateLinkError": {
+      "kind": "class",
+      "methods": {}
+    },
+    "create_private_file": {
+      "kind": "function",
+      "signature": "(path: 'Path') -> 'None'"
+    },
     "get_db": {
       "kind": "function",
       "signature": "() -> 'sqlite3.Connection'"
@@ -249,6 +272,58 @@
     "init_db": {
       "kind": "function",
       "signature": "() -> 'None'"
+    },
+    "refuse_state_links": {
+      "kind": "function",
+      "signature": "() -> 'None'"
+    },
+    "state_path_problem": {
+      "kind": "function",
+      "signature": "(gabbe_dir: 'Path | None' = None) -> 'str | None'"
+    }
+  },
+  "gabbe.detect": {
+    "detect_project": {
+      "kind": "function",
+      "signature": "(cwd: 'Path | str | None' = None) -> 'dict[str, Any]'"
+    }
+  },
+  "gabbe.doctor": {
+    "AGENT_FINGERPRINTS": {
+      "kind": "dict"
+    },
+    "ESSENTIAL_MCP": {
+      "kind": "list"
+    },
+    "LOCAL_MCP": {
+      "kind": "list"
+    },
+    "RUNTIMES": {
+      "kind": "list"
+    },
+    "detect_agents": {
+      "kind": "function",
+      "signature": "(root: 'Path | None' = None) -> 'list[str]'"
+    },
+    "detect_os": {
+      "kind": "function",
+      "signature": "() -> 'dict[str, str]'"
+    },
+    "detect_runtimes": {
+      "kind": "function",
+      "signature": "() -> 'dict[str, bool]'"
+    },
+    "detect_scope": {
+      "kind": "function",
+      "signature": "(root: 'Path | None' = None) -> 'str'"
+    },
+    "kit_upgrade_warnings": {
+      "kind": "function",
+      "signature": "(root: 'Path', cli_version: 'str | None' = None) -> 'list[str]'"
+    },
+    "run_doctor": {
+      "kind": "function",
+      "signature": "(root: 'Path | None' = None) -> 'int'"
     }
   },
   "gabbe.escalation": {
@@ -278,10 +353,20 @@
       "kind": "str"
     }
   },
+  "gabbe.evals": {
+    "run_evals": {
+      "kind": "function",
+      "signature": "(live: 'bool' = False, out: 'str | None' = None) -> 'int'"
+    }
+  },
   "gabbe.forecast": {
     "run_forecast": {
       "kind": "function",
       "signature": "() -> 'None'"
+    },
+    "run_forecast_status": {
+      "kind": "function",
+      "signature": "() -> 'bool'"
     }
   },
   "gabbe.gateway": {
@@ -299,6 +384,12 @@
     "RateLimitExceeded": {
       "kind": "class",
       "methods": {}
+    },
+    "ReadOnlyToolDefinition": {
+      "kind": "class",
+      "methods": {
+        "__init__": "(self, name: 'str', description: 'str', parameters: 'Dict[str, Any]', handler: 'Callable[..., Any]', allowed_roles: 'Set[str]', rate_limit_per_min: 'int' = 60, circuit_breaker_threshold: 'int' = 3, read_only: 'bool' = True) -> None"
+      }
     },
     "ToolDefinition": {
       "kind": "class",
@@ -352,6 +443,66 @@
       "methods": {}
     }
   },
+  "gabbe.installer": {
+    "AGENT_ALIASES": {
+      "kind": "dict"
+    },
+    "MANIFEST_SCHEMA_VERSION": {
+      "kind": "int"
+    },
+    "agent_slug": {
+      "kind": "function",
+      "signature": "(name: 'str') -> 'str'"
+    },
+    "backup_file": {
+      "kind": "function",
+      "signature": "(path: 'Path') -> 'Path'"
+    },
+    "free_backup_path": {
+      "kind": "function",
+      "signature": "(path: 'Path') -> 'Path'"
+    },
+    "install_kit": {
+      "kind": "function",
+      "signature": "(target: 'Path', source: 'Path', agents: 'list[str]', *, timestamp: 'str' = '') -> 'dict[str, Any]'"
+    },
+    "manifest_path": {
+      "kind": "function",
+      "signature": "(target: 'Path') -> 'Path'"
+    },
+    "manifest_problem": {
+      "kind": "function",
+      "signature": "(target: 'Path') -> 'str | None'"
+    },
+    "read_manifest": {
+      "kind": "function",
+      "signature": "(target: 'Path') -> 'dict[str, Any]'"
+    },
+    "remaining_kit_files": {
+      "kind": "function",
+      "signature": "(target: 'Path') -> 'list[str]'"
+    },
+    "remove_agents": {
+      "kind": "function",
+      "signature": "(target: 'Path', agents: 'list[str]') -> 'list[str]'"
+    },
+    "remove_hook_fragment": {
+      "kind": "function",
+      "signature": "(doc: 'dict[str, Any]', fragment: 'dict[str, Any]', *, added_version: 'bool' = False) -> 'dict[str, Any]'"
+    },
+    "strip_pointer_block": {
+      "kind": "function",
+      "signature": "(data: 'bytes') -> 'bytes'"
+    },
+    "uninstall": {
+      "kind": "function",
+      "signature": "(target: 'Path', *, agents: 'list[str] | None' = None, dry_run: 'bool' = False, purge: 'bool' = False) -> 'list[str]'"
+    },
+    "update_kit": {
+      "kind": "function",
+      "signature": "(target: 'Path', source: 'Path', agents: 'list[str] | None' = None, *, timestamp: 'str' = '') -> 'dict[str, Any]'"
+    }
+  },
   "gabbe.llm": {
     "GABBE_API_KEY": {
       "kind": "NoneType"
@@ -393,6 +544,12 @@
     "MCP_PROTOCOL_VERSION": {
       "kind": "str"
     },
+    "MCP_TOKEN_META_KEY": {
+      "kind": "str"
+    },
+    "MODERN_PROTOCOL_VERSIONS": {
+      "kind": "tuple"
+    },
     "run_command_handler": {
       "kind": "function",
       "signature": "(command: 'str') -> 'dict[str, Any]'"
@@ -400,6 +557,67 @@
     "serve": {
       "kind": "function",
       "signature": "() -> 'None'"
+    },
+    "serve_stdio": {
+      "kind": "function",
+      "signature": "(enable_run_command: 'bool' = False) -> 'None'"
+    }
+  },
+  "gabbe.mcp_tools": {
+    "MAX_TEXT_BYTES": {
+      "kind": "int"
+    },
+    "READ_ONLY_TOOLS": {
+      "kind": "tuple"
+    },
+    "READ_ONLY_TOOL_NAMES": {
+      "kind": "frozenset"
+    },
+    "ReadOnlyTool": {
+      "kind": "class",
+      "methods": {
+        "__init__": "(self, name: 'str', title: 'str', description: 'str', schema: 'dict[str, Any]', handler: '_Handler') -> None"
+      }
+    },
+    "get_template": {
+      "kind": "function",
+      "signature": "(name: 'str') -> 'dict[str, Any]'"
+    },
+    "is_reply": {
+      "kind": "function",
+      "signature": "(value: 'Any') -> 'bool'"
+    },
+    "list_skills": {
+      "kind": "function",
+      "signature": "(category: 'str' = '') -> 'dict[str, Any]'"
+    },
+    "listing_entry": {
+      "kind": "function",
+      "signature": "(tool: 'ReadOnlyTool') -> 'dict[str, Any]'"
+    },
+    "parse_frontmatter": {
+      "kind": "function",
+      "signature": "(text: 'str') -> 'dict[str, str]'"
+    },
+    "project_status": {
+      "kind": "function",
+      "signature": "() -> 'dict[str, Any]'"
+    },
+    "read_skill": {
+      "kind": "function",
+      "signature": "(name: 'str') -> 'dict[str, Any]'"
+    },
+    "reply": {
+      "kind": "function",
+      "signature": "(text: 'str', is_error: 'bool' = False) -> 'dict[str, Any]'"
+    },
+    "search_skills": {
+      "kind": "function",
+      "signature": "(query: 'str', limit: 'int' = 10) -> 'dict[str, Any]'"
+    },
+    "tool_definitions": {
+      "kind": "function",
+      "signature": "() -> 'list[ToolDefinition]'"
     }
   },
   "gabbe.policy": {
@@ -433,6 +651,10 @@
         "evaluate_all": "(self, context: 'Dict[str, Any]') -> 'List[PolicyResult]'"
       }
     },
+    "PolicyError": {
+      "kind": "class",
+      "methods": {}
+    },
     "PolicyResult": {
       "kind": "class",
       "methods": {
@@ -445,6 +667,9 @@
         "__init__": "(self, roles: 'Dict[str, List[str]]')",
         "check": "(self, context: 'Dict[str, Any]') -> 'PolicyResult'"
       }
+    },
+    "SECRET_PATTERNS": {
+      "kind": "list"
     },
     "ToolAllowlistPolicy": {
       "kind": "class",
@@ -479,6 +704,9 @@
     },
     "ROUTE_COMPLEXITY_THRESHOLD": {
       "kind": "int"
+    },
+    "SECRET_PATTERNS": {
+      "kind": "list"
     },
     "calculate_complexity": {
       "kind": "function",
@@ -519,6 +747,10 @@
       "kind": "function",
       "signature": "(c: 'sqlite3.Cursor', tasks_or_content: 'str | list[dict[str, str]]') -> 'None'"
     },
+    "merge_tasks": {
+      "kind": "function",
+      "signature": "(file_tasks: 'list[dict[str, str]]', db_tasks: 'list[dict[str, str]]', file_wins: 'bool') -> 'tuple[list[dict[str, str]], list[dict[str, str]]]'"
+    },
     "parse_markdown_tasks": {
       "kind": "function",
       "signature": "(content: 'str') -> 'list[dict[str, str]]'"
@@ -529,6 +761,9 @@
     }
   },
   "gabbe.verify": {
+    "EXIT_NOTHING_VERIFIED": {
+      "kind": "int"
+    },
     "REQUIRED_FILES": {
       "kind": "list"
     },
@@ -543,6 +778,10 @@
       "kind": "function",
       "signature": "() -> 'dict[str, str]'"
     },
+    "run_chaos_checks": {
+      "kind": "function",
+      "signature": "() -> 'bool'"
+    },
     "run_command": {
       "kind": "function",
       "signature": "(cmd: 'str', name: 'str') -> 'bool'"
@@ -550,6 +789,10 @@
     "run_verification": {
       "kind": "function",
       "signature": "() -> 'bool'"
+    },
+    "verification_exit_code": {
+      "kind": "function",
+      "signature": "(allow_empty: 'bool' = False) -> 'int'"
     }
   }
 }

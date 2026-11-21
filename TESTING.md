@@ -101,22 +101,37 @@ covered by CI even without running the wizard by hand.
 ## CI
 
 `.github/workflows/` runs lint/type-check, the test suite, and the gates on every
-push and pull request to `main`. On a `v*` tag, `.github/workflows/release.yml`
-builds the wheel, sdist, SBOM, npm package and kit tarball for the GitHub release
-and publishes to PyPI only when the `PYPI_API_TOKEN` secret is configured (the
-workflow stays green when it is absent); npm is published by
-`.github/workflows/publish-npm.yml` with npm trusted publishing (no token).
+push and pull request to `main`. Every `uses:` in a workflow is pinned to a commit
+SHA with the tag in a comment (`scripts/tests/test_workflows_security.py` checks it).
+
+On a `v*` tag, three workflows start. Each first calls the reusable gate
+`.github/workflows/gate.yml`, and nothing is published or attached unless it passes:
+the tag must equal the version in `pyproject.toml`, `gabbe/__init__.py`, `package.json`,
+`server.json` (twice) and `CITATION.cff`; then the Python test suite and the Node
+installer tests run. `release.yml` builds the wheel, sdist, SBOM, npm package and kit
+tarball for the GitHub release, and publishes to PyPI by one of two paths: with
+`PYPI_API_TOKEN` when that secret is set, otherwise with PyPI trusted publishing (the
+job fails when neither can publish). npm is published by `publish-npm.yml` with npm
+trusted publishing (no token). `publish-npm.yml` and `publish-github-packages.yml` run
+by hand only from a `v*` tag; any other ref is refused.
+
+The gate and the `gates` job of `ci.yml` install from the hashed `requirements-lock.txt`
+(Python 3.12, `pip install --require-hashes`, then the package with `--no-deps`), so they
+test the locked versions. The other jobs and the other Python versions of the matrix
+install from the ranges in `pyproject.toml`. The release SBOM lists the runtime
+dependencies of the built wheel (installed into a clean environment), not the build tools.
 
 | Workflow | Runs on | What it does |
 | --- | --- | --- |
-| `ci.yml` | push and PR to `main`/`master`, nightly 04:00 UTC, manual | validators + pytest on Python 3.9–3.13; lint (ruff, black, mypy); the gates; one-command install + `gabbe doctor` on Linux, macOS, Windows; the Node installer tests (`npm test`, with an install → `gabbe uninstall --purge` round trip) and the state export/import round trip under `sh`; nightly: mutation testing (result in the job summary and as an artifact) and live skill evals (both non-blocking) |
+| `ci.yml` | push and PR to `main`/`master`, nightly 04:00 UTC, manual | validators + pytest on Python 3.9–3.13; lint (ruff, black, mypy); the gates; one-command install + `gabbe doctor` on Linux, macOS, Windows; the Node installer tests (`npm test`, with an install → `gabbe uninstall --purge` round trip) and the state export/import round trip under `sh`; nightly: mutation testing (result in the job summary and as an artifact) and live skill evals (both non-blocking; the live step, which reads the API key, runs only on `main`) |
 | `docs-lint.yml` | push and PR to `main` | markdownlint-cli2 and lychee, both report-only |
 | `security-baseline.yml` | push and PR to `main`, Mondays 06:00 UTC | OSV-Scanner, pip-audit (CVE delta), Trivy filesystem scan |
 | `scorecard.yml` | push to `main`, Mondays 07:00 UTC, branch-protection changes | OpenSSF Scorecard |
 | `pages.yml` | push to `main` touching `site/**` or `pages.yml`, manual | deploys `site/` to GitHub Pages |
-| `release.yml` | `v*` tag | GitHub release assets; if `PYPI_API_TOKEN` is set, the PyPI publish and then `release-verify`, which installs the published package on three OSes and runs `gabbe doctor` |
-| `publish-npm.yml` | `v*` tag (not prereleases), manual | publishes `gabbe-kit` to npmjs with trusted publishing and provenance; the tag must equal `package.json`'s version |
-| `publish-github-packages.yml` | `v*` tag, manual | mirrors the npm package to GitHub Packages as `@andreibesleaga/gabbe-kit` |
+| `gate.yml` | called by the three workflows below | tag equals every version file; Python tests (hashed lock); Node installer tests |
+| `release.yml` | `v*` tag | after the gate: GitHub release assets; the PyPI publish (token if the secret is set, otherwise trusted publishing; fails if neither works) and then `release-verify`, which installs the published package on three OSes and runs `gabbe doctor` |
+| `publish-npm.yml` | `v*` tag (not prereleases), manual from a `v*` tag only | after the gate: publishes `gabbe-kit` to npmjs with trusted publishing and provenance |
+| `publish-github-packages.yml` | `v*` tag, manual from a `v*` tag only | after the gate: mirrors the npm package to GitHub Packages as `@andreibesleaga/gabbe-kit` |
 
 ## Known environment caveats
 - **Node absent** → the `npx` smoke test is skipped (run it where Node is

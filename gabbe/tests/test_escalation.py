@@ -47,7 +47,10 @@ def test_file_mode_records_pending_to_db(tmp_project, db_conn):
 def test_cli_mode_approve(tmp_project, db_conn):
     handler = EscalationHandler("run-esc-cli", db_conn=db_conn)
     handler.mode = "cli"
-    with patch("builtins.input", return_value="a"):
+    with (
+        patch("gabbe.escalation._stdin_is_tty", return_value=True),
+        patch("builtins.input", return_value="a"),
+    ):
         result = handler.escalate(EscalationTrigger.AMBIGUOUS_DECISION, {"question": "proceed?"})
     assert result.status == "approved"
 
@@ -55,7 +58,10 @@ def test_cli_mode_approve(tmp_project, db_conn):
 def test_cli_mode_reject(tmp_project, db_conn):
     handler = EscalationHandler("run-esc-cli2", db_conn=db_conn)
     handler.mode = "cli"
-    with patch("builtins.input", return_value="r"):
+    with (
+        patch("gabbe.escalation._stdin_is_tty", return_value=True),
+        patch("builtins.input", return_value="r"),
+    ):
         result = handler.escalate(EscalationTrigger.BUDGET_EXHAUSTED, {})
     assert result.status == "rejected"
 
@@ -63,7 +69,10 @@ def test_cli_mode_reject(tmp_project, db_conn):
 def test_cli_mode_edit(tmp_project, db_conn):
     handler = EscalationHandler("run-esc-cli3", db_conn=db_conn)
     handler.mode = "cli"
-    with patch("builtins.input", side_effect=["e", '{"note": "updated"}']):
+    with (
+        patch("gabbe.escalation._stdin_is_tty", return_value=True),
+        patch("builtins.input", side_effect=["e", '{"note": "updated"}']),
+    ):
         result = handler.escalate(EscalationTrigger.POLICY_VIOLATION, {})
     assert result.status == "edited"
     assert result.response == '{"note": "updated"}'
@@ -107,3 +116,19 @@ def test_all_triggers_persist(tmp_project, db_conn):
     stored_triggers = {r["trigger"] for r in rows}
     expected = {t.value for t in EscalationTrigger}
     assert expected == stored_triggers
+
+
+def test_cli_mode_without_terminal_acts_as_silent(tmp_project, db_conn):
+    """SW-34: no TTY -> no input() call; auto-reject like silent mode."""
+    handler = EscalationHandler("run-esc-notty", db_conn=db_conn)
+    handler.mode = "cli"
+    with (
+        patch("gabbe.escalation._stdin_is_tty", return_value=False),
+        patch("builtins.input", side_effect=AssertionError("input() must not be called")),
+    ):
+        result = handler.escalate(EscalationTrigger.POLICY_VIOLATION, {})
+    assert result.status == "rejected"
+    row = db_conn.execute(
+        "SELECT status FROM pending_escalations WHERE run_id='run-esc-notty'"
+    ).fetchone()
+    assert row["status"] == "rejected"

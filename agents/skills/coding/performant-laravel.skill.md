@@ -1,6 +1,6 @@
 ---
 name: performant-laravel
-description: Strategies for high-performance, scalable Laravel systems (Octane, DB Optimization, Redis, Microservices).
+description: "Speed up Laravel apps: eager loading and indexes, queues, caching, Octane or FrankenPHP, measured with a load test. Use when a Laravel app has slow pages, N+1 queries or high load."
 triggers: [laravel, performance, scalability, octane, frankenphp, redis, eloquent, microservices]
 tags: [coding, laravel, architecture]
 context_cost: medium
@@ -49,22 +49,18 @@ Optimize Laravel applications for high-throughput, sub-100ms response times, and
 3. **Audit Eloquent**: Use Telescope to identify N+1 queries and high memory consumption.
 4. **Tune Environment**: Configure Redis for session/cache and ensure OPcache is optimized.
 
-## Deliverables
+## Output Format
 - `BENCHMARK_REPORT_TEMPLATE.md`: Bottleneck analysis and Octane/FPM load comparisons.
 - `ARCHITECTURE_REVIEW_TEMPLATE.md`: Definition of cached keys and invalidation logic.
 - `SCALABILITY_ANALYSIS_TEMPLATE.md`: Queue worker strategy and database replica plan.
 
-## Security & Guardrails
+## Constraints
+- Measure first (`k6` or `ab` baseline) and record before and after numbers.
+- Index only what the queries need: every index slows writes.
 
-### 1. Skill Security
-- **Safe Evaluation**: Be cautious with raw SQL (`DB::raw`). Ensure all user inputs are parameterized.
-- **Cache Poisoning**: Validate and sanitize data before storing it in the cache to prevent injection.
-
-### 2. System Integration Security
-- **Rate Limiting**: Use Laravel's `RateLimiter` to protect APIs from abuse and DoS.
-- **Secrets Management**: Never use `env()` outside of config files. Ensure all secrets are pulled from the environment.
-
-### 3. LLM & Agent Guardrails
-- **No Premature Octane**: Do not recommend Laravel Octane for simple, low-traffic apps due to the complexity of managing persistent state.
-- **Index Balance**: Warn against over-indexing which degrades write performance.
-- **Legacy Awareness**: When optimizing older Laravel apps, check compatibility before using modern primitives like `cursorPaginate`.
+## Limits and safety
+- Pass user input to `DB::raw`, `whereRaw` and similar only as bindings, never by string interpolation.
+- For per-user or per-tenant data, put the user or tenant in the cache key; check data before it goes into the cache.
+- Use `env()` only in config files (it returns null outside them once config is cached); rate-limit APIs with `RateLimiter`.
+- Recommend Octane only for a measured need: workers keep state between requests, so reset any per-request state.
+- A new index on a large table is a migration: propose it and run it only after the human confirms; check the Laravel version before using newer methods such as `cursorPaginate`.

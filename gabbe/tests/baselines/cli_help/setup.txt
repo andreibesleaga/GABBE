@@ -1,6 +1,8 @@
-usage: main.py setup [-h] [--force]
+usage: main.py setup [-h] [--force] [--hooks]
 
 options:
   -h, --help  show this help message and exit
   --force     Re-template even preserved files (each backed up to .gabbe-bak
               first)
+  --hooks     Also install the optional hooks (off by default; see
+              docs/INSTALL.md)

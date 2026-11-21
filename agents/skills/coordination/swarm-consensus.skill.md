@@ -1,7 +1,7 @@
 ---
 name: swarm-consensus
-description: Implement voting mechanisms (majority, weighted) to resolve inter-agent conflicts.
-triggers: [swarm consensus]
+description: "Resolve agent or persona disagreement with a stated vote rule (majority, supermajority, k-threshold) and escalate ties to a human. Use when high-stakes choices have competing answers."
+triggers: [swarm consensus, vote on a decision, agents disagree, break a tie, majority vote, k-threshold vote]
 tags: [coordination]
 role: orch-coordinator
 context_cost: low
@@ -31,6 +31,11 @@ This skill allows a group of agents to agree on a decision when opinions differ 
 - **Red-flag-discard** structurally-confused outputs (malformed, off-schema, self-contradictory) *before* they get a vote, so noise cannot dilute the tally.
 - Voting multiplies cost — fire it only when stakes + budget justify it; otherwise default to deterministic single-agent execution.
 
+> **Who may vote.** A vote counts only when it is cast by separate subagent contexts
+> or by the human. When one model plays several personas in one context, the result
+> is a structured self-review: record it as `REVIEW`, not `VOTE`, and do not count it
+> as consensus.
+
 ## 2. Process
 1.  **Proposal**: Agent A proposes "Refactor Auth module".
 2.  **Debate**: Agents B, C, D provide arguments (Pro/Con).
@@ -41,22 +46,21 @@ This skill allows a group of agents to agree on a decision when opinions differ 
 ## 3. Conflict Patterns
 - **The Stalemate**: 50/50 split.
   - *Resolution*: Architecture Decision Record (ADR) + Human Tie-breaker.
-- **The Veto**: `ops-security` can veto any Engineering decision if it introduces a vulnerability.
+- **The Veto**: `orch-judge` (quality), `ops-security` (security) and `prod-ethicist` (ethics) can veto. A veto sets the phase to `BLOCKED`, is recorded as a `VETO` row in `AUDIT_LOG.md`, and is lifted only by the human. See the Veto register in `agents/personas/orch-judge.md`.
 
 ## 4. Automation
-- Use `agents/memory/episodic/VOTING_LOG.md` to record decisions.
+- Use `agents/memory/episodic/VOTING_LOG.md` to record decisions (mark each entry `VOTE` or `REVIEW`).
 - Never re-litigate a settled vote in the same session.
 
-## Security & Guardrails
+## Constraints
+- State the vote rule (protocol, quorum, k) before the vote, not after.
+- A tie goes to the human with an ADR; the coordinator does not break it.
 
-### 1. Skill Security (Swarm Consensus)
-- **Vote Tampering Prevention**: The mechanism calculating votes must exist in a protected, deterministic execution environment where participating agents cannot directly alter the tally or manipulate the voting logic.
-- **Sybil Attack Defense**: In dynamic swarms, ensure a rogue agent process cannot clone itself to artificially inflate vote counts and control the Simple/Supermajority outcome.
+## Output Format
+One entry in `agents/memory/episodic/VOTING_LOG.md` per decision: proposal, voters, rule, result, marked `VOTE` or `REVIEW`.
 
-### 2. System Integration Security
-- **Immutable Ledger**: All proposals, debates, and final voting tallies must be recorded in an append-only log (`VOTING_LOG.md`). Any attempt to alter historical decisions must trigger an immediate high-priority alert.
-- **Veto Authority Enforcement**: The system must enforce absolute, override-proof veto powers for specific security roles (e.g., `ops-security`). If a security veto is cast, the proposal must fail immediately regardless of majority.
-
-### 3. LLM & Agent Guardrails
-- **Debate Hallucination Checks**: Arguments proposed during the Debate phase must be fact-checked or grounded against reality to ensure the swarm isn't convinced to vote for a catastrophic option based solely on LLM hallucinations.
-- **Adversarial Collusion Detection**: Monitor inter-agent debates for signs of adversarial collusion, where agents might be manipulated by injected prompts to exclusively agree on bypassing security checks or rewriting core safety logic.
+## Limits and safety
+- Votes cast by one model in one context are a structured self-review: record them as REVIEW, not VOTE. Only separate subagent contexts or the human cast votes.
+- A veto by `orch-judge`, `ops-security` or `prod-ethicist` sets the phase to BLOCKED and is lifted only by the human; no majority overrides it.
+- Append each decision to `VOTING_LOG.md`; never edit a past entry.
+- Check the facts used in the debate against the repository or a named source before the vote.

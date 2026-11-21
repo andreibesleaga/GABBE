@@ -12,8 +12,9 @@ name: Publish to GitHub Packages (npm mirror)
 # — no npm token needed, so this job is not secret-gated.
 #
 # Triggers: every version tag (alongside release.yml) and manual dispatch, which
-# backfills whatever version the checked-out ref carries. Re-runs are safe: a
-# version already on GitHub Packages is skipped, never overwritten.
+# backfills the version of the `v*` tag selected in the Run-workflow dialog (any
+# other ref is refused). Every run first passes the shared gate (gate.yml). Re-runs
+# are safe: a version already on GitHub Packages is skipped, never overwritten.
 
 on:
   push:
@@ -24,15 +25,40 @@ permissions:
   contents: read
 
 jobs:
+  require-tag:
+    name: Run only from a v* tag
+    runs-on: ubuntu-latest
+    permissions: {}
+    steps:
+      - name: Refuse any ref that is not a version tag
+        env:
+          REF_TYPE: ${{ github.ref_type }}
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          case "$REF_TYPE:$REF_NAME" in
+            tag:v[0-9]*) echo "ok: $REF_NAME" ;;
+            *) echo "::error::Run this workflow from a version tag (v*), not from $REF_TYPE '$REF_NAME'. In the Run workflow dialog choose the tag in 'Use workflow from'."; exit 1 ;;
+          esac
+
+  gate:
+    name: Gate (tests + tag equals version)
+    needs: [require-tag]
+    permissions:
+      contents: read
+    uses: ./.github/workflows/gate.yml
+    with:
+      ref_name: ${{ github.ref_name }}
+
   publish-github-packages:
     name: npm publish → npm.pkg.github.com (@andreibesleaga scope)
+    needs: [require-tag, gate]
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
           node-version: '20'
           registry-url: 'https://npm.pkg.github.com'

@@ -1,7 +1,7 @@
 ---
 name: beyond-llms
-description: Implement advanced neuro-symbolic and genetic algorithm techniques
-triggers: [implement active inference, add neuro-symbolic logic, optimize using genetic algorithms]
+description: Combine an LLM with deterministic rules, genetic algorithms or an active-inference loop so hard constraints override model output. Use when a problem needs guaranteed rules, search or optimisation that a prompt alone cannot give.
+triggers: [implement active inference, add neuro-symbolic logic, optimize using genetic algorithms, symbolic rules over llm]
 tags: [ai]
 context_cost: high
 ---
@@ -16,16 +16,15 @@ Implement and integrate advanced AI methodologies that go beyond basic foundatio
 3. **Integrate Logic**: Build the hybrid pipeline, ensuring symbolic constraints can override probabilistic LLM outputs.
 4. **Verification**: Run extensive tests to verify the symbolic engine successfully enforces hard rules over hallucinatory LLM outputs.
 
-## Security & Guardrails
+## Constraints
+- The rule engine is the authority: a rule failure rejects the LLM output, never the other way round.
+- Rules are changed only in code review, never by the model at run time.
 
-### 1. Skill Security
-- **Computational Exhaustion**: Genetic algorithms and advanced loops can easily consume infinite compute. Bind execution to absolute generational limits and strict timeouts.
-- **Unbounded Memory Use**: Limit the size of hypothesis populations or world-models in active inference.
+## Output Format
+The hybrid pipeline code, the rule set as a file under version control, and a test that shows a rule overriding a wrong LLM output.
 
-### 2. System Integration Security
-- **Sandbox Execution**: When neuro-symbolic engines evaluate dynamic formulas or math, execute them via secure sandboxes to prevent code injection.
-- **Data Boundary Handling**: Ensure symbolic reasoners don't bypass established data access controls.
-
-### 3. LLM & Agent Guardrails
-- **Logic Subversion**: Do not allow the LLM to rewrite the deterministic rules of the symbolic engine during runtime.
-- **Opaque Reasoning**: Force the hybrid architecture to emit a trace explaining exactly which sub-system (LLM or Symbolic) made the final decision.
+## Limits and safety
+- Set a maximum number of generations or loops, a time limit and a population size for every genetic or active-inference run.
+- Run dynamic formulas or generated code from the model in a sandbox, never with eval in the main process.
+- The model has no write access to the rule files; check the file permissions or the diff.
+- Log which part (LLM or rule engine) made the final decision for each result.

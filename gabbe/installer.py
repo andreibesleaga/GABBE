@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import re
 import shutil
 from pathlib import Path
@@ -48,6 +49,47 @@ _BLOCK_RE = re.compile(rb"<!-- GABBE-KIT:BEGIN.*?<!-- GABBE-KIT:END -->(\r?\n)?"
 _AGENT_RE = re.compile(r"^[a-z0-9][a-z0-9_-]{0,63}$")
 
 
+# Short names accepted by `--agents`, mapped to the agent's full name. Same table as
+# AGENT_ALIASES in bin/install.js (a test compares the two so they cannot drift).
+AGENT_ALIASES: dict[str, str] = {
+    "claude": "Claude Code",
+    "claude-code": "Claude Code",
+    "cursor": "Cursor",
+    "windsurf": "Windsurf",
+    "cline": "Cline",
+    "aider": "Aider",
+    "devin": "Devin / Cognition",
+    "cognition": "Devin / Cognition",
+    "gemini": "Gemini",
+    "antigravity": "Antigravity",
+    "opencode": "OpenCode",
+    "zed": "Zed",
+    "continue": "Continue",
+    "roo": "Roo Code",
+    "roo-code": "Roo Code",
+    "kilo": "Kilo Code",
+    "kilo-code": "Kilo Code",
+    "codex": "OpenAI / Codex",
+    "openai": "OpenAI / Codex",
+    "copilot": "GitHub Copilot",
+    "github-copilot": "GitHub Copilot",
+    "vscode": "VS Code",
+    "vs-code": "VS Code",
+}
+
+
+def agent_slug(name: str) -> str:
+    """The slug an agent is recorded under: a known short name ("claude") maps through
+    its full name ("Claude Code") to "claude-code"; anything else is returned as given.
+    Gives the same result as `agentSlugsFromArgs` in bin/install.js.
+    """
+    full = AGENT_ALIASES.get(name.lower())
+    if full is None:
+        return name
+    slug = "".join(c if (c.isalnum() or c in "-_") else "-" for c in full.lower())
+    return slug.strip("-") or "shared"
+
+
 def _empty_manifest() -> dict[str, Any]:
     return {"schema_version": MANIFEST_SCHEMA_VERSION, "entries": [], "agents": []}
 
@@ -58,23 +100,46 @@ def _validate_agents(agents: list[str]) -> None:
             raise ValueError(f"invalid agent name (must match {_AGENT_RE.pattern}): {agent!r}")
 
 
+def _check_recorded_path(rel: str) -> None:
+    """Refuse a recorded path that is not a plain relative path: empty, `.`, absolute,
+    or with a `..` part. Raises ValueError."""
+    if not isinstance(rel, str) or rel in ("", "."):
+        raise ValueError(f"refusing an empty or non-text recorded path: {rel!r}")
+    if "\x00" in rel or Path(rel).is_absolute() or rel.startswith(("/", "\\")):
+        raise ValueError(f"refusing an absolute recorded path: {rel!r}")
+    parts = rel.replace("\\", "/").split("/")
+    if ".." in parts or all(p in ("", ".") for p in parts):
+        raise ValueError(f"refusing a recorded path that climbs out of the target: {rel!r}")
+
+
 def _resolve_within(target: Path, rel: str) -> Path:
     """Resolve `rel` under `target`, refusing any path that escapes the target.
 
     Hard guarantee for the isolation invariant: a tampered/malicious manifest path
-    (e.g. '../../etc/x') can never make uninstall touch a file outside the target.
+    ('../../etc/x', 'x/..', an absolute path) can never make uninstall or update touch a
+    file outside the target. Every record field that becomes a path goes through here.
 
     The leaf is NOT dereferenced: we resolve the PARENT directory and re-attach the
     final component, so a symlink entry (e.g. a wired `.cursorrules`) is acted on
     directly — `.resolve()` on the full path would follow the link to its target
     and the symlink itself would never be removed.
     """
+    _check_recorded_path(rel)
     base = target.resolve()
     raw = base / rel
     parent = raw.parent.resolve()
     if parent != base and base not in parent.parents:
         raise ValueError(f"refusing path outside target: {rel!r}")
-    return parent / raw.name
+    result = parent / raw.name
+    if result == base or base not in result.parents:
+        raise ValueError(f"refusing path outside target: {rel!r}")
+    return result
+
+
+def _skip_message(what: str, err: Exception) -> None:
+    import sys
+
+    print(f"warning: skipped {what}: {err}", file=sys.stderr)
 
 
 def manifest_path(target: Path) -> Path:
@@ -94,6 +159,8 @@ def manifest_problem(target: Path) -> str | None:
     mp = manifest_path(target)
     if mp.parent.is_symlink():
         return f"{mp.parent} is a symbolic link; the install record must be a real folder"
+    if mp.is_symlink():
+        return f"{mp} is a symbolic link; the install record must be a real file"
     if not mp.exists():
         return None
     try:
@@ -124,8 +191,15 @@ def _write_manifest(target: Path, manifest: dict[str, Any]) -> None:
     mp = manifest_path(target)
     if mp.parent.is_symlink():
         raise ValueError(f"{mp.parent} is a symbolic link; refusing to write the record there")
+    if mp.is_symlink():
+        raise ValueError(f"{mp} is a symbolic link; refusing to write the record through it")
     mp.parent.mkdir(parents=True, exist_ok=True)
-    mp.write_text(json.dumps(manifest, indent=2, sort_keys=True))
+    tmp = mp.with_name(f"{mp.name}.tmp-{os.getpid()}")
+    try:
+        tmp.write_text(json.dumps(manifest, indent=2, sort_keys=True))
+        os.replace(tmp, mp)
+    finally:
+        tmp.unlink(missing_ok=True)
 
 
 def _iter_source_files(source: Path) -> Iterator[tuple[Path, Path]]:
@@ -136,7 +210,9 @@ def _iter_source_files(source: Path) -> Iterator[tuple[Path, Path]]:
 
 def _entries_by_path(manifest: dict[str, Any]) -> dict[str, dict[str, Any]]:
     return {
-        e["path"]: e for e in manifest.get("entries", []) if isinstance(e, dict) and "path" in e
+        e["path"]: e
+        for e in manifest.get("entries", [])
+        if isinstance(e, dict) and isinstance(e.get("path"), str)
     }
 
 
@@ -198,6 +274,48 @@ def _refresh_file(
         "agent": "shared",
         "hash": _sha256(dest),
         "backup_of": backup_of,
+    }
+
+
+_NEW_SUFFIX = ".gabbe-new"
+
+
+def _new_version_entry(
+    src: Path, dest: Path, rel: Path, tracked: dict[str, Any] | None, new_tracked: Any, target: Path
+) -> dict[str, Any] | None:
+    """After `update` kept a preserved file the user changed: write the kit's version next
+    to it as `<name>.gabbe-new` and return that file's record entry (None: nothing written).
+
+    Rules (the same as `offerNewVersion` in bin/install.js): only a preserved file (not under
+    `memory/` or `project/`) that the earlier record names and whose bytes changed since;
+    nothing when the kit's file equals it or a link is on the `.gabbe-new` path; an existing
+    `.gabbe-new` the record does not own, or that changed, is left alone with one message.
+    """
+    if rel.name not in _PRESERVE or _USER_DIRS.intersection(rel.parts[:-1]) or tracked is None:
+        return None
+    if dest.is_symlink() or not dest.is_file():
+        return None
+    if _sha256(dest) == _sha256(src) or tracked.get("hash") == _sha256(dest):
+        return None
+    new = dest.with_name(dest.name + _NEW_SUFFIX)
+    mine, theirs = str(dest.relative_to(target)), str(new.relative_to(target))
+    if new.is_symlink() or new.is_dir():
+        return None
+    owned = isinstance(new_tracked, dict) and new_tracked.get("hash") == (
+        _sha256(new) if new.is_file() else None
+    )
+    if new.exists() and not owned:
+        print(f"kept your {mine}; {theirs} is not ours or was changed: left alone")
+        return new_tracked if isinstance(new_tracked, dict) else None
+    if not new.exists() or _sha256(new) != _sha256(src):
+        shutil.copy2(src, new)
+    print(f"kept your {mine}; the kit's new version is {theirs} (compare, merge, then delete it)")
+    return {
+        "path": theirs,
+        "kind": "copy",
+        "agent": "shared",
+        "hash": _sha256(new),
+        "backup_of": None,
     }
 
 
@@ -263,7 +381,7 @@ def install_kit(
     _validate_agents(agents)
     target = target.resolve()
     _require_usable_record(target)
-    prior = _entries_by_path(read_manifest(target))
+    prior = _safe_entries(target, _entries_by_path(read_manifest(target)))
     entries: list[dict[str, Any]] = []
 
     # 1. Shared kit files (copied once under the target).
@@ -299,6 +417,33 @@ def _is_kit_managed(target: Path, path: Path) -> bool:
     return any(e["path"] == rel for e in read_manifest(target).get("entries", []))
 
 
+def _safe_entries(target: Path, entries: dict[str, dict[str, Any]]) -> dict[str, dict[str, Any]]:
+    """The record entries whose path (and `backup_of`) stay inside the target. Any other
+    entry is dropped from the new record with one message; nothing on disk is touched."""
+    safe: dict[str, dict[str, Any]] = {}
+    for key, entry in entries.items():
+        try:
+            _resolve_within(target, key)
+        except ValueError as e:
+            _skip_message(f"record entry {key!r}", e)
+            continue
+        safe[key] = _safe_backup_of(target, entry)
+    return safe
+
+
+def _safe_backup_of(target: Path, entry: dict[str, Any]) -> dict[str, Any]:
+    """`entry`, with a `backup_of` that leaves the target replaced by None (with a message)."""
+    backup = entry.get("backup_of")
+    if not backup:
+        return entry
+    try:
+        _resolve_within(target, backup)
+    except ValueError as e:
+        _skip_message(f"backup_of of {entry['path']!r}", e)
+        return {**entry, "backup_of": None}
+    return entry
+
+
 def _is_unmodified_kit_copy(target: Path, entry: dict[str, Any]) -> bool:
     """True for a recorded kit file under `agents/` that still has its recorded bytes."""
     if entry.get("kind") != "copy" or entry.get("agent") != "shared":
@@ -311,6 +456,26 @@ def _is_unmodified_kit_copy(target: Path, entry: dict[str, Any]) -> bool:
     except ValueError:
         return False
     return path.is_file() and not path.is_symlink() and _sha256(path) == entry.get("hash")
+
+
+def _update_one(
+    src: Path, rel: Path, target: Path, merged: dict[str, dict[str, Any]], emitted: set[str]
+) -> None:
+    """Refresh one kit file into `merged` (the record being built); note what was emitted."""
+    dest = _kit_dest(target, rel)
+    key = str(dest.relative_to(target))
+    earlier = merged.get(key)
+    entry = _refresh_file(src, dest, rel, earlier, target)
+    emitted.add(key)
+    if entry is not None:
+        merged[key] = entry
+    elif dest.is_symlink() or dest.is_dir():
+        merged.pop(key, None)  # the user put a link or a folder here: no longer ours
+    new_key = key + _NEW_SUFFIX
+    new_entry = _new_version_entry(src, dest, rel, earlier, merged.get(new_key), target)
+    if new_entry is not None:
+        merged[new_key] = new_entry
+        emitted.add(new_key)
 
 
 def update_kit(
@@ -326,21 +491,14 @@ def update_kit(
     target = target.resolve()
     _require_usable_record(target)
     prior = read_manifest(target)
-    merged = _entries_by_path(prior)
+    merged = _safe_entries(target, _entries_by_path(prior))
     stubbed = {e.get("agent") for e in merged.values() if e.get("kind") == "skill-emit"}
     stub_agents = agents if agents is not None else sorted(a for a in stubbed if a)
     _validate_agents(stub_agents)
 
     emitted: set[str] = set()
     for src, rel in _iter_source_files(source):
-        dest = _kit_dest(target, rel)
-        key = str(dest.relative_to(target))
-        entry = _refresh_file(src, dest, rel, merged.get(key), target)
-        emitted.add(key)
-        if entry is not None:
-            merged[key] = entry
-        elif dest.is_symlink() or dest.is_dir():
-            merged.pop(key, None)  # the user put a link or a folder here: no longer ours
+        _update_one(src, rel, target, merged, emitted)
     for entry in _write_agent_stubs(target, stub_agents, merged):
         merged[entry["path"]] = entry
         emitted.add(entry["path"])
@@ -416,6 +574,93 @@ def _remove_block(path: Path, backup: Path | None) -> None:
     path.write_bytes(stripped)
 
 
+def _same_hook_entry(a: Any, b: Any) -> bool:
+    """Two hook entries are the same when event-level matcher and command strings are equal."""
+
+    def commands(item: Any) -> list[Any]:
+        if isinstance(item, dict) and isinstance(item.get("hooks"), list):
+            return [h.get("command") if isinstance(h, dict) else None for h in item["hooks"]]
+        return [item.get("command") if isinstance(item, dict) else None]
+
+    def matcher(item: Any) -> Any:
+        return item.get("matcher") if isinstance(item, dict) else None
+
+    return bool(matcher(a) == matcher(b) and commands(a) == commands(b))
+
+
+def remove_hook_fragment(
+    doc: dict[str, Any], fragment: dict[str, Any], *, added_version: bool = False
+) -> dict[str, Any]:
+    """`doc` without exactly the entries of `fragment` (same event, matcher and command).
+
+    Same rule as `removeFragment` in agents/hooks/merge-hooks.js: an event list or `hooks`
+    left empty is dropped; `version` goes only when `added_version` says the install added it.
+    Raises ValueError when `doc` or its `hooks` has an unexpected shape.
+    """
+    if not isinstance(doc, dict) or not isinstance(doc.get("hooks", {}), dict):
+        raise ValueError("the settings file has an unexpected shape")
+    cleaned = json.loads(json.dumps(doc))
+    hooks = cleaned.get("hooks")
+    if hooks is not None:
+        for event, items in fragment["hooks"].items():
+            if event not in hooks:
+                continue
+            if not isinstance(hooks[event], list):
+                raise ValueError(f"hooks.{event} is not a list")
+            kept = [x for x in hooks[event] if not any(_same_hook_entry(x, i) for i in items)]
+            if kept:
+                hooks[event] = kept
+            else:
+                del hooks[event]
+        if not hooks:
+            del cleaned["hooks"]
+    if added_version and cleaned.get("version") == fragment.get("version"):
+        del cleaned["version"]
+    return cleaned  # type: ignore[no-any-return]
+
+
+def _remove_hook_merge(
+    target: Path, entry: dict[str, Any], path: Path, backup: Path | None
+) -> None:
+    """Undo a `hook-merge` entry: take the recorded fragment's entries out of the user's
+    settings file. A file the installer created and nothing else uses is removed. When the
+    file minus our entries equals the backup as JSON, the backup's exact bytes come back;
+    otherwise the cleaned JSON is written and the backup stays."""
+    import sys
+
+    if not path.is_file() or path.is_symlink():
+        return
+    fragment = entry.get("fragment_doc")
+    try:
+        if not isinstance(fragment, dict) or not isinstance(fragment.get("hooks"), dict):
+            fragment = json.loads(
+                _resolve_within(target, entry["fragment"]).read_text(encoding="utf-8")
+            )
+        cleaned = remove_hook_fragment(
+            json.loads(path.read_text(encoding="utf-8")),
+            fragment,
+            added_version=entry.get("added_version") is True,
+        )
+    except (ValueError, KeyError, TypeError, OSError, AttributeError) as e:
+        print(
+            f"warning: {entry['path']} was left as it is ({e}); "
+            "remove the GABBE hook entries by hand",
+            file=sys.stderr,
+        )
+        return
+    if entry.get("created") is True and not cleaned:
+        path.unlink()
+        return
+    if backup is not None and backup.is_file() and not backup.is_symlink():
+        try:
+            if json.loads(backup.read_text(encoding="utf-8")) == cleaned:
+                shutil.move(str(backup), str(path))
+                return
+        except (ValueError, OSError):
+            pass  # the backup is not JSON: keep it and write the cleaned file
+    path.write_text(json.dumps(cleaned, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+
+
 def _remove_entry(target: Path, entry: dict[str, Any], path: Path) -> list[str]:
     """Remove one recorded artifact. Returns files kept in place as backups."""
     preserved: list[str] = []
@@ -428,6 +673,9 @@ def _remove_entry(target: Path, entry: dict[str, Any], path: Path) -> list[str]:
             backup = None
     if kind == "block":
         _remove_block(path, backup)
+        return preserved
+    if kind == "hook-merge":
+        _remove_hook_merge(target, entry, path, backup)
         return preserved
     if kind == "tree":
         # Recorded as one directory by releases before 1.1.4. The directory may hold
@@ -463,7 +711,15 @@ def _removal_plan(
     for entry in manifest.get("entries", []):
         try:
             path = _resolve_within(target, entry["path"])
-        except (ValueError, KeyError, TypeError):
+        except (ValueError, KeyError, TypeError) as e:
+            _skip_message(
+                (
+                    f"record entry {entry.get('path')!r}"
+                    if isinstance(entry, dict)
+                    else "a record entry"
+                ),
+                e,
+            )
             kept.append(entry)
             continue
         in_scope = agents is None or (
@@ -563,6 +819,8 @@ def _prune_empty_ancestors(target: Path, removed: list[str]) -> None:
     """
     base = target.resolve()
     for rel in removed:
+        if rel.startswith(".git/"):
+            continue  # git's own folders are never pruned
         d = (base / rel).parent
         while d != base:
             try:

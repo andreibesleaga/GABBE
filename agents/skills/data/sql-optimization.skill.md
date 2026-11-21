@@ -1,7 +1,7 @@
 ---
 name: sql-optimization
-description: Query tuning, indexing strategies, and EXPLAIN plan analysis.
-triggers: [sql optimization]
+description: Query tuning plan — reading EXPLAIN ANALYZE, index design, keyset pagination, N+1 and transaction fixes. Use when a query is slow, a table scan shows up, or a database workload needs review.
+triggers: [sql optimization, slow query, explain analyze, missing index, n+1 query, query tuning]
 tags: [data]
 role: eng-database
 context_cost: low
@@ -60,19 +60,18 @@ Always run `EXPLAIN ANALYZE` on suspect queries.
 
 ## 5. Maintenance
 - Run `VACUUM ANALYZE` (Postgres) regularly to update planner statistics.
-- Monitor index usage. Remove unused indexes (they slow down writes).
+- Monitor index usage. Remove unused indexes (they slow down writes); propose the exact `DROP INDEX` and run it only after the human confirms.
 
-## Security & Guardrails
+## Constraints
+- Run EXPLAIN before a change and again after it.
+- An unused index is removed only as a proposed command that the human confirms.
 
-### 1. Skill Security (SQL Optimization)
-- **Query Parameterization**: Optimized queries must always use parameterized statements or prepared statements to prevent SQL Injection (SQLi). Never concatenate strings for query building.
-- **Safe EXPLAIN Execution**: Be cautious when running `EXPLAIN ANALYZE`, as it actually executes the query. On production, ensure it is only run on `SELECT` statements, as running it on `INSERT`/`UPDATE`/`DELETE` will modify data.
+## Output Format
+A list of query and index changes with the before and after EXPLAIN output; index changes go through `db-migration.skill`.
 
-### 2. System Integration Security
-- **Resource Exhaustion Prevention**: Limit the execution time of optimized queries (e.g., `statement_timeout` in Postgres) to prevent Denial of Service (DoS) attacks via complex, CPU-intensive queries.
-- **Data Exposure Restrictions**: When optimizing `SELECT` queries or adding denormalized columns, ensure that access control rules (Row-Level Security) are maintained and sensitive columns are not inadvertently exposed.
-
-### 3. LLM & Agent Guardrails
-- **SQLi Generation Defense**: LLMs tasked with optimizing SQL must be strictly instructed and verified to output parameterized queries, rejecting user inputs that attempt to inject raw SQL commands.
-- **Execution Sandboxing**: Agents must not execute optimized queries directly against production databases. Performance benchmarking must be done in a sanitized, ephemeral staging environment.
-- **Data Masking in Context**: When feeding slow queries and `EXPLAIN` plans into an LLM for analysis, all literal values (e.g., specific user emails, IDs) must be masked or redacted to prevent PII leakage into the model's context.
+## Limits and safety
+- `EXPLAIN ANALYZE` runs the query: use it only on SELECT statements, never on INSERT, UPDATE or DELETE against real data.
+- Benchmark on a copy or staging, not production, and set a statement timeout.
+- Mask literal values (emails, ids) in queries and plans before sharing them outside the project.
+- Parameterised queries only, never concatenated strings.
+- A new index or denormalised column must not expose columns that row-level security hides.

@@ -81,7 +81,14 @@ class ContentCache:
             return
         try:
             p = self._path(key)
-            p.write_text(json.dumps({"value": value}, ensure_ascii=False), encoding="utf-8")
+            if p.is_symlink():
+                logger.warning("cache entry %s is a link; not written through it", p.name[:12])
+                return
+            # O_NOFOLLOW closes the gap between the check above and the open.
+            flags = os.O_WRONLY | os.O_CREAT | os.O_TRUNC | getattr(os, "O_NOFOLLOW", 0)
+            fd = os.open(p, flags, 0o600)
+            with os.fdopen(fd, "w", encoding="utf-8") as f:
+                f.write(json.dumps({"value": value}, ensure_ascii=False))
             self._restrict_perms(p, 0o600)
         except (OSError, TypeError) as e:  # pragma: no cover - serialization/fs failure
             logger.debug("cache write skipped for %s: %s", key[:12], e)

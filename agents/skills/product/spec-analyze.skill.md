@@ -28,6 +28,7 @@ Verify that the three core planning artifacts — PRD.md/spec.md, plan.md, and p
    - Does project/TASKS.md have at least one task for this plan item?
    - Are there plan items with no corresponding tasks?
    - Flag: `[NO_TASKS] Plan item: "Implement email verification" — 0 tasks in project/TASKS.md`
+   - See also `decompose.skill`: offer to run it for these plan items; it changes `project/TASKS.md` only after the human agrees
 
 4. **Check Task → Requirement traceability**
    For each task in project/TASKS.md:
@@ -83,16 +84,9 @@ Verify that the three core planning artifacts — PRD.md/spec.md, plan.md, and p
 ## Output Format
 Alignment report in markdown with categorized findings and clear ALIGNED: YES/NO verdict.
 
-## Security & Guardrails
-
-### 1. Skill Security (Spec Analyze)
-- **Security Scope Creep Detection**: When analyzing "Orphan Tasks" (Step 4), the agent must apply extra scrutiny to tasks modifying authentication, cryptography, logging, or authorization logic that lack a traced requirement. Undocumented security changes are a primary vector for backdoors.
-- **Silent Security Drops**: If a security requirement in `PRD.md` (e.g., "Data at rest must be encrypted") is flagged as `[UNCOVERED]` in `plan.md`, the agent must escalate this not just as an alignment issue, but as a critical compliance breach preventing system deployment.
-
-### 2. System Integration Security
-- **Test Coverage vs. Security Specs**: In Step 5, when checking status consistency, the agent must verify that any task traced to a Security requirement (e.g., Rate Limiting) is not marked `DONE` unless the corresponding integration test file explicitly asserts the security failure modes (e.g., HTTP 429 generation).
-- **Dependency Drift Alerts**: If `plan.md` assumes the use of a specific security library, but `project/TASKS.md` implements a different tool (a mismatch), the agent must halt the SDLC phase until an ADR writer justifies the library swap.
-
-### 3. LLM & Agent Guardrails
-- **Automated Deletion Veto**: The agent is strictly a read-only analyst. If it finds "Orphan Tasks" with no requirement, it MUST NOT autonomously delete the task from the repository. It must only report the anomaly, as the task might be a legitimate hotfix that simply hasn't been documented yet.
-- **Hallucinated Alignment**: The LLM must not synthesize "implied" traceability to make the report look clean. If Task X is "Setup HTTPS loop" and Requirement Y is "System must be fast", the agent must not invent a link between them. Traceability must be explicit and deterministic.
+## Limits and safety
+- Read-only: do not delete or edit tasks, plans or requirements; report and let the human decide.
+- Report an uncovered security requirement (for example encryption at rest) as blocking, not as an ordinary gap.
+- Do not accept a security-related task as DONE unless a test asserts the failure case (for example HTTP 429).
+- Look closely at orphan tasks that touch authentication, cryptography, logging or authorization, and ask the human.
+- Link only explicit traces; never invent a link to make the report look clean.

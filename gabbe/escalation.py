@@ -4,6 +4,7 @@ from __future__ import annotations
 import json
 import logging
 import sqlite3
+import sys
 from enum import Enum
 from typing import Any
 
@@ -72,7 +73,11 @@ class EscalationHandler:
         #   file — execution must stop immediately; raises EscalationPaused so the run is
         #           suspended and resumed later via `gabbe resume <run-id>`.
         #   silent — auto-rejects; returns EscalationResult for CI/headless contexts.
-        if self.mode == "cli":
+        mode = self.mode
+        if mode == "cli" and not _stdin_is_tty():
+            logger.info("Escalation mode 'cli' but stdin is not a terminal: treating as 'silent'.")
+            mode = "silent"
+        if mode == "cli":
             print("\n--- [ESCALATION REQUIRED] ---")
             print(f"Trigger: {trigger.value}")
             print(f"Context: {json.dumps(context_dict, indent=2)}")
@@ -96,7 +101,7 @@ class EscalationHandler:
 
             return EscalationResult(status, response)
 
-        elif self.mode == "file":
+        elif mode == "file":
             print(
                 f"[ESCALATION] Run {self.run_id} hit escalation ({trigger.value}). Pausing execution."
             )
@@ -123,6 +128,13 @@ class EscalationHandler:
             self.db_conn.commit()
         except Exception as e:
             logger.error(f"Failed to resolve escalation {esc_id}: {e}")
+
+
+def _stdin_is_tty() -> bool:
+    try:
+        return bool(sys.stdin and sys.stdin.isatty())
+    except (ValueError, OSError):
+        return False
 
 
 class EscalationPaused(Exception):

@@ -18,7 +18,7 @@ Run through each section. Mark items:
 ## 1. Authentication & Authorization
 
 - [ ] No hardcoded credentials in source code or config files
-- [ ] Passwords hashed with bcrypt (cost >= 12) or Argon2 — never MD5, SHA1, SHA256
+- [ ] Passwords hashed with Argon2id (bcrypt only on legacy systems, work factor >= 10) — never MD5, SHA1, SHA256
 - [ ] Session tokens are cryptographically random (>= 128 bits entropy)
 - [ ] JWT tokens: algorithm enforced (HS256/RS256), expiry set (<= 15 min access token)
 - [ ] Refresh token rotation implemented (old token invalidated on use)
@@ -126,16 +126,16 @@ Run through each section. Mark items:
 
 | OWASP Category | Status | Notes |
 |---|---|---|
-| A01: Broken Access Control | [ ] | IDOR checks, auth enforcement |
-| A02: Cryptographic Failures | [ ] | Password hashing, TLS, encryption at rest |
-| A03: Injection | [ ] | SQL injection, command injection, XSS |
-| A04: Insecure Design | [ ] | Threat model completed for new features |
-| A05: Security Misconfiguration | [ ] | Headers, defaults, error handling |
-| A06: Vulnerable Components | [ ] | Dependency audit clean |
-| A07: Auth Failures | [ ] | Rate limiting, session management, MFA |
-| A08: Data Integrity | [ ] | File upload validation, SRI hashes |
-| A09: Logging & Monitoring | [ ] | Security events logged, SIEM configured |
-| A10: SSRF | [ ] | URL fetching uses allowlist |
+| A01: Broken Access Control (incl. SSRF) | [ ] | IDOR checks, auth enforcement, URL fetching uses allowlist |
+| A02: Security Misconfiguration | [ ] | Headers, defaults, error handling |
+| A03: Software Supply Chain Failures | [ ] | Dependency audit clean, lockfile, SBOM, pinned CI actions |
+| A04: Cryptographic Failures | [ ] | Password hashing, TLS, encryption at rest |
+| A05: Injection | [ ] | SQL injection, command injection, XSS |
+| A06: Insecure Design | [ ] | Threat model completed for new features |
+| A07: Authentication Failures | [ ] | Rate limiting, session management, MFA |
+| A08: Software or Data Integrity Failures | [ ] | File upload validation, SRI hashes |
+| A09: Security Logging and Alerting Failures | [ ] | Security events logged and alerted |
+| A10: Mishandling of Exceptional Conditions | [ ] | Errors fail closed, no internals shown |
 
 ---
 

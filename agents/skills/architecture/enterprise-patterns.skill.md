@@ -1,6 +1,6 @@
 ---
 name: enterprise-patterns
-description: Implement robust Enterprise Architecture Patterns
+description: Choose and specify an enterprise resilience pattern (saga, circuit breaker, BFF, API gateway) with retries, timeouts, fallbacks and failure tests. Use when a distributed call chain needs a transaction or fault-isolation design.
 triggers: [implement enterprise pattern, add circuit breaker, design saga pattern]
 tags: [architecture]
 context_cost: medium
@@ -16,16 +16,15 @@ Implement widespread architectural patterns (BFF, API Gateway, Saga Pattern, Cir
 3. **Resilience Engineering**: Define retry counts, timeouts, and fallback protocols.
 4. **Verification**: Enforce Chaos testing or failure simulation tests before marking the task complete.
 
-## Security & Guardrails
+## Constraints
+- Pick the pattern from the named constraint, not from habit.
+- Failure tests pass before the task is done.
 
-### 1. Skill Security
-- **Pattern Bloat**: Prevent the agent from overly engineering simple CRUD apps with unnecessary Sagaservers or Kafka queues.
-- **Library Vet**: Force the agent to rely only on enterprise-approved libraries (e.g., Resilience4j) rather than attempting to handwrite complex distributed locks.
+## Output Format
+The pattern code with its retry, timeout and fallback values, and the failure tests.
 
-### 2. System Integration Security
-- **Circuit Breaker Fallbacks**: Ensure that when a circuit breaker trips, the fallback mechanism (cached data, default error) does not accidentally leak sensitive placeholder data to the client.
-- **Distributed Logging**: Ensure Saga orchestrators redact PII when logging complex multi-stage rollbacks or compensations.
-
-### 3. LLM & Agent Guardrails
-- **Saga Complexity Hallucination**: The LLM must explicitly list all compensatory transactions for every step of a Saga; it cannot gloss over failure states.
-- **Anti-Pattern Prevention**: Agents must explicitly block the use of distributed 2-Phase Commits in favor of Saga patterns across loosely coupled services.
+## Limits and safety
+- Use the platform's maintained resilience library; do not hand-write distributed locks or retry engines.
+- List a compensating action for every saga step; no distributed two-phase commit across loosely coupled services.
+- A tripped circuit breaker's fallback returns no placeholder or cached data that belongs to another user; saga logs mask personal data.
+- Do not add sagas or queues to a plain CRUD app; say which constraint needs the pattern.

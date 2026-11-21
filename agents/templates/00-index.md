@@ -6,7 +6,7 @@
 
 ---
 
-> **Total Templates**: 100
+> **Total Templates**: 107
 > *Registry categorized by domain.*
 
 ## Templates Registry
@@ -27,6 +27,8 @@
 | Golden Dataset | `coding/GOLDEN_DATASET_TEMPLATE.md` | Promptfoo-compatible eval cases + assertions |
 | Eval Rubric | `coding/EVAL_RUBRIC_TEMPLATE.md` | LLM-as-judge scoring rubric + debiasing checklist |
 | Property Test Checklist | `coding/PROPERTY_TEST_CHECKLIST.md` | PBT + metamorphic test readiness checklist |
+| Proof Obligation | `coding/PROOF_OBLIGATION_TEMPLATE.md` | Level 3 claim, assumptions, trusted base, leak checklist |
+| Mutation Report | `coding/MUTATION_REPORT_TEMPLATE.md` | Mutation scope, score, survivors and decisions |
 
 ### 2. Architecture & Design (`architecture/`)
 | Template | File | Purpose |
@@ -46,10 +48,13 @@
 | Adaptive System | `architecture/ADAPTIVE_SYSTEM_TEMPLATE.md` | Reliability/Resilience patterns |
 | Capability Map | `architecture/CAPABILITY_MAP_TEMPLATE.md` | Business Capability mapping |
 | Legacy Audit | `architecture/LEGACY_AUDIT_TEMPLATE.md` | Mainframe/Legacy system analysis |
+| Codebase Map | `architecture/CODEBASE_MAP_TEMPLATE.md` | Entry points, modules, hot spots, unknowns of an existing codebase |
+| Assessment | `architecture/ASSESSMENT_TEMPLATE.md` | Build/test/CI state, risks and proposal for an existing codebase |
 | Quality Attributes | `architecture/QUALITY_ATTRIBUTES_TEMPLATE.md` | NFR Definitions (SLAs/SLOs) |
 | Pattern Usage | `architecture/DESIGN_PATTERN_USAGE.md` | Pattern Justification |
 | Scalability Analysis | `architecture/SCALABILITY_ANALYSIS_TEMPLATE.md` | Bottleneck analysis |
 | Smart Contract | `architecture/SMART_CONTRACT_TEMPLATE.md` | Web3 logic & Security |
+| Formal Spec Brief | `architecture/FORMAL_SPEC_BRIEF_TEMPLATE.md` | Level 2 design model: scope, invariants, checker, bounds |
 
 ### 3. Operations & SRE (`ops/`)
 | Template | File | Purpose |
@@ -77,6 +82,7 @@
 | Model Card | `security/MODEL_CARD_TEMPLATE.md` | AI model documentation (intended use, evals, limits) |
 | Datasheet | `security/DATASHEET_TEMPLATE.md` | Dataset documentation (composition, collection, uses) |
 | System Card | `security/SYSTEM_CARD_TEMPLATE.md` | Deployed AI-system risk/mitigation/eval card |
+| Security Baseline | `security/SECURITY_BASELINE_TEMPLATE.md` | Tier, controls by phase, evidence, accepted risks |
 
 ### 5. Product & Strategy (`product/`)
 | Template | File | Purpose |
@@ -128,6 +134,7 @@
 | System Analysis | `core/SYSTEM_ANALYSIS_TEMPLATE.md` | Root cause/System dynamics |
 | MCP Config | `core/MCP_CONFIG_TEMPLATE.json` | Tool/MCP whitelisting |
 | Whiteboard Design | `core/WHITEBOARD_DESIGN_TEMPLATE.md` | Freeform whiteboard/visual design capture |
+| Assurance Plan | `core/ASSURANCE_PLAN_TEMPLATE.md` | Verification level per component, evidence, human approval |
 
 ### 9. Neuro-Architecture (`brain/`)
 | Template | File | Purpose |

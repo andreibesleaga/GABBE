@@ -11,16 +11,23 @@ from typing import Any
 logger = logging.getLogger("gabbe.config")
 
 
-# Paths — PROJECT_ROOT is determined by looking for marker files (project, .git, pyproject.toml)
-# upwards from the current working directory.
+# Paths — PROJECT_ROOT is determined by looking for marker files upwards from the current
+# working directory. A bare folder named "project" is NOT a marker (it would let ~/project
+# take over every project below it).
+_ROOT_MARKERS = (
+    ".git",
+    "pyproject.toml",
+    "package.json",
+    "agents/AGENTS.md",
+    "project/state.db",
+    "project/TASKS.md",
+)
+
+
 def _find_project_root(start_path: Path) -> Path:
     current = start_path.resolve()
     for _ in range(10):  # Limit recursion depth
-        if (
-            (current / "project").exists()
-            or (current / ".git").exists()
-            or (current / "pyproject.toml").exists()
-        ):
+        if any((current / marker).exists() for marker in _ROOT_MARKERS):
             return current
         parent = current.parent
         if parent == current:
@@ -39,7 +46,14 @@ PII_PATTERNS = [
     # re.compile(r'\b\d{9}\b'),                               # REMOVED: matches any 9-digit number
     re.compile(r"\b\d{3}-\d{2}-\d{4}\b"),  # SSN (dashes)
     re.compile(r"\b(?:\d{4}[-\s]?){3}\d{4}\b"),  # credit card
-    re.compile(r"(?i)\b(?:password|passwd|api[_\-]?key|secret|token)\s*[:=]\s*\S+"),  # credentials
+    # credential assignment: the name may carry a prefix or suffix (OPENAI_API_KEY,
+    # AWS_SECRET_ACCESS_KEY, DB_PASSWORD); group "head" (name and separator) is kept on
+    # redaction. Every repeat is bounded, so the scan stays linear.
+    re.compile(
+        r"(?i)(?P<head>(?<![a-z0-9_])[a-z0-9_]{0,64}"
+        r"(?:password|passwd|api[_\-]?key|secret|token)[a-z0-9_]{0,64}"
+        r"""["']?[ \t]{0,16}[:=][ \t]{0,16})\S+"""
+    ),
 ]
 
 # Common API-credential / bearer-token shapes (beyond the assignment form above).
@@ -52,6 +66,15 @@ SECRET_PATTERNS = [
     re.compile(r"\bsk-or-v1-[A-Za-z0-9]{16,}\b"),  # OpenRouter keys
     re.compile(r"\bgh[pousr]_[A-Za-z0-9]{16,}\b"),  # GitHub tokens
     re.compile(r"\bAKIA[0-9A-Z]{16}\b"),  # AWS access key id
+    re.compile(r"\bxox[abprs]-[A-Za-z0-9-]{10,200}"),  # Slack tokens
+    re.compile(r"\bAIza[0-9A-Za-z_\-]{35}"),  # Google API keys
+    # JSON Web Token: three base64url parts, the first starting with `eyJ` (`{"`)
+    re.compile(r"\beyJ[A-Za-z0-9_\-]{4,1000}\.[A-Za-z0-9_\-]{4,1000}\.[A-Za-z0-9_\-]{4,1000}"),
+    # PEM private-key block (header, up to 4 kB of body, footer)
+    re.compile(
+        r"-----BEGIN (?:[A-Z]{1,20} ){0,3}PRIVATE KEY-----"
+        r"[\s\S]{0,4096}?-----END (?:[A-Z]{1,20} ){0,3}PRIVATE KEY-----"
+    ),
 ]
 GABBE_DIR = PROJECT_ROOT / "project"
 DB_PATH = GABBE_DIR / "state.db"
@@ -117,14 +140,19 @@ def _parse_env_file(env_file: Path) -> dict[str, str]:
     pairs: dict[str, str] = {}
     if not env_file.exists():
         return pairs
-    with open(env_file, "r") as f:
-        for raw in f:
-            stripped = raw.strip()
-            if not stripped or stripped.startswith("#"):
-                continue
-            k, sep, v = stripped.partition("=")
-            if sep:
-                pairs[k.strip()] = v.strip().strip("'\"")
+    try:
+        with open(env_file, "r", encoding="utf-8-sig") as f:
+            for raw in f:
+                stripped = raw.strip()
+                if not stripped or stripped.startswith("#"):
+                    continue
+                k, sep, v = stripped.partition("=")
+                if sep:
+                    pairs[k.strip()] = v.strip().strip("'\"")
+    except UnicodeDecodeError:
+        # A damaged file could load a damaged value: read none of it.
+        logger.warning("Ignored %s: it is not valid UTF-8 text; no value was read.", env_file)
+        return {}
     return pairs
 
 

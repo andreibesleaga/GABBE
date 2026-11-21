@@ -79,7 +79,7 @@ Example:
 
 | Metric | Current | Target | Trend |
 |---|---|---|---|
-| Cyclomatic complexity (max) | [X] | < 10 | [improving/stable/worsening] |
+| Cyclomatic complexity (max) | [X] | <= 10 | [improving/stable/worsening] |
 | Test coverage | [X]% | >= 99% | [improving/stable/worsening] |
 | Code duplication | [X]% | < 3% | [improving/stable/worsening] |
 | TODO/FIXME count | [X] | 0 untracked | [improving/stable/worsening] |

@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "hooks": {
+    "beforeShellExecution": [
+      { "command": "node agents/hooks/cursor/gabbe-hook.js", "timeout": 10 }
+    ]
+  }
+}

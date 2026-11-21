@@ -1,13 +1,15 @@
 ---
 name: cost-optimization
-description: Cloud cost analysis and optimization (FinOps)
-triggers: [Reduce AWS bill, Analyze cloud costs, Find unused resources, Optimize instance types, finops]
+description: Find cloud spend that can be cut (idle compute, unused storage, network, over-sized databases) and report each item with savings and risk. Use when the cloud bill grows, a FinOps review is due, or you look for unused resources.
+triggers: [reduce aws bill, analyze cloud costs, find unused resources, optimize instance types, finops, cloud spend review]
 tags: [ops, cloud, finops, cost]
 context_cost: medium
 ---
 # Cost Optimization Skill
 
 ## Goal
+Find cloud spend that can be reduced and report it, with the saving and the risk of each change. The skill reports and recommends; it does not change resources.
+
 ## Steps
 
 ### 1. Analysis Areas
@@ -24,16 +26,13 @@ Produce a **Cost Optimization Report** detailing:
 - Estimated Savings
 - Risk Level (Low/Medium/High)
 
-## Security & Guardrails
+## Constraints
+- Use real billing exports or the provider's price data; do not estimate savings from remembered prices.
+- Check that a resource is not a security or recovery component before calling it idle.
+- The output is a report; changes to resources are made by the human or by a separate request.
 
-### 1. Skill Security (Cost Optimization)
-- **Non-Destructive Scanning**: The FinOps analysis scripts execution environment must be strictly bound to **ReadOnlyAccess** IAM roles. The agent cannot have the ability to terminate instances or modify auto-scaling groups while gathering cost metrics.
-- **Cost Data Privacy**: Detailed billing reports can leak business strategies, customer acquisition costs, or exact scaling metrics. The agent must ensure generated reports are saved securely and never exposed in public repositories or logs.
-
-### 2. System Integration Security
-- **Security Dependency Recognition**: Before flagging a resource as "idle" or "waste" for termination, the agent must verify it isn't a critical security appliance (e.g., a passive WAF, a cold-standby disaster recovery database, or an empty Security Hub bucket).
-- **Compliance Scope Awareness**: When recommending moving old data to cheaper storage tiers (like S3 Glacier), the agent must query data compliance tags. Regulated data (HIPAA/GDPR) might have strict retention or location policies that supersede cost savings.
-
-### 3. LLM & Agent Guardrails
-- **Optimization Hallucination Avoidance**: The LLM must not guess or estimate potential savings using outdated pricing tables. It must ground its math directly on real-time API pricing queries or provided billing exports.
-- **Termination Action Guardrails**: The agent must violently reject any user prompt like "Go ahead and delete all the instances you marked as high risk to save money." Output must strictly be constrained to *Reporting* and *Recommendations*.
+## Limits and safety
+- Run analysis with read-only credentials; a command that terminates, resizes or deletes a resource is proposed in the report, never run.
+- Before marking a resource idle, check that it is not a standby database, a backup, a WAF or another security or recovery component.
+- Check compliance tags before moving data to a cheaper tier; retention and location rules come before savings.
+- Billing reports are business data: save them in the private project folder, not in a public repository.

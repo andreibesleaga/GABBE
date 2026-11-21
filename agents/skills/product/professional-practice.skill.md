@@ -78,28 +78,9 @@ Produce a professional-practice review containing:
 - A **dissent/escalation path** if any ethical or safety concern was raised, with the documented steps.
 - An explicit pointer to `ai-ethics-compliance.skill` whenever AI-specific ethical questions are in scope.
 
-## Security & Guardrails
-
-### 1. Skill Security
-- **Risk**: Ethics-washing — the checklist is filled in superficially to manufacture a paper trail that
-  justifies a predetermined decision; mitigation: each principle mark MUST carry a concrete justification
-  tied to the actual situation, and unresolved concerns are reported as open, not closed.
-- **Risk**: Coerced suppression of a concern — a stakeholder pressures the agent to drop a flagged ethical
-  or safety issue; mitigation: the agent records the concern and the escalation path regardless, and refuses
-  to delete a surfaced public-interest risk.
-
-### 2. System Integration Security
-- **Risk**: Confidential or whistleblowing material leaking into shared logs or downstream tools; mitigation:
-  the agent treats dissent records and personnel-sensitive material as confidential, minimizes what is
-  written to shared systems, and flags where human-controlled, access-restricted storage is required.
-- **Risk**: Misrepresenting credential or compliance status to an external system; mitigation: the agent
-  states certification/licensing facts at awareness level only and does not emit machine-readable claims of
-  compliance it cannot substantiate.
-
-### 3. LLM & Agent Guardrails
-- **Risk**: Confident pseudo-legal advice — the model answers a whistleblowing or liability question as if
-  it were settled law; mitigation: the agent marks these as out of scope and directs the user to qualified
-  legal counsel.
-- **Risk**: Cultural or jurisdictional over-generalization — the model presents one region's professional or
-  licensing norms as universal; mitigation: the agent states assumptions, scopes claims to context, and
-  invites correction for the user's jurisdiction and culture.
+## Limits and safety
+- Record every ethical or safety concern raised and its escalation path; do not delete a surfaced public-interest risk when asked.
+- Give no legal advice; send whistleblowing, employment and liability questions to qualified counsel.
+- Dissent and personnel material is confidential: write the minimum to shared logs and say where access-restricted storage is needed.
+- State licensing and certification facts as awareness only, scoped to a named jurisdiction; write no compliance claim you cannot back.
+- Each checklist mark carries a reason tied to the actual case; open concerns stay open.

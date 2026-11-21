@@ -4,9 +4,49 @@
 > per-phase detail (personas, tasks, outputs, gates, checkpoints) so the skill
 > stays under the activation-size budget. Loaded on demand during orchestration.
 >
-> The core build loop is S01–S10. **S00 is the Day-0 strategy & discovery phase**
-> that runs BEFORE S01, and **S11–S13 are the Day-2 phases** (operate, evolve,
-> sunset) that run AFTER S10 once the system is live.
+> The lifecycle has 14 phases, S00–S13. **S00 is the Day-0 strategy & discovery
+> phase** that runs BEFORE S01, S01–S10 are Day 1 (build and ship), and **S11–S13
+> are the Day-2 phases** (operate, evolve, sunset) that run AFTER S10 once the
+> system is live.
+
+## Lifecycle at a glance (canonical)
+
+This table is the one source of truth for the phases, their lead personas, entry,
+exit and gate. Every other file points here and does not keep its own copy.
+Phase ids always have two digits (`S00`, `S13`). There are no half-numbered
+phases: the old sub-gates after S02, S04, S06 and S07 (cost, parallelism,
+performance, sustainability) are exit criteria of those phases.
+
+| ID | Name | Day | Lead persona (support) | Main skills | Entry | Exit criteria | Gate | Artefacts |
+|---|---|---|---|---|---|---|---|---|
+| S00 | Strategy & Discovery | 0 | prod-research (prod-pm) | ideation-facilitation, user-research-synthesis, opportunity-assessment, market-analysis | Request received; `PROJECT_STATE` absent or `NOT_STARTED` | Problem statement, opportunity sized, North-Star and HEART metrics, RICE, GO/NO-GO recommendation | HUMAN: go / no-go | `docs/discovery/PROBLEM_STATEMENT.md`, `OPPORTUNITY_ASSESSMENT.md`, `MARKET_SCAN.md` |
+| S01 | Requirements | 1 | prod-pm (prod-safety-engineer if safety-critical) | spec-writer, req-elicitation, req-review, ai-ethics-compliance, hazard-analysis, security-baseline, security-requirements | S00 GO, or a recorded "skip discovery" | PRD in EARS, every requirement testable, ambiguities closed, bias check done. Security tier confirmed by the human and recorded in project/SECURITY_BASELINE.md; security and privacy requirements written (security-requirements). | HUMAN | `docs/requirements/PRD.md`, `docs/requirements/EARS_REQUIREMENTS.md` |
+| S02 | Architecture | 1 | prod-architect (ops-security) | arch-design, adr-writer, threat-model, error-handling-strategy, financial-governance | S01 approved | C4 model, ADRs, threat model, projected cost within the approved envelope. Assurance level chosen per component and recorded in `project/ASSURANCE_PLAN.md` (`assurance-ladder.skill`); the human approves any level above 1. Threat model and trust boundaries done for tier 2 and 3; every S02 row of project/SECURITY_BASELINE.md has an evidence path. | HUMAN | `PLAN.md`, `docs/architecture/C4_ARCHITECTURE.md`, `docs/architecture/decisions/ADR-NNN.md`, `docs/security/THREAT_MODEL.md` |
+| S03 | Technical Spec | 1 | prod-tech-lead (prod-architect) | spec-analyze, api-design, event-governance | S02 approved | Spec covers every PRD criterion; API and schema contracts defined. Properties and invariants listed; where the assurance plan says level 2 or 3, the design model is checked. | prod-tech-lead (the human may review later) | `SPEC.md`, `docs/api/openapi.yaml`, `docs/db/schema-changes.md` |
+| S04 | Task Decomposition | 1 | prod-tech-lead, orch-planner | decompose, estimation-sizing | S03 done | Atomic tasks, DAG acyclic, `[PARALLEL]` groups conflict-free | orch-judge | `project/TASKS.md` |
+| S05 | Implementation | 1 | orch-planner with the eng-* personas | tdd-cycle, secure-coding, refactor, git-workflow, self-heal | S01–S04 checkpoints exist | All tasks DONE, each through the RARV verify step. Contracts, property tests and fuzz targets written at the chosen assurance level; frozen tests and specification files not edited by the implementer. | verify green | code, tests |
+| S06 | Testing & Quality | 1 | eng-qa, orch-judge | integrity-check, final-review, eval-driven-development | S05 done | Quality gates G1–G9 pass, final-review = SHIP, no performance regression against the baseline. At the chosen assurance level: mutation-score floor met on changed code and the anti-cheating checks passed (evidence added to G1–G9; no gate replaced). Gate G5 evidence, secret scan and static analysis output saved under docs/security/evidence/; S06 rows of the baseline set. | orch-judge (veto) | `docs/quality/S06-quality-report.md` |
+| S07 | Security Review | 1 | ops-security (eng-qa) | security-audit, security-baseline, threat-model, privacy-audit, ai-safety-guardrails, compliance-review | S06 pass | Checklist complete, no open HIGH finding, MEDIUM mitigated or accepted, sustainability report reviewed. For a level 3 proof: leak checklist and trusted base reviewed. Every control row of project/SECURITY_BASELINE.md has an existing evidence file (a row without one is a FAIL); open risks accepted only by the human. | HUMAN: security sign-off | `docs/security/SECURITY_REVIEW.md`, filled `templates/security/SECURITY_CHECKLIST.md` |
+| S08 | Human Review | 1 | prod-tech-lead, orch-judge, prod-ethicist | final-review, professional-practice | S07 signed off | Review summary; double verification (orch-judge, prod-tech-lead, prod-ethicist); final-review = SHIP | HUMAN | review summary in the checkpoint |
+| S09 | Staging | 1 | ops-devops (eng-qa) | deployment, backup-recovery, queue-management, performance-audit | S08 approved | Smoke tests green, restore from backup verified, monitoring verified | smoke tests green | staging record in `AUDIT_LOG.md` |
+| S10 | Production | 1 | ops-devops, ops-sre | deployment, release-management | S09 green | The human says "deploy now" in that request, before the deploy; then health checks pass and the human confirms the observation window (15 minutes unless the plan sets another) has ended; rollback plan exercised or documented | HUMAN: "deploy now", then the automated health check | deployment record in `AUDIT_LOG.md` |
+| S11 | Operate & Maintain | 2 | ops-sre (ops-monitor, ops-incident, ops-cost) | observability-stack-setup, runbook-authoring, dependency-lifecycle, incident-response | S10 live | SLOs met, no open critical CVE, spend within budget | recurring review | `docs/ops/RUNBOOKS/`, `docs/ops/SLO_REPORT.md`, `docs/ops/DEPENDENCY_STATUS.md` |
+| S12 | Evolve & Improve | 2 | prod-product-ops (prod-pm) | retrospective, product-analytics, feature-flag-management | S11 cycle done | Retrospective actions logged, experiments decided, DORA and SPACE reviewed | recurring review | `docs/evolve/RETROSPECTIVE.md`, `docs/evolve/IMPROVEMENT_BACKLOG.md` |
+| S13 | Decommission & Sunset | 2 | prod-pm (ops-sre, biz-legal) | decommission-sunset | The human decides to retire the system | Retention and migration done, users told, contracts wound down | exit criteria met (the human's decision is the entry) | `docs/sunset/*` |
+
+**Human gates.** There are six, all hard stops: S00, S01, S02, S07, S08 and S10.
+The agent does not advance past one until the human has answered. The record of a
+human gate is one `AUDIT_LOG.md` row `HUMAN_APPROVED` with the phase, the date and
+the human's words; a phase is not advanced without it. S03, S04, S05, S06, S09,
+S11 and S12 are not human gates. S13 is entered only on the human's decision to
+retire the system; that decision is its entry condition, not a seventh gate.
+
+**Quality gates.** G1–G9 run at S06 and are defined in
+`agents/personas/orch-judge.md`. Other files say "the quality gates G1–G9" and do
+not keep their own list or count.
+
+**Status words** for a phase: `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, `DONE`.
+**Snapshot name:** `agents/memory/episodic/SESSION_SNAPSHOT/S<NN>_<name>.md`.
 
 ## Orchestration Loop — SDLC Phases (S00–S13)
 
@@ -64,7 +104,7 @@ Checkpoint: sdlc-checkpoint.skill S01
   - Log:    agents/memory/AUDIT_LOG.md → PHASE_TRANSITION: S01 complete
 ```
 
-### PHASE S02 — Architecture Design
+### PHASE S02 — Architecture
 
 ```
 Personas: prod-architect (lead), ops-security (threat review)
@@ -73,6 +113,8 @@ Tasks:    prod-architect:
             - Define Error Handling Strategy (RFC 9457 Problem Details) using error-handling-strategy.skill
             - Create docs/architecture/C4_ARCHITECTURE.md
             - Write ADRs for all major decisions → docs/architecture/decisions/
+            - Cost check: run financial-governance.skill to validate the architecture
+              against budget and unit economics before the spec is written
           ops-security:
             - Review architecture for security concerns (adversarial)
             - Run threat-model.skill on critical components
@@ -80,8 +122,11 @@ Tasks:    prod-architect:
 
 Output:   PLAN.md, C4_ARCHITECTURE.md, ADR-001+, THREAT_MODEL.md
 
+Exit:     C4 model, ADRs, threat model, and projected cost within the approved
+          envelope (or a human-approved exception)
+
 Gate:     HUMAN APPROVAL REQUIRED
-          Present: architecture summary + threat assessment + (Safety Case if Critical)
+          Present: architecture summary + threat assessment + cost check + (Safety Case if Critical)
           Wait for approval. Loop if changes requested.
 
 Checkpoint: sdlc-checkpoint.skill S02
@@ -100,8 +145,8 @@ Tasks:   - Fill templates/product/SPEC_TEMPLATE.md
          - Define testing strategy
 Output:  SPEC.md, docs/api/openapi.yaml, docs/db/schema-changes.md
 
-Gate:    HUMAN APPROVAL — lighter / may be async (the tech spec IS human-approved, but it
-         is not a hard *blocking* stop like the S01, S02, S07, S08 gates)
+Gate:    prod-tech-lead approves (with prod-architect review). This is not a human
+         gate: the human may review the spec later, and the agent does not wait for it.
 
 Checkpoint: sdlc-checkpoint.skill S03
 ```
@@ -111,10 +156,12 @@ Checkpoint: sdlc-checkpoint.skill S03
 ```
 Persona: prod-tech-lead (with orch-planner)
 Tasks:   - Read SPEC.md + PLAN.md
-         - Decompose into atomic tasks (15-minute rule enforced)
+         - Decompose into atomic tasks (one concern, at most three files, one verifying
+           test, about 15 minutes for an expert)
          - Fill templates/core/TASKS_TEMPLATE.md
          - Assign each task to the appropriate eng-* persona
-         - Identify dependencies (DAG) AND Independent tasks
+         - Identify dependencies (DAG) AND Independent tasks; fill
+           templates/core/DEPENDENCY_GRAPH_TEMPLATE.md
          - **Parallelism**: Mark independent tasks with `[PARALLEL]` tag
 
          - **Adaptive Check**:
@@ -123,10 +170,13 @@ Tasks:   - Read SPEC.md + PLAN.md
 
 Output:  project/TASKS.md with T-NNN IDs, status: TODO, tags: [PARALLEL] if applicable
 
-Gate:    orch-judge reviews task decomposition:
-         - Are all tasks < 15 minutes?
+Exit:    Tasks are atomic, the DAG is acyclic, and the `[PARALLEL]` groups are
+         truly independent (no hidden edges, no cycles).
+
+Gate:    orch-judge reviews task decomposition (not a human gate):
+         - Are all tasks atomic (see the definition above)?
          - Does task coverage match SPEC acceptance criteria?
-         - Are parallel groups correctly identified?
+         - Are parallel groups correctly identified and conflict-free?
 
 Checkpoint: sdlc-checkpoint.skill S04
 ```
@@ -205,7 +255,7 @@ Persona: eng-qa (lead), orch-judge (validator)
 
 eng-qa Tasks:
   - Run full test suite → verify all green
-  - Check coverage ≥ 99% per module
+  - Check coverage against the rule in orch-judge.md (G3)
   - Run integration test suite
   - Identify any missing test scenarios from EARS acceptance criteria
   - Fill any gaps via tdd-cycle.skill
@@ -213,23 +263,18 @@ eng-qa Tasks:
     A-B results with empirical-methods.skill (effect size, significance — not just averages)
 
 orch-judge Tasks:
-  - Quality Gate Check (orch-judge's 7-gate system, extended here with E2E + EARS):
-    Gate 1: Lint/Syntax  → ESLint/PHP-CS-Fixer → zero errors
-    Gate 2: Type Safety  → tsc/PHPStan         → zero errors
-    Gate 3: Coverage     → Vitest/Pest          → ≥ 99%
-    Gate 4: Integration  → Docker Compose       → all green
-    Gate 5: Security     → dependency-security.skill → no critical vulnerabilities
-    Gate 6: Complexity   → Cyclomatic < 10 for all functions
-    Gate 7: Architecture → architecture-governance.skill → no layer violations (Fitness Functions)
-    Gate 8: E2E          → e2e-test-suite (Playwright/Cypress) → all critical flows PASS
-    Gate 9: EARS         → All acceptance criteria have passing tests
+  - Run the quality gates G1–G9 exactly as defined in `agents/personas/orch-judge.md`
+    (G1 lint, G2 types, G3 coverage, G4 integration, G5 dependency security,
+    G6 complexity, G7 architecture fitness, G8 end-to-end, G9 EARS coverage).
+    Do not keep a second list here. G7 and G8 may be recorded N/A with a reason.
+  - If any gate fails: assign a remediation task to an eng-* persona → loop
+  - Run the benchmark suite and compare it with the recorded baseline: no critical
+    latency or throughput regression, or a human-accepted, documented exception.
 
-  (Numbering note: Gates 1–6 + EARS are orch-judge's canonical 7-gate set — EARS is
-   orch-judge's Gate 7, shown here as Gate 9; Loki adds Architecture + E2E as the two
-   extra checks. Same checks, Loki-local numbering. orch-judge.md remains the 7-gate authority.)
-  If any gate fails: assign remediation task to eng-* persona → loop
+Exit:    G1–G9 pass (or N/A with a reason), final-review = SHIP, no performance
+         regression against the baseline.
 
-Gate:    All 9 gates PASS
+Gate:    orch-judge (veto). Not a human gate.
 
 Checkpoint: sdlc-checkpoint.skill S06
 ```
@@ -247,13 +292,18 @@ ops-security Tasks:
   - compliance-review.skill → if regulated (SOC2/PCI/HIPAA)
   - Fill: templates/security/SECURITY_CHECKLIST.md
   - Document all findings in: docs/security/SECURITY_REVIEW.md
+  - Sustainability: produce a green-software report (energy and carbon per request,
+    idle waste, efficiency hotspots) with green-software.skill
 
 Acceptance:
   - SECURITY_CHECKLIST.md: all items ✓
   - No HIGH severity open findings
   - All MEDIUM findings have documented mitigations or accepted risks
+  - Sustainability report reviewed; no unmitigated efficiency red flags
 
-Gate:    SECURITY_CHECKLIST passed + no critical CVEs
+Gate:    HUMAN SIGN-OFF REQUIRED — hard stop
+         Present the checklist, the findings and the sustainability report to the
+         human. S08 may not start until the human has signed off (HUMAN_APPROVED row).
 
 Checkpoint: sdlc-checkpoint.skill S07
 ```
@@ -290,7 +340,7 @@ Gate:    DOUBLE VERIFICATION + HUMAN APPROVAL REQUIRED
 Checkpoint: sdlc-checkpoint.skill S08
 ```
 
-### PHASE S09 — Staging Deployment
+### PHASE S09 — Staging
 
 ```
 Persona: ops-devops (lead), eng-qa (smoke tests)
@@ -313,10 +363,14 @@ Gate:    All smoke tests GREEN + monitoring verified
 Checkpoint: sdlc-checkpoint.skill S09
 ```
 
-### PHASE S10 — Production Deployment
+### PHASE S10 — Production
 
 ```
 Persona: ops-devops (lead), ops-sre (reliability check)
+
+Human gate (before anything is deployed):
+  - Ask the human for "deploy now". The approval must be in this request, after S09
+    is green. Record it as a HUMAN_APPROVED row in AUDIT_LOG.md. No approval, no deploy.
 
 Pre-deployment:
   - ops-sre: verify rollback plan is documented
@@ -326,13 +380,15 @@ Pre-deployment:
 Deployment:
   - deployment.skill → production
   - Feature flags (if applicable): enable for canary %
-  - Monitor for 15 minutes after deployment
+  - Monitor for the observation window set in the S10 row
 
 Post-deployment:
   - ops-monitor: verify dashboards show normal metrics
   - Write deployment record to AUDIT_LOG.md
 
-Gate:    Production healthy for 15+ minutes
+Gate:    HUMAN "deploy now" BEFORE the production deploy (hard stop), then the
+         automated health check: health checks pass and the human
+         confirms the observation window (S10 row) has ended
 
 Checkpoint: sdlc-checkpoint.skill S10
   - Update PROJECT_STATE.md: phase: S10, status: DONE (build loop complete; Day-2 begins)
@@ -414,6 +470,9 @@ Output:  docs/sunset/DECOMMISSION_PLAN.md
          docs/sunset/DATA_RETENTION_AND_MIGRATION.md
          docs/sunset/USER_COMMS.md (deprecation notices, migration guidance)
 
+Entry:   The human decides to retire the system. That decision is the entry
+         condition for S13; it is not a seventh human gate.
+
 Gate:    Deprecation policy approved + data retained/migrated/archived per policy
          + users notified + license/contract wind-down confirmed.
 
@@ -423,24 +482,3 @@ Checkpoint: sdlc-checkpoint.skill S13
   - Update: agents/memory/PROJECT_STATE.md → phase: S13, status: DONE (system retired)
   - Log:    agents/memory/AUDIT_LOG.md → DECOMMISSION complete
 ```
-
-## New mid-phase quality gates
-
-These are lightweight gates inserted *between* existing phases. They do not renumber any
-phase; they are checkpoints the orchestrator runs before advancing the adjacent phase.
-
-- **S02.5 — Cost & Feasibility gate** (between S02 and S03): run financial-governance.skill
-  to validate the proposed architecture against budget/unit-economics before committing to a
-  spec. Gate: projected cost within approved envelope, or human-approved exception.
-- **S04.5 — Parallelism / Dependency-feasibility gate** (between S04 and S05): build the task
-  dependency graph by filling templates/core/DEPENDENCY_GRAPH_TEMPLATE.md; verify the
-  `[PARALLEL]` groups are truly independent (no hidden edges, no cycles). Gate: DAG is acyclic
-  and parallel batches are conflict-free before implementation starts.
-- **S06.5 — Performance-regression gate** (after S06): run the benchmark suite and compare
-  against the recorded baseline. Gate: no critical latency/throughput regression vs baseline,
-  or a human-accepted, documented exception.
-- **S07.5 — Sustainability gate** (after S07): produce a green-software report (energy/carbon
-  per request, idle waste, efficiency hotspots). Gate: sustainability report reviewed; no
-  unmitigated efficiency red flags.
-
----

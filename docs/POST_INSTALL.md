@@ -29,7 +29,7 @@ at the config (e.g. `.mcp.json`, `.cursor/mcp.json`, or your client's MCP settin
 | `filesystem` | Read-only project file access (internal RAG) | npx; set root path |
 | `sequential-thinking` | Chain-of-thought reasoning | npx; no key |
 | `github` | PR review, code search, issue mgmt | npx; `GITHUB_TOKEN` |
-| `githits` | Navigate open-source dependency source/docs (no clone) | npx; no key (`npx githits@latest init`) |
+| `githits` | Navigate open-source dependency source/docs (no clone) | npx; no key (`npx githits@0.41.0 init`) |
 | `brave-search` or `tavily` | Authoritative web research | npx; API key |
 
 ### Locally-installed servers (clone/build/binary, not a plain npx one-liner)
@@ -69,6 +69,8 @@ gabbe eval                # deterministic skill-eval self-check
 ```
 
 ## 5. Updating / uninstalling later
+
+Upgrading a project from 1.1.x to 1.2.0 needs a manual step for `AGENTS.md` and `CONSTITUTION.md`: see [UPGRADING.md](UPGRADING.md).
 
 ```bash
 gabbe update              # additive kit refresh; preserves user files (writes the manifest)

@@ -1,0 +1,8 @@
+{
+  "floor": 55,
+  "measured_percent": 59.6,
+  "measured_on": "2026-11-21",
+  "measured_with": "mutmut 3.8.1, Python 3.12, modules gabbe/budget.py gabbe/sync.py gabbe/route.py, tests as listed in the nightly step of .github/workflows/ci.yml (933 mutants: 555 killed, 1 timeout, 377 survived)",
+  "formula": "(killed + timeout) / (total - skipped) * 100, as mutmut's own badge command",
+  "raise_rule": "after a nightly run scores at least 5 points above the floor, set the floor to that score minus 4; never lower it without an owner-approved reason in CHANGELOG.md"
+}

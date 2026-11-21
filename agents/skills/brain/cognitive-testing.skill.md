@@ -1,6 +1,6 @@
 ---
 name: cognitive-testing
-description: Test cognitive and agentic loops by their mechanisms and invariants rather than by output-equality.
+description: Tests cognitive and agentic loops by invariants, convergence, memory integrity and loop guards instead of exact output. Use when you must test an autonomous loop whose output varies, or check that its guards fire.
 triggers: [cognitive testing, invariant testing, convergence testing, episodic memory integrity, shadow testing, loop guard, brain mode testing]
 tags: [brain]
 core: false
@@ -47,16 +47,9 @@ A cognitive-test report containing:
 - **Shadow-test outcome**: failure injected, detected, self-healed, baseline restored.
 - **Guard-trigger results**: loop-detection, confidence-threshold, and hard-cap firings.
 
-## Security & Guardrails
-
-### 1. Skill Security (Cognitive Testing)
-- **Episodic-memory poisoning**: Episodic memory is an injection sink — a poisoned memory replayed on resume becomes a persistent instruction the loop trusts as its own history. Memories MUST be sanitized before write, and the integrity test in Step 3 MUST assert the resume pointer rejects fabricated history rather than merely matching the happy path.
-- **Convergence-claim overreach**: A test that asserts "free-energy convergence" against the production engine misrepresents what `brain.py` does and gives false assurance. The skill MUST keep convergence assertions scoped to the conceptual/toy loop and label them as such in the report, never implying the production engine minimizes free energy.
-
-### 2. System Integration Security
-- **Shadow tests hitting production resources**: A shadow test misconfigured against the real `state.db`, live APIs, or production budget can corrupt state or spend real money while injecting failures. Mock isolation MUST be enforced structurally (separate connection/credentials, no production endpoints reachable from the test harness), failing closed if a real resource is detected.
-- **Fault-injection blast radius**: Faults injected in shadow runs (per `chaos-fault-injection.skill`) must be contained to the sandbox. The harness MUST verify the mock boundary before injecting and MUST NOT propagate injected failures to shared or live infrastructure.
-
-### 3. LLM & Agent Guardrails
-- **Runaway loops exhausting budget**: An autonomous loop without guards can spin indefinitely, exhausting token/cost budget — a self-inflicted denial of service. The skill MUST assert hard iteration/depth/timeout caps and identical-call loop detection (escalate to human after 3 repeats), and these guards MUST fail closed.
-- **Bounding is not correctness**: Passing invariant, convergence, and guard tests bounds behavior but does NOT prove the cognition is correct or safe to run unsupervised. High-impact autonomous actions still require human approval per `ai-safety-guardrails.skill` and `prompt-injection-defense.skill`.
+## Limits and safety
+- Shadow tests use a mock `state.db` and mock endpoints. Before injecting a fault, confirm that no real path, API key or budget is reachable; if one is, stop.
+- Label convergence results as applying to the conceptual loop only; the production engine does not minimise free energy.
+- Sanitise episodic memory before writing it, and test that the resume pointer rejects invented history.
+- A passing run bounds behaviour; it does not show the loop is safe to run unattended.
+- The loop must escalate to the human after 3 identical tool calls; test that this guard fires.

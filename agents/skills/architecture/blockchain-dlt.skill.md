@@ -1,6 +1,6 @@
 ---
 name: blockchain-dlt
-description: Architect and audit Distributed Ledger/Blockchain systems and Smart Contracts
+description: Architecture and security notes for blockchain and smart contract systems — network choice, contract design, key handling, oracles. Use when a design involves a ledger, Solidity code or a web3 integration with an enterprise system.
 triggers: [design blockchain, write smart contract, dlt architecture, web3 integration, ethereum, solidity, ledger]
 tags: [blockchain, web3, security, dlt]
 context_cost: high
@@ -16,13 +16,14 @@ To architect, evaluate, and securely integrate Distributed Ledger Technologies (
 3. **Interoperability**: Outline integration with traditional enterprise systems via Oracles and off-chain indexing (e.g., The Graph).
 4. **Output Generation**: Produce the system architecture and logic flow using `agents/templates/architecture/SMART_CONTRACT_TEMPLATE.md`.
 
-## Security & Guardrails
+## Constraints
+- Contract code is checked for reentrancy, integer overflow and front-running.
+- Keys are held in a key manager or hardware module, never in files.
 
-### 1. Skill Security
-- **Strict Verification Rules**: The agent must natively enforce checks for Reentrancy attacks, Integer Overflow/Underflow, and Front-Running vulnerabilities when reviewing or outputting Solidity/Smart Contract code.
+## Output Format
+The architecture and logic flow in `SMART_CONTRACT_TEMPLATE.md` (`templates/architecture/`).
 
-### 2. System Integration Security
-- **Key Management Isolation**: The agent must outline strict segregation of private keys (using HSMs or secure enclaves like AWS KMS) and never suggest writing raw private keys to configuration files.
-
-### 3. LLM & Agent Guardrails
-- **Immutable Consequence Warning**: The LLM must explicitly warn the human user when proposing smart contract state changes, highlighting that once deployed to mainnet, the logic cannot be reversed without heavy mitigations (like proxy upgrades).
+## Limits and safety
+- A review of contract code checks reentrancy, integer overflow and front-running and says which checks were run. It is not an audit: a contract that holds value needs an independent human audit.
+- Private keys never go into code or config; propose a key manager or hardware module.
+- Before proposing a state change to a deployed contract, say that it cannot be undone except through the upgrade mechanism. Deploying to a mainnet is the human's action.

@@ -8,6 +8,17 @@ Comprehensive installation, configuration, and usage guide for every MCP (Model 
 > **How to apply**: Copy the relevant server entry into your tool's MCP config (Claude `.mcp.json`, VS Code `.vscode/mcp.json`, Cursor settings, etc.) and restart.
 > **Prerequisites**: Node.js 18+ and `npx` available in PATH for all `npx`-based servers.
 
+> [!WARNING]
+> **Versions pinned on 2026-11-21.** Every launcher line below names an exact version
+> (`npx -y <package>@<x.y.z>`), the same one as in the template. A pinned version does not update
+> itself: before you enable a server, check its current version and its publisher on the registry,
+> then re-pin on purpose. A launcher without a version runs whatever the registry serves that day,
+> with your tokens. The packages the 2026-10-29 re-check lists as missing, and the entries the
+> template marks `_review`, could not be verified on 2026-11-21 and are left without a version: check
+> the package before use. Packages npm marks deprecated (`server-brave-search`, `server-github`,
+> `server-postgres`, `server-gitlab`, `server-redis`, `@stripe/mcp`) are pinned to their last version
+> only so that the line is reproducible.
+
 > [!IMPORTANT]
 > **Package names verified 2026-06-10** against the npm/PyPI registries. Several
 > entries were corrected to their current upstream package (e.g. Context7 →
@@ -91,7 +102,7 @@ Up-to-date SDK documentation — prevents the agent from hallucinating deprecate
 {
   "context7": {
     "command": "npx",
-    "args": ["@upstash/context7-mcp"],
+    "args": ["@upstash/context7-mcp@4.7.3"],
     "env": {}
   }
 }
@@ -120,7 +131,7 @@ Structured chain-of-thought reasoning before acting. Improves planning quality f
 {
   "sequential-thinking": {
     "command": "npx",
-    "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"],
+    "args": ["-y", "@modelcontextprotocol/server-sequential-thinking@2.2.0"],
     "env": {}
   }
 }
@@ -145,7 +156,7 @@ Authoritative web research with source filtering. Powers the `research.skill`.
 {
   "brave-search": {
     "command": "npx",
-    "args": ["-y", "@modelcontextprotocol/server-brave-search"],
+    "args": ["-y", "@modelcontextprotocol/server-brave-search@0.6.2"],
     "env": {
       "BRAVE_API_KEY": "${BRAVE_API_KEY}"
     }
@@ -177,7 +188,7 @@ Read-only access to local project files for knowledge ingestion (internal RAG).
 {
   "filesystem": {
     "command": "npx",
-    "args": ["-y", "@modelcontextprotocol/server-filesystem", "./"],
+    "args": ["-y", "@modelcontextprotocol/server-filesystem@2.4.0", "./"],
     "env": {}
   }
 }
@@ -209,7 +220,7 @@ PR review, code search, issue management, and git history.
 {
   "github": {
     "command": "npx",
-    "args": ["-y", "@modelcontextprotocol/server-github"],
+    "args": ["-y", "@modelcontextprotocol/server-github@2025.4.8"],
     "env": {
       "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_TOKEN}"
     }
@@ -242,7 +253,7 @@ Lets the agent **navigate the open-source code your app depends on**. Your agent
 ```bash
 # Detects your tool (Claude Code, Cursor, VS Code/Copilot, Windsurf, Cline,
 # Claude Desktop, Codex CLI, Gemini CLI, OpenCode, …) and wires up the MCP server.
-npx githits@latest init
+npx githits@0.41.0 init
 ```
 
 **Config (manual — universal stdio entry):**
@@ -250,7 +261,7 @@ npx githits@latest init
 {
   "githits": {
     "command": "npx",
-    "args": ["-y", "githits@latest", "mcp", "start"],
+    "args": ["-y", "githits@0.41.0", "mcp", "start"],
     "env": {}
   }
 }
@@ -284,7 +295,7 @@ GitLab alternative to the GitHub MCP. Same capabilities for GitLab-hosted repos.
 {
   "gitlab": {
     "command": "npx",
-    "args": ["-y", "@modelcontextprotocol/server-gitlab"],
+    "args": ["-y", "@modelcontextprotocol/server-gitlab@2025.4.25"],
     "env": {
       "GITLAB_PERSONAL_ACCESS_TOKEN": "${GITLAB_TOKEN}",
       "GITLAB_API_URL": "https://gitlab.com"
@@ -315,7 +326,7 @@ Read-write PostgreSQL access for development environments.
 {
   "postgres-dev": {
     "command": "npx",
-    "args": ["-y", "@modelcontextprotocol/server-postgres"],
+    "args": ["-y", "@modelcontextprotocol/server-postgres@0.6.2"],
     "env": {
       "POSTGRES_CONNECTION_STRING": "${DATABASE_URL_DEV}"
     }
@@ -343,7 +354,7 @@ Read-only PostgreSQL for production schema introspection. Enable only when neede
 {
   "postgres-prod": {
     "command": "npx",
-    "args": ["-y", "@modelcontextprotocol/server-postgres"],
+    "args": ["-y", "@modelcontextprotocol/server-postgres@0.6.2"],
     "env": {
       "POSTGRES_CONNECTION_STRING": "${DATABASE_URL_PROD_READONLY}"
     }
@@ -423,7 +434,7 @@ MongoDB exploration, queries, and collection management.
 {
   "mongodb": {
     "command": "npx",
-    "args": ["-y", "mongodb-lens"],
+    "args": ["-y", "mongodb-lens@9.2.0"],
     "env": {
       "MONGODB_CONNECTION_STRING": "${MONGODB_URI}"
     }
@@ -449,7 +460,7 @@ Redis key-value interaction and management.
 {
   "redis": {
     "command": "npx",
-    "args": ["-y", "@modelcontextprotocol/server-redis"],
+    "args": ["-y", "@modelcontextprotocol/server-redis@2025.4.25"],
     "env": {
       "REDIS_URL": "${REDIS_URL}"
     }
@@ -473,7 +484,7 @@ SQLite database explorer (read-only recommended).
 {
   "sqlite": {
     "command": "npx",
-    "args": ["-y", "sqlite-mcp"],
+    "args": ["-y", "sqlite-mcp@0.0.1"],
     "env": {
       "SQLITE_PATH": "./database.sqlite"
     }
@@ -498,7 +509,7 @@ Universal database client supporting MySQL, MariaDB, PostgreSQL, and SQL Server.
 {
   "dbhub": {
     "command": "npx",
-    "args": ["-y", "@bytebase/dbhub"],
+    "args": ["-y", "@bytebase/dbhub@2.1.0"],
     "env": {}
   }
 }
@@ -690,7 +701,7 @@ Error tracking, bug context, and performance issue correlation.
 {
   "sentry": {
     "command": "npx",
-    "args": ["-y", "@sentry/mcp-server"],
+    "args": ["-y", "@sentry/mcp-server@0.50.0"],
     "env": {
       "SENTRY_AUTH_TOKEN": "${SENTRY_AUTH_TOKEN}",
       "SENTRY_ORG": "${SENTRY_ORG}",
@@ -776,7 +787,7 @@ Browser automation for visual TDD and E2E testing.
 {
   "playwright": {
     "command": "npx",
-    "args": ["@playwright/mcp", "--headless"],
+    "args": ["@playwright/mcp@0.0.86", "--headless"],
     "env": {}
   }
 }
@@ -804,7 +815,7 @@ Real-time web search and content extraction. Alternative to Brave Search.
 {
   "tavily": {
     "command": "npx",
-    "args": ["-y", "tavily-mcp"],
+    "args": ["-y", "tavily-mcp@0.2.22"],
     "env": {
       "TAVILY_API_KEY": "${TAVILY_API_KEY}"
     }
@@ -829,7 +840,7 @@ Turn websites into LLM-ready markdown. Website scraping and content extraction.
 {
   "firecrawl": {
     "command": "npx",
-    "args": ["-y", "firecrawl-mcp"],
+    "args": ["-y", "firecrawl-mcp@3.41.0"],
     "env": {
       "FIRECRAWL_API_KEY": "${FIRECRAWL_API_KEY}"
     }
@@ -890,7 +901,7 @@ Privacy-focused web search. No API key required.
 {
   "duckduckgo": {
     "command": "npx",
-    "args": ["-y", "duckduckgo-mcp-server"],
+    "args": ["-y", "duckduckgo-mcp-server@0.1.2"],
     "env": {}
   }
 }
@@ -1021,7 +1032,7 @@ Azure Resource management — Key Vault, CosmosDB, Azure Storage.
 {
   "azure": {
     "command": "npx",
-    "args": ["-y", "@azure/mcp"],
+    "args": ["-y", "@azure/mcp@4.0.0-beta.9"],
     "env": {
       "AZURE_CLIENT_ID": "${AZURE_CLIENT_ID}",
       "AZURE_CLIENT_SECRET": "${AZURE_CLIENT_SECRET}",
@@ -1075,7 +1086,7 @@ Cluster state, pod logs, and deployment management.
 {
   "kubernetes": {
     "command": "npx",
-    "args": ["-y", "mcp-server-kubernetes"],
+    "args": ["-y", "mcp-server-kubernetes@4.2.3"],
     "env": {
       "KUBECONFIG": "${KUBECONFIG}"
     }
@@ -1135,7 +1146,7 @@ Programmatic generation and editing of C4, UML, and network diagrams.
 {
   "drawio": {
     "command": "npx",
-    "args": ["-y", "drawio-mcp-server"],
+    "args": ["-y", "drawio-mcp-server@2.4.0"],
     "env": {}
   }
 }
@@ -1160,7 +1171,7 @@ Create and manage Excalidraw diagrams — nodes, edges, and diagram state. Hand-
 {
   "excalidraw": {
     "command": "npx",
-    "args": ["-y", "@cmd8/excalidraw-mcp", "--diagram", "./docs/architecture.excalidraw"],
+    "args": ["-y", "@cmd8/excalidraw-mcp@1.2.0", "--diagram", "./docs/architecture.excalidraw"],
     "env": {}
   }
 }
@@ -1195,7 +1206,7 @@ Persistent visual canvas — create, manage, and search `.tldr` files for wirefr
 {
   "tldraw": {
     "command": "npx",
-    "args": ["-y", "@talhaorak/tldraw-mcp"],
+    "args": ["-y", "@talhaorak/tldraw-mcp@0.1.1"],
     "env": {}
   }
 }
@@ -1256,7 +1267,7 @@ Translate Mermaid/PlantUML syntax into SVG/PNG images.
 {
   "mermaid": {
     "command": "npx",
-    "args": ["-y", "mermaid-mcp-server"],
+    "args": ["-y", "mermaid-mcp-server@1.0.8"],
     "env": {}
   }
 }
@@ -1284,7 +1295,7 @@ Semantic memory layer — vector search for long-term project knowledge.
 {
   "qdrant": {
     "command": "npx",
-    "args": ["-y", "mcp-server-qdrant"],
+    "args": ["-y", "mcp-server-qdrant@0.0.1"],
     "env": {
       "QDRANT_URL": "${QDRANT_URL}",
       "QDRANT_API_KEY": "${QDRANT_API_KEY}",
@@ -1311,7 +1322,7 @@ Managed vector database for semantic search.
 {
   "pinecone": {
     "command": "npx",
-    "args": ["-y", "pinecone-mcp"],
+    "args": ["-y", "pinecone-mcp@1.0.0"],
     "env": {
       "PINECONE_API_KEY": "${PINECONE_API_KEY}"
     }
@@ -1336,7 +1347,7 @@ Open-source embedding database. No API key required for local mode.
 {
   "chroma": {
     "command": "npx",
-    "args": ["-y", "chromadb-mcp"],
+    "args": ["-y", "chromadb-mcp@0.1.0"],
     "env": {}
   }
 }
@@ -1359,7 +1370,7 @@ Vector search engine for semantic queries.
 {
   "weaviate": {
     "command": "npx",
-    "args": ["-y", "weaviate-mcp"],
+    "args": ["-y", "weaviate-mcp@1.0.3"],
     "env": {
       "WEAVIATE_URL": "${WEAVIATE_URL}",
       "WEAVIATE_API_KEY": "${WEAVIATE_API_KEY}"
@@ -1386,7 +1397,7 @@ Full-text search, log analysis, and knowledge base indexing.
 {
   "elasticsearch": {
     "command": "npx",
-    "args": ["-y", "elasticsearch-mcp-server"],
+    "args": ["-y", "elasticsearch-mcp-server@1.0.0"],
     "env": {
       "ELASTICSEARCH_URL": "${ELASTICSEARCH_URL}",
       "ELASTICSEARCH_API_KEY": "${ELASTICSEARCH_API_KEY}"
@@ -1417,7 +1428,7 @@ Jira Cloud task interaction — read and update tickets.
 {
   "jira": {
     "command": "npx",
-    "args": ["-y", "@aashari/mcp-server-atlassian-jira"],
+    "args": ["-y", "@aashari/mcp-server-atlassian-jira@3.3.0"],
     "env": {
       "ATLASSIAN_SITE_NAME": "${JIRA_SITE}",
       "ATLASSIAN_USER_EMAIL": "${JIRA_EMAIL}",
@@ -1472,7 +1483,7 @@ Notion workspace access — pages, databases, docs.
 {
   "notion": {
     "command": "npx",
-    "args": ["-y", "@notionhq/notion-mcp-server"],
+    "args": ["-y", "@notionhq/notion-mcp-server@2.6.1"],
     "env": {
       "OPENAPI_MCP_HEADERS": "{\"Authorization\": \"Bearer ${NOTION_TOKEN}\"}"
     }
@@ -1498,7 +1509,7 @@ Linear issue tracking and project management.
 {
   "linear": {
     "command": "npx",
-    "args": ["-y", "linear-mcp-server"],
+    "args": ["-y", "linear-mcp-server@0.1.0"],
     "env": {
       "LINEAR_API_KEY": "${LINEAR_API_KEY}"
     }
@@ -1524,7 +1535,7 @@ Workspace channels, DMs, and message history.
 {
   "slack": {
     "command": "npx",
-    "args": ["-y", "slack-mcp-server"],
+    "args": ["-y", "slack-mcp-server@1.3.0"],
     "env": {
       "SLACK_BOT_TOKEN": "${SLACK_BOT_TOKEN}",
       "SLACK_TEAM_ID": "${SLACK_TEAM_ID}"
@@ -1580,7 +1591,7 @@ Load and query any OpenAPI/Swagger specification for API exploration.
 {
   "openapi": {
     "command": "npx",
-    "args": ["-y", "openapi-mcp-server"],
+    "args": ["-y", "openapi-mcp-server@2.1.0"],
     "env": {
       "OPENAPI_SPEC_URL": "${OPENAPI_SPEC_URL}"
     }
@@ -1658,7 +1669,7 @@ Search and manage Stripe payment resources.
 {
   "stripe": {
     "command": "npx",
-    "args": ["-y", "@stripe/mcp"],
+    "args": ["-y", "@stripe/mcp@0.3.4"],
     "env": {
       "STRIPE_API_KEY": "${STRIPE_SECRET_KEY}"
     }

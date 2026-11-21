@@ -1,7 +1,7 @@
 ---
 name: traceability-audit
-description: Verifies that every PRD requirement has a linked Test Case and Code Implementation.
-triggers: [traceability audit]
+description: Check that every requirement ID has a test and code, and flag code with no requirement. Use before a release or when a PRD changes. Security requirements are checked first.
+triggers: [traceability, requirement coverage, requirement to test, trace matrix, req coverage]
 tags: [security]
 role: prod-pm
 context_cost: low
@@ -10,6 +10,9 @@ context_cost: low
 
 ## Goal
 This skill ensures "What was ordered" == "What was delivered".
+
+## Where it fits
+Phase and gate: S06 (gate G9) and S07 (evidence for each security requirement). Evidence: the traceability matrix (`templates/core/TRACEABILITY_MATRIX_TEMPLATE.md`).
 
 ## Steps
 ## 1. The Trace Chain
@@ -33,16 +36,15 @@ Generate a table:
 | R-101 | "User logs in" | `auth.ts` | `auth.test.ts` | ✅ PASS |
 | R-102 | "User logs out" | `auth.ts` | `auth.test.ts` | ❌ FAIL |
 
-## Security & Guardrails
+## Constraints
+- A trace link exists only by tag or explicit entry, never by guess.
+- Run the audit on the current PRD and the current tests, not on a saved copy.
 
-### 1. Skill Security (Traceability Audit)
-- **Security Requirement Tracing Mandate**: The agent must elevate the priority of requirements tagged as "Security," "Compliance," or "NFR." A missing test case for a standard UI feature is a functional gap; a missing test case for a Security Requirement (e.g., `req-auth-001`) is a critical deployment blocker.
-- **Audit Bypass Detection**: The agent must proactively analyze the test files for superficial or "mocked" verifications. If a test is linked via `@req(req-001)` but contains no actual assertions, or trivially asserts `true == true` to superficially satisfy the coverage metric, the agent must flag this as a critical audit failure and potential misconduct.
+## Output Format
+The traceability matrix with a status per requirement ID, the gap list, and the list of tests that do not count.
 
-### 2. System Integration Security
-- **Gold Plating Vulnerability**: The agent must flag "Gold Plating" (unrequested features missing from the PRD but present in the code) not just as scope creep, but as a severe security risk. Undocumented code paths are the primary vector for hidden backdoors, logic bombs, and unauthorized privilege escalation.
-- **End-to-End Validation**: The coverage analysis (Step 3) must verify that the linked test cases execute within an environment that accurately mimics production security controls. A security requirement verified solely by a unit test bypassing the actual authentication middleware is invalid for traceability purposes.
-
-### 3. LLM & Agent Guardrails
-- **Trace Synthesis Hallucination**: The LLM is strictly prohibited from "guessing" or synthesizing a trace link based on semantic similarity if explicit linkage (e.g., `@req(req-001)`) is missing. The traceability matrix must represent deterministic, auditable reality, not the LLM's automated assumptions.
-- **Audit Softening**: A user under timeline pressure might prompt the agent to "Exclude the new admin portal from the traceability audit so we can pass." The agent must refuse any command that attempts to arbitrarily carve out scope exemptions for the audit without a formalized, documented override.
+## Limits and safety
+- Check security and compliance requirements first. A missing test for one is reported to orch-judge as a blocker.
+- A test linked by tag that has no assertion, or that bypasses the real authentication middleware, does not count. List it.
+- Never infer a link from similar wording. A link exists only by tag or an explicit entry.
+- A scope exclusion needs the human's recorded yes.

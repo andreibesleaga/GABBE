@@ -1,0 +1,45 @@
+#!/bin/sh
+# GABBE-HOOK pre-push: refuse a push to a protected branch, a branch delete of one, or a force push.
+# Protected: main, master, and every value of the git config key gabbe.protectedBranch
+#   (add one: git config --add gabbe.protectedBranch release).
+# Force push: a branch update whose old remote commit is not an ancestor of the new one.
+# One-time override, set by the human in the shell for that push: GABBE_ALLOW_PUSH=1 git push ...
+# Failure direction: if the hook cannot tell (stdin unreadable, bad line), the push is REFUSED.
+# Limit: `git push --no-verify` skips this hook and it is local to this clone.
+#   Server-side branch protection is the real control.
+set -u
+if [ "${GABBE_ALLOW_PUSH:-}" = 1 ]; then
+  echo "gabbe pre-push: GABBE_ALLOW_PUSH=1, checks skipped for this push." >&2
+  exit 0
+fi
+extra=$(git config --get-all gabbe.protectedBranch 2>/dev/null || true)
+bad=0
+# git gives one line per ref: <local ref> <local oid> <remote ref> <remote oid>
+while read -r lref loid rref roid; do
+  [ -n "${rref:-}" ] || continue
+  case $rref in refs/heads/*) ;; *) continue ;; esac
+  name=${rref#refs/heads/}
+  protected=0
+  case $name in main|master) protected=1 ;; esac
+  if [ "$protected" = 0 ] && [ -n "$extra" ]; then
+    for p in $extra; do [ "$p" = "$name" ] && protected=1; done
+  fi
+  case $loid in *[!0]*) deleting=0 ;; *) deleting=1 ;; esac
+  case $roid in *[!0]*) newref=0 ;; *) newref=1 ;; esac
+  if [ "$protected" = 1 ]; then
+    echo "gabbe pre-push: push to protected branch '$name' refused." >&2
+    bad=1
+    continue
+  fi
+  if [ "$deleting" = 0 ] && [ "$newref" = 0 ]; then
+    if ! git merge-base --is-ancestor "$roid" "$loid" 2>/dev/null; then
+      echo "gabbe pre-push: force push (non fast-forward) to '$name' refused." >&2
+      bad=1
+    fi
+  fi
+done
+if [ "$bad" = 1 ]; then
+  echo "gabbe pre-push: if the human wants this push, run: GABBE_ALLOW_PUSH=1 git push ..." >&2
+  exit 1
+fi
+exit 0

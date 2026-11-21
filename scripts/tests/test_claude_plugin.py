@@ -114,7 +114,9 @@ def test_skill_frontmatter_meets_the_agent_skills_format(skill):
     src = ROOT / md["source"]
     assert src.is_file(), f"metadata.source {md['source']} missing"
     src_meta, src_body = _frontmatter(src)
-    assert body == src_body, "the body is the source body, unchanged"
+    assert body.startswith(src_body), "the body is the source body, unchanged"
+    tail = body[len(src_body) :]
+    assert tail == "" or tail.startswith("\n\n---\nPlugin note: the catalogue file(s)")
     assert desc.startswith(" ".join(str(src_meta["description"]).split()).rstrip("."))
 
 
@@ -214,6 +216,158 @@ def test_icon_source_lives_outside_the_generated_tree(tmp_path, monkeypatch):
     assert tree["plugins/gabbe/.claude-plugin/icon.png"] == bcp.ICON.read_bytes()
 
 
+# --- the one overall plugin ---------------------------------------------------------
+
+CORE = PLUGINS / bcp.CORE_PLUGIN
+CORE_SKILLS = sorted(p.name for p in (CORE / "skills").iterdir() if p.is_dir())
+README_HEADINGS = (
+    "## What it is",
+    "## How to start",
+    "## What it includes",
+    "## The rules it follows",
+    "## What it runs, sends or fetches",
+    "## What it does not include",
+    "## Context cost",
+    "## Install",
+    "## Licence and links",
+)
+
+
+def _flagged_sources():
+    out = {}
+    for src in SOURCES:
+        meta, _ = _frontmatter(src)
+        if meta.get("core") is True:
+            out[src.name[: -len(".skill.md")]] = src
+    return out
+
+
+def test_core_plugin_has_the_start_skill_and_every_group():
+    assert bcp.START_SKILL in CORE_SKILLS
+    for group, names in bcp.CORE_GROUPS.items():
+        assert names, group
+        assert set(names) & set(CORE_SKILLS), f"no skill of the group {group!r} in the plugin"
+    assert set(bcp.CORE_GROUPS) >= {"Start here", "Security", "Assurance", "Research"}
+    assert 45 <= len(CORE_SKILLS) <= 60, f"{len(CORE_SKILLS)} skills (target 45 to 60)"
+
+
+def test_core_plugin_is_exactly_the_skills_flagged_core_true():
+    flagged = set(_flagged_sources())
+    assert flagged == set(CORE_SKILLS), (
+        f"flagged but not in plugins/gabbe: {sorted(flagged - set(CORE_SKILLS))}; "
+        f"in plugins/gabbe but not flagged: {sorted(set(CORE_SKILLS) - flagged)}"
+    )
+    assert sorted(n for names in bcp.CORE_GROUPS.values() for n in names) == CORE_SKILLS
+
+
+def test_no_skill_is_in_two_plugins():
+    seen = {}
+    for skill in SKILL_FILES:
+        name = skill.parent.name
+        assert name not in seen, f"{name} is in {seen[name]} and {skill.parts[-4]}"
+        seen[name] = skill.parts[-4]
+
+
+def test_unflagged_core_folder_skills_go_to_extras_not_to_gabbe():
+    rel = Path("core") / "x.skill.md"
+    assert bcp.plugin_of(rel, {}) == bcp.EXTRAS_PLUGIN
+    assert bcp.plugin_of(rel, {"core": True}) == bcp.CORE_PLUGIN
+    assert bcp.plugin_of(Path("ops") / "x.skill.md", {"core": True}) == bcp.CORE_PLUGIN
+    assert bcp.plugin_of(Path("ops") / "x.skill.md", {}) == "gabbe-ops"
+
+
+def test_core_manifest_describes_the_overall_plugin_and_never_a_marketplace():
+    manifest = json.loads((CORE / ".claude-plugin" / "plugin.json").read_text("utf-8"))
+    desc = manifest["description"]
+    assert "marketplace" not in desc.lower()
+    assert "overall GABBE plugin" in desc and "andreibesleaga/GABBE" in desc
+    assert manifest["displayName"] == "GABBE"
+    assert (CORE / manifest["icon"]).is_file()
+    for key in ("documentationUrl", "supportUrl"):
+        assert manifest[key].startswith("https://")
+    market = json.loads(MARKETPLACE.read_text(encoding="utf-8"))
+    entry = {e["name"]: e for e in market["plugins"]}[bcp.CORE_PLUGIN]
+    assert "marketplace" not in entry["description"].lower()
+    for key in ("displayName", "icon", "documentationUrl", "supportUrl"):
+        assert key not in entry, f"{key} is read from plugin.json only"
+
+
+def test_core_readme_has_the_usage_sections_and_enough_prose():
+    text = (CORE / "README.md").read_text(encoding="utf-8")
+    for heading in README_HEADINGS:
+        assert heading in text, f"README lacks {heading!r}"
+    for group in bcp.CORE_GROUPS:
+        assert f"### {group}" in text
+    for name in CORE_SKILLS:
+        assert f"`{name}`" in text
+    prose = re.sub(r"```.*?```", "", text, flags=re.S)
+    assert len(prose.split()) >= 40
+    assert "/gabbe:gabbe-start" in text
+    assert "npx gabbe-kit init" in text and "downloads and runs" in text
+    assert "no hooks, no MCP server" in text
+
+
+def test_core_plugin_files_are_text_or_the_icon_and_not_symbolic_links():
+    files = [p for p in CORE.rglob("*") if p.is_file() or p.is_symlink()]
+    assert len(files) <= bcp.MAX_FILES
+    for f in files:
+        assert not f.is_symlink(), f"{_rel(f)} is a symbolic link"
+        if f.name == "icon.png":
+            continue
+        assert f.suffix in bcp.TEXT_SUFFIXES, f"{_rel(f)} is not a text file type"
+        assert f.stat().st_size < bcp.MAX_TEXT_BYTES
+        f.read_text(encoding="utf-8")
+    assert sum(1 for f in files if f.suffix == ".png") == 1
+
+
+def test_gabbe_start_source_is_short_and_ends_with_limits_and_safety():
+    src = ROOT / "agents" / "skills" / "core" / "gabbe-start.skill.md"
+    text = src.read_text(encoding="utf-8")
+    assert len(text.splitlines()) <= 140
+    assert text.count("## Limits and safety") == 1
+    meta, _ = _frontmatter(src)
+    assert meta["name"] == "gabbe-start" and meta["core"] is True
+
+
+def test_gabbe_start_names_only_skills_that_resolve_or_are_marked():
+    names = {p.name[: -len(".skill.md")] for p in SOURCES}
+    text = (CORE / "skills" / bcp.START_SKILL / "SKILL.md").read_text(encoding="utf-8")
+    refs = bcp.skill_names_in(text, names)
+    assert refs, "gabbe-start names no skills"
+    for name, starred in refs:
+        assert starred == (name not in CORE_SKILLS), f"{name}: * mark is wrong"
+
+
+def test_check_core_reports_each_directory_rule():
+    records = [
+        {"name": bcp.START_SKILL, "plugin": bcp.CORE_PLUGIN},
+        {"name": "other", "plugin": "gabbe-ops"},
+        {"name": "stray", "plugin": bcp.CORE_PLUGIN},
+    ]
+    base = "plugins/gabbe/"
+    tree = {
+        base + ".claude-plugin/plugin.json": b'{"description": "from the same marketplace"}',
+        base + "README.md": b"too short",
+        base + "skills/gabbe-start/SKILL.md": b"See `other` and `gabbe-start`.\n",
+        base + "skills/gabbe-start/run.sh": b"echo hi",
+        base + "skills/gabbe-start/bin.md": b"export X=$GITHUB_TOKEN",
+        base + "skills/gabbe-start/big.md": b"x" * bcp.MAX_TEXT_BYTES,
+        base + "skills/gabbe-start/inline.md": b"mark it `!` or add a `BREAKING` line",
+    }
+    problems = "\n".join(bcp.check_core(tree, records))
+    for expected in (
+        "README has",
+        "marketplace",
+        "not a text file type",
+        "reads a credential",
+        "limit 262143",
+        "inline-command line",
+        "names other, which is not in the plugin",
+        "not in CORE_GROUPS",
+    ):
+        assert expected in problems, f"{expected!r} not reported:\n{problems}"
+
+
 # --- plugin directory limits and content only -------------------------------------
 
 
@@ -228,6 +382,15 @@ def test_plugin_is_within_the_directory_limits(plugin):
     readme = (plugin / "README.md").read_text(encoding="utf-8")
     prose = re.sub(r"```.*?```", "", readme, flags=re.S)
     assert len(prose.split()) >= 40, "README needs at least 40 words outside code"
+
+
+def test_no_catalogue_index_is_shipped_as_a_supporting_file():
+    bad = [_rel(p) for p in ALL_FILES if re.match(r"^00-index.*\.md$", p.name)]
+    assert not bad, f"00-index files list every kit skill and must not ship: {bad}"
+    assert bcp.index_refs("see `agents/skills/00-index-lite.md` and `guides/00-index.md`") == [
+        "agents/skills/00-index-lite.md",
+        "guides/00-index.md",
+    ]
 
 
 def test_plugins_are_content_only():
@@ -302,6 +465,8 @@ def test_every_kit_template_or_guide_a_skill_names_is_copied_beside_it():
             token = m.group(1) or m.group(2)
             norm = os.path.normpath(token).replace(os.sep, "/")
             if norm.startswith(("..", "/")) or Path(norm).name in NOT_COPIED:
+                continue
+            if bcp.INDEX_RE.match(Path(norm).name):
                 continue
             if _kit_template_or_guide(norm) and not (skill.parent / norm).is_file():
                 missing.append(f"{_rel(skill)}: {token}")

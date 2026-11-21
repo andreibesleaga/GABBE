@@ -41,16 +41,8 @@ A strategic analysis document at `docs/strategic/SYSTEM_ANALYSIS.md` containing 
 *   Look for circular causality, not linear (A causes B, but B also influences A).
 *   Watch out for *delays* in the system—they cause oscillation.
 
-## Security & Guardrails
-
-### 1. Skill Security (Systems Thinking)
-- **Adversarial Iceberg Mapping**: When encountering a security incident, the agent must adapt the "Iceberg Model" to analyze attacker incentives. (e.g., Structure: "The architecture relies entirely on perimeter defense." Mental Model: "Internal networks are inherently trusted.")
-- **Holistic Threat Analysis**: The agent must map the security dependencies of the entire supply chain. A Causal Loop Diagram (CLD) analyzing feature velocity must natively incorporate "Tech Debt" and "Security Debt" as variables that exponentially degrade system stability over time.
-
-### 2. System Integration Security
-- **Leverage Point Exploitation**: When the agent identifies a "High Leverage" intervention point in the system map (e.g., changing the core authentication flow), it must automatically flag this node as a highly critical security boundary requiring prioritized threat modeling.
-- **Feedback Loop Sabotage**: The agent must analyze balancing loops (e.g., automated rate-limiting, autoscaling) for theoretical manipulation. Can an attacker exploit the autoscaler (a balancing loop) to cause a Denial of Wallet attack, transforming it into a vicious reinforcing loop?
-
-### 3. LLM & Agent Guardrails
-- **Analysis Paralysis Defense**: Systems thinking can lead to infinitely expanding scopes. The LLM must enforce a strict boundary condition on the system map to prevent consuming excessive tokens or generating unactionable, overly philosophical theories that stall the SDLC.
-- **Hallucinated Causality**: The agent must explicitly state when a causal link in the CLD is a hypothesis vs. an empirically proven fact. The LLM cannot invent causal relationships (e.g., "Implementing Feature X directly caused a 50% drop in vulnerabilities") without citing telemetry or historical PR metrics.
+## Limits and safety
+- State the system boundary before mapping and stop at it; ask the human before widening it.
+- Label each causal link as hypothesis or evidenced, and name the evidence (telemetry, PR history). Do not invent links.
+- When the topic is delivery speed or an incident, include security debt next to tech debt as a variable.
+- Flag balancing loops that cost money (autoscaling, retries) for abuse checks, and flag high-leverage changes to authentication or other security boundaries for threat modelling.

@@ -2,13 +2,14 @@
   "_comment": "MCP (Model Context Protocol) server configuration template",
   "_comment2": "Customise for your project. Security rules: prod databases = read-only, dev = read-write.",
   "_comment3": "Install instructions: see docs/MCP_CONFIGURATIONS.md for detailed per-server setup",
+  "_comment4": "Versions pinned on 2026-11-21. A pinned version does not update itself: before you enable a server, check its current version and its publisher on the registry, then re-pin on purpose. Entries marked _review could not be verified on that date and stay disabled.",
   "mcpServers": {
     "_section_essential": "=== ESSENTIAL (install for every project) ===",
     "context7": {
       "_description": "Up-to-date SDK docs \u2014 prevents API hallucination. HIGHLY RECOMMENDED.",
       "command": "npx",
       "args": [
-        "@upstash/context7-mcp"
+        "@upstash/context7-mcp@4.7.3"
       ],
       "env": {}
     },
@@ -17,17 +18,18 @@
       "command": "npx",
       "args": [
         "-y",
-        "@modelcontextprotocol/server-sequential-thinking"
+        "@modelcontextprotocol/server-sequential-thinking@2.2.0"
       ],
       "env": {}
     },
     "brave-search": {
       "_description": "Authoritative web research with source filtering.",
+      "_review": "deprecated on npm; pinned to its last version only so that the entry is reproducible; check it before use",
       "_note": "Deprecated: npm marks this package 'no longer supported' (checked 2026-10-30); it still installs. Prefer an actively maintained alternative.",
       "command": "npx",
       "args": [
         "-y",
-        "@modelcontextprotocol/server-brave-search"
+        "@modelcontextprotocol/server-brave-search@0.6.2"
       ],
       "env": {
         "BRAVE_API_KEY": "${BRAVE_API_KEY}"
@@ -38,7 +40,7 @@
       "command": "npx",
       "args": [
         "-y",
-        "@modelcontextprotocol/server-filesystem",
+        "@modelcontextprotocol/server-filesystem@2.4.0",
         "./"
       ],
       "env": {}
@@ -46,11 +48,12 @@
     "_section_version_control": "=== VERSION CONTROL & PROJECT MANAGEMENT ===",
     "github": {
       "_description": "PR review, code search, issue management, git history.",
+      "_review": "deprecated on npm; pinned to its last version only so that the entry is reproducible; check it before use",
       "_note": "Deprecated: npm marks this package 'no longer supported' (checked 2026-10-30); it still installs. Prefer an actively maintained alternative.",
       "command": "npx",
       "args": [
         "-y",
-        "@modelcontextprotocol/server-github"
+        "@modelcontextprotocol/server-github@2025.4.8"
       ],
       "env": {
         "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_TOKEN}"
@@ -61,22 +64,23 @@
       "command": "npx",
       "args": [
         "-y",
-        "githits@latest",
+        "githits@0.41.0",
         "mcp",
         "start"
       ],
       "env": {},
-      "_install": "Auto-config: `npx githits@latest init` detects your tool and wires this in. Docs: https://docs.githits.com/installation/automatic-setup (manual: /installation/manual-setup)."
+      "_install": "Auto-config: `npx githits@0.41.0 init` detects your tool and wires this in. Docs: https://docs.githits.com/installation/automatic-setup (manual: /installation/manual-setup)."
     },
     "_section_database": "=== DATABASES ===",
     "postgres-dev": {
       "_description": "PostgreSQL for development \u2014 READ-WRITE allowed.",
+      "_review": "deprecated on npm; pinned to its last version only so that the entry is reproducible; check it before use",
       "_note": "Deprecated: npm marks this package 'no longer supported' (checked 2026-10-30); it still installs. Prefer an actively maintained alternative.",
       "_security": "DEVELOPMENT ONLY \u2014 never use read-write in production",
       "command": "npx",
       "args": [
         "-y",
-        "@modelcontextprotocol/server-postgres"
+        "@modelcontextprotocol/server-postgres@0.6.2"
       ],
       "env": {
         "POSTGRES_CONNECTION_STRING": "${DATABASE_URL_DEV}"
@@ -84,6 +88,8 @@
     },
     "greptime": {
       "_description": "Time-series analytics and robust metrics logging.",
+      "_review": "could not verify this package on 2026-11-21; check it before use",
+      "_enabled": false,
       "command": "npx",
       "args": [
         "-y",
@@ -98,6 +104,8 @@
     },
     "clickhouse": {
       "_description": "Agentic OLAP and real-time reporting via ClickHouse.",
+      "_review": "could not verify this package on 2026-11-21; check it before use",
+      "_enabled": false,
       "command": "npx",
       "args": [
         "-y",
@@ -111,13 +119,14 @@
     },
     "postgres-prod": {
       "_description": "PostgreSQL for production \u2014 READ-ONLY. Schema introspection only.",
+      "_review": "deprecated on npm; pinned to its last version only so that the entry is reproducible; check it before use",
       "_note": "Deprecated: npm marks this package 'no longer supported' (checked 2026-10-30); it still installs. Prefer an actively maintained alternative.",
       "_security": "PRODUCTION \u2014 read-only access enforced by database user permissions",
       "_enable_only_when_needed": true,
       "command": "npx",
       "args": [
         "-y",
-        "@modelcontextprotocol/server-postgres"
+        "@modelcontextprotocol/server-postgres@0.6.2"
       ],
       "env": {
         "POSTGRES_CONNECTION_STRING": "${DATABASE_URL_PROD_READONLY}"
@@ -152,7 +161,7 @@
       "command": "npx",
       "args": [
         "-y",
-        "@sentry/mcp-server"
+        "@sentry/mcp-server@0.50.0"
       ],
       "env": {
         "SENTRY_AUTH_TOKEN": "${SENTRY_AUTH_TOKEN}",
@@ -165,7 +174,7 @@
       "_description": "Browser automation for visual TDD and E2E testing.",
       "command": "npx",
       "args": [
-        "@playwright/mcp",
+        "@playwright/mcp@0.0.86",
         "--headless"
       ],
       "env": {}
@@ -175,7 +184,7 @@
       "command": "npx",
       "args": [
         "-y",
-        "tavily-mcp"
+        "tavily-mcp@0.2.22"
       ],
       "env": {
         "TAVILY_API_KEY": "${TAVILY_API_KEY}"
@@ -183,6 +192,8 @@
     },
     "image-recognition": {
       "_description": "Vision API proxy for image analysis \u2014 sketch recognition, diagram interpretation, OCR.",
+      "_review": "could not verify this package on 2026-11-21; check it before use",
+      "_enabled": false,
       "_security": "Images are sent to configured vision API (Anthropic/OpenAI/Cloudflare) for processing",
       "command": "npx",
       "args": [
@@ -196,6 +207,7 @@
     "_section_infrastructure": "=== CLOUD & INFRASTRUCTURE ===",
     "terraform": {
       "_description": "Agentic Infrastructure as Code (IaC) via HashiCorp Terraform.",
+      "_review": "could not verify this package on 2026-11-21; check it before use",
       "_note": "No npm package (E404 checked 2026-10-30). HashiCorp ships terraform-mcp-server as a Go binary and Docker image.",
       "_enabled": false,
       "command": "npx",
@@ -211,6 +223,7 @@
     "docker": {
       "_enabled": false,
       "_description": "Docker daemon integration \u2014 manage containers, images, and read local logs.",
+      "_review": "could not verify this package on 2026-11-21; check it before use",
       "_note": "No npm package (E404 checked 2026-10-30). Desktop server: use the MCP Toolkit in Docker Desktop.",
       "command": "npx",
       "args": [
@@ -222,6 +235,7 @@
     "google-cloud": {
       "_enabled": false,
       "_description": "Google Cloud Platform access \u2014 manage Firebase, Cloud Run, GKE, BigQuery.",
+      "_review": "could not verify this package on 2026-11-21; check it before use",
       "_note": "No npm package (E404 checked 2026-10-30). Use Google Cloud's own MCP documentation instead of npx.",
       "command": "npx",
       "args": [
@@ -235,6 +249,7 @@
     "azure": {
       "_enabled": false,
       "_description": "Azure Resource management \u2014 Key Vault, CosmosDB, Azure Storage.",
+      "_review": "could not verify this package on 2026-11-21; check it before use",
       "command": "npx",
       "args": [
         "-y",
@@ -249,6 +264,7 @@
     "vercel": {
       "_enabled": false,
       "_description": "Vercel deployments, aliases, and serverless log integration.",
+      "_review": "could not verify this package on 2026-11-21; check it before use",
       "_note": "No npm package (E404 checked 2026-10-30). Hosted server: use Vercel's hosted MCP; @vercel/mcp-adapter builds your own.",
       "command": "npx",
       "args": [
@@ -262,11 +278,12 @@
     "gitlab": {
       "_enabled": false,
       "_description": "GitLab alternative to GitHub MCP.",
+      "_review": "deprecated on npm; pinned to its last version only so that the entry is reproducible; check it before use",
       "_note": "Deprecated: npm marks this package 'no longer supported' (checked 2026-10-30); it still installs. Prefer an actively maintained alternative.",
       "command": "npx",
       "args": [
         "-y",
-        "@modelcontextprotocol/server-gitlab"
+        "@modelcontextprotocol/server-gitlab@2025.4.25"
       ],
       "env": {
         "GITLAB_PERSONAL_ACCESS_TOKEN": "${GITLAB_TOKEN}",
@@ -279,7 +296,7 @@
       "command": "npx",
       "args": [
         "-y",
-        "aashari/mcp-server-atlassian-jira"
+        "@aashari/mcp-server-atlassian-jira@3.3.0"
       ],
       "env": {
         "ATLASSIAN_SITE_NAME": "${JIRA_SITE}",
@@ -293,7 +310,7 @@
       "command": "npx",
       "args": [
         "-y",
-        "@notionhq/notion-mcp-server"
+        "@notionhq/notion-mcp-server@2.6.1"
       ],
       "env": {
         "OPENAPI_MCP_HEADERS": "{\"Authorization\": \"Bearer ${NOTION_TOKEN}\"}"
@@ -305,7 +322,7 @@
       "command": "npx",
       "args": [
         "-y",
-        "mcp-server-qdrant"
+        "mcp-server-qdrant@0.0.1"
       ],
       "env": {
         "QDRANT_URL": "${QDRANT_URL}",
@@ -316,6 +333,7 @@
     "datadog": {
       "_enabled": false,
       "_description": "Monitoring, alerts, observability queries.",
+      "_review": "could not verify this package on 2026-11-21; check it before use",
       "_note": "No npm package (E404 checked 2026-10-30). Hosted server: connect to Datadog's hosted MCP.",
       "command": "npx",
       "args": [
@@ -330,6 +348,7 @@
     "grafana": {
       "_enabled": false,
       "_description": "Dashboard search, datasource queries, incident management.",
+      "_review": "could not verify this package on 2026-11-21; check it before use",
       "_note": "No npm package (E404 checked 2026-10-30). Grafana ships the Go mcp-grafana server.",
       "command": "npx",
       "args": [
@@ -344,6 +363,7 @@
     "aws-core": {
       "_enabled": false,
       "_description": "AWS core services \u2014 documentation, CDK, Lambda.",
+      "_review": "could not verify this package on 2026-11-21; check it before use",
       "_note": "No npm package (E404 checked 2026-10-30). AWS ships awslabs.* servers on PyPI (run with uvx).",
       "command": "npx",
       "args": [
@@ -363,7 +383,7 @@
       "command": "npx",
       "args": [
         "-y",
-        "mcp-server-kubernetes"
+        "mcp-server-kubernetes@4.2.3"
       ],
       "env": {
         "KUBECONFIG": "${KUBECONFIG}"
@@ -372,6 +392,7 @@
     "slack": {
       "_enabled": false,
       "_description": "Workspace channels, DMs, message history.",
+      "_review": "could not verify this package on 2026-11-21; check it before use",
       "command": "npx",
       "args": [
         "-y",
@@ -386,6 +407,7 @@
     "figma": {
       "_enabled": false,
       "_description": "UI/UX semantic understanding, component specs, and design-to-code.",
+      "_review": "could not verify this package on 2026-11-21; check it before use",
       "_note": "No npm package (E404 checked 2026-10-30). Desktop server: enable the Dev Mode MCP server in the Figma desktop app.",
       "command": "npx",
       "args": [
@@ -399,6 +421,7 @@
     "drawio": {
       "_enabled": false,
       "_description": "Programmatic generation and editing of C4, UML, and Network diagrams in Draw.io.",
+      "_review": "could not verify this package on 2026-11-21; check it before use",
       "command": "npx",
       "args": [
         "-y",
@@ -412,7 +435,7 @@
       "command": "npx",
       "args": [
         "-y",
-        "@cmd8/excalidraw-mcp",
+        "@cmd8/excalidraw-mcp@1.2.0",
         "--diagram",
         "./docs/architecture.excalidraw"
       ],
@@ -424,13 +447,14 @@
       "command": "npx",
       "args": [
         "-y",
-        "@talhaorak/tldraw-mcp"
+        "@talhaorak/tldraw-mcp@0.1.1"
       ],
       "env": {}
     },
     "miro": {
       "_enabled": false,
       "_description": "Read context from virtual whiteboards and continuously sync architecture PRDs.",
+      "_review": "could not verify this package on 2026-11-21; check it before use",
       "_note": "No npm package (E404 checked 2026-10-30). Connect through Miro's own MCP documentation instead of npx.",
       "command": "npx",
       "args": [
@@ -447,13 +471,14 @@
       "command": "npx",
       "args": [
         "-y",
-        "mermaid-mcp-server"
+        "mermaid-mcp-server@1.0.8"
       ],
       "env": {}
     },
     "dbhub": {
       "_enabled": false,
       "_description": "Universal DB client (MySQL, MariaDB, PG, SQL Server).",
+      "_review": "could not verify this package on 2026-11-21; check it before use",
       "command": "npx",
       "args": [
         "-y",
@@ -464,6 +489,7 @@
     "mongodb": {
       "_enabled": false,
       "_description": "MongoDB exploration and query tool.",
+      "_review": "could not verify this package on 2026-11-21; check it before use",
       "command": "npx",
       "args": [
         "-y",
@@ -476,11 +502,12 @@
     "redis": {
       "_enabled": false,
       "_description": "Redis interaction and key management.",
+      "_review": "deprecated on npm; pinned to its last version only so that the entry is reproducible; check it before use",
       "_note": "Deprecated: npm marks this package 'no longer supported' (checked 2026-10-30); it still installs. Prefer an actively maintained alternative.",
       "command": "npx",
       "args": [
         "-y",
-        "@modelcontextprotocol/server-redis"
+        "@modelcontextprotocol/server-redis@2025.4.25"
       ],
       "env": {
         "REDIS_URL": "${REDIS_URL}"
@@ -492,7 +519,7 @@
       "command": "npx",
       "args": [
         "-y",
-        "sqlite-mcp"
+        "sqlite-mcp@0.0.1"
       ],
       "env": {
         "SQLITE_PATH": "./database.sqlite"
@@ -504,7 +531,7 @@
       "command": "npx",
       "args": [
         "-y",
-        "pinecone-mcp"
+        "pinecone-mcp@1.0.0"
       ],
       "env": {
         "PINECONE_API_KEY": "${PINECONE_API_KEY}"
@@ -516,7 +543,7 @@
       "command": "npx",
       "args": [
         "-y",
-        "chromadb-mcp"
+        "chromadb-mcp@0.1.0"
       ],
       "env": {}
     },
@@ -526,7 +553,7 @@
       "command": "npx",
       "args": [
         "-y",
-        "weaviate-mcp"
+        "weaviate-mcp@1.0.3"
       ],
       "env": {
         "WEAVIATE_URL": "${WEAVIATE_URL}",
@@ -536,6 +563,7 @@
     "confluence": {
       "_enabled": false,
       "_description": "Confluence pages and spaces.",
+      "_review": "could not verify this package on 2026-11-21; check it before use",
       "_note": "No npm package (E404 checked 2026-10-30). Use a community Atlassian server such as mcp-atlassian.",
       "command": "npx",
       "args": [
@@ -554,7 +582,7 @@
       "command": "npx",
       "args": [
         "-y",
-        "linear-mcp-server"
+        "linear-mcp-server@0.1.0"
       ],
       "env": {
         "LINEAR_API_KEY": "${LINEAR_API_KEY}"
@@ -563,6 +591,7 @@
     "sonarqube": {
       "_enabled": false,
       "_description": "Code quality and security analysis.",
+      "_review": "could not verify this package on 2026-11-21; check it before use",
       "command": "npx",
       "args": [
         "-y",
@@ -579,7 +608,7 @@
       "command": "npx",
       "args": [
         "-y",
-        "firecrawl-mcp"
+        "firecrawl-mcp@3.41.0"
       ],
       "env": {
         "FIRECRAWL_API_KEY": "${FIRECRAWL_API_KEY}"
@@ -588,6 +617,7 @@
     "duckduckgo": {
       "_enabled": false,
       "_description": "Privacy-focused web search.",
+      "_review": "could not verify this package on 2026-11-21; check it before use",
       "command": "npx",
       "args": [
         "-y",
@@ -598,6 +628,7 @@
     "snyk": {
       "_enabled": false,
       "_description": "Vulnerability scanning for code and dependencies.",
+      "_review": "could not verify this package on 2026-11-21; check it before use",
       "command": "npx",
       "args": [
         "-y",
@@ -610,6 +641,7 @@
     "gitleaks": {
       "_enabled": false,
       "_description": "Secret detection in git repositories.",
+      "_review": "could not verify this package on 2026-11-21; check it before use",
       "command": "npx",
       "args": [
         "-y",
@@ -620,6 +652,7 @@
     "jupyter": {
       "_enabled": false,
       "_description": "Execute Python code in Jupyter notebooks.",
+      "_review": "could not verify this package on 2026-11-21; check it before use",
       "command": "npx",
       "args": [
         "-y",
@@ -630,6 +663,7 @@
     "zapier": {
       "_enabled": false,
       "_description": "Connect to 6,000+ apps via Zapier.",
+      "_review": "could not verify this package on 2026-11-21; check it before use",
       "_note": "No npm package (E404 checked 2026-10-30). Hosted server: connect to your per-user URL at mcp.zapier.com.",
       "command": "npx",
       "args": [
@@ -643,6 +677,7 @@
     "stripe": {
       "_enabled": false,
       "_description": "Search and manage Stripe resources.",
+      "_review": "could not verify this package on 2026-11-21; check it before use",
       "command": "npx",
       "args": [
         "-y",
@@ -656,6 +691,7 @@
     "graphql": {
       "_enabled": false,
       "_description": "GraphQL schema introspection, query validation, and documentation.",
+      "_review": "could not verify this package on 2026-11-21; check it before use",
       "command": "npx",
       "args": [
         "-y",
@@ -672,7 +708,7 @@
       "command": "npx",
       "args": [
         "-y",
-        "elasticsearch-mcp-server"
+        "elasticsearch-mcp-server@1.0.0"
       ],
       "env": {
         "ELASTICSEARCH_URL": "${ELASTICSEARCH_URL}",
@@ -683,6 +719,7 @@
       "_enabled": false,
       "_security": "DEVELOPMENT ONLY \u2014 restrict to project directory. Never enable in production.",
       "_description": "Execute shell commands for local build, test, and system introspection (internal RAG).",
+      "_review": "could not verify this package on 2026-11-21; check it before use",
       "_note": "No npm package (E404 checked 2026-10-30). Do not use; run shell commands through your agent's own tools.",
       "command": "npx",
       "args": [
@@ -697,7 +734,7 @@
       "command": "npx",
       "args": [
         "-y",
-        "openapi-mcp-server"
+        "openapi-mcp-server@2.1.0"
       ],
       "env": {
         "OPENAPI_SPEC_URL": "${OPENAPI_SPEC_URL}"
@@ -710,7 +747,7 @@
       "command": "npx",
       "args": [
         "-y",
-        "@modelcontextprotocol/server-memory"
+        "@modelcontextprotocol/server-memory@2.2.1"
       ],
       "env": {
         "MEMORY_FILE_PATH": "${MEMORY_FILE_PATH}"
@@ -722,7 +759,7 @@
       "command": "npx",
       "args": [
         "-y",
-        "mcp-evals"
+        "mcp-evals@2.0.1"
       ],
       "env": {
         "OPENAI_API_KEY": "${OPENAI_API_KEY}"
@@ -734,7 +771,7 @@
       "command": "npx",
       "args": [
         "-y",
-        "mcp-chaos-rig"
+        "mcp-chaos-rig@1.6.0"
       ],
       "env": {}
     },
@@ -744,7 +781,7 @@
       "command": "npx",
       "args": [
         "-y",
-        "@supabase/mcp-server-supabase",
+        "@supabase/mcp-server-supabase@0.19.0",
         "--read-only"
       ],
       "env": {
@@ -754,6 +791,7 @@
     "pagerduty": {
       "_enabled": false,
       "_description": "On-call automation \u2014 incidents, rotations, resolution workflows. Day-2 (S11 Operate & Maintain).",
+      "_review": "could not verify this package on 2026-11-21; check it before use",
       "command": "npx",
       "args": [
         "-y",
@@ -769,7 +807,7 @@
       "command": "npx",
       "args": [
         "-y",
-        "@cloudflare/mcp-server-cloudflare"
+        "@cloudflare/mcp-server-cloudflare@0.2.0"
       ],
       "env": {
         "CLOUDFLARE_API_TOKEN": "${CLOUDFLARE_API_TOKEN}"
@@ -781,7 +819,7 @@
       "command": "npx",
       "args": [
         "-y",
-        "obsidian-mcp"
+        "obsidian-mcp@2.0.1"
       ],
       "env": {
         "OBSIDIAN_VAULT_PATH": "${OBSIDIAN_VAULT_PATH}"
@@ -793,7 +831,7 @@
       "command": "npx",
       "args": [
         "-y",
-        "mcp-discord"
+        "mcp-discord@1.3.4"
       ],
       "env": {
         "DISCORD_TOKEN": "${DISCORD_TOKEN}"

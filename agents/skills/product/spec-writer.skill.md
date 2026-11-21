@@ -40,7 +40,7 @@ Transform a user goal or feature request into a structured PRD using EARS syntax
 
    **Ubiquitous** (always applies):
    ```
-   THE SYSTEM SHALL encrypt all data in transit using TLS 1.3 or higher.
+   THE SYSTEM SHALL encrypt all data in transit using the TLS versions set in `security/cryptography-standards.skill.md`.
    ```
 
    **Event-Driven** (triggered by an event):
@@ -91,7 +91,7 @@ Transform a user goal or feature request into a structured PRD using EARS syntax
 
 9. **After approval: create SDLC checkpoint S01**
    - Invoke sdlc-checkpoint.skill → creates SESSION_SNAPSHOT/S01_requirements.md
-   - Updates PROJECT_STATE.md → current phase: S02_DESIGN
+   - Updates PROJECT_STATE.md → current phase: S02 ARCHITECTURE
 
 ## Constraints
 - NEVER skip the ambiguity layer — unresolved ambiguity is the #1 cause of rework
@@ -102,16 +102,10 @@ Transform a user goal or feature request into a structured PRD using EARS syntax
 ## Output Format
 Completed PRD.md file at project root (or docs/) using templates/product/PRD_TEMPLATE.md structure.
 
-## Security & Guardrails
-
-### 1. Skill Security (Spec Writer)
-- **Mandatory Threat Modeling**: The agent must intrinsically embed a lightweight threat model into the PRD generation process. If the feature involves PII, financial transactions, or external system integration, the agent must refuse to generate the final PRD until a Security NFR explicitly addresses Data-in-Transit and Data-at-Rest.
-- **Strict NFR Templating**: The agent is barred from inventing subjective Non-Functional Requirements (e.g., "The system must be secure from hackers"). All security NFRs must map to verifiable industry standards (e.g., "The system shall comply with OWASP ASVS Level 2").
-
-### 2. System Integration Security
-- **Explicit Out-of-Scope Privileges**: The "Out of Scope" section must explicitly name prohibited downstream integrations or data flows. If building a caching service, it must explicitly state "This service SHALL NOT have long-term administrative database access."
-- **Data Classification Anchoring**: Every PRD must start with a Data Classification directive (Public, Internal, Confidential, Restricted). The agent must use this anchor to determine the baseline cryptographic and authorization EARS requirements needed for the document.
-
-### 3. LLM & Agent Guardrails
-- **Requirement Sanitization**: The agent must scrub any user prompt inputs that attempt to explicitly define hardcoded passwords, developer backdoor accounts, or disabled SSL verifications before converting them into EARS requirements.
-- **Prompt Fatigue Vulnerability**: A user might attempt to exhaust the agent's "Ambiguity Layer" by giving rapid, nonsensical answers. The agent must enforce a threshold (e.g., 3 failed clarification attempts) and cleanly abort the PRD generation rather than outputting a compromised or hallucinated specification.
+## Limits and safety
+- Do not issue the final PRD while a feature that touches personal data, payments or external integrations lacks a security NFR for data in transit and at rest.
+- Security NFRs cite a verifiable standard or a number; do not write "secure".
+- For software with logins, personal data, uploads, payments or an AI agent, run `security/security-requirements.skill.md` and write its Security and Privacy lines into the EARS file.
+- Start the PRD with a data classification (Public, Internal, Confidential, Restricted) and derive the baseline requirements from it.
+- Do not turn hardcoded passwords, backdoor accounts or disabled certificate checks into requirements; flag them.
+- If clarification answers stay unusable after 3 rounds, stop and ask the human instead of writing the PRD.

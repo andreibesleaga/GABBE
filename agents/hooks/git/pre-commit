@@ -1,0 +1,75 @@
+#!/bin/sh
+# GABBE-HOOK pre-commit: refuse a commit that adds a secret-store file or a credential-like line.
+# Prints file and line number, never the value. Needs only git and standard tools.
+# Failure direction: if git cannot be read, the commit is REFUSED (a guard that cannot look says no).
+# One-commit exception, set by the human: GABBE_ALLOW_SECRET=1 git commit ...
+# One-line exception: put the text gabbe:allow-secret on that line.
+# Limit: `git commit --no-verify` skips this hook. Server-side branch protection is the real control.
+set -u
+if [ "${GABBE_ALLOW_SECRET:-}" = 1 ]; then
+  echo "gabbe pre-commit: GABBE_ALLOW_SECRET=1, secret check skipped for this commit." >&2
+  exit 0
+fi
+
+tmp=$(mktemp -d 2>/dev/null) || { echo "gabbe pre-commit: cannot make a temp folder; commit refused." >&2; exit 1; }
+trap 'rm -rf "$tmp"' EXIT HUP INT TERM
+bad=0
+
+# 1. File names (NUL-separated from git, then one per line for the case test).
+# A name that holds a line break cannot be listed one per line: refuse (a guard that cannot look says no).
+git diff --cached --name-only --diff-filter=ACMR --no-renames -z > "$tmp/names" || { echo "gabbe pre-commit: git failed; commit refused." >&2; exit 1; }
+tr '\0' '\n' < "$tmp/names" > "$tmp/names.txt"
+nuls=$(tr -cd '\0' < "$tmp/names" | wc -c)
+lines=$(wc -l < "$tmp/names.txt")
+if [ "$nuls" -ne "$lines" ]; then
+  echo "gabbe pre-commit: a staged file name holds a line break; commit refused." >&2
+  exit 1
+fi
+while IFS= read -r f; do
+  b=${f##*/}
+  case $b in
+    .env.example|.env.sample|.env.template|.env.dist) ;;
+    .env|.env.*|*.pem|*.key|*.p12|*.pfx|*.jks|id_rsa|id_dsa|id_ecdsa|id_ed25519|.netrc|.pgpass)
+      printf 'gabbe pre-commit: secret-store file staged: %s\n' "$f" >&2
+      bad=1 ;;
+  esac
+done < "$tmp/names.txt"
+
+# 2. Added lines, one file at a time, so the file name comes from the name list and never from
+# the text of the diff. In one file's diff, every line before the first "@@" is a header and every
+# line after it starting with "+" is an added line, even one that reads "++ x" or "+++ x".
+# awk writes the text to one file and "path:line" to another, same line numbers.
+: > "$tmp/meta"
+: > "$tmp/text"
+while IFS= read -r f; do
+  git --literal-pathspecs diff --cached -U0 --no-color --no-ext-diff --no-textconv --no-renames --diff-filter=ACMR -- "$f" > "$tmp/diff" || { echo "gabbe pre-commit: git failed; commit refused." >&2; exit 1; }
+  GABBE_F="$f" awk -v meta="$tmp/meta.one" -v text="$tmp/text.one" '
+    BEGIN { f = ENVIRON["GABBE_F"] }
+    /^@@ / { inhunk = 1; split($3, a, ","); n = substr(a[1], 2) + 0; next }
+    inhunk && /^\+/ { print f ":" n > meta; print substr($0, 2) > text; n++ }
+  ' "$tmp/diff"
+  if [ -s "$tmp/text.one" ]; then
+    cat "$tmp/meta.one" >> "$tmp/meta"
+    cat "$tmp/text.one" >> "$tmp/text"
+    rm -f "$tmp/meta.one" "$tmp/text.one"
+  fi
+done < "$tmp/names.txt"
+if [ -s "$tmp/text" ]; then
+  grep -anE \
+    -e '(^|[^A-Za-z0-9_-])sk-[A-Za-z0-9_-]{16,}' \
+    -e '(^|[^A-Za-z0-9_])gh[pousr]_[A-Za-z0-9]{16,}' \
+    -e '(^|[^A-Za-z0-9])AKIA[0-9A-Z]{16}' \
+    -e '(^|[^A-Za-z0-9_-])xox[baprs]-[A-Za-z0-9-]{10,}' \
+    -e '-----BEGIN [A-Z ]*PRIVATE KEY-----' \
+    "$tmp/text" | grep -av 'gabbe:allow-secret' | cut -d: -f1 > "$tmp/hits"
+  while IFS= read -r i; do
+    printf 'gabbe pre-commit: credential-like text at %s (value not shown)\n' "$(sed -n "${i}p" "$tmp/meta")" >&2
+    bad=1
+  done < "$tmp/hits"
+fi
+
+if [ "$bad" = 1 ]; then
+  echo "gabbe pre-commit: commit refused. Remove it, or if justified run: GABBE_ALLOW_SECRET=1 git commit ..." >&2
+  exit 1
+fi
+exit 0

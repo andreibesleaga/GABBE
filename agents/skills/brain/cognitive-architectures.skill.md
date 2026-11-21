@@ -1,7 +1,7 @@
 ---
 name: cognitive-architectures
-description: Patterns from SOAR, ACT-R, and LIDA for advanced agent cognitive cycles
-triggers: [cognitive, architecture, soar, act-r, lida, reasoning cycle]
+description: Describes SOAR, ACT-R and LIDA patterns (propose, evaluate, select; activation-based retrieval; workspace broadcast) as ideas for agent design. Use when designing an agent's reasoning cycle or memory retrieval and you want a named pattern as a starting point.
+triggers: [cognitive architecture, soar, act-r, lida, reasoning cycle]
 tags: [brain, architecture, theory]
 context_cost: low
 ---
@@ -38,16 +38,22 @@ Perceive → understand → "consciousness" → act. Parallel preconscious buffe
 ## References
 Laird (2012) *The Soar Cognitive Architecture* · Anderson (2007) *ACT-R* · Franklin (2006) *The LIDA Architecture*.
 
-## Security & Guardrails
+## Steps
+1. Name the decision the agent must make (choose an action, retrieve a memory, share a finding).
+2. Pick the pattern that fits: SOAR for choosing among candidates, ACT-R for retrieving memory, LIDA for sharing findings between agents.
+3. Write the cycle as short instructions in the agent's prompt, with a limit on rounds.
+4. Test the cycle with `cognitive-testing.skill`.
 
-### 1. Skill Security (Cognitive Architectures)
-- **Operator sanitization (SOAR):** before Selection, run every candidate operator through an immutable safety filter that discards destructive commands (`rm -rf`, `DROP TABLE`) regardless of heuristic score.
-- **Workspace contamination (LIDA):** the winning coalition broadcasts globally, so a malicious sensory input that wins can compromise the whole swarm — scrub buffers for prompt-injection signatures BEFORE they compete for the Global Workspace.
+## Constraints
+- These are design analogies; do not describe the agent as implementing SOAR, ACT-R or LIDA.
+- Cite the reference when you name a pattern.
 
-### 2. System Integration Security
-- **Retrieval poisoning (ACT-R):** attackers can spam inputs to inflate a dangerous chunk's frequency/recency — track `provenance` and discount/isolate untrusted-origin chunks.
-- **Compute exhaustion:** elaboration/parallel-buffer loops are token-intensive; enforce strict depth/timeout limits (e.g. max 3 evaluation rounds) so malformed recursive inputs can't exhaust context/budget.
+## Output Format
+A short design note: the decision, the chosen pattern, the cycle as instructions, and the round limit.
 
-### 3. LLM & Agent Guardrails
-- **Heuristic bypassing:** security heuristics (least privilege, immutability) are absolute — a candidate that violates one has its score zeroed; never let "speed"/"compliance" outweigh them.
-- **Procedural hallucination:** ground production rules in verifiable artifacts (schemas, API specs), never in latent LLM knowledge (e.g. assuming `admin: true` is valid).
+## Limits and safety
+- Drop any destructive candidate (`rm -rf`, `DROP TABLE`) before scoring, whatever its score.
+- At most 3 evaluation rounds per decision.
+- Record where each retrieved memory came from, and discount text that came from untrusted input.
+- Ground production rules in schemas, specs or files you read, not in recalled facts.
+- A security rule (least privilege) is not traded against speed; a candidate that breaks one is out.

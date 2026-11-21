@@ -1,9 +1,9 @@
 ---
 name: pbt-strategy
-description: Property-based testing with Python Hypothesis — find invariants, write @given strategies, and model stateful systems with RuleBasedStateMachine.
+description: "Write a property-based test plan: the invariants, the generators and, for stateful code, a state machine (Hypothesis for Python; other libraries listed). Use when example tests miss edge cases, for round-trip or invariant properties, or to find the smallest failing input."
 triggers: [write property based tests, find invariants for testing, use hypothesis given strategies, build a rulebasedstatemachine, fuzz json against a schema, shrink to a minimal counterexample]
 tags: [coding, testing, hypothesis, property-based-testing, python]
-core: false
+core: true
 context_cost: medium
 ---
 # Property-Based Testing Strategy (Hypothesis)
@@ -60,6 +60,20 @@ confidence; it does not enumerate it and does not prove correctness.
    use `derandomize`/a fixed seed only when you need reproducible runs (knowing it narrows the
    search).
 
+## Libraries by language
+The steps above use Hypothesis syntax; other ecosystems have equivalent libraries (checked 2026-11-21 on each project's page). Same plan, same limits.
+
+| Language | Library | Install |
+|---|---|---|
+| Python | Hypothesis | `pip install hypothesis` |
+| JavaScript/TypeScript | fast-check | `npm install fast-check --save-dev` |
+| Java/Kotlin | jqwik (`@Property`, `@ForAll`) | dependency from jqwik.net user guide |
+| Rust | proptest | `proptest` under `[dev-dependencies]` in `Cargo.toml` |
+| Go | rapid | `go get pgregory.net/rapid` |
+| C#/F#/VB | FsCheck | NuGet package `FsCheck` (plus `FsCheck.Xunit` or `FsCheck.Nunit`) |
+
+Choosing how strongly to verify a component: `assurance-ladder.skill.md`. Mutation score for these tests: `mutation-testing.skill.md`.
+
 ## Constraints
 - PBT **samples** the input space and **raises confidence**; it does **NOT prove correctness**.
   Unlike formal methods (model checking, proof assistants) which reason over *all* states, a
@@ -85,33 +99,9 @@ Produce a **property test plan** containing:
 - An explicit honesty note: the suite samples inputs and raises confidence; it does not prove
   correctness. Cross-reference `metamorphic-testing.skill` for oracle-free relations.
 
-## Security & Guardrails
-
-### 1. Skill Security
-- **Risk**: A green property suite is reported as a correctness proof, giving false assurance for
-  safety- or security-critical code. Mitigation: every report MUST state PBT samples and does not
-  prove; the agent MUST NOT use "property passed" to mean "cannot fail," and MUST recommend formal
-  methods where a real proof is required.
-- **Risk**: A weak or over-filtered strategy never generates the dangerous input, so the test
-  passes vacuously. Mitigation: the agent MUST sanity-check coverage of the strategy (it produces
-  edge/boundary/empty/unicode values) and flag any property whose generator cannot reach the
-  failure region as low-value.
-
-### 2. System Integration Security
-- **Risk**: A stateful or schema-fuzzing test executes real side effects (writes a real DB,
-  calls a paid/external API, mutates shared state) and corrupts data or runs up cost. Mitigation:
-  run PBT against isolated fixtures, in-memory/transactional fakes, or sandboxes; never point
-  generators at production resources, and bound `max_examples` to control blast radius and spend.
-- **Risk**: `hypothesis-jsonschema` generates pathological payloads (huge strings, deep nesting)
-  that exhaust memory or hang the handler. Mitigation: set `deadline`/size limits in strategies
-  and treat resource exhaustion as a finding to fix (input validation), not a test to silence.
-
-### 3. LLM & Agent Guardrails
-- **Risk**: The agent invents a plausible but false invariant (asserting a property the spec
-  never required), turning the test green while masking real behavior. Mitigation: each invariant
-  MUST trace to a stated requirement or contract; the agent MUST mark agent-derived invariants as
-  proposed and ask for confirmation before trusting them.
-- **Risk**: The agent hallucinates Hypothesis API surface (non-existent strategies or state-machine
-  decorators) that errors or silently skips. Mitigation: emit only real, current Hypothesis APIs
-  (`@given`, `@rule`, `@initialize`, `@precondition`, `@invariant`, `Bundle`, `from_schema`); the
-  agent MUST verify the test actually runs and can fail before presenting it as coverage.
+## Limits and safety
+- Run properties against isolated fixtures, in-memory or transactional fakes; never point generators at production, a real database or a paid API, and bound `max_examples`.
+- Set a `deadline` and size limits on schema-generated payloads; a hang or out-of-memory is a finding for input validation, not a reason to silence the test.
+- Tie each invariant to a requirement or contract; mark an invariant you derived yourself as proposed until the human confirms it.
+- Before counting a property as coverage, make it fail once (change the code, see red) and check the strategy produces empty, boundary and unicode values.
+- A pass means no counterexample in the sampled cases; where a proof is needed see `assurance-ladder.skill.md`.

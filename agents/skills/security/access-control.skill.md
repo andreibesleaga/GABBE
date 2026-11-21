@@ -1,7 +1,7 @@
 ---
 name: access-control
-description: Design RBAC/ABAC models, Principle of Least Privilege, Identity Management.
-triggers: [access control]
+description: Design roles and permissions with least privilege and review authorisation checks. Use when adding roles, permissions or admin features, or when auditing who can access what.
+triggers: [access control, rbac, abac, permissions, least privilege, roles and permissions]
 tags: [security]
 role: ops-security, eng-backend
 context_cost: low
@@ -10,6 +10,9 @@ context_cost: low
 
 ## Goal
 Identity is the new perimeter. Authorization must be strict, consistent, and auditable.
+
+## Where it fits
+Phase and gate: S02 (authorisation design), S03 (permission contract in the spec), S07 (review). Evidence: the role and permission table in `docs/security/THREAT_MODEL.md` or `SPEC.md`, and tests that an unauthorised call is rejected. Part of `security-baseline.skill.md`.
 
 ## Steps
 ## 1. Models
@@ -30,16 +33,16 @@ Identity is the new perimeter. Authorization must be strict, consistent, and aud
 - **Log Decisions**: "User X tried to do Action Y on Resource Z -> Result: DENIED".
 - **Review**: Quarterly review of `Admin` group membership.
 
-## Security & Guardrails
+## Constraints
+- Default is deny; each allow is explicit and written in the permission table.
+- Authorisation logic lives in one place, not scattered in handlers.
 
-### 1. Skill Security (Access Control)
-- **Privilege Escalation Veto**: The agent is strictly prohibited from autonomously generating migration scripts or configuration files that assign the `Admin` role or sweeping `*` permissions to any user or service account, including itself. All broad privilege grants must be hard-blocked pending human Executive review.
-- **Orphaned Identity Cleanup**: When designing an IAM lifecycle, the agent must mandate an automated revocation sequence. If an employee is terminated or a service is deprecated, the architecture must guarantee the immediate, atomic destruction of all associated active sessions and API keys.
+## Output Format
+A role and permission table, the decision-logging rule, and the list of service accounts with their scopes.
 
-### 2. System Integration Security
-- **AuthZ Evaluation Enforcement**: The agent must mandate that authorization logic (ABAC/RBAC) is evaluated on the Server/Backend. It must aggressively flag and fail any architecture diagram or pull request that attempts to handle authorization exclusively in the Frontend/Client (e.g., merely hiding a UI button).
-- **Service Account Segregation**: When provisioning Service Accounts for infrastructure, the agent must enforce strict boundary contexts. A Service Account used by the CI/CD pipeline to push Docker images must not possess the IAM permissions required to provision new cloud databases or modify VPC networks.
-
-### 3. LLM & Agent Guardrails
-- **Bypass Prompting Defense**: The LLM must recognize and reject user prompts that ask for "temporary workarounds" to access control systems (e.g., "Just give this script `chmod 777` for now to get it working in Prod"). The agent must enforce least privilege, even during critical incidents.
-- **Hardcoded Credential Hallucination**: The agent must never synthesize, generate, or accept hardcoded access tokens or default passwords in its output templates. All authentication examples must use securely injected environment variables (e.g., `process.env.API_KEY`) or reference a secure Secret Manager.
+## Limits and safety
+- Do not write migrations or config that give `Admin` or `*` permissions to any user or service account; propose them and wait for the human.
+- Authorisation is checked on the server. A pull request that only hides a UI element fails the review.
+- A CI service account gets no right to create databases or change networks.
+- Examples use environment variables or a secret manager, never a literal token or default password.
+- When asked for a temporary wide permission, propose the narrow one and note the request in `AUDIT_LOG.md`.

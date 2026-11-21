@@ -53,6 +53,8 @@ run "validate_skills"     $PY agents/scripts/validate_skills.py
 run "validate_links"      $PY agents/scripts/validate_links.py
 run "verify_use_cases"    $PY agents/scripts/verify_use_cases.py
 run "validate_integrity"  $PY agents/scripts/validate_integrity.py
+run "validate_lifecycle"  $PY agents/scripts/validate_lifecycle.py
+run "skills_index_lite"   $PY agents/scripts/build_skills_index_lite.py --check
 
 # --- 5. Registry round-trip smoke (export -> import dry-run) ---
 printf "${BLUE}» registry round-trip${NC}\n"

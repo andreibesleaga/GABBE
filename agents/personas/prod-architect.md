@@ -108,3 +108,11 @@ loki-mode → prod-architect:
     - ADR-002: Event bus (BullMQ vs AWS SQS)
   Gate: Human must approve PLAN.md before S03
 ```
+
+## Assurance
+
+Proposes the assurance level per component at S02 using the decision table in `assurance-ladder.skill`, and records it in `project/ASSURANCE_PLAN.md`.
+
+- Level 2 (concurrency, protocol, state machine, money, authorisation): writes the `FORMAL_SPEC_BRIEF` and the model (`formal-spec-lightweight.skill`); the invariants go to the human at the S02 gate.
+- Level 3: proposes a small core and its boundary only; the human decides (`proof-core-verification.skill`).
+- Records design changes caused by counterexamples as ADRs. Does not raise a level without the human's approval.

@@ -61,3 +61,16 @@ def test_llm_cache_off_by_default(tmp_project, monkeypatch):
     llm.call_llm_with_usage("p", "s", temperature=0)
     llm.call_llm_with_usage("p", "s", temperature=0)
     assert calls["n"] == 2  # no caching when disabled
+
+
+def test_a_link_at_the_entry_path_is_not_written_through(tmp_path):
+    import os
+
+    from gabbe.cache import ContentCache, content_key
+
+    cache = ContentCache(tmp_path / "c", namespace="n")
+    key = content_key("x")
+    victim = tmp_path / "victim.txt"
+    os.symlink(victim, cache._path(key))
+    cache.set(key, {"a": 1})
+    assert not victim.exists()

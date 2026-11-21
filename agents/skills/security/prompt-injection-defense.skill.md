@@ -3,13 +3,16 @@ name: prompt-injection-defense
 description: Defend agentic systems against direct and indirect prompt injection using defense-in-depth.
 triggers: [prompt injection, indirect injection, lethal trifecta, rule of two, jailbreak defense, tool output poisoning, untrusted content]
 tags: [security]
-core: false
 context_cost: medium
+core: true
 ---
 # Prompt Injection Defense Skill
 
 ## Goal
 Defend agentic systems against direct and indirect prompt injection using defense-in-depth. No single control is sufficient: frontier labs publicly acknowledge that prompt injection cannot be fully solved in current LLM architectures, so the objective is to layer controls, contain the blast radius, and gate high-impact actions behind a human. Grounded in OWASP LLM01:2025 (Prompt Injection).
+
+## Where it fits
+Phase and gate: S02 (trifecta assessment), S05 (build), S07 (review). Evidence: the defence report (surfaces, trifecta assessment, controls, human gates) in `docs/security/THREAT_MODEL.md`. Part of `security-baseline.skill.md` for AI software. For tool permissions see `agent-tool-review.skill.md`.
 
 ## Steps
 
@@ -52,16 +55,8 @@ A defense report containing:
 - **Residual risk**: what remains unmitigated after the layers.
 - **Required HITL gates**: the specific actions that must be human-approved.
 
-## Security & Guardrails
-
-### 1. Skill Security (Prompt Injection Defense)
-- **Over-trusting a single classifier**: Treating a detection pass (e.g. `Prompt Guard` returning "benign") as authorization collapses defense-in-depth into one bypassable layer. The skill MUST keep structural controls (instruction hierarchy, dual-LLM quarantine, egress filtering) live and authoritative even when the classifier reports clean, and must never escalate privilege on a classifier verdict alone.
-- **Defense bypass via the skill's own examples**: The delimiter/spotlighting tokens this skill recommends become attacker targets — an injected payload may spoof the closing delimiter to "break out" of the untrusted block. Delimiter tokens MUST be high-entropy, per-session, and stripped/escaped from untrusted content before wrapping, so the marker cannot be forged from within the payload.
-
-### 2. System Integration Security
-- **Exfiltration via tool feedback**: Indirect injection commonly weaponizes a benign tool (image fetch, link unfurl, URL parameter, DNS) as a covert exfiltration channel for private data the agent holds. Egress MUST be allowlisted by destination and payload shape, and any outbound call assembled from untrusted content MUST require a HITL gate when the trifecta is complete.
-- **Tool-metadata poisoning**: A compromised or malicious MCP/tool server can inject instructions through tool names, descriptions, and parameter docs that the planner reads at bind time. Tool definitions MUST be provenance-checked and pinned; untrusted tool metadata is data, never an instruction the planner obeys.
-
-### 3. LLM & Agent Guardrails
-- **System-prompt leakage (OWASP LLM07)**: Injection frequently first targets disclosure of the system/developer prompt to map the agent's tools and guardrails for a follow-on attack. Treat the system prompt as non-secret-bearing (no secrets, tokens, or internal endpoints in it) and detect/deny verbatim-reflection requests, so leakage does not bootstrap a stronger attack.
-- **Assumed-compromise containment**: The planner LLM must be designed as if it may already be injected. Containment — least-privilege tokens, the dual-LLM split, egress filtering, and HITL gates on trifecta-complete actions — limits blast radius. See `output-validation.skill` for safe handling of model output, `threat-model.skill` for surface enumeration, and `ai-safety-guardrails.skill` for the surrounding rails taxonomy.
+## Limits and safety
+- Assess per agent and tool chain, not per request, and record the result in the defence report.
+- Any action that is irreversible, external or completes the trifecta waits for the human's yes.
+- Add provenance tags to untrusted data and limit outbound destinations.
+- A clean detector verdict is not permission to act.

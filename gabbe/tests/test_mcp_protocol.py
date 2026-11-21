@@ -22,7 +22,11 @@ from gabbe.policy import PolicyEngine, ToolAllowlistPolicy
 @pytest.fixture(autouse=True)
 def mcp_env():
     """Permissive session with an allow-list that lets `echo` and `false` run."""
-    env = {"GABBE_MCP_INSECURE": "1", "GABBE_MCP_ALLOWED_COMMANDS": "echo,false"}
+    env = {
+        "GABBE_MCP_INSECURE": "1",
+        "GABBE_MCP_ALLOWED_COMMANDS": "echo,false",
+        "GABBE_MCP_ENABLE_RUN_COMMAND": "1",
+    }
     with patch.dict(os.environ, env):
         yield
 

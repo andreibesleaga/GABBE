@@ -1,14 +1,7 @@
 ---
 name: runbook-authoring
-description: Author operational runbooks so every alert maps to a tested, copy-pasteable, idempotent recovery procedure with diagnosis, remediation, escalation, rollback, and verification.
-triggers:
-  - write a runbook for the high-latency alert
-  - create an on-call recovery procedure
-  - the disk-full alert has no runbook
-  - document remediation steps for the outage
-  - turn the postmortem into a runbook
-  - make these recovery commands idempotent
-  - add escalation and rollback steps to the runbook
+description: Write an operational runbook for one alert - symptom, impact, read-only diagnosis, idempotent remediation, verification, rollback, escalation. Use when an alert has no runbook or an incident needs a repeatable recovery procedure.
+triggers: [write a runbook for the alert, create an on-call recovery procedure, the alert has no runbook, document remediation steps, make recovery commands idempotent, add escalation and rollback steps]
 tags: [ops, runbook, on-call, incident]
 core: false
 context_cost: medium
@@ -49,16 +42,8 @@ A runbook in Markdown following `RUNBOOK_TEMPLATE.md`:
 - **Escalation** — contact, trigger, channel.
 - **Metadata** — owner, last-tested date.
 
-## Security & Guardrails
-
-### 1. Skill Security
-- **Risk**: A runbook command leaking or hardcoding secrets/credentials in copy-pasteable text. Mitigation: reference secrets by named env var or vault path, never inline values; review runbooks for embedded credentials before publishing.
-- **Risk**: A non-idempotent remediation command compounding damage when re-run (e.g., scaling up repeatedly, double-applying a migration). Mitigation: prefer declarative/converging commands, add guards, and explicitly mark any step that is not safe to re-run.
-
-### 2. System Integration Security
-- **Risk**: Runbook automation running with excessive privilege (a "restart" script that can drop tables or edit IAM). Mitigation: scope runbook tooling to least privilege per the action it performs; destructive scopes require separate authorization.
-- **Risk**: A tampered or out-of-date runbook directing an operator to a harmful action. Mitigation: store runbooks as version-controlled, reviewed artifacts linked from alerts; stale runbooks past their test date are flagged for re-validation.
-
-### 3. LLM & Agent Guardrails
-- **Risk**: The agent executing remediation autonomously during an incident. Mitigation: the agent proposes and explains steps; running destructive remediation against production requires explicit human approval and an audit-trail entry.
-- **Risk**: The agent fabricating commands that look plausible but were never tested. Mitigation: mark any unverified step clearly, prefer commands grounded in the actual system's tooling, and require a game-day or real test before a runbook is considered authoritative.
+## Limits and safety
+- Reference secrets by variable name or vault path; check the runbook text for embedded values before it is saved.
+- Mark every step that is not safe to re-run, and give destructive steps an explicit warning and confirmation.
+- Mark commands you have not run as untested; do not present them as verified, and record the last-tested date.
+- You write the runbook; you do not run remediation on production unless the human says so in that request.

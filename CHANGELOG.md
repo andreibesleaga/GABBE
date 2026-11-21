@@ -44,7 +44,17 @@ feature. Found by a full audit of 1.1.3 on 21 November 2026.
   (`AGENTS.md -> CLAUDE.md`, a linked `.claude/skills`, a linked file under `agents/`) used to be
   removed or followed, which could overwrite a file outside the project. `gabbe update` refuses
   an `agents/` folder that links outside the project.
-- **A failed backup stops the install** before anything is overwritten (it used to continue).
+- **A failed backup stops the install** before anything is overwritten (it used to continue). An
+  install that stops part-way still records what it had written.
+- **The pointer block keeps your bytes.** It is added and removed without changing the encoding or
+  the line endings of your file. A read-only instruction file is left alone with a message.
+- **A damaged install record is never acted on and never deleted**: `gabbe uninstall` and
+  `gabbe update` stop with an explanation. A recorded path that you replaced by a folder or a link
+  no longer stops `update` or `uninstall`; it is left alone.
+- `gabbe uninstall --dry-run` prints every path. `--purge` is kept for compatibility and is the
+  same as a plain uninstall, which now also removes the empty folders left under `agents/`.
+- `agents` that is a regular file is refused with a message; `agents` that is a link is used as it
+  is, and nothing is copied into it.
 - A file that was already there and equals the kit's is not recorded as installed, so uninstall
   does not remove it.
 - **The npm installer no longer copies the kit's documents into your `docs/` folder.**

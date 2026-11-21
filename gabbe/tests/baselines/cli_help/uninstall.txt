@@ -5,7 +5,7 @@ options:
   -h, --help       show this help message and exit
   --agents AGENTS  Comma-separated agents to deselect (default: all)
   --dry-run        Print the plan; change nothing
-  --purge          Also remove empty folders left under agents/ (your files
-                   stay)
+  --purge          Accepted for compatibility; since 1.1.4 the same as a plain
+                   uninstall
   --global         Target the global install
   --dir DIR        Target a custom install directory

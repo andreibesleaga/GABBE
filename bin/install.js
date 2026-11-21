@@ -226,6 +226,14 @@ function record(file, kind, agent, backupOf) {
 }
 
 function writeManifest() {
+  try {
+    if (fs.lstatSync(path.dirname(MANIFEST_FILE)).isSymbolicLink()) {
+      log(`  ${yellow('!')} .gabbe is a link of yours: no install record was written`);
+      return;
+    }
+  } catch (e) {
+    /* .gabbe does not exist yet */
+  }
   const merged = new Map(priorEntries);
   for (const [rel, entry] of recorded) merged.set(rel, entry);
   const entries = [...merged.values()].sort((a, b) => (a.path < b.path ? -1 : a.path > b.path ? 1 : 0));
@@ -397,18 +405,58 @@ function pointerBlock(kitAgentsMd) {
 // Keep the user's own instruction file and append a pointer to the kit's file.
 // The original is backed up first and the change is recorded, so `gabbe uninstall`
 // takes the block out again. Idempotent.
+// Works on bytes and uses the file's own line ending, so the user's encoding and
+// line endings are never changed.
+function withPointerBlock(data, kitAgentsMd) {
+  const nl = data.includes('\r\n') ? '\r\n' : '\n';
+  const block = Buffer.from(pointerBlock(kitAgentsMd).replace(/\n/g, nl));
+  const endsWith = (s) => data.length >= s.length && data.subarray(data.length - s.length).equals(Buffer.from(s));
+  let joiner = nl + nl;
+  if (!data.length || endsWith(nl + nl)) joiner = '';
+  else if (endsWith(nl)) joiner = nl;
+  return Buffer.concat([data, Buffer.from(joiner), block]);
+}
+
+// The bytes of a user's file without the pointer block and the blank line put
+// before it (same rule as gabbe/installer.py strip_pointer_block).
+function withoutPointerBlock(data) {
+  const begin = data.indexOf('<!-- GABBE-KIT:BEGIN');
+  const endMarker = data.indexOf(POINTER_END, begin);
+  if (begin === -1 || endMarker === -1) return data;
+  let end = endMarker + POINTER_END.length;
+  if (data[end] === 0x0d && data[end + 1] === 0x0a) end += 2;
+  else if (data[end] === 0x0a) end += 1;
+  let before = data.subarray(0, begin);
+  const tail = before.subarray(Math.max(0, before.length - 4)).toString('latin1');
+  if (tail.endsWith('\r\n\r\n')) before = before.subarray(0, before.length - 2);
+  else if (tail.endsWith('\n\n')) before = before.subarray(0, before.length - 1);
+  return Buffer.concat([before, data.subarray(end)]);
+}
+
+function trimLineEnds(data) {
+  let end = data.length;
+  while (end > 0 && (data[end - 1] === 0x0a || data[end - 1] === 0x0d)) end -= 1;
+  return data.subarray(0, end);
+}
+
 function addPointerBlock(target, kitAgentsMd, agent) {
-  const text = fs.readFileSync(target, 'utf8');
+  const data = fs.readFileSync(target);
   const name = path.basename(target);
-  if (text.includes(POINTER_BEGIN)) {
+  if (data.includes(POINTER_BEGIN)) {
     log(`  ${blue('→')} ${name} already points to the kit; left as is`);
     return;
   }
+  try {
+    fs.accessSync(target, fs.constants.W_OK);
+  } catch (e) {
+    log(
+      `  ${yellow('!')} ${relToProject(target)} is read-only: left as is. Add a line that points to` +
+        ` ${kitAgentsMd} yourself`
+    );
+    return;
+  }
   const backup = backupBeforeOverwrite(target);
-  let joiner = '\n\n';
-  if (!text || text.endsWith('\n\n')) joiner = '';
-  else if (text.endsWith('\n')) joiner = '\n';
-  fs.writeFileSync(target, text + joiner + pointerBlock(kitAgentsMd));
+  fs.writeFileSync(target, withPointerBlock(data, kitAgentsMd));
   record(target, 'block', agent, backup ? relToProject(backup) : null);
   log(
     `  ${yellow('!')} Kept your ${name} and added a pointer to ${kitAgentsMd}` +
@@ -421,8 +469,9 @@ function addPointerBlock(target, kitAgentsMd, agent) {
 // symlinks (e.g. Windows without privileges).
 // A file the user already had is kept and gets a pointer block. Only --force
 // replaces it, after moving it to a backup name that is not in use.
+// Returns true when the link (or its copy) was put in place.
 function wireAgentsLink(target, sourceAgentsMd, agent, force) {
-  if (behindLink(path.dirname(target)) && skipLink(target)) return;
+  if (behindLink(path.dirname(target)) && skipLink(target)) return false;
   fs.mkdirSync(path.dirname(target), { recursive: true });
   let backupOf = null;
   let st = null;
@@ -438,7 +487,7 @@ function wireAgentsLink(target, sourceAgentsMd, agent, force) {
         `  ${yellow('!')} ${relToProject(target)} is a link of yours: left as is. Point it at the kit` +
           ' yourself, or re-run with --force (it is moved to a backup first)'
       );
-      return;
+      return false;
     }
     const backup = freeBackupPath(target, '.bak');
     fs.renameSync(target, backup);
@@ -450,10 +499,14 @@ function wireAgentsLink(target, sourceAgentsMd, agent, force) {
     const ours = st.isFile() && isUnchangedKitFile(target, fs.readFileSync(target));
     if (st.isFile() && !ours && !force) {
       addPointerBlock(target, relToProject(sourceAgentsMd), agent);
-      return;
+      return false;
     }
     if (ours) {
       fs.unlinkSync(target); // our own copy from an earlier run (symlink fallback)
+    } else if (st.isFile() && fs.readFileSync(target).includes(POINTER_BEGIN)) {
+      // --force after an earlier run that added the pointer block: put the user's
+      // file back without the block before it is moved aside.
+      backupOf = moveAsideWithoutBlock(target);
     } else {
       const backup = freeBackupPath(target, '.bak');
       fs.renameSync(target, backup);
@@ -471,6 +524,32 @@ function wireAgentsLink(target, sourceAgentsMd, agent, force) {
     record(target, 'copy', agent, backupOf);
     log(`  ${green('✓')} Copied ${path.relative(PROJECT_ROOT, target)} (symlink fallback)`);
   }
+  return true;
+}
+
+// Remove `target` (a user's file that carries the pointer block) so a link can take
+// its place; return the manifest path of the backup that holds the user's text. If
+// the file is unchanged since the block was added, the backup made then already is
+// the original. Otherwise the text without the block goes to a new .bak.
+function moveAsideWithoutBlock(target) {
+  const stripped = withoutPointerBlock(fs.readFileSync(target));
+  const entry = priorEntries.get(relToProject(target));
+  if (entry && entry.backup_of) {
+    const earlier = path.join(PROJECT_ROOT, entry.backup_of);
+    try {
+      if (trimLineEnds(fs.readFileSync(earlier)).equals(trimLineEnds(stripped))) {
+        fs.unlinkSync(target);
+        return entry.backup_of;
+      }
+    } catch (e) {
+      /* the earlier backup is gone: fall through and write a new one */
+    }
+  }
+  const backup = freeBackupPath(target, '.bak');
+  fs.writeFileSync(backup, stripped);
+  fs.unlinkSync(target);
+  log(`  ${yellow('!')} Moved your ${path.basename(target)} to ${path.basename(backup)}`);
+  return relToProject(backup);
 }
 
 // True if the link at `target` was made by an installer: an earlier install
@@ -815,6 +894,13 @@ function runInit(opts) {
   // --- Copy the kit into the project (agents/ only; the project's docs/ is not touched) ---
   log(yellow('Part 1: Copying kit'));
   const targetAgents = path.join(PROJECT_ROOT, 'agents');
+  if (fs.existsSync(targetAgents) && !fs.statSync(targetAgents).isDirectory()) {
+    process.stderr.write(
+      red(`Error: ${targetAgents} exists and is not a folder. Move it away and run the installer again.`) +
+        ' Nothing was changed.\n'
+    );
+    return 1;
+  }
   const agentsMdSrc = path.join(targetAgents, 'AGENTS.md');
   const skillsSrc = path.join(targetAgents, 'skills');
   const ownAgentsMd = userOwnsKitEntryFile(agentsMdSrc);
@@ -838,8 +924,9 @@ function runInit(opts) {
   const rootAgentsMd = path.join(PROJECT_ROOT, 'AGENTS.md');
   if (fs.existsSync(agentsMdSrc)) {
     if (path.resolve(rootAgentsMd) !== path.resolve(agentsMdSrc)) {
-      wireAgentsLink(rootAgentsMd, agentsMdSrc, 'shared', opts.force);
-      log(`  ${green('✓')} Wired root AGENTS.md (agents.md standard)`);
+      if (wireAgentsLink(rootAgentsMd, agentsMdSrc, 'shared', opts.force)) {
+        log(`  ${green('✓')} Wired root AGENTS.md (agents.md standard)`);
+      }
     }
   } else {
     log(`  ${yellow('!')} agents/AGENTS.md not found; root AGENTS.md not wired.`);
@@ -979,10 +1066,16 @@ function main() {
     try {
       return runInit(opts);
     } catch (e) {
+      // Record what was written before the stop, so it can still be uninstalled.
+      if (recorded.size) {
+        try {
+          writeManifest();
+        } catch (e2) {
+          /* the original error is the one to report */
+        }
+      }
       if (!e.gabbeFatal) throw e;
       process.stderr.write(red(`Error: ${e.message}`) + '\n');
-      // Record what was written before the stop, so it can still be uninstalled.
-      if (recorded.size) writeManifest();
       return 1;
     }
   }

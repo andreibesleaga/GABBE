@@ -40,8 +40,9 @@ _BACKUP_SUFFIX = ".gabbe-bak"
 # Every skill file the installers emit carries this line; it identifies generated
 # files inside a directory recorded as one `tree` entry by releases before 1.1.4.
 _GENERATED_MARKER = b"gabbe-schema-version:"
-# The pointer block the installers append to a user's own instruction file.
-_BLOCK_RE = re.compile(r"\n*<!-- GABBE-KIT:BEGIN.*?<!-- GABBE-KIT:END -->\n?", re.DOTALL)
+# The pointer block the installers append to a user's own instruction file. Matched
+# on bytes so that the user's encoding and line endings are never touched.
+_BLOCK_RE = re.compile(rb"<!-- GABBE-KIT:BEGIN.*?<!-- GABBE-KIT:END -->(\r?\n)?", re.DOTALL)
 # Agent slugs are used to build file paths, so they must be strictly bounded
 # (no separators / traversal). Enforces the isolation invariant.
 _AGENT_RE = re.compile(r"^[a-z0-9][a-z0-9_-]{0,63}$")
@@ -84,6 +85,26 @@ def _sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def manifest_problem(target: Path) -> str | None:
+    """Why the install record cannot be used, or None when it is absent or valid.
+
+    A damaged record must stop `update` and `uninstall`: treating it as empty would
+    leave every installed file behind and then delete the only record of them.
+    """
+    mp = manifest_path(target)
+    if mp.parent.is_symlink():
+        return f"{mp.parent} is a symbolic link; the install record must be a real folder"
+    if not mp.exists():
+        return None
+    try:
+        m = json.loads(mp.read_text())
+    except (ValueError, OSError) as e:
+        return f"{mp} cannot be read as JSON ({e})"
+    if not isinstance(m, dict) or not isinstance(m.get("entries"), list):
+        return f"{mp} is not an install record (no list of entries)"
+    return None
+
+
 def read_manifest(target: Path) -> dict[str, Any]:
     mp = manifest_path(target)
     if not mp.exists():
@@ -101,6 +122,8 @@ def read_manifest(target: Path) -> dict[str, Any]:
 
 def _write_manifest(target: Path, manifest: dict[str, Any]) -> None:
     mp = manifest_path(target)
+    if mp.parent.is_symlink():
+        raise ValueError(f"{mp.parent} is a symbolic link; refusing to write the record there")
     mp.parent.mkdir(parents=True, exist_ok=True)
     mp.write_text(json.dumps(manifest, indent=2, sort_keys=True))
 
@@ -153,8 +176,8 @@ def _refresh_file(
       * anything else (changed)      -> back up to a new name, then replace. The
         backup is linked for restore only when the file was there before any record.
     """
-    if dest.is_symlink():
-        return None
+    if dest.is_symlink() or dest.is_dir():
+        return None  # a link or a folder at a kit file's path is the user's
     backup_of = tracked.get("backup_of") if tracked else None
     if dest.exists():
         current = _sha256(dest)
@@ -239,6 +262,7 @@ def install_kit(
     """
     _validate_agents(agents)
     target = target.resolve()
+    _require_usable_record(target)
     prior = _entries_by_path(read_manifest(target))
     entries: list[dict[str, Any]] = []
 
@@ -261,6 +285,12 @@ def install_kit(
     }
     _write_manifest(target, manifest)
     return manifest
+
+
+def _require_usable_record(target: Path) -> None:
+    problem = manifest_problem(target)
+    if problem:
+        raise ValueError(f"The install record is damaged: {problem}. Nothing was changed.")
 
 
 def _is_kit_managed(target: Path, path: Path) -> bool:
@@ -294,6 +324,7 @@ def update_kit(
     The manifest is written last, so a failure part-way leaves the old record intact.
     """
     target = target.resolve()
+    _require_usable_record(target)
     prior = read_manifest(target)
     merged = _entries_by_path(prior)
     stubbed = {e.get("agent") for e in merged.values() if e.get("kind") == "skill-emit"}
@@ -308,8 +339,8 @@ def update_kit(
         emitted.add(key)
         if entry is not None:
             merged[key] = entry
-        elif dest.is_symlink():
-            merged.pop(key, None)  # the user put a link here: no longer ours
+        elif dest.is_symlink() or dest.is_dir():
+            merged.pop(key, None)  # the user put a link or a folder here: no longer ours
     for entry in _write_agent_stubs(target, stub_agents, merged):
         merged[entry["path"]] = entry
         emitted.add(entry["path"])
@@ -356,19 +387,33 @@ def _is_modified_copy(entry: dict[str, Any], path: Path) -> bool:
         return False
 
 
+def strip_pointer_block(data: bytes) -> bytes:
+    """`data` without the kit's pointer block and the blank line put before it.
+
+    Works on bytes: the user's encoding and line endings stay exactly as they are.
+    """
+    m = _BLOCK_RE.search(data)
+    if not m:
+        return data
+    before = data[: m.start()]
+    for blank in (b"\r\n\r\n", b"\n\n"):
+        if before.endswith(blank):
+            before = before[: len(before) - len(blank) // 2]  # drop one line end
+            break
+    return before + data[m.end() :]
+
+
 def _remove_block(path: Path, backup: Path | None) -> None:
     """Take the kit's pointer block out of a user's file; restore the exact original
     bytes from `backup` when nothing else in the file changed since install."""
     if not path.is_file() or path.is_symlink():
         return
-    text = path.read_text(encoding="utf-8", errors="surrogateescape")
-    stripped = _BLOCK_RE.sub("\n", text, count=1)
+    stripped = strip_pointer_block(path.read_bytes())
     if backup is not None and backup.is_file():
-        original = backup.read_text(encoding="utf-8", errors="surrogateescape")
-        if original.rstrip("\n") == stripped.rstrip("\n"):
+        if backup.read_bytes().rstrip(b"\r\n") == stripped.rstrip(b"\r\n"):
             shutil.move(str(backup), str(path))
             return
-    path.write_text(stripped, encoding="utf-8", errors="surrogateescape")
+    path.write_bytes(stripped)
 
 
 def _remove_entry(target: Path, entry: dict[str, Any], path: Path) -> list[str]:
@@ -390,10 +435,6 @@ def _remove_entry(target: Path, entry: dict[str, Any], path: Path) -> list[str]:
         if path.is_dir() and not path.is_symlink():
             for generated in _generated_files(path):
                 generated.unlink()
-    elif (kind == "symlink") != path.is_symlink() and (path.exists() or path.is_symlink()):
-        # Not what was recorded: the user replaced our link with a file of their
-        # own, or our file with a link. It is theirs now.
-        return preserved
     else:
         if _is_modified_copy(entry, path):
             # The user edited an installed file: keep their text as a backup.
@@ -431,11 +472,24 @@ def _removal_plan(
         user_owned = entry.get("kind") == "copy" and _is_user_owned(Path(entry["path"]))
         if user_owned and entry.get("hash"):
             user_owned = _is_modified_copy(entry, path)
+        if not user_owned:
+            user_owned = _is_not_what_was_recorded(entry, path)
         if in_scope and not user_owned:
             to_remove.append((entry, path))
         else:
             kept.append(entry)
     return to_remove, kept
+
+
+def _is_not_what_was_recorded(entry: dict[str, Any], path: Path) -> bool:
+    """True when the user replaced a recorded file with a link or a folder, or a
+    recorded link with a file or folder of their own. It is theirs now: kept."""
+    kind = entry.get("kind")
+    if kind in ("tree", "block") or not (path.exists() or path.is_symlink()):
+        return False
+    if kind == "symlink":
+        return not path.is_symlink()
+    return path.is_symlink() or path.is_dir()
 
 
 def _removed_paths(target: Path, to_remove: list[tuple[dict[str, Any], Path]]) -> list[str]:
@@ -465,6 +519,8 @@ def uninstall(
     place: backups, memory files and the user's own files stay.
     """
     target = target.resolve()
+    if manifest_problem(target):
+        return []  # a damaged record is never acted on and never deleted
     manifest = read_manifest(target)
     to_remove, kept_entries = _removal_plan(target, manifest, agents)
     removed = _removed_paths(target, to_remove)
@@ -538,13 +594,14 @@ def remaining_kit_files(target: Path) -> list[str]:
 
 
 def _prune_empty_dirs(target: Path, *, purge: bool) -> None:
-    """Remove the installer's own directories once empty. `purge` also clears empty
-    directories left under `agents/`; it never removes a directory that holds a file."""
+    """Remove the installer's own directories once empty, and the empty directories
+    left under `agents/`. A directory that holds a file is never removed. (`purge` is
+    accepted for compatibility: since 1.1.4 it changes nothing here.)"""
     for d in (target / ".gabbe-agents", target / ".gabbe"):
-        if d.is_dir() and not any(d.iterdir()):
+        if d.is_dir() and not d.is_symlink() and not any(d.iterdir()):
             d.rmdir()
     kit = target / "agents"
-    if purge and kit.is_dir() and not kit.is_symlink():
+    if kit.is_dir() and not kit.is_symlink():
         for d in sorted((p for p in kit.rglob("*") if p.is_dir()), reverse=True):
             if not d.is_symlink() and not any(d.iterdir()):
                 d.rmdir()

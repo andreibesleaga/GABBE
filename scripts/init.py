@@ -129,6 +129,9 @@ def write_install_manifest():
     except Exception:
         version = "wizard"
     mp = PROJECT_ROOT / ".gabbe" / "manifest.json"
+    if mp.parent.is_symlink():
+        print(f"  {YELLOW}! .gabbe is a link of yours: no install record was written{NC}")
+        return
     # Merge with any prior manifest so a re-run never drops earlier wiring (e.g.
     # agents selected in a previous install). New entries win on path collisions.
     merged: dict[str, dict] = {}
@@ -622,21 +625,57 @@ def pointer_block(kit_agents_md):
     )
 
 
+def with_pointer_block(data, kit_agents_md):
+    """The bytes of a user's file with the pointer block appended.
+
+    Works on bytes and uses the file's own line ending, so the user's encoding and
+    line endings are never changed.
+    """
+    nl = b"\r\n" if b"\r\n" in data else b"\n"
+    block = pointer_block(kit_agents_md).encode("utf-8").replace(b"\n", nl)
+    if not data or data.endswith(nl + nl):
+        joiner = b""
+    elif data.endswith(nl):
+        joiner = nl
+    else:
+        joiner = nl + nl
+    return data + joiner + block
+
+
+def without_pointer_block(data):
+    """The bytes of a user's file without the pointer block (same rule as
+    `gabbe/installer.py` strip_pointer_block)."""
+    import re
+
+    m = re.search(rb"<!-- GABBE-KIT:BEGIN.*?<!-- GABBE-KIT:END -->(\r?\n)?", data, re.DOTALL)
+    if not m:
+        return data
+    before = data[: m.start()]
+    for blank in (b"\r\n\r\n", b"\n\n"):
+        if before.endswith(blank):
+            before = before[: len(before) - len(blank) // 2]  # drop one line end
+            break
+    return before + data[m.end() :]
+
+
 def add_pointer_block(target, kit_agents_md, agent="shared"):
     """Keep the user's own instruction file and append a pointer to the kit's.
 
     The original is copied to a backup first and the change is recorded, so
     `gabbe uninstall` takes the block out again. Idempotent.
     """
-    text = target.read_text(encoding="utf-8", errors="surrogateescape")
-    if POINTER_BEGIN in text:
+    data = target.read_bytes()
+    if POINTER_BEGIN.encode() in data:
         print(f"  {BLUE}→ {target.name} already points to the kit; left as is{NC}")
         return
+    if not os.access(target, os.W_OK):
+        print(
+            f"  {YELLOW}! {target.name} is read-only: left as is. Add a line that points to "
+            f"{kit_agents_md} yourself{NC}"
+        )
+        return
     backup = _backup_before_overwrite(target)
-    joiner = "" if text.endswith("\n\n") or not text else ("\n" if text.endswith("\n") else "\n\n")
-    target.write_text(
-        text + joiner + pointer_block(kit_agents_md), encoding="utf-8", errors="surrogateescape"
-    )
+    target.write_bytes(with_pointer_block(data, kit_agents_md))
     _record(target, "block", agent=agent, backup_of=_rel_to_project(backup) if backup else None)
     print(
         f"  {YELLOW}! Kept your {target.name} and added a pointer to {kit_agents_md} "
@@ -731,6 +770,27 @@ def safe_merge_directory(src_root, dst_root, is_kit_root=False, force=None):
             )
 
 
+def _move_aside_without_block(target):
+    """Remove `target` (a user's file that carries the pointer block) so a link can
+    take its place; return the manifest path of the backup that holds the user's text.
+
+    If the file is unchanged since the block was added, the backup made then already
+    is the original. Otherwise the text without the block goes to a new `.bak`.
+    """
+    stripped = without_pointer_block(target.read_bytes())
+    entry = _prior_manifest_entries().get(_rel_to_project(target) or "", {})
+    earlier = PROJECT_ROOT / entry["backup_of"] if entry.get("backup_of") else None
+    if earlier and earlier.is_file():
+        if earlier.read_bytes().rstrip(b"\r\n") == stripped.rstrip(b"\r\n"):
+            target.unlink()
+            return entry["backup_of"]
+    backup = _free_backup_path(target, suffix=".bak")
+    backup.write_bytes(stripped)
+    target.unlink()
+    print(f"  {YELLOW}! Moved your {target.name} to {backup.name}{NC}")
+    return _rel_to_project(backup)
+
+
 def _is_our_link(target, source):
     """True if the link at `target` was made by an installer: an earlier install
     recorded it, or it already points at the kit file we are about to link."""
@@ -776,6 +836,10 @@ def create_symlink(source, target, agent="shared"):
             print(f"  {YELLOW}! Backing up existing directory {target.name} to {backup.name}{NC}")
             shutil.move(str(target), str(backup))
             backup_of = _rel_to_project(backup)
+        elif source.is_file() and FORCE and POINTER_BEGIN.encode() in target.read_bytes():
+            # --force after an earlier run that added the pointer block: put the
+            # user's file back without the block before it is moved aside.
+            backup_of = _move_aside_without_block(target)
         elif (
             source.is_file()
             and not FORCE
@@ -978,6 +1042,19 @@ def run_bench():
 
 
 def main():
+    """Run the wizard. If it stops part-way, what it had written is still recorded,
+    so `gabbe uninstall` can remove it."""
+    try:
+        _run_wizard()
+    except BaseException:
+        try:
+            write_install_manifest()
+        except Exception:
+            pass
+        raise
+
+
+def _run_wizard():
     global PROJECT_ROOT, FORCE
     # Start each run with a clean manifest recorder (globals persist in-process).
     _MANIFEST_ENTRIES.clear()
@@ -1039,7 +1116,19 @@ def main():
 
     # Perform Install / Copy
     IS_UPDATE = False
-    if target_agents_dir.exists():
+    if target_agents_dir.exists() and not target_agents_dir.is_dir():
+        raise SystemExit(
+            f"{RED}x {target_agents_dir} exists and is not a folder. Move it away and run "
+            f"the installer again. Nothing was changed.{NC}"
+        )
+    if target_agents_dir.is_symlink():
+        # A link of the user's to a kit kept elsewhere: use it, never copy into it.
+        print(
+            f"  {BLUE}→ {target_agents_dir} is a link to {target_agents_dir.resolve()}: "
+            f"using the kit there as it is; nothing is copied into it.{NC}"
+        )
+        IS_UPDATE = True
+    elif target_agents_dir.exists():
         if target_agents_dir.resolve() == SOURCE_AGENTS_DIR.resolve():
             print(
                 f"  {BLUE}→ Target is the same as source directory ({target_agents_dir}), skipping copy.{NC}"

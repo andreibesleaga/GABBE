@@ -10,6 +10,7 @@ Release 1.1.4. Each test states one promise of the installers:
 
 import json
 import os
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -611,6 +612,201 @@ def test_wizard_stops_when_a_backup_cannot_be_made(tmp_path):
             init.safe_merge_directory(src, dst, force=False)
 
     assert (dst / "README.md").read_text() == "MY README\n"
+
+
+# --------------------------------------------------------------------------
+# Findings of the independent test round (21 Nov 2026)
+# --------------------------------------------------------------------------
+
+
+def test_wizard_skill_compiler_never_writes_through_a_link(existing_project, tmp_path):
+    """A link at a skill or rule path is the user's; 1.1.3 overwrote its target."""
+    outside = tmp_path / "outside"
+    (outside / "adir").mkdir(parents=True)
+    (outside / "rule.md").write_text("OUTSIDE RULE\n")
+    (outside / "notes.md").write_text("OUTSIDE NOTES\n")
+    (existing_project / ".claude" / "skills" / "tdd-cycle").mkdir()
+    os.symlink(outside / "rule.md", existing_project / ".cursor" / "rules" / "tdd-cycle.mdc")
+    os.symlink(
+        outside / "notes.md", existing_project / ".claude" / "skills" / "tdd-cycle" / "SKILL.md"
+    )
+    os.symlink(outside / "adir", existing_project / ".claude" / "skills" / "research")
+
+    _run_wizard(existing_project)
+
+    assert (outside / "rule.md").read_text() == "OUTSIDE RULE\n"
+    assert (outside / "notes.md").read_text() == "OUTSIDE NOTES\n"
+    assert list((outside / "adir").iterdir()) == []
+    assert (existing_project / ".cursor" / "rules" / "tdd-cycle.mdc").is_symlink()
+
+
+def test_wizard_copies_nothing_into_an_agents_folder_that_is_a_link(tmp_path):
+    shared = tmp_path / "shared-kit"
+    shared.mkdir()
+    (shared / "mine.txt").write_text("MINE\n")
+    proj = tmp_path / "proj"
+    proj.mkdir()
+    os.symlink(shared, proj / "agents")
+
+    try:
+        _run_wizard(proj, WIZARD_INPUTS[:1] + WIZARD_INPUTS[2:])  # empty project: no Mode question
+    except (SystemExit, Exception):
+        pass  # with no kit behind the link the wizard may stop; it must not copy first
+
+    assert not (shared / "skills").exists() and not (shared / "guides").exists()
+    assert (shared / "mine.txt").read_text() == "MINE\n"
+
+
+def test_a_read_only_instruction_file_is_left_alone_and_the_install_goes_on(tmp_path):
+    proj = tmp_path / "proj"
+    proj.mkdir()
+    init.PROJECT_ROOT = proj
+    own = proj / "AGENTS.md"
+    own.write_text("READ ONLY RULES\n")
+    own.chmod(0o444)
+    if os.access(own, os.W_OK):
+        pytest.skip("running as a user for whom read-only files are writable")
+
+    init.add_pointer_block(own, "agents/AGENTS.md")
+
+    assert own.read_text() == "READ ONLY RULES\n"
+    assert not (proj / "AGENTS.md.gabbe-bak").exists()
+
+
+@pytest.mark.parametrize(
+    "original",
+    [
+        b"MY RULES\n",
+        b"a\r\nb\r\n",  # Windows line ends
+        b"caf\xe9 latin-1\n",  # not UTF-8
+        b"",
+    ],
+)
+def test_pointer_block_round_trip_is_exact_to_the_byte(tmp_path, original):
+    blocked = init.with_pointer_block(original, "agents/AGENTS.md")
+    assert blocked.startswith(original) and init.POINTER_BEGIN.encode() in blocked
+    assert (b"\r\n" in blocked) == (b"\r\n" in original)  # the file's own line end is used
+
+    assert installer.strip_pointer_block(blocked) == original
+    assert init.without_pointer_block(blocked) == original
+
+
+def test_uninstall_keeps_the_bytes_of_text_added_around_the_pointer_block(tmp_path):
+    target = tmp_path / "proj"
+    target.mkdir()
+    init.PROJECT_ROOT = target
+    own = target / "AGENTS.md"
+    own.write_bytes(b"a\r\nb\r\n")
+    init.add_pointer_block(own, "agents/AGENTS.md")
+    init.write_install_manifest()
+    own.write_bytes(own.read_bytes() + b"caf\xe9\r\n")
+
+    installer.uninstall(target)
+
+    assert own.read_bytes() == b"a\r\nb\r\ncaf\xe9\r\n"
+
+
+def test_force_after_a_pointer_block_restores_the_original_on_uninstall(tmp_path):
+    """A second run with --force replaced the file by a link and backed up the copy
+    that carried the block; uninstall then put the block back."""
+    proj = tmp_path / "proj"
+    (proj / "agents").mkdir(parents=True)
+    kit_file = proj / "agents" / "AGENTS.md"
+    kit_file.write_text("KIT AGENTS\n")
+    own = proj / "AGENTS.md"
+    own.write_text("MY RULES\n")
+    init.PROJECT_ROOT = proj
+    init.create_symlink(kit_file, own)
+    init.write_install_manifest()
+    assert init.POINTER_BEGIN in own.read_text()
+
+    init._MANIFEST_ENTRIES.clear()
+    init._RECORDED_PATHS.clear()
+    init.FORCE = True
+    try:
+        init.create_symlink(kit_file, own)
+        init.write_install_manifest()
+    finally:
+        init.FORCE = False
+    assert own.is_symlink()
+
+    installer.uninstall(proj)
+
+    assert not own.is_symlink() and own.read_text() == "MY RULES\n"
+    assert not list(proj.glob("AGENTS.md.*"))
+
+
+def test_a_recorded_file_that_became_a_folder_stops_nothing(tmp_path):
+    target = tmp_path / "proj"
+    installer.install_kit(target, _kit(tmp_path), [])
+    skill = target / "agents" / "skills" / "a.skill.md"
+    skill.unlink()
+    skill.mkdir()
+    (skill / "note.txt").write_text("MINE\n")
+
+    installer.update_kit(target, _kit(tmp_path, "v2"))  # raised IsADirectoryError
+    planned = installer.uninstall(target, dry_run=True)
+    removed = installer.uninstall(target)
+
+    assert planned == removed and "agents/skills/a.skill.md" not in removed
+    assert (skill / "note.txt").read_text() == "MINE\n"
+
+
+@pytest.mark.parametrize("damaged", ['{"entries": [', "", '{"entries": "x"}', "[1, 2]"])
+def test_a_damaged_record_is_never_acted_on_and_never_deleted(tmp_path, damaged):
+    target = tmp_path / "proj"
+    installer.install_kit(target, _kit(tmp_path), [])
+    record = installer.manifest_path(target)
+    record.write_text(damaged)
+    before = _snapshot(target)
+
+    assert installer.uninstall(target, purge=True) == []
+    with pytest.raises(ValueError, match="damaged"):
+        installer.update_kit(target, _kit(tmp_path, "v2"))
+    result = subprocess.run(
+        [sys.executable, "-m", "gabbe.main", "uninstall", "--dir", str(target)],
+        capture_output=True,
+        text=True,
+        cwd=tmp_path,
+        env=dict(os.environ, PYTHONPATH=str(REPO_ROOT)),
+    )
+
+    assert result.returncode == 1 and "damaged" in result.stderr
+    assert _snapshot(target) == before
+
+
+def test_cli_dry_run_prints_every_path(tmp_path):
+    target = tmp_path / "proj"
+    installer.install_kit(target, _kit(tmp_path), [])
+
+    result = subprocess.run(
+        [sys.executable, "-m", "gabbe.main", "uninstall", "--dry-run", "--dir", str(target)],
+        capture_output=True,
+        text=True,
+        cwd=tmp_path,
+        env=dict(os.environ, PYTHONPATH=str(REPO_ROOT)),
+    )
+
+    assert result.returncode == 0
+    assert "  agents/skills/a.skill.md" in result.stdout.splitlines()
+    assert "Would remove 3 path(s)" in result.stdout
+    assert (target / "agents" / "skills" / "a.skill.md").exists()
+
+
+def test_plain_uninstall_leaves_no_empty_kit_folders(tmp_path):
+    kit = _kit(tmp_path)
+    (kit / "memory" / "episodic").mkdir(parents=True)  # the kit ships some empty folders
+    target = tmp_path / "proj"
+    target.mkdir()
+    shutil.copytree(kit, target / "agents")  # as the wizard's first copy does
+    installer.update_kit(target, kit)
+    for p in sorted((target / "agents").rglob("*")):
+        if p.is_file():
+            p.unlink()
+
+    installer.uninstall(target)
+
+    assert not (target / "agents").exists()
 
 
 # --------------------------------------------------------------------------

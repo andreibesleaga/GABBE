@@ -43,6 +43,8 @@ which opts into re-templating those too — and still backs each one up first.
 - **Your `docs/` folder** is not touched. (Up to 1.1.3 the Node installer copied the kit's
   documents into it.) The kit's documents are online:
   <https://github.com/andreibesleaga/GABBE/tree/main/docs>.
+- **An `agents` that is a link** to a kit kept elsewhere: the installers use it as it is and
+  copy nothing into it.
 - **An `agents/` folder of your own:** your files in it are kept, and so is your
   `agents/AGENTS.md`. The Node installer then says that the kit's own `agents/AGENTS.md` was
   not installed; `--force` installs it and backs yours up first.
@@ -139,7 +141,7 @@ refuses to write when `agents/` is a link to a folder outside the project.
 gabbe uninstall --dry-run          # print exactly what would be removed
 gabbe uninstall                    # remove it; restore linked backups
 gabbe uninstall --agents cursor    # deselect one agent's wiring only
-gabbe uninstall --purge            # also remove empty folders left under agents/
+gabbe uninstall --purge            # same as a plain uninstall since 1.1.4 (kept for compatibility)
 ```
 
 Or use the bootstrap scripts when the CLI is not on `PATH`:
@@ -158,12 +160,19 @@ It never deletes a file the install did not record. These always stay: your own 
 (including your own skills inside `.claude/skills` and similar folders), files under
 `agents/memory/` that you changed, and backups. A preserved kit file (`agents/AGENTS.md`,
 `agents/CONSTITUTION.md`, …) is removed only if you never changed it; one you changed stays
-where it is. `--purge` also removes the empty folders left under `agents/`. The command
-prints how many files are left under `agents/`. In a project where you changed none of the
-installed files, the result is byte-identical to the state before the install.
+where it is. A path that is no longer what was recorded (you replaced a file by a folder or
+a link, or a link by a file) is left alone. Empty folders left under `agents/` are removed.
+The command prints how many files are left under `agents/`. In a project where you changed
+none of the installed files, every file is as it was before the install; empty folders are
+not restored. `--dry-run` prints every path it would remove.
 
-Without a record (`.gabbe/manifest.json` missing) `gabbe uninstall` exits with status 1 and
-removes nothing; see the scope note at the top. A directory that 1.1.3 or earlier recorded
+The pointer block is added and removed byte for byte: the encoding and line endings of
+your file are not changed. A read-only instruction file is left alone, with a message.
+
+Without a record (`.gabbe/manifest.json` missing), or with a record that cannot be read,
+`gabbe uninstall` exits with status 1 and removes nothing, and `gabbe update` changes
+nothing; see the scope note at the top. If an installer stops part-way, it still records
+what it had written. A directory that 1.1.3 or earlier recorded
 as a whole (for example `.claude/skills`) is no longer removed as a whole: only the files
 the installer generated in it are removed.
 

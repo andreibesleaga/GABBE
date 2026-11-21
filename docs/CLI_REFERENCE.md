@@ -548,8 +548,9 @@ install as `<name>.gabbe-bak` (rather than deleting it), prunes now-empty wiring
 never touches unrelated files. Since 1.1.4 every installer writes the record (`gabbe setup`,
 `npx gabbe-kit init`, `gabbe update`). Without a record the command exits with status 1 and
 removes nothing. `--agents` deselects specific agents only; `--dry-run` prints the plan
-without changing anything; `--purge` also removes the empty folders left under `agents/`; your own files, changed
-files, memory files and backups always stay.
+without changing anything; `--purge` is kept for compatibility and is the same as a plain uninstall; your own files,
+changed files, memory files and backups always stay. A record that cannot be read is never
+acted on.
 Idempotent and isolated (never writes outside the target).
 
 ```bash

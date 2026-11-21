@@ -145,6 +145,20 @@ def create_symlink(source, target, project_root):
         print(f"  {RED}x Failed to link {target}: {e}{NC}")
 
 
+def _write_generated(path, text, skipped):
+    """Write one generated file, unless the path or its folder is a symbolic link.
+
+    A link at a skill or rule path is the user's own. Writing through it would
+    overwrite the file it points to, which can be outside the project.
+    """
+    if path.is_symlink() or path.parent.is_symlink():
+        skipped.append(path)
+        return False
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(text)
+    return True
+
+
 def setup_skills_for_platform(
     platform, skills_src_dir, target_dir, project_root, native_subset=None
 ):
@@ -164,6 +178,7 @@ def setup_skills_for_platform(
     skill_files = list(skills_src_dir.rglob("*.skill.md"))
 
     count = 0
+    skipped = []
     for skill_file in skill_files:
         content = skill_file.read_text()
         meta, content_with_fm = ensure_yaml_frontmatter(content, skill_file.name)
@@ -197,8 +212,8 @@ def setup_skills_for_platform(
             body = content_with_fm[start_body:].strip()
 
             final_content = cursor_fm + "\n" + body
-            dest_file.write_text(final_content)
-            count += 1
+            if _write_generated(dest_file, final_content, skipped):
+                count += 1
 
         elif platform in (
             "VS Code",
@@ -214,8 +229,10 @@ def setup_skills_for_platform(
             # (not a symlink) with name+description frontmatter so the skill is
             # discoverable on every platform and portable across filesystems.
             skill_folder = target_dir / skill_slug
-            skill_folder.mkdir(parents=True, exist_ok=True)
-            (skill_folder / "SKILL.md").write_text(inject_schema_version(content_with_fm))
+            if not _write_generated(
+                skill_folder / "SKILL.md", inject_schema_version(content_with_fm), skipped
+            ):
+                continue
 
             if platform in ("VS Code", "GitHub Copilot"):
                 # Optional GABBE metadata (ignored by Copilot; kept for tooling).
@@ -226,10 +243,17 @@ def setup_skills_for_platform(
                     "gabbe-schema-version": GABBE_SCHEMA_VERSION,
                     "slashCommands": [{"name": skill_slug, "description": skill_desc}],
                 }
-                (skill_folder / "config.json").write_text(json.dumps(config, indent=2))
+                _write_generated(
+                    skill_folder / "config.json", json.dumps(config, indent=2), skipped
+                )
             count += 1
 
     print(f"  {GREEN}✓ Processed {count} skills for {platform}{NC}")
+    if skipped:
+        print(
+            f"  ! Left {len(skipped)} path(s) alone because they are links of yours: "
+            + ", ".join(str(p) for p in skipped[:5])
+        )
 
 
 def main():

@@ -252,7 +252,79 @@ test("the user's links are kept and nothing is written through them", (proj) => 
   }
 });
 
-// 13. Install then `gabbe uninstall --purge` gives the project back unchanged.
+// 13. A read-only instruction file is left alone and the install completes.
+test('a read-only instruction file does not stop the install', (proj) => {
+  write(proj, 'AGENTS.md', 'READ ONLY RULES\n');
+  fs.chmodSync(path.join(proj, 'AGENTS.md'), 0o444);
+  try {
+    fs.accessSync(path.join(proj, 'AGENTS.md'), fs.constants.W_OK);
+    console.log('    (skipped: read-only files are writable for this user)');
+    return;
+  } catch (e) {
+    /* not writable: the case under test */
+  }
+
+  const out = run(proj, ['init', '--yes', '--agents', 'claude']);
+
+  assert.strictEqual(read(proj, 'AGENTS.md'), 'READ ONLY RULES\n');
+  assert.ok(/is read-only: left as is/.test(out), 'the skipped file is not reported');
+  assert.ok(fs.existsSync(path.join(proj, '.gabbe', 'manifest.json')), 'no install record');
+  assert.ok(!fs.existsSync(path.join(proj, 'AGENTS.md.gabbe-bak')), 'a backup was left behind');
+});
+
+// 14. The pointer block never changes the bytes of the user's text.
+test('a non-UTF-8 file with Windows line ends keeps its bytes', (proj) => {
+  const original = Buffer.from('caf\xe9 latin-1\r\nsecond line\r\n', 'latin1');
+  fs.writeFileSync(path.join(proj, 'AGENTS.md'), original);
+
+  run(proj, ['init', '--yes']);
+
+  const blocked = fs.readFileSync(path.join(proj, 'AGENTS.md'));
+  assert.ok(blocked.subarray(0, original.length).equals(original), 'the user\'s bytes changed');
+  assert.ok(blocked.includes('GABBE-KIT:BEGIN'), 'no pointer block');
+  assert.ok(!blocked.subarray(original.length).toString('latin1').replace(/\r\n/g, '').includes('\n'),
+    'the block does not use the file\'s line end');
+});
+
+// 15. `agents` that is a regular file: a clear error, nothing written.
+test('agents as a file is refused with a message', (proj) => {
+  write(proj, 'agents', 'not a folder\n');
+  let err = null;
+  try {
+    run(proj, ['init', '--yes']);
+  } catch (e) {
+    err = e;
+  }
+  assert.ok(err && err.status === 1, 'did not exit 1');
+  assert.ok(/is not a folder/.test(err.stderr), 'no clear message');
+  assert.deepStrictEqual(fs.readdirSync(proj), ['agents'], 'something was written');
+});
+
+// 16. --force after an earlier run: uninstall gives the original back, no block.
+//     Needs the Python CLI; skipped when python3 is not available.
+test('--force after a pointer block still uninstalls to the original', (proj) => {
+  const { spawnSync } = require('child_process');
+  if (spawnSync('python3', ['-c', 'import yaml, jsonschema, requests']).status !== 0) {
+    console.log('    (skipped: python3 with the CLI dependencies is not available)');
+    return;
+  }
+  write(proj, 'AGENTS.md', 'MY AGENTS FILE\n');
+  const before = snapshot(proj);
+
+  run(proj, ['init', '--yes', '--agents', 'claude']);
+  run(proj, ['init', '--yes', '--agents', 'claude', '--force']);
+  assert.ok(fs.lstatSync(path.join(proj, 'AGENTS.md')).isSymbolicLink(), 'not linked by --force');
+  const res = spawnSync('python3', ['-m', 'gabbe.main', 'uninstall'], {
+    cwd: proj,
+    encoding: 'utf8',
+    env: { ...process.env, PYTHONPATH: KIT_ROOT },
+  });
+
+  assert.strictEqual(res.status, 0, `gabbe uninstall failed: ${res.stderr}`);
+  assert.deepStrictEqual(snapshot(proj), before, 'project differs from its state before install');
+});
+
+// 17. Install then `gabbe uninstall --purge` gives the project back unchanged.
 //     Needs the Python CLI; skipped when python3 is not available.
 test('install then gabbe uninstall --purge restores the project', (proj) => {
   const { spawnSync } = require('child_process');

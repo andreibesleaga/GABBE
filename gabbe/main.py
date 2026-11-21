@@ -163,7 +163,7 @@ def main() -> None:
     uninstall_parser.add_argument(
         "--purge",
         action="store_true",
-        help="Also remove empty folders left under agents/ (your files stay)",
+        help="Accepted for compatibility; since 1.1.4 the same as a plain uninstall",
     )
     uninstall_parser.add_argument(
         "--global", dest="global_scope", action="store_true", help="Target the global install"
@@ -408,10 +408,20 @@ def main() -> None:
                 sys.exit(rc)
 
         elif args.command == "uninstall":
-            from .installer import manifest_path, remaining_kit_files
+            from .installer import manifest_path, manifest_problem, remaining_kit_files
             from .installer import uninstall as _uninstall
 
             target = _resolve_install_target(args)
+            problem = manifest_problem(target)
+            if problem:
+                # Never act on, or delete, a record that cannot be read.
+                print(
+                    f"{Colors.FAIL}The install record is damaged: {problem}. Nothing was "
+                    f"removed.{Colors.ENDC}\nRestore the file from version control or a "
+                    "backup, or re-run the installer you used to write a new record.",
+                    file=sys.stderr,
+                )
+                sys.exit(1)
             if not manifest_path(target).exists():
                 # No record means nothing can be removed safely: say so and fail.
                 print(
@@ -429,6 +439,9 @@ def main() -> None:
             )
             removed = _uninstall(target, agents=agents, dry_run=args.dry_run, purge=args.purge)
             verb = "Would remove" if args.dry_run else "Removed"
+            if args.dry_run:
+                for path in removed:
+                    print(f"  {path}")
             print(f"{verb} {len(removed)} path(s) from {target}")
             left = [] if args.dry_run or agents else remaining_kit_files(target)
             if left:

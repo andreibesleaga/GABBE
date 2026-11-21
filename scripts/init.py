@@ -535,8 +535,8 @@ def _backup_before_overwrite(dst_file):
     dst_file = Path(dst_file)
     try:
         data = dst_file.read_bytes()
-    except OSError:
-        return None
+    except OSError as e:
+        _backup_failed(dst_file, e)
     first = Path(str(dst_file) + ".gabbe-bak")
     if _is_unchanged_kit_file(dst_file, data):
         return first if first.exists() else None
@@ -550,10 +550,36 @@ def _backup_before_overwrite(dst_file):
     backup = _free_backup_path(dst_file)
     try:
         shutil.copy2(dst_file, backup)
-        print(f"  {YELLOW}! Backed up existing {dst_file.name} -> {backup.name}{NC}")
-        return backup
-    except Exception:
-        return None
+    except OSError as e:
+        _backup_failed(dst_file, e)
+    print(f"  {YELLOW}! Backed up existing {dst_file.name} -> {backup.name}{NC}")
+    return backup
+
+
+def _backup_failed(path, error):
+    """Stop the install: without a backup the file would be the user's only copy."""
+    raise SystemExit(
+        f"{RED}x Could not back up {path} ({error}). Nothing was overwritten; "
+        f"fix the cause and run the installer again.{NC}"
+    )
+
+
+def _is_behind_link(path):
+    """True if `path` is a symbolic link, or a directory between PROJECT_ROOT and it
+    is one. Such a path is the user's: writing there could land outside the project."""
+    path = Path(path)
+    if path.is_symlink():
+        return True
+    try:
+        rel = path.absolute().relative_to(PROJECT_ROOT.absolute())
+    except ValueError:
+        return False  # a kit location the user chose outside the project
+    current = PROJECT_ROOT.absolute()
+    for part in rel.parts[:-1]:
+        current = current / part
+        if current.is_symlink():
+            return True
+    return False
 
 
 def write_generated_file(path, text, agent="shared"):
@@ -564,7 +590,10 @@ def write_generated_file(path, text, agent="shared"):
     """
     path = Path(path)
     backup_of = None
-    if path.is_file() and not path.is_symlink() and path.read_text(errors="replace") != text:
+    if _is_behind_link(path):
+        print(f"  {YELLOW}! {path.name} is a link, or sits behind one: left as is{NC}")
+        return
+    if path.is_file() and path.read_text(errors="replace") != text:
         ours = (_rel_to_project(path) or "") in _prior_manifest_entries()
         backup = _backup_before_overwrite(path)
         if backup is not None and not ours:
@@ -636,9 +665,18 @@ def safe_merge_directory(src_root, dst_root, is_kit_root=False, force=None):
         in_memory = "memory" in Path(rel_path).parts
         in_project = "project" in Path(rel_path).parts
 
+        if dst_dir != Path(dst_root) and dst_dir.is_symlink():
+            # A folder of the user's that is a link: never copy through it.
+            print(f"  {YELLOW}! {dst_dir} is a link: left as is, nothing copied into it{NC}")
+            dirs[:] = []
+            continue
+
         for file_ in files:
             src_file = Path(src_dir) / file_
             dst_file = dst_dir / file_
+            if dst_file.is_symlink():
+                print(f"  {YELLOW}! {dst_file.name} is a link of yours: left as is{NC}")
+                continue
 
             preserve = False
             # Honor the preserve-set unconditionally. Previously this only ran
@@ -693,6 +731,18 @@ def safe_merge_directory(src_root, dst_root, is_kit_root=False, force=None):
             )
 
 
+def _is_our_link(target, source):
+    """True if the link at `target` was made by an installer: an earlier install
+    recorded it, or it already points at the kit file we are about to link."""
+    entry = _prior_manifest_entries().get(_rel_to_project(target) or "")
+    if entry and entry.get("kind") == "symlink":
+        return True
+    try:
+        return target.resolve() == Path(source).resolve()
+    except OSError:
+        return False
+
+
 def create_symlink(source, target, agent="shared"):
     """Creates a symlink from target to source, backing up if exists.
 
@@ -700,7 +750,24 @@ def create_symlink(source, target, agent="shared"):
     `gabbe uninstall` can reverse it and restore the user's original.
     """
     backup_of = None
-    if target.is_symlink():
+    if _is_behind_link(target.parent):
+        print(
+            f"  {YELLOW}! {target.parent} is a link, or sits behind one: {target.name} not wired{NC}"
+        )
+        return
+    if target.is_symlink() and not _is_our_link(target, source):
+        # A link of the user's (for example AGENTS.md -> CLAUDE.md): keep it.
+        if not FORCE:
+            print(
+                f"  {YELLOW}! {target.name} is a link of yours: left as is. Point it at the "
+                f"kit yourself, or re-run with --force (it is moved to a backup first){NC}"
+            )
+            return
+        backup = _free_backup_path(target, suffix=".bak")
+        target.rename(backup)
+        backup_of = _rel_to_project(backup)
+        print(f"  {YELLOW}! Moved your link {target.name} to {backup.name}{NC}")
+    elif target.is_symlink():
         target.unlink()
     elif target.exists():
         # An existing backup is never overwritten: take the next free name.
@@ -838,6 +905,13 @@ def setup_skills_for_platform(platform, agents_dir, target_dir):
 
     # Use external script for skill compilation to ensure consistency with setup-context.sh
     compile_script = agents_dir / "scripts" / "compile_skills.py"
+    if _is_behind_link(target_dir):
+        # e.g. `.claude/skills -> agents/skills` made by another tool: compiling
+        # into it would write through the link.
+        print(
+            f"  {YELLOW}! {target_dir} is a link, or sits behind one: skills not emitted there{NC}"
+        )
+        return
     if compile_script.exists():
         try:
             import subprocess

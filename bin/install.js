@@ -283,7 +283,7 @@ function backupBeforeOverwrite(dst) {
   try {
     data = fs.readFileSync(dst);
   } catch (e) {
-    return null;
+    throw backupFailed(dst, e);
   }
   const first = dst + '.gabbe-bak';
   if (isUnchangedKitFile(dst, data)) return fs.existsSync(first) ? first : null;
@@ -300,11 +300,46 @@ function backupBeforeOverwrite(dst) {
   const backup = freeBackupPath(dst);
   try {
     fs.copyFileSync(dst, backup);
-    log(`  ${yellow('!')} Backed up existing ${path.basename(dst)} -> ${path.basename(backup)}`);
-    return backup;
   } catch (e) {
-    return null;
+    throw backupFailed(dst, e);
   }
+  log(`  ${yellow('!')} Backed up existing ${path.basename(dst)} -> ${path.basename(backup)}`);
+  return backup;
+}
+
+// Without a backup the file would be the user's only copy: stop the install.
+function backupFailed(file, error) {
+  const err = new Error(
+    `Could not back up ${file} (${error.message}). Nothing was overwritten; ` +
+      'fix the cause and run the installer again.'
+  );
+  err.gabbeFatal = true;
+  return err;
+}
+
+// True if `file` is a symbolic link, or a directory between the project root and
+// it is one. Such a path is the user's: writing there could land outside the
+// project (or inside the kit, when a tool linked .claude/skills to agents/skills).
+const skippedLinks = [];
+function behindLink(file) {
+  let current = PROJECT_ROOT;
+  for (const part of path.relative(PROJECT_ROOT, file).split(path.sep)) {
+    current = path.join(current, part);
+    let st;
+    try {
+      st = fs.lstatSync(current);
+    } catch (e) {
+      return false; // nothing here yet, so nothing below it either
+    }
+    if (st.isSymbolicLink()) return true;
+  }
+  return false;
+}
+
+// Remember a path that was not written because of a link; reported once at the end.
+function skipLink(file) {
+  skippedLinks.push(relToProject(file));
+  return true;
 }
 
 // Copy a directory tree without ever losing user data. Preserved files are left
@@ -318,6 +353,7 @@ function safeCopyTree(srcRoot, dstRoot, force) {
     const rel = path.relative(srcRoot, src);
     const dst = path.join(dstRoot, rel);
     const fileName = path.basename(src);
+    if (behindLink(dst) && skipLink(dst)) continue;
     const exists = fs.existsSync(dst);
     if (exists && !force && shouldPreserve(rel, fileName)) {
       continue;
@@ -386,6 +422,7 @@ function addPointerBlock(target, kitAgentsMd, agent) {
 // A file the user already had is kept and gets a pointer block. Only --force
 // replaces it, after moving it to a backup name that is not in use.
 function wireAgentsLink(target, sourceAgentsMd, agent, force) {
+  if (behindLink(path.dirname(target)) && skipLink(target)) return;
   fs.mkdirSync(path.dirname(target), { recursive: true });
   let backupOf = null;
   let st = null;
@@ -394,7 +431,20 @@ function wireAgentsLink(target, sourceAgentsMd, agent, force) {
   } catch (e) {
     /* target does not exist */
   }
-  if (st && st.isSymbolicLink()) {
+  if (st && st.isSymbolicLink() && !isOurLink(target, sourceAgentsMd)) {
+    // A link of the user's (for example AGENTS.md -> CLAUDE.md): keep it.
+    if (!force) {
+      log(
+        `  ${yellow('!')} ${relToProject(target)} is a link of yours: left as is. Point it at the kit` +
+          ' yourself, or re-run with --force (it is moved to a backup first)'
+      );
+      return;
+    }
+    const backup = freeBackupPath(target, '.bak');
+    fs.renameSync(target, backup);
+    backupOf = relToProject(backup);
+    log(`  ${yellow('!')} Moved your link ${path.basename(target)} to ${path.basename(backup)}`);
+  } else if (st && st.isSymbolicLink()) {
     fs.unlinkSync(target);
   } else if (st) {
     const ours = st.isFile() && isUnchangedKitFile(target, fs.readFileSync(target));
@@ -423,10 +473,23 @@ function wireAgentsLink(target, sourceAgentsMd, agent, force) {
   }
 }
 
+// True if the link at `target` was made by an installer: an earlier install
+// recorded it, or it already points at the kit file we are about to link.
+function isOurLink(target, sourceAgentsMd) {
+  const entry = priorEntries.get(relToProject(target));
+  if (entry && entry.kind === 'symlink') return true;
+  try {
+    return fs.realpathSync(target) === fs.realpathSync(sourceAgentsMd);
+  } catch (e) {
+    return false;
+  }
+}
+
 // Write one generated file (an emitted skill or rule) and record it. A different
 // file already at that path is the user's own, or a kit file the user edited: it
 // is backed up first, and the backup is linked for restore on uninstall.
 function writeGenerated(file, content, agent) {
+  if (behindLink(file) && skipLink(file)) return;
   let backupOf = null;
   let old = null;
   try {
@@ -493,6 +556,7 @@ function emitCursorRules(skillsSrcDir, cursorRulesDir, agent) {
 // Create a config file only when none exists (a user's own config is never
 // replaced), and record it.
 function writeTextIfAbsent(filePath, text, agent) {
+  if (behindLink(filePath) && skipLink(filePath)) return false;
   if (fs.existsSync(filePath)) return false;
   fs.mkdirSync(path.dirname(filePath), { recursive: true });
   fs.writeFileSync(filePath, text);
@@ -814,6 +878,13 @@ function runInit(opts) {
     log(`  ${blue('→')} BOOTSTRAP_MISSION.md exists, leaving as-is`);
   }
   writeManifest();
+  if (skippedLinks.length) {
+    const shown = skippedLinks.slice(0, 5).join(', ') + (skippedLinks.length > 5 ? ', ...' : '');
+    log(
+      `  ${yellow('!')} Left ${skippedLinks.length} path(s) alone because they are links of yours, or sit` +
+        ` behind one: ${shown}`
+    );
+  }
 
   log('');
   log(green('Setup complete.'));
@@ -905,7 +976,15 @@ function main() {
   // `init` is the default command.
   if (opts.command === null) opts.command = 'init';
   if (opts.command === 'init') {
-    return runInit(opts);
+    try {
+      return runInit(opts);
+    } catch (e) {
+      if (!e.gabbeFatal) throw e;
+      process.stderr.write(red(`Error: ${e.message}`) + '\n');
+      // Record what was written before the stop, so it can still be uninstalled.
+      if (recorded.size) writeManifest();
+      return 1;
+    }
   }
   process.stdout.write(USAGE);
   return 0;

@@ -145,16 +145,21 @@ def _refresh_file(
 
     Returns the manifest entry for `dest`, or None when the file is the user's own
     (never recorded, so never removed). Cases, with `tracked` = the earlier record:
+      * a symbolic link              -> the user's: never written through;
       * no file yet                  -> copy;
-      * same bytes as the kit        -> adopt as is, no backup;
+      * same bytes, never recorded   -> it was there before us: left unrecorded;
       * user-owned and changed       -> keep the user's file;
       * recorded and unchanged       -> replace, no backup;
       * anything else (changed)      -> back up to a new name, then replace. The
         backup is linked for restore only when the file was there before any record.
     """
+    if dest.is_symlink():
+        return None
     backup_of = tracked.get("backup_of") if tracked else None
     if dest.exists():
         current = _sha256(dest)
+        if tracked is None and current == _sha256(src):
+            return None
         changed = tracked is None or tracked.get("hash") != current
         if current != _sha256(src) and changed:
             if _is_user_owned(rel):
@@ -173,23 +178,50 @@ def _refresh_file(
     }
 
 
-def _write_agent_stubs(target: Path, agents: list[str]) -> list[dict[str, Any]]:
-    """Per-agent wiring stubs (one small file per selected agent)."""
+def _write_agent_stubs(
+    target: Path, agents: list[str], prior: dict[str, dict[str, Any]]
+) -> list[dict[str, Any]]:
+    """Per-agent wiring stubs (one small file per selected agent).
+
+    A file already at a stub's path that no install recorded is the user's: it is
+    backed up first (and linked for restore); a symbolic link there is left alone.
+    """
     entries = []
     for agent in agents:
         stub = target / ".gabbe-agents" / f"{agent}.md"
+        rel = str(stub.relative_to(target))
+        text = f"# GABBE wiring for {agent}\nKit: agents/\n"
+        tracked = prior.get(rel)
+        if stub.is_symlink() or stub.parent.is_symlink():
+            continue
+        backup_of = tracked.get("backup_of") if tracked else None
+        if stub.exists() and tracked is None and stub.read_bytes() != text.encode():
+            backup_of = str(backup_file(stub).relative_to(target))
         stub.parent.mkdir(parents=True, exist_ok=True)
-        stub.write_text(f"# GABBE wiring for {agent}\nKit: agents/\n")
+        stub.write_text(text)
         entries.append(
             {
-                "path": str(stub.relative_to(target)),
+                "path": rel,
                 "kind": "skill-emit",
                 "agent": agent,
                 "hash": _sha256(stub),
-                "backup_of": None,
+                "backup_of": backup_of,
             }
         )
     return entries
+
+
+def _kit_dest(target: Path, rel: Path) -> Path:
+    """Where the kit file `rel` goes under `target`. Refuses a destination that a
+    directory link takes outside the target (the isolation invariant)."""
+    try:
+        _resolve_within(target, str(Path("agents") / rel))
+    except ValueError:
+        raise ValueError(
+            f"{target / 'agents' / rel.parent} leads outside {target} through a link; "
+            "refusing to write there. Point --dir at the folder that really holds the kit."
+        ) from None
+    return target / "agents" / rel
 
 
 def install_kit(
@@ -212,13 +244,13 @@ def install_kit(
 
     # 1. Shared kit files (copied once under the target).
     for src, rel in _iter_source_files(source):
-        dest = target / "agents" / rel
+        dest = _kit_dest(target, rel)
         entry = _refresh_file(src, dest, rel, prior.get(str(dest.relative_to(target))), target)
         if entry is not None:
             entries.append(entry)
 
     # 2. Per-agent wiring stubs.
-    entries.extend(_write_agent_stubs(target, agents))
+    entries.extend(_write_agent_stubs(target, agents, prior))
 
     manifest = {
         "schema_version": MANIFEST_SCHEMA_VERSION,
@@ -270,13 +302,15 @@ def update_kit(
 
     emitted: set[str] = set()
     for src, rel in _iter_source_files(source):
-        dest = target / "agents" / rel
+        dest = _kit_dest(target, rel)
         key = str(dest.relative_to(target))
         entry = _refresh_file(src, dest, rel, merged.get(key), target)
         emitted.add(key)
         if entry is not None:
             merged[key] = entry
-    for entry in _write_agent_stubs(target, stub_agents):
+        elif dest.is_symlink():
+            merged.pop(key, None)  # the user put a link here: no longer ours
+    for entry in _write_agent_stubs(target, stub_agents, merged):
         merged[entry["path"]] = entry
         emitted.add(entry["path"])
 
@@ -356,8 +390,9 @@ def _remove_entry(target: Path, entry: dict[str, Any], path: Path) -> list[str]:
         if path.is_dir() and not path.is_symlink():
             for generated in _generated_files(path):
                 generated.unlink()
-    elif kind == "symlink" and path.exists() and not path.is_symlink():
-        # The user replaced our link with a file of their own: it is theirs now.
+    elif (kind == "symlink") != path.is_symlink() and (path.exists() or path.is_symlink()):
+        # Not what was recorded: the user replaced our link with a file of their
+        # own, or our file with a link. It is theirs now.
         return preserved
     else:
         if _is_modified_copy(entry, path):

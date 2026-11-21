@@ -9,7 +9,7 @@ unless you pass `--global`.
 > `gabbe update`. `gabbe uninstall` removes exactly what is recorded and nothing else.
 > An install made by `npx gabbe-kit init` 1.1.3 or earlier has no record: `gabbe uninstall`
 > then stops with an error and removes nothing. Re-run `npx gabbe-kit init` (1.1.4 or later)
-> with the same `--agents` to create the record, or run `gabbe update` from a checkout.
+> with the same `--agents` to create the record.
 
 ## One-command install (every channel)
 
@@ -47,6 +47,12 @@ which opts into re-templating those too — and still backs each one up first.
   `agents/AGENTS.md`. The Node installer then says that the kit's own `agents/AGENTS.md` was
   not installed; `--force` installs it and backs yours up first.
 - **`.gemini/settings.json`, `.aider.conf.yml`, `opencode.json`:** kept if they exist.
+- **Symbolic links of yours** (for example `AGENTS.md -> CLAUDE.md`, or `.claude/skills`
+  linked to another folder): kept, and nothing is written through them. The installer says
+  which paths it left alone. `--force` moves a link at an instruction-file path to
+  `<name>.bak` and wires the kit's link instead.
+- **If a backup cannot be made** (permissions, full disk) the installer stops before it
+  overwrites anything.
 
 **First prompt.** The wizard writes `BOOTSTRAP_MISSION.md` (or `SETUP_MISSION.md`) from your
 answers. The Node installer asks no questions and writes a general `BOOTSTRAP_MISSION.md`;
@@ -122,8 +128,10 @@ kit). For each kit file under `agents/`:
 The earlier install record is merged, not replaced: wiring links and generated skill folders
 stay as they are, on disk and in the record. `update` does not regenerate the skill folders
 of your agents (`.claude/skills`, `.cursor/rules`, …); re-run the installer you used to
-refresh them. On an install without a record, `update` adopts the files that are identical
-to the kit's and starts the record.
+refresh them. On an install without a record, `update` does not take ownership of files
+that are already there and equal the kit's: it leaves them unrecorded, so a later
+`uninstall` leaves them too. Re-run the installer first to create the record. `update`
+refuses to write when `agents/` is a link to a folder outside the project.
 
 ## Uninstalling (manifest-backed installs)
 

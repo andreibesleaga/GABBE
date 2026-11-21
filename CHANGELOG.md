@@ -40,6 +40,13 @@ feature. Found by a full audit of 1.1.3 on 21 November 2026.
   edit no longer loses that edit.
 - **Your own skill or rule with the same name as a kit skill** is saved next to the kit's file
   instead of being overwritten (npm installer and wizard).
+- **Symbolic links of yours are kept and never written through.** A link at a path the kit wants
+  (`AGENTS.md -> CLAUDE.md`, a linked `.claude/skills`, a linked file under `agents/`) used to be
+  removed or followed, which could overwrite a file outside the project. `gabbe update` refuses
+  an `agents/` folder that links outside the project.
+- **A failed backup stops the install** before anything is overwritten (it used to continue).
+- A file that was already there and equals the kit's is not recorded as installed, so uninstall
+  does not remove it.
 - **The npm installer no longer copies the kit's documents into your `docs/` folder.**
 - **The wizard no longer overwrites** an existing `.gemini/settings.json` (kept), `SETUP_MISSION.md`,
   `BOOTSTRAP_MISSION.md` or `BROWNFIELD_ONBOARDING.md` (backed up first), and records

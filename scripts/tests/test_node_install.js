@@ -228,7 +228,31 @@ test('writes an install record with every path, and the first prompt', (proj) =>
   assert.ok(/\[PLACEHOLDER\] fields/.test(out), 'placeholders not mentioned');
 });
 
-// 12. Install then `gabbe uninstall --purge` gives the project back unchanged.
+// 12. A link of the user's is never replaced and never written through.
+test("the user's links are kept and nothing is written through them", (proj) => {
+  const outside = fs.mkdtempSync(path.join(os.tmpdir(), 'gabbe-node-outside-'));
+  try {
+    write(proj, 'CLAUDE.md', 'MY RULES\n');
+    fs.symlinkSync('CLAUDE.md', path.join(proj, 'AGENTS.md'));
+    fs.mkdirSync(path.join(proj, '.claude'));
+    fs.symlinkSync(outside, path.join(proj, '.claude', 'skills'));
+    fs.writeFileSync(path.join(outside, 'opencode.json'), '{"mine": true}\n');
+    fs.symlinkSync(path.join(outside, 'opencode.json'), path.join(proj, 'opencode.json'));
+
+    const out = run(proj, ['init', '--yes', '--agents', 'claude,opencode']);
+
+    assert.strictEqual(fs.readlinkSync(path.join(proj, 'AGENTS.md')), 'CLAUDE.md', 'link replaced');
+    assert.strictEqual(read(proj, 'CLAUDE.md'), 'MY RULES\n');
+    assert.deepStrictEqual(fs.readdirSync(outside), ['opencode.json'], 'wrote through a link');
+    assert.strictEqual(fs.readFileSync(path.join(outside, 'opencode.json'), 'utf8'), '{"mine": true}\n');
+    assert.ok(/is a link of yours/.test(out), 'the kept link is not reported');
+    assert.ok(/path\(s\) alone because they are links/.test(out), 'skipped paths not reported');
+  } finally {
+    fs.rmSync(outside, { recursive: true, force: true });
+  }
+});
+
+// 13. Install then `gabbe uninstall --purge` gives the project back unchanged.
 //     Needs the Python CLI; skipped when python3 is not available.
 test('install then gabbe uninstall --purge restores the project', (proj) => {
   const { spawnSync } = require('child_process');

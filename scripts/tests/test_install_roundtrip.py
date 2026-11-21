@@ -209,17 +209,78 @@ def test_update_keeps_what_other_installers_recorded(tmp_path):
     assert not (target / ".gabbe-agents").exists()  # no stub files invented for other installers
 
 
-def test_update_adopts_an_unrecorded_install_without_backups(tmp_path):
-    """An install made before installers wrote a record: same bytes, so no backups."""
+def test_update_on_an_unrecorded_install_makes_no_backups_and_claims_nothing(tmp_path):
+    """Files that were there before any record and equal the kit's: no backup, and
+    not recorded, so a later uninstall leaves them (it removes only what it wrote)."""
     target = tmp_path / "proj"
     kit = _kit(tmp_path)
     installer.install_kit(target, kit, [])
     installer.manifest_path(target).unlink()
+    before = _snapshot(target)
 
     installer.update_kit(target, kit)
 
     assert not list(target.rglob("*.bak")) and not list(target.rglob("*.gabbe-bak*"))
-    assert "agents/skills/a.skill.md" in _entries(target)
+    assert "agents/skills/a.skill.md" not in _entries(target)
+    installer.uninstall(target, purge=True)
+    assert _snapshot(target) == before
+
+
+def test_install_never_writes_through_a_link_at_a_kit_path(tmp_path):
+    outside = tmp_path / "elsewhere.md"
+    outside.write_text("A FILE OUTSIDE THE PROJECT\n")
+    target = tmp_path / "proj"
+    (target / "agents" / "skills").mkdir(parents=True)
+    link = target / "agents" / "skills" / "a.skill.md"
+    os.symlink(outside, link)
+
+    installer.install_kit(target, _kit(tmp_path), [])
+    installer.update_kit(target, _kit(tmp_path, "v2"))
+
+    assert outside.read_text() == "A FILE OUTSIDE THE PROJECT\n"
+    assert link.is_symlink() and "agents/skills/a.skill.md" not in _entries(target)
+    installer.uninstall(target, purge=True)
+    assert link.is_symlink() and outside.exists()
+
+
+def test_install_refuses_a_kit_folder_that_links_outside_the_project(tmp_path):
+    shared = tmp_path / "shared-agents"
+    shared.mkdir()
+    target = tmp_path / "proj"
+    target.mkdir()
+    os.symlink(shared, target / "agents")
+
+    with pytest.raises(ValueError, match="outside"):
+        installer.install_kit(target, _kit(tmp_path), [])
+
+    assert list(shared.iterdir()) == []
+
+
+def test_a_file_already_at_a_stub_path_is_backed_up_and_restored(tmp_path):
+    target = tmp_path / "proj"
+    (target / ".gabbe-agents").mkdir(parents=True)
+    own = target / ".gabbe-agents" / "claude.md"
+    own.write_text("MY OWN NOTES\n")
+
+    installer.install_kit(target, _kit(tmp_path), ["claude"])
+    assert own.read_text().startswith("# GABBE wiring")
+    installer.uninstall(target)
+
+    assert own.read_text() == "MY OWN NOTES\n"
+
+
+def test_uninstall_leaves_a_link_the_user_put_where_a_kit_file_was(tmp_path):
+    outside = tmp_path / "elsewhere.md"
+    outside.write_text("OUTSIDE\n")
+    target = tmp_path / "proj"
+    installer.install_kit(target, _kit(tmp_path), [])
+    skill = target / "agents" / "skills" / "a.skill.md"
+    skill.unlink()
+    os.symlink(outside, skill)
+
+    installer.uninstall(target)
+
+    assert skill.is_symlink() and outside.read_text() == "OUTSIDE\n"
 
 
 def test_update_removes_a_dropped_kit_file_only_if_unchanged(tmp_path):
@@ -485,6 +546,71 @@ def test_second_wizard_run_keeps_the_link_to_the_users_original(existing_project
     installer.uninstall(existing_project, purge=True)
     assert (existing_project / "AGENTS.md").read_text() == "MY AGENTS FILE\n"
     assert (existing_project / ".cursorrules").read_text() == "MY CURSOR RULES\n"
+
+
+def test_wizard_merge_never_copies_through_a_link(tmp_path):
+    outside_file = tmp_path / "elsewhere.md"
+    outside_file.write_text("OUTSIDE FILE\n")
+    outside_dir = tmp_path / "elsewhere"
+    outside_dir.mkdir()
+    src = _kit(tmp_path)
+    dst = tmp_path / "proj" / "agents"
+    dst.mkdir(parents=True)
+    init.PROJECT_ROOT = tmp_path / "proj"
+    os.symlink(outside_file, dst / "CONSTITUTION.md")
+    os.symlink(outside_dir, dst / "skills")
+
+    init.safe_merge_directory(src, dst, force=True)
+
+    assert outside_file.read_text() == "OUTSIDE FILE\n"
+    assert list(outside_dir.iterdir()) == []
+    assert (dst / "CONSTITUTION.md").is_symlink() and (dst / "skills").is_symlink()
+    assert (dst / "AGENTS.md").read_text() == "KIT AGENTS v1\n"  # the rest is installed
+
+
+def test_wizard_never_writes_a_generated_file_through_a_link(tmp_path):
+    outside = tmp_path / "elsewhere.md"
+    outside.write_text("OUTSIDE FILE\n")
+    proj = tmp_path / "proj"
+    proj.mkdir()
+    init.PROJECT_ROOT = proj
+    os.symlink(outside, proj / "SETUP_MISSION.md")
+
+    init.write_generated_file(proj / "SETUP_MISSION.md", "the mission\n")
+
+    assert outside.read_text() == "OUTSIDE FILE\n"
+    assert (proj / "SETUP_MISSION.md").is_symlink()
+
+
+def test_wizard_keeps_a_link_of_the_users_at_a_wiring_path(tmp_path):
+    """`AGENTS.md -> CLAUDE.md` is a common setup; 1.1.3 removed the link."""
+    proj = tmp_path / "proj"
+    (proj / "agents").mkdir(parents=True)
+    (proj / "agents" / "AGENTS.md").write_text("KIT AGENTS\n")
+    (proj / "CLAUDE.md").write_text("MY RULES\n")
+    os.symlink("CLAUDE.md", proj / "AGENTS.md")
+    init.PROJECT_ROOT = proj
+
+    init.create_symlink(proj / "agents" / "AGENTS.md", proj / "AGENTS.md")
+
+    assert os.readlink(proj / "AGENTS.md") == "CLAUDE.md"
+    assert (proj / "CLAUDE.md").read_text() == "MY RULES\n"
+
+
+def test_wizard_stops_when_a_backup_cannot_be_made(tmp_path):
+    """Without a backup the file would be the user's only copy: nothing is overwritten."""
+    src = _kit(tmp_path)
+    dst = tmp_path / "proj" / "agents"
+    dst.mkdir(parents=True)
+    init.PROJECT_ROOT = tmp_path / "proj"
+    (dst / "README.md").write_text("MY README\n")
+    (src / "README.md").write_text("KIT README\n")
+
+    with patch("shutil.copy2", side_effect=OSError("disk full")):
+        with pytest.raises(SystemExit, match="Could not back up"):
+            init.safe_merge_directory(src, dst, force=False)
+
+    assert (dst / "README.md").read_text() == "MY README\n"
 
 
 # --------------------------------------------------------------------------

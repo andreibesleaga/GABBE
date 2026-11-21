@@ -131,9 +131,9 @@ fail-closed without an allowlist, the hard-stop caps a runaway loop, PII forces
 LOCAL routing, and escalation degrades gracefully under an injected DB fault.
 Read-only; exits non-zero if any self-check fails.
 
-**Exit codes:** `0` everything that was checked passed; `1` a check failed; `3` nothing was
-verified because `agents/AGENTS.md` has no `test` command (set one under `## Commands`).
-`--allow-empty` turns that case into exit `0`.
+**Exit codes:** `0` everything that was checked passed; `1` a check failed (including a missing
+`project/TASKS.md`, which `gabbe init` creates); `3` nothing was verified because `agents/AGENTS.md`
+has no `test` command (set one under `## Commands`). `--allow-empty` turns that case into exit `0`.
 
 **`AGENTS.md` Commands section format:**
 ```markdown
@@ -150,8 +150,6 @@ Only lines inside `## Commands` (until the next `##` heading) are parsed.
 - Supported command keys: `test`, `lint`, `security_scan`, `build`
 - Values are stripped of surrounding single/double quotes
 - Commands are executed with `shell=False` (no shell expansion)
-
-**Exit codes:** `0` = all passed, `1` = at least one check failed
 
 ---
 
@@ -223,7 +221,7 @@ Starts a minimal-dependency JSON-RPC Model Context Protocol (MCP) server on `std
 
 **On by default (read-only, no token, no allow-list):** `list_skills` (optional `category`), `read_skill` (`name`), `search_skills` (`query`, optional `limit`), `get_template` (`name`) and `project_status`. They read only inside `<project root>/agents` and `<project root>/project` (links that point elsewhere are refused), return at most 64 KiB of text (longer text is cut, with a note) and are listed with `readOnlyHint: true`. A folder without the kit gives a normal tool result with `isError: true` that says where the kit was looked for.
 
-**Off by default:** `run_command`. Turn it on with `--enable-run-command` or `GABBE_MCP_ENABLE_RUN_COMMAND=1`; it then stays fail-closed (token, command allow-list; see the `GABBE_MCP_*` variables above) and its child process gets a minimal environment. If you set a token, an allow-list or `GABBE_MCP_INSECURE` without enabling it, the server logs one start-up warning that says how to enable it.
+**Off by default:** `run_command`. Turn it on with `--enable-run-command` or `GABBE_MCP_ENABLE_RUN_COMMAND=1`; it then stays fail-closed (token, command allow-list; see the `GABBE_MCP_*` variables above) and its child process gets a minimal environment. The project's policy file must also allow it (`project/policies.yml` with `tools: {allowed: ["run_command"]}`; the installers do not create that file); without it every call is answered `Policy denied`. If you set a token, an allow-list or `GABBE_MCP_INSECURE` without enabling it, the server logs one start-up warning that says how to enable it.
 
 **Two protocol generations on the same process:**
 

@@ -349,3 +349,199 @@ def test_python_and_node_update_write_the_same_gabbe_new_files_and_entries(tmp_p
     assert sorted(py_files) == ["agents/AGENTS.md.gabbe-new", "agents/CONSTITUTION.md.gabbe-new"]
     assert py_files == node_files
     assert py_entries == node_entries
+
+
+# --- a record inside the project is untrusted too (RA-01, RA-02) ----------------------
+# One record, in a project that also holds the user's own files: nothing of the user's may
+# change, whichever command runs. The honest entry (agents/mine.md, with its hash) is
+# still removed by `uninstall`.
+
+USER_HOOK = {"matcher": "Bash", "hooks": [{"type": "command", "command": "my-own-guard.sh"}]}
+USER_FILES = {
+    ".env": b"SECRET=1\n",
+    "notes-uncommitted.md": b"my notes\n",
+    ".git/config": b"[core]\n\tbare = false\n",
+    ".git/hooks/pre-commit": b"#!/bin/sh\necho my own hook\n",
+    ".claude/settings.json": json.dumps({"hooks": {"PreToolUse": [USER_HOOK]}}).encode(),
+    ".claude/settings.local.json": json.dumps(
+        {
+            "permissions": {"deny": ["Bash(git push:*)", "Read(./.env)"]},
+            "hooks": {"PreToolUse": [USER_HOOK]},
+        }
+    ).encode(),
+    "docs/example-settings.json": b'{"permissions": {"defaultMode": "bypassPermissions"}}\n',
+}
+
+
+def _user_copy(path: str, **more: object) -> dict:
+    return {"path": path, "kind": "copy", "agent": "shared", **more}
+
+
+def _hook_merge(path: str, **more: object) -> dict:
+    return {
+        "path": path,
+        "kind": "hook-merge",
+        "agent": "claude-code",
+        "fragment": "agents/hooks/claude-code/settings.fragment.json",
+        "fragment_doc": {"hooks": {"PreToolUse": [USER_HOOK]}},
+        **more,
+    }
+
+
+def _digest(path: str) -> str:
+    return hashlib.sha256(USER_FILES[path]).hexdigest()
+
+
+RECORD_CASES = {
+    # RA-01: the record names a planted link as the backup; later entries lead through it
+    "backup-link-move": lambda: [
+        _user_copy("d", backup_of="link"),
+        _user_copy("d/f.md"),
+        {"path": "d/sub", "kind": "tree", "agent": "shared"},
+    ],
+    "backup-link-move-by-name": lambda: [
+        _user_copy("d", backup_of="d.gabbe-bak"),  # a correct name, but the file is a link
+        _user_copy("d/f.md"),
+        {"path": "d/sub", "kind": "tree", "agent": "shared"},
+    ],
+    # RA-02
+    "hashless-copy-env": lambda: [_user_copy(".env")],
+    "empty-hash-copy-env": lambda: [_user_copy(".env", hash="")],
+    "wrong-hash-copy-env": lambda: [_user_copy(".env", hash="0" * 64)],
+    "unknown-kind-notes": lambda: [
+        {"path": "notes-uncommitted.md", "kind": "weird-kind", "agent": "shared"}
+    ],
+    "kind-not-text": lambda: [{"path": "notes-uncommitted.md", "kind": ["copy"], "agent": "x"}],
+    "git-config-with-its-hash": lambda: [_user_copy(".git/config", hash=_digest(".git/config"))],
+    "git-hook-without-mark": lambda: [
+        _user_copy(".git/hooks/pre-commit", hash=_digest(".git/hooks/pre-commit"))
+    ],
+    "hook-merge-created-true": lambda: [_hook_merge(".claude/settings.json", created=True)],
+    "hook-merge-user-hook-in-record": lambda: [_hook_merge(".claude/settings.json")],
+    "hook-merge-local-settings": lambda: [_hook_merge(".claude/settings.local.json")],
+    "copy-backup-of-another-file": lambda: [
+        _user_copy(".claude/settings.local.json", backup_of="docs/example-settings.json")
+    ],
+}
+
+
+class UserWorld(World):
+    """A `World` whose project also holds the user's own files, and a planted link."""
+
+    def __init__(self, tmp: Path):
+        super().__init__(tmp)
+        for rel, data in USER_FILES.items():
+            (self.proj / rel).parent.mkdir(parents=True, exist_ok=True)
+            (self.proj / rel).write_bytes(data)
+        (self.victim / "sub" / "SKILL.md").write_bytes(SENTINEL)
+        (self.proj / "d.gabbe-bak").symlink_to("../victim")
+
+    def user_snapshot(self) -> dict[str, bytes | tuple[str, str]]:
+        """The user's own files and the planted links (`update` and `init` write other files)."""
+        seen: dict[str, bytes | tuple[str, str]] = {}
+        for key in [*USER_FILES, "link", "d.gabbe-bak", "d", "d.sub"]:
+            p = self.proj / key
+            if p.is_symlink():
+                seen[key] = ("link", os.readlink(p))
+            elif p.is_file():
+                seen[key] = p.read_bytes()
+            else:
+                seen[key] = b"<absent>"
+        return seen
+
+
+def _user_world(tmp_path: Path, case: str) -> UserWorld:
+    world = UserWorld(tmp_path)
+    honest = {
+        "path": "agents/mine.md",
+        "kind": "copy",
+        "agent": "shared",
+        "hash": hashlib.sha256(b"honest kit file\n").hexdigest(),
+    }
+    record = {"schema_version": 1, "agents": [], "entries": [*RECORD_CASES[case](), honest]}
+    (world.proj / ".gabbe" / "manifest.json").write_text(json.dumps(record))
+    return world
+
+
+@pytest.mark.parametrize("case", list(RECORD_CASES))
+def test_python_installer_leaves_the_users_files_alone(tmp_path, case):
+    world = _user_world(tmp_path, case)
+    outside, inside = world.snapshot(), world.user_snapshot()
+
+    installer.uninstall(world.proj, dry_run=True)
+    assert (world.snapshot(), world.user_snapshot()) == (outside, inside)
+
+    installer.update_kit(world.proj, _small_kit(tmp_path))
+    assert (world.snapshot(), world.user_snapshot()) == (outside, inside)
+
+    installer.uninstall(world.proj)
+    assert (world.snapshot(), world.user_snapshot()) == (outside, inside), case
+    assert not (world.proj / "agents" / "mine.md").exists()  # the honest entry still goes
+
+
+@pytest.mark.skipif(NODE is None, reason="node is not on PATH: the Node half is skipped")
+@pytest.mark.parametrize("case", list(RECORD_CASES))
+@pytest.mark.parametrize("command", [["uninstall", "--dry-run"], ["update"], ["uninstall"]])
+def test_node_installer_leaves_the_users_files_alone(tmp_path, case, command):
+    world = _user_world(tmp_path, case)
+    home = tmp_path / "home"
+    home.mkdir()
+    outside, inside = world.snapshot(), world.user_snapshot()
+    done = _node(world, home, *command)
+    assert (world.snapshot(), world.user_snapshot()) == (outside, inside), (
+        done.stdout[-600:] + done.stderr[-600:]
+    )
+
+
+def test_a_planted_link_named_as_the_backup_is_not_moved_into_place(tmp_path, capsys):
+    world = _user_world(tmp_path, "backup-link-move")
+    installer.uninstall(world.proj)
+    assert (world.proj / "link").is_symlink() and not (world.proj / "d").exists()
+    assert "backup_of" in capsys.readouterr().err  # the refusal is named once
+
+
+def test_the_lines_that_name_a_kept_entry(tmp_path, capsys):
+    world = _user_world(tmp_path, "hashless-copy-env")
+    installer.uninstall(world.proj)
+    assert "kept .env: the record holds no hash for it" in capsys.readouterr().out
+    world = _user_world(tmp_path / "b", "unknown-kind-notes")
+    installer.uninstall(world.proj)
+    out = capsys.readouterr().out
+    assert "kept notes-uncommitted.md: unknown record kind 'weird-kind'" in out
+
+
+def test_the_dry_run_lists_what_a_real_run_removes(tmp_path):
+    for case in RECORD_CASES:
+        world = _user_world(tmp_path / case, case)
+        listed = installer.uninstall(world.proj, dry_run=True)
+        assert listed == installer.uninstall(world.proj), case
+
+
+def test_a_link_that_appears_between_plan_and_action_is_not_followed(tmp_path, monkeypatch, capsys):
+    """RA-01: every path is checked again right before it is acted on."""
+    world = _user_world(tmp_path, "hashless-copy-env")
+    (world.proj / "agents" / "sub").mkdir()
+    (world.proj / "agents" / "sub" / "x.md").write_bytes(b"x\n")
+    record = json.loads((world.proj / ".gabbe" / "manifest.json").read_text())
+    record["entries"] = [
+        {
+            "path": "agents/sub/x.md",
+            "kind": "copy",
+            "agent": "shared",
+            "hash": hashlib.sha256(b"x\n").hexdigest(),
+        }
+    ]
+    (world.proj / ".gabbe" / "manifest.json").write_text(json.dumps(record))
+    (world.victim / "x.md").write_bytes(b"x\n")
+    real_plan = installer._removal_plan
+
+    def plan_then_plant(*args, **kwargs):
+        planned = real_plan(*args, **kwargs)
+        shutil.rmtree(world.proj / "agents" / "sub")
+        os.symlink("../../victim", world.proj / "agents" / "sub")  # planted after the plan
+        return planned
+
+    monkeypatch.setattr(installer, "_removal_plan", plan_then_plant)
+    installer.uninstall(world.proj)
+    assert (world.victim / "x.md").read_bytes() == b"x\n"
+    assert "skipped agents/sub/x.md" in capsys.readouterr().out

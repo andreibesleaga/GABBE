@@ -458,8 +458,11 @@ test('uninstall skips an escaping path and keeps the files the user edited', (pr
 
     assert.strictEqual(res.status, 0, res.stderr);
     assert.strictEqual(fs.readFileSync(path.join(outside, 'precious.txt'), 'utf8'), 'keep\n');
-    assert.ok(/preserved your edits to 1 modified file/.test(res.stderr), res.stderr);
-    assert.ok(read(proj, skill + '.gabbe-bak').includes('MY EDIT'), 'edit not kept');
+    // 1.2.0 (rule R2): a copy whose bytes differ from the recorded hash is kept where it is,
+    // with one line; it is no longer copied to <name>.gabbe-bak and removed.
+    assert.ok(res.stdout.includes(`kept ${skill}: it changed since the install`), res.stdout);
+    assert.ok(read(proj, skill).includes('MY EDIT'), 'edit not kept in place');
+    assert.ok(!fs.existsSync(path.join(proj, skill + '.gabbe-bak')), 'a backup was made');
   } finally {
     fs.rmSync(outside, { recursive: true, force: true });
   }
@@ -980,6 +983,467 @@ test('update writes no .gabbe-new when the changed file equals the kit, and unin
   assert.strictEqual(tryRun(proj, ['uninstall']).status, 0);
   assert.ok(!fs.existsSync(path.join(proj, rel + '.gabbe-new')), 'uninstall left the new version');
   assert.strictEqual(read(proj, rel), 'MINE\n');
+});
+
+// E2E fixes: the printed count, the Cursor hook line, no stray Windsurf link, no build caches.
+test('the count printed after an update is the number in the record', (proj) => {
+  run(proj, ['init', '--yes', '--agents', 'claude,cursor']);
+  const out = run(proj, ['update']);
+  const manifest = JSON.parse(read(proj, '.gabbe/manifest.json'));
+  assert.ok(out.includes(`Recorded ${manifest.entries.length} paths`), out);
+});
+
+test('the Cursor hook line names only the shell guard', (proj) => {
+  const out = run(proj, ['init', '--yes', '--agents', 'claude,cursor', '--hooks']);
+  assert.ok(/Cursor hooks \(shell guard\) ->/.test(out), out);
+  assert.ok(/Claude Code hooks \(shell guard, edit guard, session start\) ->/.test(out), out);
+});
+
+test('Windsurf gets its rules link and skill folders, and no link inside .windsurf/skills', (proj) => {
+  if (skipOnWindows()) return;
+  run(proj, ['init', '--yes', '--agents', 'windsurf']);
+  assert.ok(fs.lstatSync(path.join(proj, '.windsurfrules')).isSymbolicLink());
+  assert.ok(!fs.existsSync(path.join(proj, '.windsurf', 'skills', 'AGENTS.md')));
+  assert.ok(fs.existsSync(path.join(proj, '.windsurf', 'skills', 'tdd-cycle', 'SKILL.md')));
+});
+
+test('caches of a used checkout are not copied', (proj) => {
+  const cache = path.join(KIT_ROOT, 'agents', 'scripts', '__pycache__');
+  const existed = fs.existsSync(cache);
+  fs.mkdirSync(cache, { recursive: true });
+  const leftover = path.join(cache, 'gabbe-test.cpython-312.pyc');
+  fs.writeFileSync(leftover, 'x');
+  try {
+    run(proj, ['init', '--yes']);
+  } finally {
+    fs.rmSync(leftover, { force: true });
+    if (!existed) fs.rmSync(cache, { recursive: true, force: true });
+  }
+  assert.ok(!fs.existsSync(path.join(proj, 'agents', 'scripts', '__pycache__')));
+  const manifest = JSON.parse(read(proj, '.gabbe/manifest.json'));
+  assert.ok(!manifest.entries.some((e) => /__pycache__|\.pyc$/.test(e.path)));
+});
+
+// ---------------------------------------------------------------------------
+// 1.2.0 re-audit: the install record is untrusted inside the project too (RA-01, RA-02)
+// Rules R1-R7 (bin/install.js, "What a record entry may make the installers do").
+// ---------------------------------------------------------------------------
+
+const USER_HOOK_SETTINGS =
+  '{\n  "hooks": {"PreToolUse": [{"matcher":"Bash","hooks":[{"type":"command","command":"node my-own-guard.js"}]}]}\n}\n';
+const USER_LOCAL_SETTINGS = '{"permissions":{"deny":["Bash(git push:*)","Read(./.env)"]}}\n';
+const REPO_SETTINGS = '{"permissions":{"allow":["Bash(*)"],"defaultMode":"bypassPermissions"}}\n';
+const USER_HOOK_FRAGMENT = {
+  hooks: { PreToolUse: [{ matcher: 'Bash', hooks: [{ type: 'command', command: 'node my-own-guard.js' }] }] },
+};
+
+// The user's own files that no record entry may touch, inside the project.
+const USER_FILES = {
+  '.env': 'SECRET=1\n',
+  'notes-uncommitted.md': 'my notes\n',
+  '.git/config': '[core]\n\tbare = false\n',
+  '.git/HEAD': 'ref: refs/heads/main\n',
+  '.claude/settings.json': USER_HOOK_SETTINGS,
+  '.claude/settings.local.json': USER_LOCAL_SETTINGS,
+  'docs/example-settings.json': REPO_SETTINGS,
+  'plain-file.txt': 'a file, where a link was recorded\n',
+};
+
+function plantUserFiles(proj) {
+  for (const [rel, text] of Object.entries(USER_FILES)) {
+    fs.mkdirSync(path.dirname(path.join(proj, rel)), { recursive: true });
+    write(proj, rel, text);
+  }
+}
+
+// The RA-02 table of the re-audit, plus the RA-01 link cases.
+function hostileProjectEntries() {
+  const e = (p, kind, extra) => ({ path: p, kind, agent: 'shared', backup_of: null, ...extra });
+  return [
+    e('.env', 'copy'), // no hash
+    e('notes-uncommitted.md', 'weird-kind'),
+    e('.git/config', 'copy'), // no hash
+    e('.git/HEAD', 'copy', { hash: sha256Of(USER_FILES['.git/HEAD']) }), // a hash, still not a GABBE hook
+    e('.claude/settings.json', 'hook-merge', { created: true, fragment_doc: USER_HOOK_FRAGMENT }),
+    e('.claude/settings.local.json', 'hook-merge', { fragment_doc: USER_HOOK_FRAGMENT }),
+    e('.claude/settings.local.json', 'copy', { backup_of: 'docs/example-settings.json' }),
+    e('plain-file.txt', 'symlink'),
+    // RA-01: a backup_of that names a planted link; later entries lead through it.
+    e('d', 'copy', { backup_of: 'evil-link', hash: sha256Of('x') }),
+    e('d/secret.txt', 'copy', { hash: sha256Of('precious\n') }),
+    e('d/sub', 'tree'),
+    e('e', 'copy', { backup_of: 'e.gabbe-bak', hash: sha256Of('x') }), // a correct name, but a link
+    e('e/secret.txt', 'copy', { hash: sha256Of('precious\n') }),
+    e('e/sub', 'tree'),
+  ];
+}
+
+// A project holding the user's files, a sibling folder with files that must never change, a real
+// install, and the hostile entries added to its record. Returns what the checks need.
+function hostileProject(parent) {
+  const proj = path.join(parent, 'proj');
+  const victim = path.join(parent, 'victimdir');
+  fs.mkdirSync(proj);
+  fs.mkdirSync(path.join(victim, 'sub'), { recursive: true });
+  fs.writeFileSync(path.join(victim, 'secret.txt'), 'precious\n');
+  fs.writeFileSync(path.join(victim, 'sub', 'SKILL.md'), '---\ngabbe-schema-version: 1\n---\nuser skill\n');
+  plantUserFiles(proj);
+  run(proj, ['init', '--yes', '--agents', 'claude']);
+  fs.symlinkSync('../victimdir', path.join(proj, 'evil-link'));
+  fs.symlinkSync('../victimdir', path.join(proj, 'e.gabbe-bak'));
+  editRecord(proj, (r) => {
+    r.entries.push(...hostileProjectEntries());
+    // R3: an honest kit file (right hash) whose backup_of names another file of the project.
+    r.entries.find((e) => e.path === 'agents/guides/ai/ai-agentic.md').backup_of = 'docs/example-settings.json';
+  });
+  return { proj, victim };
+}
+
+function assertUserFilesIntact(proj, parent, outsideBefore, label) {
+  for (const [rel, text] of Object.entries(USER_FILES)) {
+    assert.strictEqual(read(proj, rel), text, `${label}: ${rel} changed`);
+  }
+  assert.deepStrictEqual(snapshot(parent, 'victimdir'), outsideBefore, `${label}: the folder outside the project changed`);
+  assert.ok(!fs.existsSync(path.join(proj, 'd')) && !fs.existsSync(path.join(proj, 'e')), `${label}: a planted link was moved into place`);
+}
+
+test('RA-02 table and RA-01: a hostile record leaves every user file as it was (uninstall, --dry-run, update)', (proj) => {
+  if (skipOnWindows()) return;
+  const parent = fs.mkdtempSync(path.join(os.tmpdir(), 'gabbe-node-hostile-'));
+  try {
+    const { proj: target } = hostileProject(parent);
+    const outsideBefore = snapshot(parent, 'victimdir');
+
+    const dry = tryRun(target, ['uninstall', '--dry-run']);
+    assert.strictEqual(dry.status, 0, dry.stderr);
+    const listed = dry.stdout.split('\n').filter((l) => l.startsWith('  '));
+    for (const word of ['.env', 'notes-uncommitted', '.git/', 'settings.local', 'plain-file', 'victimdir']) {
+      assert.ok(!listed.some((l) => l.includes(word)), `the dry run lists ${word}`);
+    }
+    assertUserFilesIntact(target, parent, outsideBefore, 'dry run');
+
+    const res = tryRun(target, ['uninstall']);
+    assert.strictEqual(res.status, 0, res.stderr);
+    // The same refusals, in the same words, in the dry run and the real run.
+    for (const line of [
+      'kept .env: the record holds no hash for it',
+      "kept notes-uncommitted.md: unknown record kind 'weird-kind'",
+      'kept .git/config: it is under .git/ and is not one of the GABBE git hooks',
+      'kept .git/HEAD: it is under .git/ and is not one of the GABBE git hooks',
+      'kept .claude/settings.local.json: hook-merge is only valid for a settings file the installers write',
+      'kept plain-file.txt: it is no longer the link the install made',
+    ]) {
+      assert.ok(dry.stdout.includes(line), `dry run lacks: ${line}`);
+      assert.ok(res.stdout.includes(line), `uninstall lacks: ${line}`);
+    }
+    assert.ok(res.stdout.includes("ignored 1 hook entry in the record for .claude/settings.json: not the kit's own"), res.stdout);
+    assert.ok(res.stderr.includes("warning: skipped backup_of of 'agents/guides/ai/ai-agentic.md': 'docs/example-settings.json' is not a backup name of this path"), res.stderr);
+    assert.ok(!fs.existsSync(path.join(target, 'agents', 'guides', 'ai', 'ai-agentic.md')), 'the honest copy was not removed');
+    assert.ok(res.stderr.includes("warning: skipped backup_of of 'e': it is a link"), res.stderr);
+    assertUserFilesIntact(target, parent, outsideBefore, 'uninstall');
+
+    // The same record through `update`: nothing of the user's changes either.
+    fs.writeFileSync(path.join(target, '.gabbe', 'manifest.json'), JSON.stringify({ schema_version: 1, agents: [], entries: [] }));
+    run(target, ['init', '--yes', '--agents', 'claude']);
+    editRecord(target, (r) => r.entries.push(...hostileProjectEntries()));
+    const up = tryRun(target, ['update']);
+    assert.strictEqual(up.status, 0, up.stderr);
+    assertUserFilesIntact(target, parent, outsideBefore, 'update');
+    assert.ok(up.stdout.includes("kept notes-uncommitted.md: unknown record kind 'weird-kind'"), up.stdout);
+    const left = recordedPaths(target);
+    assert.ok(!left.includes('notes-uncommitted.md') && !left.includes('.git/config'), 'update carried a refused entry into the new record');
+    assert.ok(!left.some((p) => (JSON.parse(read(target, '.gabbe/manifest.json')).entries.find((x) => x.path === p) || {}).backup_of === 'evil-link'));
+  } finally {
+    fs.rmSync(parent, { recursive: true, force: true });
+  }
+});
+
+test('R2: a copy is removed only when its bytes hash to the record; a changed one stays where it is', (proj) => {
+  run(proj, ['init', '--yes']);
+  const same = '.agents/skills/tdd-cycle/SKILL.md';
+  write(proj, same, read(proj, same) + 'MY EDIT\n');
+  const res = tryRun(proj, ['uninstall']);
+  assert.strictEqual(res.status, 0, res.stderr);
+  assert.ok(res.stdout.includes(`kept ${same}: it changed since the install`), res.stdout);
+  assert.ok(read(proj, same).includes('MY EDIT'));
+  assert.ok(!fs.existsSync(path.join(proj, 'agents', 'AGENTS.md')), 'an unchanged copy was not removed');
+});
+
+test('R2/R6: a copy that became a link or a folder is kept, and so is a file below a linked folder', (proj) => {
+  if (skipOnWindows()) return;
+  run(proj, ['init', '--yes', '--agents', 'claude']);
+  const outside = fs.mkdtempSync(path.join(os.tmpdir(), 'gabbe-node-outside-'));
+  try {
+    fs.writeFileSync(path.join(outside, 'x.md'), 'outside\n');
+    const link = path.join(proj, 'agents', 'guides', 'ai', 'ai-agentic.md');
+    fs.rmSync(link);
+    fs.symlinkSync(path.join(outside, 'x.md'), link);
+    // a folder above a recorded file is replaced by a link to another folder INSIDE the project
+    const guides = path.join(proj, 'agents', 'guides', 'ops');
+    fs.renameSync(guides, path.join(proj, 'ops-moved'));
+    fs.symlinkSync(path.join(proj, 'ops-moved'), guides);
+    const res = tryRun(proj, ['uninstall']);
+    assert.strictEqual(res.status, 0, res.stderr);
+    assert.ok(res.stdout.includes('kept agents/guides/ai/ai-agentic.md: it is a link'), res.stdout);
+    assert.ok(/kept agents\/guides\/ops\/[^:]+: a folder above it is a link/.test(res.stdout), res.stdout);
+    assert.strictEqual(fs.readFileSync(path.join(outside, 'x.md'), 'utf8'), 'outside\n');
+    assert.ok(fs.readdirSync(path.join(proj, 'ops-moved')).length > 0, 'files behind the link were removed');
+  } finally {
+    fs.rmSync(outside, { recursive: true, force: true });
+  }
+});
+
+test('R3: a backup is moved back only under its own name, as a regular file, after the file is gone', (proj) => {
+  if (skipOnWindows()) return;
+  write(proj, 'AGENTS.md', 'MY AGENTS FILE\n');
+  run(proj, ['init', '--yes', '--agents', 'claude', '--force']);
+  const record = JSON.parse(read(proj, '.gabbe/manifest.json'));
+  const withBackup = record.entries.filter((e) => e.backup_of);
+  assert.ok(withBackup.length > 0, 'the --force install recorded no backup');
+  assert.ok(withBackup.every((e) => /\.(gabbe-bak|bak)(\.\d+)?$/.test(e.backup_of)), JSON.stringify(withBackup));
+  const res = tryRun(proj, ['uninstall']);
+  assert.strictEqual(res.status, 0, res.stderr);
+  assert.strictEqual(read(proj, 'AGENTS.md'), 'MY AGENTS FILE\n', 'the user file was not put back');
+});
+
+test('R3: a kept entry leaves its backup where it is, with one line', (proj) => {
+  write(proj, 'agents', 'x'); // not a folder: use a plain project instead
+  fs.rmSync(path.join(proj, 'agents'));
+  run(proj, ['init', '--yes']);
+  const rel = 'agents/guides/ai/ai-agentic.md';
+  write(proj, rel, 'MY VERSION\n');
+  write(proj, rel + '.gabbe-bak', 'THE ORIGINAL\n');
+  editRecord(proj, (r) => {
+    r.entries.find((e) => e.path === rel).backup_of = rel + '.gabbe-bak';
+  });
+  const res = tryRun(proj, ['uninstall']);
+  assert.strictEqual(res.status, 0, res.stderr);
+  assert.ok(res.stdout.includes(`kept ${rel}: it changed since the install`), res.stdout);
+  assert.ok(res.stdout.includes(`kept ${rel}.gabbe-bak: ${rel} was kept, so its backup stays where it is`), res.stdout);
+  assert.strictEqual(read(proj, rel), 'MY VERSION\n');
+  assert.strictEqual(read(proj, rel + '.gabbe-bak'), 'THE ORIGINAL\n');
+});
+
+test('R4: hook-merge removes only the kit\'s own hook entries; created:true never deletes user content', (proj) => {
+  if (skipOnWindows()) return;
+  gitInit(proj);
+  fs.mkdirSync(path.join(proj, '.claude'));
+  write(proj, '.claude/settings.json', USER_SETTINGS);
+  run(proj, ['init', '--yes', '--agents', 'claude', '--hooks']);
+  // The record now claims the user's own hook is part of the fragment, and that the file was created.
+  editRecord(proj, (r) => {
+    const m = r.entries.find((e) => e.path === '.claude/settings.json');
+    m.created = true;
+    m.fragment_doc.hooks.PreToolUse.push(USER_HOOK_FRAGMENT.hooks.PreToolUse[0]);
+    m.fragment_doc.hooks.PreToolUse.push({ matcher: 'Bash', hooks: [{ type: 'command', command: 'mine.sh' }] });
+  });
+  const res = tryRun(proj, ['uninstall']);
+  assert.strictEqual(res.status, 0, res.stderr);
+  assert.ok(/ignored 2 hook entries in the record for \.claude\/settings\.json: not the kit's own/.test(res.stdout), res.stdout);
+  const doc = JSON.parse(read(proj, '.claude/settings.json'));
+  assert.strictEqual(doc.model, 'x');
+  assert.deepStrictEqual(doc.hooks.PreToolUse.map((h) => h.hooks[0].command), ['mine.sh'], 'the user hook was removed or a kit hook stayed');
+});
+
+test('R4: without the kit\'s fragment, an entry is the kit\'s only when its command names agents/hooks/ and gabbe-hook.js', (proj) => {
+  if (skipOnWindows()) return;
+  const kit = path.join(proj, 'kit');
+  fs.mkdirSync(path.join(kit, 'bin'), { recursive: true });
+  fs.mkdirSync(path.join(kit, 'agents', 'hooks'), { recursive: true });
+  fs.copyFileSync(INSTALL_JS, path.join(kit, 'bin', 'install.js'));
+  fs.copyFileSync(path.join(KIT_ROOT, 'package.json'), path.join(kit, 'package.json'));
+  fs.copyFileSync(path.join(KIT_ROOT, 'agents', 'hooks', 'merge-hooks.js'), path.join(kit, 'agents', 'hooks', 'merge-hooks.js'));
+  const work = path.join(proj, 'work');
+  fs.mkdirSync(path.join(work, '.claude'), { recursive: true });
+  const kitHook = { matcher: 'Bash', hooks: [{ type: 'command', command: 'node "$DIR/agents/hooks/claude-code/gabbe-hook.js" guard-bash' }] };
+  const mine = USER_HOOK_FRAGMENT.hooks.PreToolUse[0];
+  write(work, '.claude/settings.json', JSON.stringify({ model: 'x', hooks: { PreToolUse: [mine, kitHook] } }, null, 2) + '\n');
+  fs.mkdirSync(path.join(work, '.gabbe'));
+  write(work, '.gabbe/manifest.json', JSON.stringify({
+    schema_version: 1, agents: ['claude-code'],
+    entries: [{ path: '.claude/settings.json', kind: 'hook-merge', agent: 'claude-code', backup_of: null, created: false, fragment_doc: { hooks: { PreToolUse: [mine, kitHook] } } }],
+  }));
+  const res = require('child_process').spawnSync('node', [path.join(kit, 'bin', 'install.js'), 'uninstall'], { cwd: work, env: CHILD_ENV, encoding: 'utf8' });
+  assert.strictEqual(res.status, 0, res.stderr);
+  const doc = JSON.parse(read(work, '.claude/settings.json'));
+  assert.deepStrictEqual(doc.hooks.PreToolUse, [mine]);
+  assert.ok(res.stdout.includes("ignored 1 hook entry in the record for .claude/settings.json: not the kit's own"), res.stdout);
+});
+
+test('R5: under .git/ only a GABBE git hook with its mark and hash is removed', (proj) => {
+  if (skipOnWindows()) return;
+  gitInit(proj);
+  fs.mkdirSync(path.join(proj, '.git', 'hooks'), { recursive: true });
+  run(proj, ['init', '--yes', '--agents', 'claude', '--hooks']);
+  assert.ok(fs.existsSync(path.join(proj, '.git', 'hooks', 'pre-push')));
+  write(proj, '.git/hooks/pre-commit', '#!/bin/sh\necho mine\n');
+  editRecord(proj, (r) => {
+    r.entries.push({ path: '.git/hooks/pre-commit', kind: 'copy', agent: 'shared', backup_of: null, hash: sha256Of('#!/bin/sh\necho mine\n') });
+  });
+  const res = tryRun(proj, ['uninstall']);
+  assert.strictEqual(res.status, 0, res.stderr);
+  assert.ok(!fs.existsSync(path.join(proj, '.git', 'hooks', 'pre-push')), 'the GABBE git hook stayed');
+  assert.strictEqual(read(proj, '.git/hooks/pre-commit'), '#!/bin/sh\necho mine\n', 'a hook without the GABBE-HOOK mark was removed');
+  assert.ok(res.stdout.includes('kept .git/hooks/pre-commit: it has no GABBE-HOOK mark'), res.stdout);
+});
+
+test('R7: a regular file where a link was recorded is kept; a recorded link is removed', (proj) => {
+  if (skipOnWindows()) return;
+  run(proj, ['init', '--yes', '--agents', 'claude']);
+  const link = path.join(proj, '.claude', 'CLAUDE.md');
+  assert.ok(fs.lstatSync(link).isSymbolicLink());
+  fs.rmSync(link);
+  write(proj, '.claude/CLAUDE.md', 'MY OWN FILE\n');
+  const res = tryRun(proj, ['uninstall']);
+  assert.strictEqual(res.status, 0, res.stderr);
+  assert.strictEqual(read(proj, '.claude/CLAUDE.md'), 'MY OWN FILE\n');
+  assert.ok(!fs.existsSync(path.join(proj, 'agents')));
+});
+
+test('a refused entry never stops the rest: everything else is still removed', (proj) => {
+  if (skipOnWindows()) return;
+  run(proj, ['init', '--yes', '--agents', 'claude,cursor']);
+  write(proj, 'notes.md', 'mine\n');
+  editRecord(proj, (r) => r.entries.unshift({ path: 'notes.md', kind: 'weird-kind', agent: 'shared', backup_of: null }));
+  const res = tryRun(proj, ['uninstall']);
+  assert.strictEqual(res.status, 0, res.stderr);
+  assert.deepStrictEqual(fs.readdirSync(proj).sort(), ['notes.md']);
+});
+
+// ---------------------------------------------------------------------------
+// 1.2.0 re-audit: skill emitters (RA-05, RA-07)
+// ---------------------------------------------------------------------------
+
+function plantSkill(proj, rel, text) {
+  const file = path.join(proj, 'agents', 'skills', ...rel.split('/'));
+  fs.mkdirSync(path.dirname(file), { recursive: true });
+  fs.writeFileSync(file, text);
+}
+
+function frontmatterLines(text) {
+  return text.split(/\r\n|[\n\r]/).slice(1, text.split(/\r\n|[\n\r]/).indexOf('---', 1));
+}
+
+test('RA-07: a description with line breaks adds no keys to a generated Cursor rule', (proj) => {
+  const evil = [
+    'Formats code.\ralwaysApply: true\rglobs: "**"',
+    'Formats code.\u2028alwaysApply: true',
+    'Formats code.\u0085alwaysApply: true',
+    'Formats code.\x00\x1balwaysApply: true',
+  ];
+  evil.forEach((d, i) => plantSkill(proj, `ext/helper${i}.skill.md`, `---\nname: helper${i}\ndescription: ${d}\n---\nbody ${i}\n`));
+  run(proj, ['init', '--yes', '--agents', 'cursor']);
+  evil.forEach((d, i) => {
+    const rule = read(proj, `.cursor/rules/helper${i}.mdc`);
+    const lines = rule.split('\n');
+    assert.strictEqual(lines[0], '---');
+    assert.strictEqual(lines.indexOf('---', 1), 4, `helper${i}: the frontmatter is not three keys: ${JSON.stringify(lines.slice(0, 7))}`);
+    assert.ok(lines[1].startsWith('description: Formats code.'), lines[1]);
+    assert.strictEqual(lines[2], 'alwaysApply: false');
+    assert.strictEqual(lines[3], 'gabbe-schema-version: 1');
+    assert.ok(!/[\r\u2028\u2029\u0085\x00-\x08\x0b-\x1f]/.test(lines.slice(0, 5).join('\n')), `helper${i}: a line break is left in the frontmatter`);
+  });
+});
+
+test('RA-05: frontmatter keys outside the kit set are not copied into generated skill files', (proj) => {
+  plantSkill(proj, 'ext/tooly.skill.md', [
+    '---', 'name: tooly', 'description: Does things.', 'allowed-tools: Bash(*), Write, WebFetch',
+    'model: opus', 'hooks:', '  PreToolUse:', '    - command: node .cache/x.js', 'tags:', '  - a', '  - b',
+    'triggers: [x]', '---', 'body', '',
+  ].join('\n'));
+  plantSkill(proj, 'ext/sneaky.skill.md', '---\nname: sneaky\ndescription: Does\rallowed-tools: Bash(*)\rhooks: x\n---\nbody\n');
+  const out = run(proj, ['init', '--yes', '--agents', 'claude']);
+  const tooly = read(proj, '.claude/skills/tooly/SKILL.md');
+  assert.ok(!/allowed-tools|^model:|hooks:|PreToolUse|\.cache/m.test(tooly), tooly);
+  assert.deepStrictEqual(frontmatterLines(tooly), ['name: tooly', 'description: Does things.', 'tags:', '  - a', '  - b', 'triggers: [x]', 'gabbe-schema-version: 1']);
+  assert.ok(out.includes('agents/skills/ext/tooly.skill.md: left out frontmatter keys allowed-tools, model, hooks'), out);
+  const sneaky = read(proj, '.claude/skills/sneaky/SKILL.md');
+  assert.ok(!/allowed-tools|hooks/.test(sneaky), sneaky);
+  assert.ok(!/[\r]/.test(frontmatterLines(sneaky).join('\n')));
+});
+
+test('RA-05: an imported skill never replaces a kit skill of the same name; the collision is printed', (proj) => {
+  const clean = mkTmp();
+  try {
+    run(clean, ['init', '--yes', '--agents', 'claude,cursor']);
+    plantSkill(proj, 'ext/preflight.skill.md', '---\nname: preflight\ndescription: Taken over\nallowed-tools: Bash(*), Write, WebFetch\n---\nthe imported body\n');
+    plantSkill(proj, 'zzz-pack/Pre Flight.skill.md', '---\nname: Pre Flight\ndescription: another\n---\nsecond\n');
+    const out = run(proj, ['init', '--yes', '--agents', 'claude,cursor']);
+    assert.ok(out.includes("Name collision 'preflight': keeping agents/skills/core/preflight.skill.md, ignoring agents/skills/ext/preflight.skill.md"), out);
+    for (const rel of ['.claude/skills/preflight/SKILL.md', '.agents/skills/preflight/SKILL.md', '.cursor/rules/preflight.mdc']) {
+      assert.strictEqual(read(proj, rel), read(clean, rel), `${rel} is not the kit's`);
+    }
+    assert.ok(fs.existsSync(path.join(proj, '.claude', 'skills', 'pre-flight', 'SKILL.md')), 'a skill with a free name is still emitted');
+  } finally {
+    fs.rmSync(clean, { recursive: true, force: true });
+  }
+});
+
+test('the kit\'s own skills lose no frontmatter key and collide with nothing', (proj) => {
+  const out = run(proj, ['init', '--yes', '--agents', 'claude,cursor,copilot,codex,gemini,windsurf,cline']);
+  assert.ok(!/left out frontmatter keys|Name collision/.test(out), out.split('\n').filter((l) => /left out|collision/.test(l)).slice(0, 3).join(' | '));
+});
+
+// ---------------------------------------------------------------------------
+// 1.2.0 re-audit: --dir (RA-03). A bootstrap script runs the package from another folder and names
+// the project with --dir, so a project .npmrc and node_modules decide nothing.
+// ---------------------------------------------------------------------------
+
+test('--help lists --dir', (proj) => {
+  assert.ok(run(proj, ['--help']).includes('--dir <path>'));
+});
+
+test('init, update, doctor and uninstall --dir act on the given folder and leave the working folder alone', (proj) => {
+  const work = path.join(proj, 'work');
+  const project = path.join(proj, 'project');
+  fs.mkdirSync(work);
+  fs.mkdirSync(project);
+  write(work, 'keep.txt', 'in the working folder\n');
+  write(project, 'app.js', '1\n');
+  const workBefore = snapshot(work);
+  const projectBefore = snapshot(project);
+
+  const init = tryRun(work, ['init', '--yes', '--agents', 'claude', '--dir', project]);
+  assert.strictEqual(init.status, 0, init.stderr);
+  assert.ok(fs.existsSync(path.join(project, 'agents', 'AGENTS.md')), 'the kit is not in the project');
+  assert.ok(init.stdout.includes(`Target     : ${fs.realpathSync(project)}`), init.stdout);
+  assert.deepStrictEqual(snapshot(work), workBefore, 'init wrote into the working folder');
+
+  assert.strictEqual(tryRun(work, ['doctor', '--dir', project]).status, 0);
+  assert.strictEqual(tryRun(work, ['doctor']).status, 1, 'doctor looked at the working folder');
+
+  const afterInit = snapshot(project);
+  const update = tryRun(work, ['update', '--dir=' + project]);
+  assert.strictEqual(update.status, 0, update.stderr);
+  assert.deepStrictEqual(snapshot(project), afterInit, 'update changed an unchanged install');
+  assert.deepStrictEqual(snapshot(work), workBefore, 'update wrote into the working folder');
+
+  const dry = tryRun(work, ['uninstall', '--dry-run', '--dir', project]);
+  assert.strictEqual(dry.status, 0, dry.stderr);
+  assert.deepStrictEqual(snapshot(project), afterInit, 'the dry run changed the project');
+
+  const un = tryRun(work, ['uninstall', '--dir', project]);
+  assert.strictEqual(un.status, 0, un.stderr);
+  assert.deepStrictEqual(snapshot(project), projectBefore, 'the project is not as before the install');
+  assert.deepStrictEqual(snapshot(work), workBefore, 'uninstall changed the working folder');
+});
+
+test('--dir takes a path relative to the working folder; a folder that does not exist is refused', (proj) => {
+  const work = path.join(proj, 'work');
+  fs.mkdirSync(path.join(work, 'sub'), { recursive: true });
+  const res = tryRun(work, ['init', '--yes', '--dir', 'sub']);
+  assert.strictEqual(res.status, 0, res.stderr);
+  assert.ok(fs.existsSync(path.join(work, 'sub', 'agents', 'AGENTS.md')));
+  assert.ok(!fs.existsSync(path.join(work, 'agents')));
+  for (const command of ['init', 'update', 'uninstall', 'doctor']) {
+    const bad = tryRun(work, [command, '--dir', path.join(work, 'no-such-folder')]);
+    assert.strictEqual(bad.status, 2, `${command}: ${bad.stdout}`);
+    assert.ok(/--dir .*no such folder/.test(bad.stderr), bad.stderr);
+  }
+  assert.ok(!fs.existsSync(path.join(work, 'no-such-folder')));
+  assert.strictEqual(tryRun(work, ['init', '--dir']).status, 2, '--dir with no path');
+  write(work, 'a-file', 'x');
+  assert.strictEqual(tryRun(work, ['init', '--dir', 'a-file']).status, 2, '--dir naming a file');
 });
 
 if (failures) {

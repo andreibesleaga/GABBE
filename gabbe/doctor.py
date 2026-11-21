@@ -151,9 +151,9 @@ def kit_upgrade_warnings(root: Path, cli_version: str | None = None) -> list[str
         stamps = _STAMP_RE.findall(text)
         found = stamps[-1] if stamps else None
         if found is None or _version_tuple(found) < _version_tuple(cli_version):
-            shown = found if found else "no version stamp"
+            origin = f"is from kit {found}" if found else "has no version stamp"
             warnings_out.append(
-                f"{rel} is from kit {shown}, this CLI is {cli_version}: "
+                f"{rel} {origin}, this CLI is {cli_version}: "
                 "new rules may be missing. See docs/UPGRADING.md"
             )
         if rel.endswith("CONSTITUTION.md") and not re.search(r"^### Article 0", text, re.MULTILINE):

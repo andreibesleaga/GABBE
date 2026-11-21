@@ -66,3 +66,10 @@ def test_doctor_prints_warnings_and_keeps_exit_code(tmp_path, capsys):
 def test_doctor_without_kit_unchanged(tmp_path, capsys):
     assert run_doctor(tmp_path) == 0
     assert "UPGRADING" not in capsys.readouterr().out
+
+
+def test_a_missing_stamp_is_worded_as_missing(tmp_path):
+    _write(tmp_path, None, __version__)
+    (warning,) = kit_upgrade_warnings(tmp_path)
+    assert warning.startswith("agents/AGENTS.md has no version stamp, this CLI is ")
+    assert "from kit no" not in warning

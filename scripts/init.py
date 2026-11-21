@@ -713,6 +713,8 @@ def _is_behind_link(path):
 # touched file is recorded (kind "hook-merge" for a merged settings file, "copy" for a git hook).
 HOOK_MARK = "GABBE-HOOK"
 GIT_HOOKS = ("pre-commit", "pre-push")
+# What each agent's hook fragment guards (printed after the install).
+HOOK_GUARDS = {"Claude Code": "shell guard, edit guard, session start", "Cursor": "shell guard"}
 # agent -> (fragment, file it is merged into, script the fragment runs)
 HOOK_MERGES = {
     "Claude Code": (
@@ -831,7 +833,7 @@ def _install_hook_merge(agent, agents_dir, lines):
             "added_version": bool(added_version or (was_ours and earlier.get("added_version"))),
         },
     )
-    lines.append(f"{agent} hooks (shell guard, edit guard, session start) -> {rel}")
+    lines.append(f"{agent} hooks ({HOOK_GUARDS[agent]}) -> {rel}")
 
 
 def _git_out(args):
@@ -950,8 +952,13 @@ def with_pointer_block(data, kit_agents_md):
     Works on bytes and uses the file's own line ending, so the user's encoding and
     line endings are never changed.
     """
+    return _append_block(data, pointer_block(kit_agents_md))
+
+
+def _append_block(data, block_text):
+    """`data` with the marked block appended, in the file's own line ending."""
     nl = b"\r\n" if b"\r\n" in data else b"\n"
-    block = pointer_block(kit_agents_md).encode("utf-8").replace(b"\n", nl)
+    block = block_text.encode("utf-8").replace(b"\n", nl)
     if not data or data.endswith(nl + nl):
         joiner = b""
     elif data.endswith(nl):
@@ -1002,6 +1009,47 @@ def add_pointer_block(target, kit_agents_md, agent="shared"):
     )
 
 
+def _build_leftovers(_folder, names):
+    """`shutil.copytree` ignore rule: caches of a used checkout are not part of the kit."""
+    return [n for n in names if n == "__pycache__" or n.endswith((".pyc", ".pyo"))]
+
+
+def _require_kit_in(agents_dir):
+    """Stop (exit 1, nothing changed) when the folder the user keeps holds no kit at all
+    (no skills and no AGENTS template); a partial kit is used as it is."""
+    template = agents_dir / "templates/coordination/AGENTS_TEMPLATE.md"
+    if not template.exists() and not (agents_dir / "skills").is_dir():
+        raise SystemExit(
+            f"{RED}x {agents_dir} holds no kit (no skills folder and no "
+            f"templates/coordination/AGENTS_TEMPLATE.md) and you declined the merge. Nothing was changed. Run the wizard again "
+            f"and answer y to merge the kit into it, or move your folder away.{NC}"
+        )
+
+
+def gitignore_block():
+    """The lines the wizard adds to a `.gitignore`, between the same markers as the
+    pointer block so that both uninstallers take them out again."""
+    return f"{POINTER_BEGIN}\n.env\n.env.local\n{POINTER_END}\n"
+
+
+def add_gitignore_block(gitignore):
+    """Keep secrets out of git: append `.env` lines to the user's `.gitignore`.
+
+    Backed up first and recorded as a `block`, so uninstall restores the exact original.
+    A missing or linked `.gitignore`, or one that already names `.env`, is left alone.
+    """
+    if not gitignore.is_file() or gitignore.is_symlink() or not os.access(gitignore, os.W_OK):
+        return
+    data = gitignore.read_bytes()
+    if b".env" in data:
+        return
+    backup = _backup_before_overwrite(gitignore)
+    gitignore.write_bytes(_append_block(data, gitignore_block()))
+    _record(gitignore, "block", backup_of=_rel_to_project(backup) if backup else None)
+    saved = backup.name if backup else "a backup"
+    print(f"  {GREEN}✓ Added .env to .gitignore (original saved as {saved}){NC}")
+
+
 def safe_merge_directory(src_root, dst_root, is_kit_root=False, force=None):
     """Merge the kit tree into a target without ever losing user data.
 
@@ -1016,6 +1064,8 @@ def safe_merge_directory(src_root, dst_root, is_kit_root=False, force=None):
     notified_preservations = set()
 
     for src_dir, dirs, files in os.walk(src_root):
+        dirs[:] = [d for d in dirs if d != "__pycache__"]
+        files = [f for f in files if not f.endswith((".pyc", ".pyo"))]
         rel_path = os.path.relpath(src_dir, src_root)
         dst_dir = Path(dst_root) / (rel_path if rel_path != "." else "")
 
@@ -1368,6 +1418,16 @@ def _remove_stale_generated_files(target_dir, agents_dir):
         )
 
 
+def _is_backup_name(rel, backup):
+    """True for `<rel>.gabbe-bak` or `<rel>.bak`, with an optional `.<n>`: the only names an
+    installer gives a backup (the record is untrusted: any other `backup_of` is ignored)."""
+    import re
+
+    if not isinstance(backup, str) or not backup.startswith(rel):
+        return False
+    return re.fullmatch(r"\.(gabbe-bak|bak)(\.[0-9]+)?", backup[len(rel) :]) is not None
+
+
 def _replace_own_skills_link(target_dir):
     """Take away the link an earlier wizard made at `target_dir` (for example
     `.windsurf/skills -> agents/skills`) so real `<slug>/SKILL.md` folders can be emitted.
@@ -1382,7 +1442,8 @@ def _replace_own_skills_link(target_dir):
         return
     target_dir.unlink()
     _DROPPED_PATHS.add(rel)
-    backup = PROJECT_ROOT / prior["backup_of"] if prior.get("backup_of") else None
+    named = _is_backup_name(rel, prior.get("backup_of"))
+    backup = PROJECT_ROOT / prior["backup_of"] if named else None
     if backup and _rel_to_project(backup) and backup.is_dir() and not backup.is_symlink():
         backup.rename(target_dir)
     print(f"  {BLUE}→ Replaced the kit's old link {rel} by skill folders{NC}")
@@ -1595,10 +1656,11 @@ def _run_wizard():
                 safe_merge_directory(SOURCE_AGENTS_DIR, target_agents_dir, is_kit_root=True)
                 print(f"  {GREEN}✓ Kit merged/updated at {target_agents_dir}{NC}")
             else:
+                _require_kit_in(target_agents_dir)
                 IS_UPDATE = True
                 print(f"  {BLUE}→ Using existing files at {target_agents_dir}{NC}")
     else:
-        shutil.copytree(SOURCE_AGENTS_DIR, target_agents_dir)
+        shutil.copytree(SOURCE_AGENTS_DIR, target_agents_dir, ignore=_build_leftovers)
         print(f"  {GREEN}✓ Kit installed to {target_agents_dir}{NC}")
         # Record the freshly-copied kit tree (only if it lives under PROJECT_ROOT;
         # global/custom installs outside the project are not in its manifest).
@@ -1913,7 +1975,11 @@ def _run_wizard():
             _record(target_agents_md, "copy", agent="shared")
             print(f"  {GREEN}✓ Configured {target_agents_md}{NC}")
     else:
-        print(f"  {RED}x Template not found: {template_path}{NC}")
+        print(
+            f"  {YELLOW}! {template_path.relative_to(AGENTS_DIR)} is not in {AGENTS_DIR}, so "
+            f"AGENTS.md was not generated. Run the wizard again and answer y to merge the "
+            f"kit.{NC}"
+        )
 
     # --- Step 4.1: Append to CONSTITUTION.md ---
     if not IS_UPDATE and (compliance or project_type == "Legacy Modernization"):
@@ -1953,8 +2019,16 @@ def _run_wizard():
             print(
                 f"  {YELLOW}! {state_file.name} is a link of yours, or behind one: left as is{NC}"
             )
+        elif state_file.exists():
+            # The kit ships this file and a re-run finds the project's own: never replace it.
+            print(f"  {GREEN}✓ Loki Memory present (PROJECT_STATE.md kept){NC}")
         else:
-            state_file.write_text("# PROJECT_STATE.md\n\nPhase: S00_INITIALIZED\n")
+            state_file.write_text(
+                "# PROJECT_STATE.md\n\nPhase: NOT_STARTED\nStatus: NOT_STARTED\n\n"
+                "Phases S00–S13: agents/guides/processes/loki-sdlc-phases.md\n",
+                encoding="utf-8",
+            )
+            _record(state_file, "copy", agent="shared")
             print(f"  {GREEN}✓ Initialized Loki Memory{NC}")
 
     _is_windows = sys.platform == "win32"
@@ -2154,13 +2228,7 @@ def _run_wizard():
         print(f"  {GREEN}✓ Wired root AGENTS.md (agents.md standard){NC}")
 
     # --- Step 6: Gitignore ---
-    gitignore = PROJECT_ROOT / ".gitignore"
-    if gitignore.exists() and not gitignore.is_symlink():
-        content = gitignore.read_text()
-        if ".env" not in content:
-            with open(gitignore, "a") as f:
-                f.write("\n.env\n.env.local\n")
-            print(f"  {GREEN}✓ Added .env to .gitignore{NC}")
+    add_gitignore_block(PROJECT_ROOT / ".gitignore")
 
     # --- Step 7: Mission Generation ---
     print(f"\n{YELLOW}Part 6: Agent Mission Generation{NC}")

@@ -40,15 +40,21 @@ const INLINE = [
 ];
 // program -> words that, among its first three non-option words, mean publish or deploy
 const WATCH = {
-  npm: ['publish'], pnpm: ['publish'], yarn: ['publish'], bun: ['publish'],
+  npm: ['publish', 'unpublish', 'deprecate', 'dist-tag'], pnpm: ['publish'], yarn: ['publish'], bun: ['publish'],
   twine: ['upload'], cargo: ['publish'], gem: ['push'], poetry: ['publish'], uv: ['publish'],
-  docker: ['push'], dotnet: ['push'], mvn: ['deploy'], gradle: ['publish'], gradlew: ['publish'],
-  kubectl: ['apply'], terraform: ['apply'], tofu: ['apply'], helm: ['install', 'upgrade'],
+  hatch: ['publish'], flit: ['publish'], pdm: ['publish'],
+  docker: ['push'], podman: ['push'], dotnet: ['push'], mvn: ['deploy'], gradle: ['publish'], gradlew: ['publish'],
+  kubectl: ['apply', 'delete'], terraform: ['apply', 'destroy'], tofu: ['apply', 'destroy'],
+  helm: ['install', 'upgrade', 'push'], sam: ['deploy'], az: ['deploy'], aws: ['deploy'],
   railway: ['up', 'deploy'], fly: ['deploy'], flyctl: ['deploy'], vercel: ['deploy'],
   netlify: ['deploy'], firebase: ['deploy'], wrangler: ['deploy', 'publish'],
-  serverless: ['deploy'], sls: ['deploy'], cdk: ['deploy'], pulumi: ['up'], gcloud: ['deploy'],
+  serverless: ['deploy'], sls: ['deploy'], cdk: ['deploy'], pulumi: ['up', 'destroy'], gcloud: ['deploy'],
 };
-const FLAG_WATCH = { vercel: '--prod' };
+const FLAG_WATCH = { vercel: ['--prod'], docker: ['--push', '--push=true'], podman: ['--push', '--push=true'] };
+// gh and glab: the first two non-option words (after the values of -R/--repo) that ask
+const FORGE_ASK = new Set(['pr merge', 'release create', 'release upload', 'release delete', 'workflow run', 'repo delete',
+  'mr merge']);
+const FORGE_VALUE_OPTS = new Set(['-R', '--repo', '-H', '--hostname']);
 
 // Split a command line into simple commands (arrays of words). Quotes are removed.
 // Separators: ; & | newline ( ) and the start and end of $( ) and backticks.
@@ -114,7 +120,8 @@ const INLINE_PATTERNS = [
   [/\bgit\b[^\n]{0,80}?\breset\b[^\n]{0,40}--hard\b/, () => 'git reset --hard'],
   [/\bgit\b[^\n]{0,80}?\bclean\b[^\n]{0,40}(--force|\s-[a-zA-Z]*f)/, () => 'git clean -f'],
   [/\bgit\b[^\n]{0,80}?\bbranch\b[^\n]{0,40}\s-[a-zA-Z]*D/, () => 'git branch -D'],
-  [/\bgh\b[^\n]{0,20}?\b(pr\b[^\n]{0,8}merge|release\b[^\n]{0,8}create)\b/, (m) => 'gh ' + m[1].replace(/[^a-z]+/g, ' ')],
+  [/\b(gh|glab)\b[^\n]{0,20}?\b((?:pr|mr)\b[^\n]{0,8}merge|release\b[^\n]{0,8}(?:create|upload|delete)|workflow\b[^\n]{0,8}run|repo\b[^\n]{0,8}delete)\b/,
+    (m) => m[1] + ' ' + m[2].replace(/[^a-z]+/g, ' ')],
   ...Object.entries(WATCH).map(([prog, words]) => [
     new RegExp('\\b' + prog + '\\b[^\\n]{0,40}?\\b(' + words.join('|') + ')\\b'), (m) => prog + ' ' + m[1],
   ]),
@@ -168,21 +175,34 @@ function classifyWords(words, depth) {
       else break;
     }
     if (rest[k] === undefined) return null;
+    if (rest[k] === 'subtree' && rest.slice(k + 1).includes('push')) return 'git subtree push';
     const hit = destructiveGit(rest[k], rest.slice(k + 1));
     if (hit) return hit;
     return GIT_ASK.has(rest[k]) ? 'git ' + rest[k] : null;
   }
-  const plain = rest.filter((x) => !x.startsWith('-'));
-  if (prog === 'gh') {
+  if (prog === 'gh' || prog === 'glab') {
+    const plain = [];
+    for (let k = 0; k < rest.length; k++) {
+      if (FORGE_VALUE_OPTS.has(rest[k])) k++;
+      else if (!rest[k].startsWith('-')) plain.push(rest[k]);
+    }
     const key = plain.slice(0, 2).join(' ');
-    return key === 'pr merge' || key === 'release create' ? 'gh ' + key : null;
+    return FORGE_ASK.has(key) ? prog + ' ' + key : null;
   }
+  // python -m twine upload: the module is the program.
+  if (INLINE[0][0].test(prog) && rest[0] === '-m' && rest[1]) return classifyWords(rest.slice(1), depth + 1);
+  const plain = rest.filter((x) => !x.startsWith('-'));
   const kw = WATCH[prog];
   if (kw) {
-    const hit = plain.slice(0, 3).find((x) => kw.includes(x));
-    if (hit) return prog + ' ' + hit;
+    const at = plain.slice(0, 3).findIndex((x) => kw.includes(x));
+    // npm dist-tag ls only reads
+    if (at >= 0 && !(plain[at] === 'dist-tag' && ['ls', 'list'].includes(plain[at + 1]))) return prog + ' ' + plain[at];
   }
-  if (FLAG_WATCH[prog] && rest.includes(FLAG_WATCH[prog])) return prog + ' ' + FLAG_WATCH[prog];
+  const flags = FLAG_WATCH[prog];
+  if (flags) {
+    const f = flags.find((x) => rest.includes(x));
+    if (f) return prog + ' ' + f;
+  }
   return null;
 }
 

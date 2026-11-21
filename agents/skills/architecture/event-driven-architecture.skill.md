@@ -26,6 +26,6 @@ The event model (producer and consumer map), the broker choice with its reason, 
 ## Limits and safety
 - Do not assume global event order; state the ordering the chosen broker gives (for example per partition).
 - State the cost of eventual consistency; an event-driven system has no ACID guarantees by itself.
-- Events that cross untrusted boundaries need an authenticity check. If your broker or platform provides message signing, use it.
+- Events that cross an untrusted boundary must be verifiable: use the broker's or platform's message signing, or a signature added by the producing service and checked by the consumer. If the design has neither, it fails review.
 - Mask or encrypt personal and payment data before it goes into a dead letter queue.
 - Never execute code carried in an event payload when simulating flows; keep generated diagrams small enough to render.

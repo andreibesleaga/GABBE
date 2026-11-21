@@ -11,8 +11,12 @@
 #                       GABBE checkout: run `sh install.sh` from a file, not piped.
 #
 # It performs no destructive operations: it only runs an installer that copies
-# the kit into the CURRENT directory. Extra arguments are passed to the installer,
-# e.g.  `sh install.sh init --agents claude --yes`.
+# the kit into the CURRENT directory (or the folder given with --dir). Extra arguments are
+# passed to the installer, e.g.  `sh install.sh init --agents claude --yes`.
+#
+# npx runs from a new, empty temporary folder, never from the project: a project's own
+# .npmrc (registry, node-options) and node_modules then do not decide what runs. The project
+# is passed as `--dir <absolute path>`. Your own ~/.npmrc still applies (it is yours).
 #
 # The kit version this script belongs to is the line below (the release gate checks it
 # against package.json). GABBE_KIT_VERSION overrides it; `latest` means the newest release.
@@ -28,16 +32,19 @@ usage() {
 GABBE bootstrap installer
 
 Usage:
-  sh install.sh [init] [installer-args...]
+  sh install.sh [init] [--dir PATH] [installer-args...]
 
 Behavior:
-  - If Node is installed, runs:   npx --yes gabbe-kit@<this release> init [args...]
+  - If Node is installed, runs:   npx --yes gabbe-kit@<this release> init [args...] --dir <project>
+    from a new empty temporary folder (removed afterwards), so the project's own .npmrc and
+    node_modules decide nothing. The project is the current folder, or PATH (made absolute).
   - Else if python3 is installed and this script is run from a GABBE checkout:
                                   python3 scripts/init.py [--force] [--hooks]
     (the wizard has only --force and --hooks; other arguments are ignored and listed)
   - Otherwise, prints how to install Node or Python and exits non-zero.
 
 Options:
+  --dir PATH    The project folder to install into (default: the current folder).
   --help, -h    Show this help and exit.
 
 Environment:
@@ -107,6 +114,42 @@ if [ "${1:-}" = "init" ]; then
   shift
 fi
 
+# `--dir PATH` (or --dir=PATH) names the project folder; the other arguments go to the installer.
+# The project is made absolute here, because npx runs from another folder.
+DIR=""
+HAVE_DIR=0
+N=$#
+while [ "$N" -gt 0 ]; do
+  arg=$1
+  shift
+  N=$((N - 1))
+  case "$arg" in
+    --dir)
+      if [ "$N" -eq 0 ]; then
+        echo "install.sh: --dir needs a path" >&2
+        exit 2
+      fi
+      DIR=$1
+      HAVE_DIR=1
+      shift
+      N=$((N - 1))
+      ;;
+    --dir=*)
+      DIR=${arg#--dir=}
+      HAVE_DIR=1
+      ;;
+    *) set -- "$@" "$arg" ;;
+  esac
+done
+if [ "$HAVE_DIR" -eq 1 ]; then
+  PROJECT_ABS=$(CDPATH= cd -- "$DIR" 2>/dev/null && pwd) || {
+    echo "install.sh: --dir: there is no such folder: $DIR" >&2
+    exit 2
+  }
+else
+  PROJECT_ABS=$(pwd)
+fi
+
 # The directory this script lives in, only when it runs from a file named install.sh.
 # Piped through `curl | sh` there is no file and no checkout; a scripts/init.py in the
 # current project must never be run by accident.
@@ -127,9 +170,20 @@ if have npx; then
   else
     echo "→ npx detected. Using: npx --yes $KIT_SPEC init"
   fi
-  # npx prefers a gabbe-kit of the same name and version found in the project's own
-  # node_modules; that is why the version is fixed.
-  exec npx --yes "$KIT_SPEC" init "$@"
+  # npx reads the .npmrc of the folder it runs in and prefers a gabbe-kit of the same name and
+  # version in that folder's node_modules. So it runs from a new empty folder, never from the
+  # project, and the project is named with --dir. The version is fixed as well.
+  WORK_DIR=$(mktemp -d 2>/dev/null) || {
+    echo "Error: could not make a temporary folder (mktemp)." >&2
+    exit 1
+  }
+  trap 'rm -rf -- "$WORK_DIR"' EXIT
+  trap 'exit 130' INT
+  trap 'exit 143' TERM HUP
+  echo "  (npx runs from a temporary folder; the project is $PROJECT_ABS)"
+  rc=0
+  (cd -- "$WORK_DIR" && npx --yes "$KIT_SPEC" init "$@" --dir "$PROJECT_ABS") || rc=$?
+  exit "$rc"
 fi
 
 if have python3; then
@@ -162,6 +216,8 @@ if have python3; then
     echo "! The wizard does not take these arguments; ignored:$IGNORED" >&2
   fi
   echo "→ Node not found; python3 detected. Using: python3 $SCRIPT_DIR/scripts/init.py $FORCE $HOOKS"
+  # The wizard installs into its current folder.
+  cd -- "$PROJECT_ABS" || exit 2
   # Unquoted on purpose: each variable is empty or one fixed flag.
   # shellcheck disable=SC2086
   exec python3 "$SCRIPT_DIR/scripts/init.py" $FORCE $HOOKS

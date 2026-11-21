@@ -209,6 +209,9 @@ def main() -> None:
         if args.command == "init":
             print(f"{Colors.HEADER}Initializing GABBE...{Colors.ENDC}")
             init_db()
+            from .sync import ensure_task_file
+
+            ensure_task_file()
 
         elif args.command == "db":
             if args.init:
@@ -507,7 +510,7 @@ def main() -> None:
             if not source.exists():
                 print(
                     f"{Colors.WARNING}Kit source not found (packaged install): run "
-                    f"'npx gabbe-kit init' / 'gabbe setup' to refresh.{Colors.ENDC}"
+                    f"'npx gabbe-kit update' to refresh.{Colors.ENDC}"
                 )
                 sys.exit(2)
             target = _resolve_install_target(args)

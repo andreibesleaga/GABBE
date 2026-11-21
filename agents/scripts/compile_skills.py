@@ -48,6 +48,80 @@ def one_line(value):
     return _LINE_BREAKS_AND_CONTROLS.sub(" ", str(value)).strip()
 
 
+# Frontmatter keys a generated skill file may carry: the ones the kit's own skills use,
+# plus `version` and `author`, which this script writes itself for a file with no
+# frontmatter. Anything else (`allowed-tools`, `hooks`, `permissions`, `model`, ...) is
+# dropped, so an imported skill cannot grant itself tools or hooks.
+ALLOWED_FRONTMATTER_KEYS = frozenset(
+    {
+        "name",
+        "description",
+        "tags",
+        "triggers",
+        "context_cost",
+        "core",
+        "role",
+        "tools",
+        "version",
+        "author",
+        "gabbe-schema-version",
+    }
+)
+
+# The folders of the kit's own skills under agents/skills. A skill in any other folder
+# was imported (scripts/registry_import.py writes to agents/skills/<namespace>/).
+KIT_SKILL_DIRS = frozenset(
+    {
+        "ai",
+        "architecture",
+        "brain",
+        "coding",
+        "coordination",
+        "core",
+        "data",
+        "industry",
+        "ops",
+        "product",
+        "security",
+    }
+)
+
+_KEY_LINE = re.compile(r"""^["']?([A-Za-z0-9_-]+)["']?\s*:""")
+
+
+def filter_frontmatter(content):
+    """Drop frontmatter keys outside ALLOWED_FRONTMATTER_KEYS.
+
+    Returns (content, dropped_keys). A file that has only allowed keys is returned
+    byte for byte. A key line starts at column 0; indented lines and list items belong
+    to the key above them. If a disallowed key still parses afterwards (an exotic YAML
+    form), the block is rebuilt from name and description alone.
+    """
+    if not content.startswith("---"):
+        return content, []
+    end = content.find("---", 3)
+    if end == -1:
+        return content, []
+    kept, dropped, skipping = [], [], False
+    for line in content[3:end].split("\n"):
+        m = _KEY_LINE.match(line)
+        if m:
+            skipping = m.group(1) not in ALLOWED_FRONTMATTER_KEYS
+            if skipping:
+                dropped.append(m.group(1))
+        if not skipping:
+            kept.append(line)
+    new = "---" + "\n".join(kept) + content[end:]
+    meta, _ = ensure_yaml_frontmatter(new, "x.skill.md")
+    leftover = [str(k) for k in meta if str(k) not in ALLOWED_FRONTMATTER_KEYS]
+    if leftover:
+        dropped.extend(leftover)
+        name = json.dumps(one_line(meta.get("name", "skill")))
+        desc = json.dumps(one_line(meta.get("description", "")))
+        new = f"---\nname: {name}\ndescription: {desc}\n" + content[end:]
+    return (content if not dropped else new), dropped
+
+
 def inject_schema_version(content):
     """Insert `gabbe-schema-version: <N>` into a leading YAML frontmatter block.
 
@@ -186,11 +260,18 @@ def setup_skills_for_platform(
     print(f"\n{BLUE}→ Setting up skills for {platform}...{NC}")
     target_dir.mkdir(parents=True, exist_ok=True)
 
-    # Get all .skill.md files recursively
-    skill_files = list(skills_src_dir.rglob("*.skill.md"))
+    # Get all .skill.md files recursively: the kit's own first, imported ones after, so
+    # on a name collision the kit's skill is the one that stays.
+    def _is_imported(path):
+        rel = path.relative_to(skills_src_dir).parts
+        return len(rel) > 1 and rel[0] not in KIT_SKILL_DIRS
+
+    skill_files = sorted(skills_src_dir.rglob("*.skill.md"), key=lambda p: (_is_imported(p), p))
 
     count = 0
     skipped = []
+    owners = {}  # output slug -> the file that was emitted for it
+    collisions = []  # (slug, kept file, refused file, both are kit skills)
     for skill_file in skill_files:
         content = skill_file.read_text()
         meta, content_with_fm = ensure_yaml_frontmatter(content, skill_file.name)
@@ -204,6 +285,24 @@ def setup_skills_for_platform(
         raw_name = meta.get("name", skill_file.stem.replace(".skill", ""))
         skill_slug = safe_slug(raw_name, fallback=skill_file.stem.replace(".skill", ""))
         skill_desc = one_line(meta.get("description", f"Skill for {raw_name}"))
+
+        if skill_slug in owners:
+            first = owners[skill_slug]
+            both_kit = not _is_imported(first) and not _is_imported(skill_file)
+            collisions.append((skill_slug, first, skill_file, both_kit))
+            print(
+                f"  {RED}! Name collision '{skill_slug}': keeping {first}, "
+                f"ignoring {skill_file}{NC}"
+            )
+            continue
+        owners[skill_slug] = skill_file
+
+        content_with_fm, dropped = filter_frontmatter(content_with_fm)
+        if dropped:
+            print(
+                f"  {YELLOW}! {skill_file.name}: left out frontmatter keys "
+                f"{', '.join(dropped)}{NC}"
+            )
 
         if platform == "Cursor":
             # Flatten structure: .cursor/rules/<slug>.mdc
@@ -266,6 +365,7 @@ def setup_skills_for_platform(
             f"  ! Left {len(skipped)} path(s) alone because they are links of yours: "
             + ", ".join(str(p) for p in skipped[:5])
         )
+    return collisions
 
 
 def main():
@@ -291,6 +391,11 @@ def main():
     parser.add_argument("--target-dir", required=True, help="Target directory for output")
     parser.add_argument("--project-root", required=True, help="Root of the project")
     parser.add_argument(
+        "--strict",
+        action="store_true",
+        help="exit 1 on any skill name collision (default: only when two kit skills collide)",
+    )
+    parser.add_argument(
         "--native-subset",
         choices=["all", "core"],
         default="all",
@@ -313,7 +418,11 @@ def main():
         # Example logic for 'All' if needed, otherwise distinct calls are safer
         pass
     else:
-        setup_skills_for_platform(args.platform, skills_src, target_dir, project_root, subset)
+        collisions = setup_skills_for_platform(
+            args.platform, skills_src, target_dir, project_root, subset
+        )
+        if any(c[3] for c in collisions) or (args.strict and collisions):
+            sys.exit(1)
 
 
 if __name__ == "__main__":

@@ -54,6 +54,50 @@ def test_another_name_of_the_same_file_is_refused_by_path(multicall):
     assert "SH-RAN" not in result["stdout"]
 
 
+# --- relative PATH entries (RA-09) ---------------------------------------------------
+
+
+@pytest.fixture()
+def planted(tmp_path, monkeypatch):
+    """A project folder holding a file `echo` that prints PROJECT-FILE, and a real bin/echo."""
+    project = tmp_path / "project"
+    project.mkdir()
+    real = tmp_path / "realbin"
+    real.mkdir()
+    for folder, text in ((project, "PROJECT-FILE"), (real, "REAL-ECHO")):
+        f = folder / "echo"
+        f.write_text(f"#!/bin/sh\necho {text}\n")
+        f.chmod(0o755)
+    monkeypatch.chdir(project)
+    monkeypatch.setenv("GABBE_MCP_ALLOWED_COMMANDS", "echo")
+    monkeypatch.delenv("GABBE_MCP_INSECURE", raising=False)
+    return real
+
+
+@pytest.mark.skipif(os.name != "posix", reason="POSIX PATH rules")
+@pytest.mark.parametrize("prefix", [".", "", "bin", "../x"])
+def test_a_relative_or_empty_path_entry_never_runs_a_project_file(planted, monkeypatch, prefix):
+    monkeypatch.setenv("PATH", prefix + os.pathsep + str(planted))
+    assert run_command_handler("echo hi")["stdout"] == "REAL-ECHO\n"
+    refused = run_command_handler("./echo hi")
+    assert refused["returncode"] == 126 and "PROJECT-FILE" not in refused["stdout"]
+
+
+@pytest.mark.skipif(os.name != "posix", reason="POSIX PATH rules")
+def test_only_relative_entries_means_nothing_is_found(planted, monkeypatch):
+    monkeypatch.setenv("PATH", "." + os.pathsep)
+    result = run_command_handler("echo hi")
+    assert "PROJECT-FILE" not in result["stdout"]
+    assert result["returncode"] != 0
+
+
+def test_the_child_gets_only_the_absolute_path_entries(monkeypatch, tmp_path):
+    from gabbe.mcp_server import _child_env
+
+    monkeypatch.setenv("PATH", os.pathsep.join([".", "", str(tmp_path)]))
+    assert _child_env()["PATH"] == str(tmp_path)
+
+
 # --- tokens (note N-1) --------------------------------------------------------------
 
 

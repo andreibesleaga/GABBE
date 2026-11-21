@@ -27,9 +27,9 @@ on:
   workflow_dispatch:
     inputs:
       dist_tag:
-        description: "npm dist-tag to publish under"
+        description: "npm dist-tag to publish under (empty: latest for a release tag, next for a prerelease tag)"
         required: false
-        default: "latest"
+        default: ""
 
 permissions:
   contents: read
@@ -70,6 +70,8 @@ jobs:
       id-token: write # npm trusted publishing (OIDC) + provenance
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false # the job token is not left in .git/config while npm runs
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
           node-version: '24'
@@ -96,5 +98,14 @@ jobs:
 
       - name: Publish to npm
         env:
-          DIST_TAG: ${{ inputs.dist_tag || 'latest' }}
-        run: npm publish --access public --tag "$DIST_TAG"
+          DIST_TAG: ${{ inputs.dist_tag }}
+        run: |
+          # No dist-tag given: `latest` for a release tag, `next` for a prerelease tag (a '-' in the name).
+          if [ -z "$DIST_TAG" ]; then
+            case "$GITHUB_REF_NAME" in *-*) DIST_TAG=next ;; *) DIST_TAG=latest ;; esac
+          fi
+          # A dist-tag is a plain word; anything else (for example a value starting with `--`) is refused.
+          if ! printf '%s' "$DIST_TAG" | grep -Eq '^[a-z][a-z0-9._-]*$'; then
+            echo "dist_tag must match ^[a-z][a-z0-9._-]*\$"; exit 1
+          fi
+          npm publish --access public --tag "$DIST_TAG"

@@ -61,6 +61,10 @@ Since 1.2.0 the server is **read-only by default**:
   Paths are compared as written, without following links, so another name linked to
   the same file (a busybox applet, `view` for `vim`) is not permitted.
   The executable is resolved with `PATH` and the resolved path is run.
+- **The policy file must allow it too.** `project/policies.yml` must list `run_command`
+  under `tools.allowed`; with no policy file the engine denies every tool. The
+  installers do not create that file, so enabling `run_command` is always a deliberate
+  edit in the project.
 - **Authentication for `run_command`.** With `GABBE_MCP_TOKEN` unset, `run_command`
   refuses every call. Legacy clients (MCP `2025-11-25` and earlier) send the token in
   the `initialize` params; modern clients (`2026-07-28`, no handshake) send it in each
@@ -85,7 +89,13 @@ Since 1.2.0 the server is **read-only by default**:
   1 MiB of standard error: a longer stream is cut, ends with
   `[output cut at 1048576 bytes]`, and the reply carries `stdout_truncated` or
   `stderr_truncated`. The cut applies before the audit trace. The child's standard
-  input is closed.
+  input is closed. The output is read through pipes and the rest is discarded without
+  being written to disk; a command that writes more than 16 MiB to one stream is ended.
+  On timeout (exit 124) or at that limit the whole process group is ended (SIGTERM, then
+  SIGKILL after 0.5 s) on POSIX; on Windows only the child is ended.
+- **Search path.** Empty, `.` and other relative `PATH` entries are ignored when a command
+  name is resolved and in the child's `PATH`, so an allowed name never runs a file of the
+  project folder. A name that cannot be resolved returns 127.
 - **State paths that are links.** If `project/`, `project/state.db` or `project/logs` is
   a symbolic link, or leads outside the project, GABBE writes nothing there. The tool
   server then runs without an audit trail (read-only tools only; `run_command` is
@@ -118,10 +128,14 @@ Since 1.2.0:
 - The same payloads are stored in `project/state.db` (table `audit_spans`), not only in
   `project/logs/`.
 - Redaction covers the value of any `NAME=value` or `NAME: value` whose name contains
-  `password`, `passwd`, `secret`, `token`, `api_key` or `api-key` (the name is kept),
-  Slack tokens (`xox[abprs]-`), Google API keys (`AIza…`), JSON Web Tokens, PEM
-  private-key blocks, and the earlier `sk-`, `ghp_`, `AKIA` and bearer shapes. It stays
-  best-effort.
+  `password`, `passwd`, `pwd`, `passphrase`, `secret`, `token`, `api_key` or `api-key` (the
+  name is kept), JSON members named like secrets, `Authorization` headers, passwords in
+  URLs and connection strings, `--password`/`--token`/`--api-key` options, Slack tokens
+  and webhooks, Google API keys, GitHub (`ghp_`, `gho_`, `github_pat_` …), npm, GitLab,
+  Hugging Face and Stripe tokens, JSON Web Tokens, PEM and OpenSSH private-key blocks, and
+  the earlier `sk-`, `AKIA` and bearer shapes. It stays best-effort: it does not cover a
+  bare `-pVALUE`, `auth=`, `credentials:`, `Cookie:` headers, or a secret under a name
+  that holds none of the words above.
 - On POSIX systems GABBE creates `project/logs` with mode 0700, and `state.db` and the
   run logs with mode 0600. Files that already exist keep their mode.
 
@@ -133,6 +147,12 @@ registry are untrusted input. Since 1.2.0:
 - The installers, `update` and `uninstall` act only inside the target folder. A path in
   `.gabbe/manifest.json` that is absolute, contains `..`, or leaves the target is
   refused; a record file or state file that is a link is not written through.
+- Inside the target the record is not trusted either. An entry is acted on only when it
+  is a kind the installers write; a file is removed only when its bytes match the
+  recorded hash; a backup is moved back only when it is named `<path>.gabbe-bak` or
+  `<path>.bak` and is a real file; only the kit's own hook entries are taken out, and only
+  in the settings files the installers write; under `.git/` only the two marked GABBE hooks
+  are touched. Every path is checked again right before use.
 - The wizard runs the skill compiler of the kit being installed, never a
   `compile_skills.py` found in the target project.
 - The uninstall scripts never import a `gabbe/` package from the current folder. The

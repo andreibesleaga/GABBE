@@ -8,6 +8,14 @@ must pass frontmatter validation (real YAML), a safe-slug / path-traversal check
 and an egress/secret/executable-payload scan. Skills land NAMESPACED under
 agents/skills/<namespace>/ and are never auto-trusted — review before use.
 
+The scan is a heuristic safety net, not a sandbox. It matches common payload shapes
+in the text (see _DANGER_PATTERNS, one short reason each); a determined author can
+write a payload it does not see. Review every imported skill before use.
+
+Frontmatter is limited to the keys the kit's own skills use (ALLOWED_KEYS). A skill
+with any other key (for example `allowed-tools` or `hooks`), or whose name is the
+name of a kit skill, is rejected.
+
 Usage:
     python scripts/registry_import.py <source> [--namespace ext] [--apply] [--kit-root DIR]
       <source> = a local path (file/dir/.tar.gz) or an http(s) URL to a SKILL.md / bundle.
@@ -47,7 +55,57 @@ _DANGER_PATTERNS = [
         "embedded-secret",
     ),
     (re.compile(r"(?i)base64\s+-d|atob\(|b64decode"), "obfuscated-payload"),
+    # Reverse shells: a shell wired to a remote host.
+    (re.compile(r"/dev/tcp/|\bnc(at)?\b[^\n]*\s-[A-Za-z]*e\b|\bbash\s+-i\s*>&"), "reverse-shell"),
+    # Two-step run: a download to a file, then chmod +x or sh <file> within 200 characters
+    # (lines included). Does not catch a run after a longer gap, a download by another
+    # tool (python, git), or `./file` run without chmod.
+    (
+        re.compile(
+            r"(?s)\b(curl|wget)\b.{0,200}?(-o|-O|>)\s*\S+.{0,200}?"
+            r"(chmod\s+\+x|\b(sh|bash)\s+[/.~\w])"
+        ),
+        "download-then-run",
+    ),
+    # Secret stores: a read, copy or upload of .env, cloud/GitHub credentials, browser profiles.
+    (
+        re.compile(
+            r"(?i)\b(cat|less|more|head|tail|source|cp|scp|base64|tar|zip)\b[^\n|]*(?<![\w])\.env(?![\w-]|\.\w)"
+            r"|(--data[-a-z]*|-d|-F|-T)\s*['\"]?@\S*(\.env(?![\w-]|\.\w)|\.aws/|\.config/gh)"
+        ),
+        "env-file-access",
+    ),
+    (re.compile(r"\.aws/(credentials|config)|\.config/gh/|\.netrc\b"), "cloud-credentials-access"),
+    (
+        re.compile(
+            r"(?i)\.mozilla/firefox|\.config/(google-chrome|chromium|BraveSoftware)"
+            r"|Application Support/(Google/Chrome|Firefox)|AppData[\\/]+Local[\\/]+(Google|Microsoft)"
+        ),
+        "browser-profile-access",
+    ),
+    # PowerShell: download piped into, or passed to, iex / Invoke-Expression.
+    (
+        re.compile(
+            r"(?i)\b(iwr|irm|invoke-webrequest|invoke-restmethod|downloadstring)\b[^\n]*"
+            r"\b(iex|invoke-expression)\b|\b(iex|invoke-expression)\b[^\n]*"
+            r"\b(iwr|irm|invoke-webrequest|invoke-restmethod|downloadstring)\b"
+        ),
+        "powershell-download-exec",
+    ),
+    # Hidden instructions: invisible characters and prompt-override phrases.
+    (re.compile("[\u200b-\u200f\u202a-\u202e\u2060-\u2064]"), "hidden-characters"),
+    (
+        re.compile(r"(?i)ignore\s+(all\s+)?previous\b|disregard\s+the\s+above"),
+        "prompt-override-phrase",
+    ),
 ]
+
+# Frontmatter keys an imported skill may carry: exactly the keys the kit's own skills use.
+# Keys such as allowed-tools, hooks, permissions or model are never accepted.
+ALLOWED_KEYS = frozenset(
+    {"name", "description", "tags", "triggers", "context_cost", "core", "role", "tools"}
+)
+_NAME_RE = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
 
 
 def _load_helpers(kit_root):
@@ -173,20 +231,40 @@ def _safe_extract(tf: tarfile.TarFile, dest: Path):
         tf.extractall(dest)  # noqa: S202 - members validated above (no links, contained paths)
 
 
+def _kit_slugs(skills_dir: Path, compile_skills) -> set:
+    """Slugs of the kit's own skills (folders the compiler lists as the kit's)."""
+    slugs = set()
+    for f in skills_dir.rglob("*.skill.md"):
+        rel = f.relative_to(skills_dir).parts
+        if len(rel) > 1 and rel[0] not in compile_skills.KIT_SKILL_DIRS:
+            continue
+        meta, _ = compile_skills.ensure_yaml_frontmatter(f.read_text(errors="replace"), f.name)
+        slugs.add(compile_skills.safe_slug(str(meta.get("name", f.stem.replace(".skill", "")))))
+    return slugs
+
+
 def _scan(text: str):
     return [label for pat, label in _DANGER_PATTERNS if pat.search(text)]
 
 
-def validate_candidate(path: Path, compile_skills, validate_skills):
+def validate_candidate(path: Path, compile_skills, validate_skills, kit_slugs=frozenset()):
     """Return (ok, slug, reason). Rejects on frontmatter/slug/security failure."""
     text = path.read_text(errors="replace")
     ok, msg = validate_skills.validate_frontmatter(path)
     if not ok:
         return False, None, f"frontmatter: {msg}"
     meta, _ = compile_skills.ensure_yaml_frontmatter(text, path.name)
-    slug = compile_skills.safe_slug(meta.get("name", path.stem))
+    name = str(meta.get("name", path.stem))
+    slug = compile_skills.safe_slug(name)
     if not slug or slug in (".", ".."):
         return False, None, "unsafe slug"
+    if not _NAME_RE.match(name):
+        return False, slug, "name must be lowercase letters, digits and single hyphens"
+    extra = sorted(str(k) for k in meta if str(k) not in ALLOWED_KEYS)
+    if extra:
+        return False, slug, f"frontmatter keys not allowed: {', '.join(extra)}"
+    if kit_slugs and slug in kit_slugs:
+        return False, slug, f"name '{slug}' is already a kit skill"
     flags = _scan(text)
     if flags:
         return False, slug, f"security: {', '.join(flags)}"
@@ -203,7 +281,12 @@ def main():
 
     kit_root = Path(args.kit_root).resolve()
     compile_skills, validate_skills = _load_helpers(kit_root)
-    ns_dir = kit_root / "agents" / "skills" / re.sub(r"[^a-z0-9_-]+", "-", args.namespace.lower())
+    skills_dir = kit_root / "agents" / "skills"
+    namespace = re.sub(r"[^a-z0-9_-]+", "-", args.namespace.lower())
+    if not namespace.strip("-_") or namespace in compile_skills.KIT_SKILL_DIRS:
+        raise SystemExit(f"refusing namespace {args.namespace!r}: empty or a kit skill folder")
+    ns_dir = skills_dir / namespace
+    kit_slugs = _kit_slugs(skills_dir, compile_skills)
 
     with tempfile.TemporaryDirectory(prefix="gabbe-import-") as tmp:
         root = _fetch(args.source, Path(tmp))
@@ -214,7 +297,7 @@ def main():
 
         accepted, rejected = [], []
         for c in candidates:
-            ok, slug, reason = validate_candidate(c, compile_skills, validate_skills)
+            ok, slug, reason = validate_candidate(c, compile_skills, validate_skills, kit_slugs)
             (accepted if ok else rejected).append((c, slug, reason))
 
         print(

@@ -159,7 +159,7 @@ after another, or delegates to native subagents, and follows the lifecycle. Cost
 **First sentence** (only `loki mode`, `activate loki` or `run the lifecycle` start it):
 
 ```
-"Activate `agents/skills/brain/loki-mode.skill.md`. Goal: [build X]. Work through the phases on your own and stop at every Human Approval Gate, before any commit, push, publish or deploy, and when a task requires True A2A Delegation."
+"Loki mode. Activate `agents/skills/brain/loki-mode.skill.md`. Goal: [build X]. Work through the phases on your own and stop at every Human Approval Gate, before any commit, push, publish or deploy, and when a task requires True A2A Delegation."
 ```
 
 **What the agent does:**

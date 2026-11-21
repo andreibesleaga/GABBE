@@ -48,7 +48,8 @@ Load on activation:
    - Security: security improvements
 4. Commit CHANGELOG.md with: "chore(release): v1.2.0"
 5. Tag: prepare `git tag -a v1.2.0 -m "Release v1.2.0"` and hand it to the human; run it only if the human asked for it in this request (Constitution Article 0)
-6. Create GitHub Release with release notes
+6. GitHub Release: prepare the release notes and the exact command (`gh release create v1.2.0 --notes-file ...`)
+   and hand them to the human; run it only if the human asked for it in this request (Constitution Article 0)
 7. Write release entry to AUDIT_LOG.md
 ```
 

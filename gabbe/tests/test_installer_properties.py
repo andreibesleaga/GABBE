@@ -366,3 +366,77 @@ def test_tampered_tree_entry_cannot_delete_files_above_the_target():
         assert marked.exists()
     finally:
         world.close()
+
+
+def test_build_leftovers_are_not_part_of_the_kit(tmp_path):
+    from gabbe.installer import _iter_source_files
+
+    (tmp_path / "scripts" / "__pycache__").mkdir(parents=True)
+    (tmp_path / "scripts" / "__pycache__" / "a.cpython-312.pyc").write_bytes(b"x")
+    (tmp_path / "scripts" / "old.pyc").write_bytes(b"x")
+    (tmp_path / "scripts" / "a.py").write_text("x = 1\n")
+    assert [str(rel) for _, rel in _iter_source_files(tmp_path)] == ["scripts/a.py"]
+
+
+# --- a record inside the target is untrusted: the user's files stay (RA-01, RA-02) ----
+
+_USER_FILES = {
+    ".env": b"SECRET=1\n",
+    "notes.md": b"my notes\n",
+    ".git/config": b"[core]\n",
+    ".claude/settings.json": b'{"hooks": {"PreToolUse": [{"hooks": [{"command": "mine.sh"}]}]}}',
+    ".claude/settings.local.json": b'{"permissions": {"deny": ["Read(./.env)"]}}',
+    "docs/example.json": b'{"defaultMode": "bypassPermissions"}',
+    "agents/x.md": b"mine\n",
+}
+
+
+@given(
+    st.lists(
+        st.fixed_dictionaries(
+            {
+                "path": st.sampled_from(sorted(_USER_FILES)),
+                "kind": st.sampled_from(
+                    ["copy", "tree", "block", "symlink", "skill-emit", "hook-merge", "weird", "", 5]
+                ),
+            },
+            optional={
+                "agent": st.sampled_from(["shared", "claude"]),
+                "hash": st.sampled_from(["", "0" * 64, "abc"]),
+                "backup_of": st.sampled_from(
+                    [None, "docs/example.json", "link", "notes.md.bak", "..", ".git/config"]
+                ),
+                "created": st.booleans(),
+                "fragment_doc": st.just(
+                    {"hooks": {"PreToolUse": [{"hooks": [{"command": "mine.sh"}]}]}}
+                ),
+            },
+        ),
+        max_size=5,
+    )
+)
+@_SETTINGS
+def test_a_record_without_the_right_hash_never_changes_the_users_files(entries):
+    """Whatever kinds, hashes, backups and hook fragments a record holds, uninstall
+    and update leave every user file byte for byte as it was, except a recorded `block`
+    (the kit's marked block, absent here) and a link-kind entry that is a real link."""
+    world = _World(["a.txt"], _Counter())
+    try:
+        for rel, data in _USER_FILES.items():
+            (world.target / rel).parent.mkdir(parents=True, exist_ok=True)
+            (world.target / rel).write_bytes(data)
+        os.symlink("../outside", world.target / "link")
+        mp = installer.manifest_path(world.target)
+        mp.parent.mkdir()
+        mp.write_text(json.dumps({"schema_version": 1, "entries": entries, "agents": []}))
+        before = {rel: (world.target / rel).read_bytes() for rel in _USER_FILES}
+        kit = world.target.parent / "kit"
+        kit.mkdir(exist_ok=True)
+        (kit / "AGENTS.md").write_text("kit\n")
+        installer.uninstall(world.target, dry_run=True)
+        installer.update_kit(world.target, kit)
+        installer.uninstall(world.target)
+        assert {rel: (world.target / rel).read_bytes() for rel in _USER_FILES} == before
+        assert os.readlink(world.target / "link") == "../outside"
+    finally:
+        world.close()

@@ -9,6 +9,10 @@
 # -DryRun, -Agents and -Purge become --dry-run, --agents and --purge; -Dir is the project
 # folder (default: the current folder). The exit status is that of the tool that ran.
 #
+# npx runs from a new, empty temporary folder, never from the project, and gets the project as
+# `--dir <absolute path>`: the project's own .npmrc (registry, node-options) and node_modules
+# then do not decide what runs. Your own user .npmrc still applies.
+#
 # The tool, in this order:
 #   1. Node present   -> gabbe-kit uninstall (bin\install.js next to this script, else
 #                        npx --yes gabbe-kit@<this release> uninstall)
@@ -40,8 +44,9 @@ Usage:
   .\uninstall.ps1 [-DryRun] [-Agents claude,cursor] [-Purge] [-Dir PATH] [-Help]
 
 Removes exactly what .gabbe\manifest.json records and restores backed-up files.
-Uses Node (npx gabbe-kit@<this release> uninstall) when present, else the Python CLI
-(gabbe), else prints the manual steps.
+Uses Node (npx gabbe-kit@<this release> uninstall --dir <project>, run from a temporary
+folder) when present, else the Python CLI (gabbe), else prints the manual steps. -Dir names
+the project (default: the current folder); a relative path is made absolute first.
 
 Environment:
   GABBE_KIT_VERSION   Run that gabbe-kit version (for example 1.2.0) instead of the
@@ -66,8 +71,15 @@ if ($kitVersion -ne 'latest') {
 
 $localInstaller = if ($PSScriptRoot) { Join-Path $PSScriptRoot 'bin/install.js' } else { '' }
 
+# The project, as an absolute path: npx runs from another folder, and the Python CLI acts on the
+# current folder (it is entered just before that tool runs).
+$projectAbs = (Get-Location).ProviderPath
 if ($Dir) {
-    Set-Location -LiteralPath $Dir
+    if (-not (Test-Path -LiteralPath $Dir -PathType Container)) {
+        Write-Host "uninstall.ps1: -Dir: there is no such folder: $Dir"
+        exit 2
+    }
+    $projectAbs = (Resolve-Path -LiteralPath $Dir).ProviderPath
 }
 
 $toolArgs = @()
@@ -115,17 +127,28 @@ function Test-GabbePython {
 
 if ((Test-Cmd 'node') -and (Test-Cmd 'npx')) {
     if ($localInstaller -and (Test-Path $localInstaller)) {
-        & node $localInstaller uninstall @toolArgs
+        & node $localInstaller uninstall @toolArgs --dir $projectAbs
+        exit $LASTEXITCODE
     }
-    else {
-        # npx prefers a gabbe-kit of the same name and version found in the project's own
-        # node_modules; that is why the version is fixed.
-        & npx --yes $kitSpec uninstall @toolArgs
+    # npx reads the .npmrc of the folder it runs in and prefers a gabbe-kit of the same name and
+    # version in that folder's node_modules. So it runs from a new empty folder, never from the
+    # project, and the project is named with --dir. The version is fixed as well.
+    $workDir = Join-Path ([System.IO.Path]::GetTempPath()) ('gabbe-' + [System.Guid]::NewGuid().ToString('N'))
+    New-Item -ItemType Directory -Path $workDir | Out-Null
+    Push-Location -LiteralPath $workDir
+    try {
+        & npx --yes $kitSpec uninstall @toolArgs --dir $projectAbs
+        $npxExit = $LASTEXITCODE
     }
-    exit $LASTEXITCODE
+    finally {
+        Pop-Location
+        Remove-Item -LiteralPath $workDir -Recurse -Force -ErrorAction SilentlyContinue
+    }
+    exit $npxExit
 }
 
 if (Test-GabbePython) {
+    Set-Location -LiteralPath $projectAbs
     $gabbeCmd = Get-GabbeCommand
     if ($gabbeCmd) {
         & $gabbeCmd uninstall @toolArgs

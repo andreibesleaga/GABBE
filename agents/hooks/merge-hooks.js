@@ -6,6 +6,8 @@
 //   node merge-hooks.js <fragment.json> <target.json> --remove   take the GABBE entries out
 // Safe rule: it only adds entries, never changes or removes anything else. If the target is not
 // plain JSON or has an unexpected shape, it changes nothing, prints the fragment and exits 1.
+// With --write or --remove it refuses a target, a folder above it or a backup name that is a link,
+// and writes through a temp file in the same folder plus a rename.
 // An entry is "ours" only when it is exactly one of the fragment's: same event, same matcher and
 // the same command strings. --remove takes out those entries and nothing else.
 // The installers (bin/install.js) require this file and use mergeFragment and removeFragment.
@@ -69,6 +71,42 @@ function bail(msg, fragment) {
   process.exit(1);
 }
 
+// lstat does not follow links; null means the name is free.
+function lstatOrNull(p) {
+  try { return fs.lstatSync(p); } catch (e) { if (e.code === 'ENOENT' || e.code === 'ENOTDIR') return null; throw e; }
+}
+
+// The first link among the target and the folders above it (up to the current folder; a target
+// outside the current folder has only its own folder checked), or null.
+function findLink(target) {
+  const cwd = process.cwd();
+  const names = [target];
+  const inside = path.dirname(target) === cwd || path.dirname(target).startsWith(cwd + path.sep);
+  for (let d = path.dirname(target); ; d = path.dirname(d)) {
+    names.push(d);
+    if (!inside || d === cwd || d === path.dirname(d)) break;
+  }
+  return names.find((n) => { const st = lstatOrNull(n); return st && st.isSymbolicLink(); }) || null;
+}
+
+// The first free backup name. A link at a name (dangling or not) is refused, never skipped or followed.
+function backupName(target) {
+  for (let n = 0; ; n += 1) {
+    const name = n === 0 ? `${target}.gabbe-bak` : `${target}.gabbe-bak.${n}`;
+    const st = lstatOrNull(name);
+    if (!st) return name;
+    if (st.isSymbolicLink()) throw new Unsafe(`${name} is a link`);
+  }
+}
+
+// Write through a new file in the same folder, then rename it over the target.
+function writeAtomic(target, text, mode) {
+  const tmp = path.join(path.dirname(target), `.${path.basename(target)}.gabbe-tmp-${process.pid}`);
+  const fd = fs.openSync(tmp, 'wx', mode);
+  try { fs.writeSync(fd, text); } finally { fs.closeSync(fd); }
+  try { fs.renameSync(tmp, target); } catch (e) { fs.rmSync(tmp, { force: true }); throw e; }
+}
+
 function main() {
   const [fragFile, target, flag] = process.argv.slice(2);
   if (!fragFile || !target || (flag && flag !== '--write' && flag !== '--remove')) {
@@ -76,8 +114,15 @@ function main() {
     process.exit(2);
   }
   const fragment = JSON.parse(fs.readFileSync(fragFile, 'utf8'));
+  if (flag) {
+    const link = findLink(path.resolve(target));
+    if (link) {
+      process.stderr.write(`merge-hooks: ${link} is a link; this helper never writes through links. Nothing was changed. Use the real file, or add the fragment by hand.\n`);
+      process.exit(1);
+    }
+  }
   let doc = {};
-  const exists = fs.existsSync(target);
+  const exists = lstatOrNull(target) !== null;
   if (exists) {
     try { doc = JSON.parse(fs.readFileSync(target, 'utf8')); } catch (e) { bail('target is not plain JSON', fragment); }
   }
@@ -95,13 +140,20 @@ function main() {
   }
   const text = JSON.stringify(doc, null, 2) + '\n';
   if (!flag) { process.stdout.write(text); return; }
-  if (exists) {
-    let backup = target + '.gabbe-bak';
-    for (let n = 1; fs.existsSync(backup); n += 1) backup = `${target}.gabbe-bak.${n}`; // never overwrite a backup
-    fs.copyFileSync(target, backup);
+  const abs = path.resolve(target);
+  let mode = 0o644;
+  try {
+    if (exists) {
+      const backup = backupName(abs); // never overwrites a backup, never follows a link
+      mode = fs.statSync(abs).mode & 0o777;
+      fs.copyFileSync(abs, backup, fs.constants.COPYFILE_EXCL);
+    }
+    fs.mkdirSync(path.dirname(abs), { recursive: true });
+    writeAtomic(abs, text, mode);
+  } catch (e) {
+    if (e instanceof Unsafe) bail(e.message, fragment);
+    throw e;
   }
-  fs.mkdirSync(path.dirname(target), { recursive: true });
-  fs.writeFileSync(target, text);
   process.stdout.write(`${flag === '--remove' ? 'removed from' : 'merged into'} ${target}\n`);
 }
 

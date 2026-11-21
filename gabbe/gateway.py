@@ -104,7 +104,12 @@ class ToolGateway:
             {"tool": name, "arguments": arguments, "role": role}
         )
         if not policy_res.allowed:
-            raise PolicyDenied(f"Policy denied: {policy_res.reason}")
+            hint = (
+                ". Add run_command to tools.allowed in project/policies.yml."
+                if name == "run_command"
+                else ""
+            )
+            raise PolicyDenied(f"Policy denied: {policy_res.reason}{hint}")
 
     def execute(self, name: str, arguments: Dict[str, Any], role: str, run_context: Any) -> Any:
         span_ctx = run_context.tracer.start_span(

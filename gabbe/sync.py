@@ -83,6 +83,18 @@ def generate_markdown_tasks(tasks: list[dict[str, str]]) -> str:
     return "\n".join(lines)
 
 
+def ensure_task_file() -> bool:
+    """Create an empty `project/TASKS.md` when there is none (`gabbe verify` requires it).
+
+    Never touches an existing file or link. Returns True when it created the file.
+    """
+    if TASKS_FILE.exists() or TASKS_FILE.is_symlink():
+        return False
+    _atomic_write(TASKS_FILE, generate_markdown_tasks([]))
+    print(f"{Colors.GREEN}✓ Created {TASKS_FILE}{Colors.ENDC}")
+    return True
+
+
 def _parse_db_timestamp(value: Any) -> float:
     """Parse a SQLite datetime string to a Unix timestamp.
 

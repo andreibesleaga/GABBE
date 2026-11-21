@@ -63,9 +63,11 @@ Uninstall: `sh agents/hooks/git/install.sh uninstall` (removes only files that c
 - `pre-commit` refuses staged files named `.env`, `.env.*` (not `.example`, `.sample`, `.template`,
   `.dist`), `*.pem`, `*.key`, `*.p12`, `*.pfx`, `*.jks`, `id_rsa`, `id_dsa`, `id_ecdsa`, `id_ed25519`,
   `.netrc`, `.pgpass`; and added lines that match `sk-` keys (16+ characters), GitHub tokens, AWS access
-  key ids, Slack tokens, or a private key header. These are a subset of `SECRET_PATTERNS` in
+  key ids, Slack tokens, `github_pat_`, `npm_`, `glpat-` and Google `AIza` keys, or a private key header. These are a subset of `SECRET_PATTERNS` in
   `gabbe/config.py`; the `Bearer` pattern is left out because it fires on ordinary text. It prints
-  `path:line` and never the value.
+  `path:line` and never the value. Files git treats as binary (a NUL byte) are not scanned. A UTF-16 file with a
+  byte order mark is converted with `iconv` and scanned; without `iconv` the hook prints that the file was not
+  checked. UTF-16 without a byte order mark is not scanned.
 - Exception for one commit, typed by the human: `GABBE_ALLOW_SECRET=1 git commit ...`. For one line:
   write `gabbe:allow-secret` on that line.
 - `pre-push` refuses a push to `main`, `master` and every value of the git key `gabbe.protectedBranch`
@@ -80,16 +82,16 @@ Files: `agents/hooks/claude-code/gabbe-hook.js`, `protected-paths.json`, `settin
 shared parser `agents/hooks/lib/shell-guard.js`.
 
 - Shell guard (`PreToolUse`, matcher `Bash`): asks before `git commit`, `git push`, `git tag`,
-  `gh pr merge`, `gh release create`, `npm`/`pnpm`/`yarn`/`bun publish`, `cargo publish`,
-  `twine upload`, `gem push`, `poetry`/`uv publish`, `docker push`, `dotnet push`, `mvn deploy`,
-  `gradle publish`, `kubectl apply`, `terraform`/`tofu apply`, `helm install`/`upgrade`, `railway up`,
+  `gh pr merge`, `gh release create`/`upload`/`delete`, `gh workflow run`, `gh repo delete` (also `glab`, and `-R owner/repo` before the subcommand), `git subtree push`, `npm unpublish`/`deprecate`/`dist-tag add`, `npm`/`pnpm`/`yarn`/`bun publish`, `cargo publish`,
+  `twine upload` (also `python -m twine upload`), `gem push`, `poetry`/`uv`/`hatch`/`flit`/`pdm publish`, `docker`/`podman push`, `docker build --push` (and `buildx`), `dotnet push`, `mvn deploy`,
+  `gradle publish`, `kubectl apply`/`delete`, `terraform`/`tofu apply`/`destroy`, `helm install`/`upgrade`/`push`, `sam deploy`, `az ... deploy`, `aws ... deploy`, `railway up`,
   `fly`/`flyctl`/`vercel`/`netlify`/`firebase`/`serverless`/`sls`/`cdk`/`gcloud deploy`,
-  `wrangler deploy`, `pulumi up`. It also asks before destructive git commands (Article 0, destructive actions):
+  `wrangler deploy`, `pulumi up`/`destroy`. It also asks before destructive git commands (Article 0, destructive actions):
   `git reset --hard`, `git clean -f`, `git checkout -- .`, `git restore .`, `git branch -D`,
   `git push --force`, `git rebase`, `git filter-branch`, `git filter-repo`. It parses the text as data: it sees through `git -C dir push`, `;`,
   `&&`, `||`, pipes, subshells, `$(...)`, backticks, leading `NAME=value`, `sudo`/`env`/`timeout`/`time`/`nice`/`nohup`/`command`/`exec`,
   `sh -c "..."`, and the program text of `python -c`, `node -e`, `perl -e`, `ruby -e`, `php -r` (searched by pattern: a mention in a string asks too). It never runs any part of it. A word like "push" inside a quoted argument does not
-  trigger it. Not seen: aliases, shell functions, scripts that call git, commands built from variables.
+  trigger it. Not seen: aliases, shell functions, scripts that call git or publish (`make release`, `npm run release`), commands built from variables (`$G push`, `git${IFS}push`), `git -c alias.p=push p`, `find -exec`, `watch`, Unicode spaces, `npx npm publish`, and cloud delete commands such as `aws ... delete-*`.
 - Edit guard (`PreToolUse`, matcher `Edit|Write`): asks for paths on the list in
   `protected-paths.json` (default `.env*`, `.git/**`, `agents/CONSTITUTION.md`, `agents/hooks/**`,
   `.claude/settings*.json`, `.cursor/hooks.json`, `.mcp.json`, `.npmrc`, `.pypirc`, `.gabbe/manifest.json`,
@@ -104,7 +106,7 @@ shared parser `agents/hooks/lib/shell-guard.js`.
 - Install: with the installer, `npx gabbe-kit init --agents claude --hooks` (or `python3 scripts/init.py --hooks`),
   see the next section. By hand: `node agents/hooks/merge-hooks.js agents/hooks/claude-code/settings.fragment.json .claude/settings.json`
   shows the result. Add `--write` to write it (the old file is kept as `settings.json.gabbe-bak`;
-  the file is re-written as plain JSON). It only adds entries and is safe to repeat. If the file has
+  the file is re-written as plain JSON through a temp file and a rename; with `--write` or `--remove` it refuses, and writes nothing, when the file, a folder above it or a backup name is a link). It only adds entries and is safe to repeat. If the file has
   comments or an unexpected shape it changes nothing and prints what to add by hand.
   Manual merge: copy the entries of `settings.fragment.json` into the `hooks` key of
   `.claude/settings.json`, keeping your own entries in the same event lists.

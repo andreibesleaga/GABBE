@@ -341,9 +341,9 @@ def test_purge_keeps_memory_backups_and_the_users_own_files(tmp_path):
         "agents/AGENTS.md",  # preserved file the user changed
         "agents/memory/notes.md",
         "agents/skills/mine.skill.md",
-        "agents/skills/a.skill.md.gabbe-bak",  # the user's edit of a kit file
+        "agents/skills/a.skill.md",  # the user's edit of a kit file stays where it is
     }
-    assert (kit / "skills" / "a.skill.md.gabbe-bak").read_text() == "MY EDIT\n"
+    assert (kit / "skills" / "a.skill.md").read_text() == "MY EDIT\n"
     assert installer.remaining_kit_files(target) == sorted(left)
 
 
@@ -950,11 +950,10 @@ def test_node_and_python_uninstall_leave_the_same_tree(node_project, tmp_path, a
     if agents is None:
         assert (node_project / "AGENTS.md").read_text() == "MY AGENTS FILE\n"
         assert (node_project / "agents" / "memory" / "PROJECT_STATE.md").read_text() == "MY NOTES\n"
+        # the user's edit of an installed file stays in place (it is not the recorded bytes)
         assert (
             "MY EDIT"
-            in (
-                node_project / ".agents" / "skills" / "tdd-cycle" / "SKILL.md.gabbe-bak"
-            ).read_text()
+            in (node_project / ".agents" / "skills" / "tdd-cycle" / "SKILL.md").read_text()
         )
 
 
@@ -1298,3 +1297,97 @@ def test_wizard_without_the_flag_installs_no_hooks(tmp_path):
     assert not (proj / ".cursor" / "hooks.json").exists()
     assert not (proj / ".git" / "hooks" / "pre-push").exists()
     assert not any(e["kind"] == "hook-merge" for e in _entries(proj).values())
+
+
+# --------------------------------------------------------------------------
+# The record is untrusted: honest installs still come back byte for byte
+# --------------------------------------------------------------------------
+
+
+def _tree_with_dirs(root: Path) -> dict:
+    """`_snapshot` plus the folders (an empty folder left behind is a difference)."""
+    snap = _snapshot(root)
+    snap.update(
+        {
+            f"{p.relative_to(root)}/": ("dir", "")
+            for p in root.rglob("*")
+            if p.is_dir() and not p.is_symlink()
+        }
+    )
+    snap.pop(".git/", None)
+    return {k: v for k, v in snap.items() if not k.startswith(".git/") or k.endswith("pre-commit")}
+
+
+@pytest.mark.parametrize("agents", ["claude", "claude,cursor,windsurf,cline"])
+def test_python_uninstall_gives_back_a_node_install_with_hooks_byte_for_byte(tmp_path, agents):
+    _node_or_skip()
+    _python_cli_or_skip()
+    proj = tmp_path / "proj"
+    _git_repo_with_user_hooks(proj)
+    (proj / "AGENTS.md").write_text("MY AGENTS FILE\n")
+    before = _tree_with_dirs(proj)
+    done = _node_cli(proj, "init", "--yes", "--agents", agents, "--hooks")
+    assert done.returncode == 0, done.stderr
+
+    undone = _python_cli(proj)
+
+    assert undone.returncode == 0, undone.stderr
+    assert "kept " not in undone.stdout and "skipped " not in undone.stdout, undone.stdout
+    assert _tree_with_dirs(proj) == before
+
+
+def test_python_uninstall_gives_back_a_python_install_byte_for_byte(tmp_path):
+    target = tmp_path / "proj"
+    target.mkdir()
+    (target / "app.py").write_text("print(1)\n")
+    (target / ".gabbe-agents").mkdir()
+    (target / ".gabbe-agents" / "claude.md").write_text("the user's own stub\n")
+    before = _tree_with_dirs(target)
+    installer.install_kit(target, _kit(tmp_path), ["claude", "cursor"])
+
+    installer.uninstall(target)
+
+    assert _tree_with_dirs(target) == before
+
+
+def test_uninstall_keeps_a_wiring_link_that_points_outside_agents(tmp_path, capsys):
+    """A recorded link is removed only when it points into the project's `agents/` folder."""
+    target = tmp_path / "proj"
+    installer.install_kit(target, _kit(tmp_path), [])
+    (tmp_path / "elsewhere.md").write_text("not the kit\n")
+    os.symlink("../elsewhere.md", target / ".cursorrules")
+    os.symlink("agents/AGENTS.md", target / "CLAUDE.md")
+    for name in (".cursorrules", "CLAUDE.md"):
+        _add_entry(target, {"path": name, "kind": "symlink", "agent": "shared", "backup_of": None})
+
+    installer.uninstall(target)
+
+    assert (target / ".cursorrules").is_symlink()  # kept
+    assert not (target / "CLAUDE.md").is_symlink()  # the kit's own link: removed
+    assert (
+        "kept .cursorrules: the link does not point into the project's agents/"
+        in capsys.readouterr().out
+    )
+
+
+def test_uninstall_restores_a_folder_backup_for_a_recorded_link(tmp_path):
+    """The wizard moves a folder of the user's aside (`skills.bak`): a link entry may name it."""
+    target = tmp_path / "proj"
+    installer.install_kit(target, _kit(tmp_path), [])
+    (target / ".windsurf" / "skills.bak" / "mine").mkdir(parents=True)
+    (target / ".windsurf" / "skills.bak" / "mine" / "SKILL.md").write_text("MY SKILL\n")
+    os.symlink("../agents/skills", target / ".windsurf" / "skills")
+    _add_entry(
+        target,
+        {
+            "path": ".windsurf/skills",
+            "kind": "symlink",
+            "agent": "windsurf",
+            "backup_of": ".windsurf/skills.bak",
+        },
+    )
+
+    installer.uninstall(target)
+
+    assert (target / ".windsurf" / "skills" / "mine" / "SKILL.md").read_text() == "MY SKILL\n"
+    assert not (target / ".windsurf" / "skills").is_symlink()

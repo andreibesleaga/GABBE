@@ -40,7 +40,8 @@ const { spawnSync } = require('child_process');
 // The bundled kit lives one level up from bin/ (the package root).
 const KIT_ROOT = path.resolve(__dirname, '..');
 const SOURCE_AGENTS_DIR = path.join(KIT_ROOT, 'agents');
-const PROJECT_ROOT = process.cwd();
+// The project is the current folder, or the folder given with --dir (setProjectRoot, once, in main).
+let PROJECT_ROOT = process.cwd();
 
 const useColor = process.stdout.isTTY && !process.env.NO_COLOR;
 const c = (code, s) => (useColor ? `[${code}m${s}[0m` : s);
@@ -162,6 +163,11 @@ function readOrEmpty(file) {
   }
 }
 
+// Build leftovers of a used checkout (the npm package excludes them too): never copied.
+function isBuildLeftover(name, isDir) {
+  return isDir ? name === '__pycache__' : /\.py[co]$/.test(name);
+}
+
 function walk(dir) {
   const out = [];
   let entries;
@@ -172,6 +178,7 @@ function walk(dir) {
   }
   for (const entry of entries) {
     const full = path.join(dir, entry.name);
+    if (isBuildLeftover(entry.name, entry.isDirectory())) continue;
     if (entry.isDirectory()) {
       out.push(...walk(full));
     } else if (entry.isFile()) {
@@ -204,7 +211,12 @@ function shouldPreserve(relPath, fileName) {
 // ---------------------------------------------------------------------------
 
 const MANIFEST_SCHEMA_VERSION = 1;
-const MANIFEST_FILE = path.join(PROJECT_ROOT, '.gabbe', 'manifest.json');
+let MANIFEST_FILE = path.join(PROJECT_ROOT, '.gabbe', 'manifest.json');
+
+function setProjectRoot(dir) {
+  PROJECT_ROOT = dir;
+  MANIFEST_FILE = path.join(PROJECT_ROOT, '.gabbe', 'manifest.json');
+}
 const recorded = new Map(); // manifest path -> entry written by this run
 let priorEntries = new Map(); // manifest path -> entry of an earlier install
 
@@ -232,12 +244,191 @@ function loadPriorManifest() {
   }
 }
 
-// An earlier record is data from the project folder, so it is not trusted: an entry whose path
-// leaves the project is dropped, and a backup_of that leaves it is cleared, each with one message.
+// ---------------------------------------------------------------------------
+// What a record entry may make the installers do
+// ---------------------------------------------------------------------------
+// The record is data from the project folder, so it is never trusted. These rules are the same
+// in gabbe/installer.py: an entry is acted on only as follows, and a refused entry is kept
+// with one line `kept <path>: <why>` and never stops the others.
+//   R1 a kind the installers do not write is kept;
+//   R2 a copy is removed only when it is a regular file whose bytes hash to the recorded hash;
+//   R3 a backup is used only when its name is <path>.gabbe-bak[.<n>] (or <path>.bak[.<n>], which
+//      `--force` writes) and it is a regular file; it is moved back only after the entry's own
+//      file was removed or is absent;
+//   R4 a hook-merge entry is only for a settings file the installers write, and only the hook
+//      entries that are the kit's own are removed (removeHookMerge);
+//   R5 under .git/ only hooks/pre-commit and hooks/pre-push are touched;
+//   R6 every path is looked at again just before it is acted on (inspectPath): no link above it
+//      and none at the leaf, unless a link was recorded.
+
+const RECORD_KINDS = new Set(['copy', 'skill-emit', 'block', 'symlink', 'tree', 'hook-merge']);
+const HASHED_KINDS = new Set(['copy', 'skill-emit']);
+const BACKUP_SUFFIX = /^\.(gabbe-bak|bak)(\.[0-9]+)?$/;
+const QUIET = { line() {}, warn() {} };
+const LOUD = { line: (t) => log(t), warn: (t) => process.stderr.write(`warning: ${t}\n`) };
+
+function recordedParts(rel) {
+  return rel.split(/[\\/]/).filter((p) => p !== '' && p !== '.');
+}
+
+// Why an entry is not acted on, judged from the record alone (nothing is read), or null.
+function entryProblem(entry, needHash) {
+  if (!RECORD_KINDS.has(entry.kind)) return `unknown record kind '${String(entry.kind).replace(/[\x00-\x1f\x7f-\x9f]/g, '')}'`;
+  const gitHooks = GIT_HOOKS.map((n) => `.git/hooks/${n}`);
+  if (recordedParts(entry.path).some((p) => p.toLowerCase() === '.git') && !(entry.kind === 'copy' && gitHooks.includes(entry.path))) {
+    return 'it is under .git/ and is not one of the GABBE git hooks';
+  }
+  if (entry.kind === 'hook-merge' && !HOOK_MERGES.some((s) => s.target.join('/') === entry.path)) {
+    return 'hook-merge is only valid for a settings file the installers write';
+  }
+  if (needHash && HASHED_KINDS.has(entry.kind) && !(typeof entry.hash === 'string' && entry.hash !== '')) {
+    return 'the record holds no hash for it';
+  }
+  return null;
+}
+
+function backupNameOk(entry) {
+  const name = entry.backup_of;
+  return typeof name === 'string' && name.startsWith(entry.path) && BACKUP_SUFFIX.test(name.slice(entry.path.length));
+}
+
+// Look at a recorded path now, without following links: every folder above it must be a real
+// folder and the leaf must not be a link (unless leafMayBeLink). Returns { file, st, problem };
+// st is null when nothing is there. Throws for a path that is not a plain relative path.
+function inspectPath(rel, leafMayBeLink) {
+  checkRecordedPath(rel);
+  const base = fs.realpathSync(PROJECT_ROOT);
+  const parts = recordedParts(rel);
+  let current = base;
+  for (let i = 0; i < parts.length; i += 1) {
+    current = path.join(current, parts[i]);
+    let st;
+    try {
+      st = fs.lstatSync(current);
+    } catch (e) {
+      if (e.code === 'ENOENT' || e.code === 'ENOTDIR') return { file: path.join(base, ...parts), st: null, problem: null };
+      return { file: current, st: null, problem: `it cannot be inspected (${e.code || e.message})` };
+    }
+    const last = i === parts.length - 1;
+    if (st.isSymbolicLink() && !(last && leafMayBeLink)) {
+      return { file: current, st, problem: last ? 'it is a link' : 'a folder above it is a link' };
+    }
+    if (last) return { file: current, st, problem: null };
+    if (!st.isDirectory()) return { file: path.join(base, ...parts), st: null, problem: null };
+  }
+  throw new Error(`refusing an empty recorded path: ${rel}`);
+}
+
+// The path of the entry's backup_of when the record may name it (inside the project, and a
+// backup name of this entry's own path: R3), else null after one warning.
+function allowedBackup(entry, out) {
+  if (!entry.backup_of) return null;
+  const refuse = (why) => {
+    out.warn(`skipped backup_of of '${entry.path}': ${why}`);
+    return null;
+  };
+  let file;
+  try {
+    file = resolveWithin(entry.backup_of);
+  } catch (e) {
+    return refuse(e.message);
+  }
+  return backupNameOk(entry) ? file : refuse(`'${entry.backup_of}' is not a backup name of this path`);
+}
+
+// The backup an entry may bring back (R3): the allowed one, a regular file (a real folder is also
+// accepted for a link or a folder entry: the wizard records `skills.bak` folders), no link above it.
+function usableBackup(entry, out) {
+  const file = allowedBackup(entry, out);
+  if (!file) return null;
+  const spot = inspectPath(entry.backup_of, false);
+  if (spot.problem) {
+    out.warn(`skipped backup_of of '${entry.path}': ${spot.problem}`);
+    return null;
+  }
+  if (!spot.st) return null;
+  const folderOk = (entry.kind === 'symlink' || entry.kind === 'tree') && spot.st.isDirectory();
+  if (!spot.st.isFile() && !folderOk) {
+    out.warn(`skipped backup_of of '${entry.path}': it is not a regular file`);
+    return null;
+  }
+  return file;
+}
+
+// The backup of a kept entry stays where it is: its manifest name, when it exists.
+function heldBackup(entry) {
+  try {
+    if (backupNameOk(entry) && inspectPath(entry.backup_of, false).st) return entry.backup_of;
+  } catch (e) {
+    /* a backup_of that cannot be looked at is not held */
+  }
+  return null;
+}
+
+// The one place that decides what happens to an entry (R1-R7). Looks at the disk now.
+// Returns { action: 'remove', entry, file, backup } or { action: 'keep', entry, reason, held }.
+// reason is null when a warning already said why.
+function decideEntry(entry, out) {
+  const keep = (reason) => ({ action: 'keep', entry, reason, held: heldBackup(entry) });
+  try {
+    resolveWithin(entry.path);
+  } catch (e) {
+    out.warn(`skipped record entry ${JSON.stringify(entry.path)}: ${e.message}`);
+    return keep(null);
+  }
+  const problem = entryProblem(entry, true);
+  if (problem) return keep(problem);
+  const spot = inspectPath(entry.path, entry.kind === 'symlink');
+  if (spot.problem) return keep(spot.problem);
+  const wrong = notWhatWasRecorded(entry, spot);
+  if (wrong) return keep(wrong);
+  return { action: 'remove', entry, file: spot.file, backup: usableBackup(entry, out) };
+}
+
+// R7: a recorded link is removed only while it is a link that points into the project's agents/ folder.
+function linkProblem(spot) {
+  if (!spot.st.isSymbolicLink()) return 'it is no longer the link the install made';
+  const target = path.resolve(path.dirname(spot.file), fs.readlinkSync(spot.file));
+  const kit = path.join(fs.realpathSync(PROJECT_ROOT), 'agents');
+  return target === kit || target.startsWith(kit + path.sep) ? null : "it is a link, but it does not point into the project's agents/ folder";
+}
+
+function notWhatWasRecorded(entry, spot) {
+  const st = spot.st;
+  if (!st) return null;
+  if (entry.kind === 'symlink') return linkProblem(spot);
+  if (entry.kind === 'tree') return st.isDirectory() ? null : 'it is not a folder';
+  if (!st.isFile()) return 'it is not a regular file';
+  if (HASHED_KINDS.has(entry.kind)) {
+    try {
+      const data = fs.readFileSync(spot.file);
+      if (sha256(data) !== entry.hash) return 'it changed since the install';
+      if (entry.path.startsWith('.git/') && !data.includes(HOOK_MARK)) return `it has no ${HOOK_MARK} mark`; // R5
+    } catch (e) {
+      return `it cannot be read (${e.code || e.message})`;
+    }
+  }
+  return null;
+}
+
+function printKept(d) {
+  if (d.action !== 'keep') return;
+  if (d.reason) log(`kept ${d.entry.path}: ${d.reason}`);
+  if (d.held) log(`kept ${d.held}: ${d.entry.path} was kept, so its backup stays where it is`);
+}
+
+// An earlier record is not trusted either: an entry that is not acted on is dropped from the
+// map (and so from the new record), a backup_of that is not allowed is cleared; each with one line.
 function safeRecordedEntry(entry) {
   if (!resolveOrWarn(entry.path, `record entry ${JSON.stringify(entry.path)}`)) return null;
+  const problem = entryProblem(entry, false);
+  if (problem) {
+    log(`kept ${entry.path}: ${problem}`);
+    return null;
+  }
+  if (HASHED_KINDS.has(entry.kind) && !entry.hash) log(`kept ${entry.path}: the record holds no hash for it`);
   if (!entry.backup_of) return entry;
-  return resolveOrWarn(entry.backup_of, `backup_of of ${JSON.stringify(entry.path)}`) ? entry : { ...entry, backup_of: null };
+  return allowedBackup(entry, LOUD) ? entry : { ...entry, backup_of: null };
 }
 
 // True if `data` (the bytes of `file`) is exactly what an earlier install recorded.
@@ -313,7 +504,7 @@ function writeManifest() {
     entries,
   };
   writeRecordFile(manifest);
-  log(`  ${green('✓')} Recorded ${recorded.size} paths in .gabbe/manifest.json (used by \`gabbe uninstall\`)`);
+  log(`  ${green('✓')} Recorded ${entries.length} paths in .gabbe/manifest.json (used by \`gabbe uninstall\`)`);
 }
 
 // Same slug rule as scripts/init.py, so `gabbe uninstall --agents cursor` matches.
@@ -672,36 +863,123 @@ function writeGenerated(file, content, agent) {
   record(file, 'copy', agent, backupOf);
 }
 
+// Frontmatter keys a generated skill file may carry. The same list as ALLOWED_FRONTMATTER_KEYS
+// in agents/scripts/compile_skills.py: the keys the kit's own skills use, plus `version`, `author`
+// and the schema version. Anything else (`allowed-tools`, `hooks`, `model`, ...) is left out, so
+// an imported skill cannot grant itself tools or hooks.
+const ALLOWED_FRONTMATTER_KEYS = new Set([
+  'name', 'description', 'tags', 'triggers', 'context_cost', 'core', 'role', 'tools',
+  'version', 'author', 'gabbe-schema-version',
+]);
+
+// The folders of the kit's own skills under agents/skills (KIT_SKILL_DIRS in compile_skills.py).
+// A skill in any other folder was imported (scripts/registry_import.py writes to a namespace folder).
+const KIT_SKILL_DIRS = new Set([
+  'ai', 'architecture', 'brain', 'coding', 'coordination', 'core', 'data', 'industry', 'ops',
+  'product', 'security',
+]);
+
+// Mirror of compile_skills.py one_line(): every line break and control character becomes one
+// space, so a frontmatter value copied into a generated file cannot add keys (`alwaysApply: true`).
+function oneLine(value) {
+  return String(value).replace(/[\x00-\x1f\x7f-\x9f\u2028\u2029]+/g, ' ').trim();
+}
+
+const FRONTMATTER_KEY = /^["']?([A-Za-z0-9_-]+)["']?\s*:/;
+const YAML_BREAKS = /\r\n|[\n\r\x85\u2028\u2029]/;
+const NOT_A_KEY_LINE_OK = /^(\s|-(\s|$)|#|$)/; // blank, comment, indented, or a list item
+
+// Drop the frontmatter keys outside ALLOWED_FRONTMATTER_KEYS (and a key given twice, and a line that
+// is not part of any key). Splits on every line break YAML knows, so a key hidden behind a lone
+// carriage return is seen. A file with only allowed keys comes back byte for byte.
+// Returns { content, dropped }.
+function filterFrontmatter(content) {
+  const end = content.startsWith('---') ? content.indexOf('---', 3) : -1;
+  if (end === -1) return { content, dropped: [] };
+  const block = content.slice(3, end);
+  const kept = [];
+  const dropped = [];
+  const seen = new Set();
+  let skipping = false;
+  for (const line of block.split(YAML_BREAKS)) {
+    const m = FRONTMATTER_KEY.exec(line);
+    if (m) {
+      skipping = !ALLOWED_FRONTMATTER_KEYS.has(m[1]) || seen.has(m[1]);
+      seen.add(m[1]);
+      if (skipping) dropped.push(m[1]);
+    } else if (!NOT_A_KEY_LINE_OK.test(line)) {
+      dropped.push('(a line that is not a key)');
+      continue;
+    }
+    if (!skipping) kept.push(line);
+  }
+  if (!dropped.length && !/\r(?!\n)|[\x85\u2028\u2029]/.test(block)) return { content, dropped };
+  return { content: '---' + kept.join('\n') + content.slice(end), dropped };
+}
+
+// The kit's skill files, the kit's own folders first and imported ones after, each group in path
+// order (the order of compile_skills.py), so on a name collision the kit's skill is the one that stays.
+function skillSources(skillsSrcDir) {
+  const compare = (a, b) => {
+    for (let i = 0; i < Math.min(a.length, b.length); i += 1) {
+      if (a[i] !== b[i]) return a[i] < b[i] ? -1 : 1;
+    }
+    return a.length - b.length;
+  };
+  return walk(skillsSrcDir)
+    .filter((f) => f.endsWith('.skill.md'))
+    .map((file) => {
+      const parts = path.relative(skillsSrcDir, file).split(path.sep);
+      return { file, parts, imported: parts.length > 1 && !KIT_SKILL_DIRS.has(parts[0]) };
+    })
+    .sort((a, b) => Number(a.imported) - Number(b.imported) || compare(a.parts, b.parts));
+}
+
+const announced = new Set(); // each collision / left-out-keys line is printed once per run, not once per agent
+function announce(text) {
+  if (announced.has(text)) return;
+  announced.add(text);
+  log(text);
+}
+
+// Call visit({ content, meta, slug }) once for each output slug; the content has its frontmatter
+// filtered. A second skill with the same slug is not emitted and the collision is printed.
+function eachSkill(skillsSrcDir, visit) {
+  const owners = new Map();
+  let count = 0;
+  for (const src of skillSources(skillsSrcDir)) {
+    const shown = 'agents/skills/' + src.parts.join('/');
+    const { content, dropped } = filterFrontmatter(fs.readFileSync(src.file, 'utf8'));
+    const meta = parseFrontmatter(content);
+    const slug = safeSlug(meta.name, path.basename(src.file).replace(/\.skill\.md$/, ''));
+    if (owners.has(slug)) {
+      announce(`  ${red('!')} Name collision '${slug}': keeping ${owners.get(slug)}, ignoring ${shown}`);
+      continue;
+    }
+    owners.set(slug, shown);
+    if (dropped.length) announce(`  ${yellow('!')} ${shown}: left out frontmatter keys ${dropped.join(', ')}`);
+    visit({ content, meta, slug });
+    count += 1;
+  }
+  return count;
+}
+
 // Emit the universal .agents/skills/<slug>/SKILL.md tree (agentskills.io).
 // Reads every agents/skills/**/*.skill.md and writes a real SKILL.md file.
 function emitUniversalSkills(skillsSrcDir, targetSkillsDir, agent) {
   emittedDirs.add(relToProject(targetSkillsDir));
-  let count = 0;
-  for (const skillFile of walk(skillsSrcDir)) {
-    if (!skillFile.endsWith('.skill.md')) continue;
-    const content = fs.readFileSync(skillFile, 'utf8');
-    const meta = parseFrontmatter(content);
-    const fallback = path.basename(skillFile).replace(/\.skill\.md$/, '');
-    const slug = safeSlug(meta.name, fallback);
+  return eachSkill(skillsSrcDir, ({ content, slug }) => {
     const text = injectSchemaVersion(withSlugName(content, slug));
     writeGenerated(path.join(targetSkillsDir, slug, 'SKILL.md'), text, agent);
-    count += 1;
-  }
-  return count;
+  });
 }
 
 // Emit Cursor flat .mdc rules (.cursor/rules/<slug>.mdc) -- mirrors the Cursor
 // branch of compile_skills.py.
 function emitCursorRules(skillsSrcDir, cursorRulesDir, agent) {
   emittedDirs.add(relToProject(cursorRulesDir));
-  let count = 0;
-  for (const skillFile of walk(skillsSrcDir)) {
-    if (!skillFile.endsWith('.skill.md')) continue;
-    const content = fs.readFileSync(skillFile, 'utf8');
-    const meta = parseFrontmatter(content);
-    const fallback = path.basename(skillFile).replace(/\.skill\.md$/, '');
-    const slug = safeSlug(meta.name, fallback);
-    const desc = meta.description || `Skill for ${meta.name || slug}`;
+  return eachSkill(skillsSrcDir, ({ content, meta, slug }) => {
+    const desc = oneLine(meta.description || `Skill for ${meta.name || slug}`);
     let body = content;
     if (content.startsWith('---')) {
       const end = content.indexOf('---', 3);
@@ -714,9 +992,7 @@ function emitCursorRules(skillsSrcDir, cursorRulesDir, agent) {
       `gabbe-schema-version: ${GABBE_SCHEMA_VERSION}\n` +
       '---\n';
     writeGenerated(path.join(cursorRulesDir, `${slug}.mdc`), cursorFm + '\n' + body, agent);
-    count += 1;
-  }
-  return count;
+  });
 }
 
 // Create a config file only when none exists (a user's own config is never
@@ -754,7 +1030,6 @@ function wireAgent(agent, ctx) {
       break;
     case 'Windsurf':
       wireAgentsLink(path.join(PROJECT_ROOT, '.windsurfrules'), agentsMdSrc, slug, force);
-      wireAgentsLink(path.join(PROJECT_ROOT, '.windsurf', 'skills', 'AGENTS.md'), agentsMdSrc, slug, force);
       emitUniversalSkills(skillsSrc, path.join(PROJECT_ROOT, '.windsurf', 'skills'), slug);
       log(`  ${green('✓')} Wired Windsurf (.windsurfrules + .windsurf/skills)`);
       break;
@@ -855,8 +1130,8 @@ const HOOK_MARK = 'GABBE-HOOK';
 const GIT_HOOKS = ['pre-commit', 'pre-push'];
 // agent -> the fragment to merge, the file it goes into, and the script the fragment runs
 const HOOK_MERGES = [
-  { agent: 'Claude Code', fragment: 'claude-code/settings.fragment.json', target: ['.claude', 'settings.json'], script: 'claude-code/gabbe-hook.js' },
-  { agent: 'Cursor', fragment: 'cursor/hooks.fragment.json', target: ['.cursor', 'hooks.json'], script: 'cursor/gabbe-hook.js' },
+  { agent: 'Claude Code', fragment: 'claude-code/settings.fragment.json', target: ['.claude', 'settings.json'], script: 'claude-code/gabbe-hook.js', guards: 'shell guard, edit guard, session start' },
+  { agent: 'Cursor', fragment: 'cursor/hooks.fragment.json', target: ['.cursor', 'hooks.json'], script: 'cursor/gabbe-hook.js', guards: 'shell guard' },
 ];
 const hookLines = []; // one line per hook installed, printed at the end
 
@@ -934,7 +1209,7 @@ function installHookMerge(spec, targetAgents) {
     created,
     added_version: Boolean(merged.addedVersion || (wasOurs && earlier.added_version)),
   });
-  hookLines.push(`${spec.agent} hooks (shell guard, edit guard, session start) -> ${rel}`);
+  hookLines.push(`${spec.agent} hooks (${spec.guards}) -> ${rel}`);
   return true;
 }
 
@@ -991,13 +1266,26 @@ function installGitHooks() {
   }
 }
 
-// Which hooks an earlier install recorded: the merged files (as manifest paths) and the git hooks.
+// Which hooks an earlier install recorded, for `update`: the merged files (as manifest paths) and the
+// git hooks. A hook-merge entry counts only when the record holds hook entries that are the kit's own (R4),
+// and a git hook only while the file is there with its GABBE-HOOK mark (R5): `update` never adds a hook to a
+// settings file or a repository because a record says so.
 function recordedHooks(record) {
   const entries = (record.entries || []).filter((e) => e && typeof e.path === 'string');
-  return {
-    merges: new Set(entries.filter((e) => e.kind === 'hook-merge').map((e) => e.path)),
-    git: entries.some((e) => e.kind === 'copy' && GIT_HOOKS.some((n) => e.path.endsWith('/hooks/' + n)) && e.path.startsWith('.git/')),
+  const isKitMerge = (e) => {
+    const spec = HOOK_MERGES.find((m) => m.target.join('/') === e.path);
+    return e.kind === 'hook-merge' && Boolean(spec) && ownedHookFragment(e, spec).fromRecord > 0;
   };
+  const isLiveGitHook = (e) => {
+    if (e.kind !== 'copy' || !GIT_HOOKS.some((n) => e.path === `.git/hooks/${n}`)) return false;
+    try {
+      const spot = inspectPath(e.path, false);
+      return !spot.problem && Boolean(spot.st) && spot.st.isFile() && fs.readFileSync(spot.file).includes(HOOK_MARK);
+    } catch (err) {
+      return false;
+    }
+  };
+  return { merges: new Set(entries.filter(isKitMerge).map((e) => e.path)), git: entries.some(isLiveGitHook) };
 }
 
 // scope: { agents: [canonical names], merges: Set of paths or null for all, git: boolean }
@@ -1021,7 +1309,6 @@ function installHooks(scope, targetAgents) {
   }
 }
 
-const USER_OWNED_DIRS = ['memory', 'project'];
 const GENERATED_MARKER = 'gabbe-schema-version:';
 
 function isRealFile(p) {
@@ -1038,11 +1325,6 @@ function isRealDir(p) {
   } catch (e) {
     return false;
   }
-}
-
-function isUserOwned(rel) {
-  const parts = rel.split('/');
-  return PRESERVE_FILES.has(parts[parts.length - 1]) || parts.slice(0, -1).some((p) => USER_OWNED_DIRS.includes(p));
 }
 
 // Why the install record cannot be used, or null when it is absent or valid.
@@ -1156,20 +1438,6 @@ function isModifiedCopy(entry, file) {
   }
 }
 
-// True when the user replaced a recorded file by a link or folder, or a recorded
-// link by a file or folder of their own. It is theirs now: kept.
-function isNotWhatWasRecorded(entry, file) {
-  let st;
-  try {
-    st = fs.lstatSync(file);
-  } catch (e) {
-    return false;
-  }
-  if (entry.kind === 'tree' || entry.kind === 'block') return false;
-  if (entry.kind === 'symlink') return !st.isSymbolicLink();
-  return st.isSymbolicLink() || st.isDirectory();
-}
-
 // Files inside a directory that an installer generated (they carry the kit's marker).
 function generatedFiles(tree) {
   return walk(tree)
@@ -1185,22 +1453,20 @@ function generatedFiles(tree) {
     .sort();
 }
 
-// Split the record into entries to remove and entries to keep (same rules as
-// gabbe/installer.py _removal_plan). `agents` is null for all agents.
+// Split the record into entries to remove and entries to keep (rules R1-R7 above; the same as
+// gabbe/installer.py). `agents` is null for all agents. Prints one line for each kept entry.
 function planRemoval(entries, agents) {
   const toRemove = [];
   const kept = [];
   for (const entry of entries) {
-    const file = entry && resolveOrWarn(entry.path, `record entry ${JSON.stringify(entry && entry.path)}`);
-    if (!file) {
-      kept.push(entry); // escapes the project, or is not a path: left alone
+    const inScope = entry && typeof entry === 'object' && (agents === null || (agents.includes(entry.agent) && entry.agent !== 'shared'));
+    if (!inScope) {
+      kept.push(entry);
       continue;
     }
-    const inScope = agents === null || (agents.includes(entry.agent) && entry.agent !== 'shared');
-    let userOwned = entry.kind === 'copy' && isUserOwned(entry.path);
-    if (userOwned && entry.hash) userOwned = isModifiedCopy(entry, file);
-    if (!userOwned) userOwned = isNotWhatWasRecorded(entry, file);
-    if (inScope && !userOwned) toRemove.push({ entry, file });
+    const decision = decideEntry(entry, LOUD);
+    printKept(decision);
+    if (decision.action === 'remove') toRemove.push(decision);
     else kept.push(entry);
   }
   return { toRemove, kept };
@@ -1239,39 +1505,86 @@ function removeBlock(file, backup) {
   fs.writeFileSync(file, stripped);
 }
 
-// Take the recorded fragment's entries out of a settings file the installer merged into.
-// A file the installer created and nothing else uses is removed; otherwise the user's file stays.
-// When the file minus our entries equals the backup (as JSON), the backup's exact bytes come back.
-function removeHookMerge(entry, file, backup) {
-  let st;
+// The kit's own hook fragment for a settings file, or null when the package does not hold it.
+function kitFragment(spec) {
   try {
-    st = fs.lstatSync(file);
+    return JSON.parse(fs.readFileSync(path.join(SOURCE_AGENTS_DIR, 'hooks', spec.fragment), 'utf8'));
   } catch (e) {
-    return;
+    return null;
   }
-  if (!st.isFile()) return;
-  let fragment = entry.fragment_doc;
-  if (!fragment || typeof fragment.hooks !== 'object') {
-    try {
-      fragment = JSON.parse(fs.readFileSync(resolveWithin(entry.fragment), 'utf8')); // throws if it leaves the project
-    } catch (e) {
-      fragment = null;
+}
+
+function commandsOfHook(item) {
+  if (!item || typeof item !== 'object') return [];
+  return Array.isArray(item.hooks) ? item.hooks.map((h) => h && h.command) : [item.command];
+}
+
+function allCommands(fragment) {
+  const found = new Set();
+  for (const items of Object.values((fragment && fragment.hooks) || {})) {
+    if (Array.isArray(items)) items.forEach((item) => commandsOfHook(item).forEach((c) => found.add(c)));
+  }
+  return found;
+}
+
+// R4: the hook entries to take out. An entry is the kit's when every command in it is one that the
+// kit's own fragment holds, or, when the package has no fragment, contains both `agents/hooks/`
+// and `gabbe-hook.js`. The record's fragment_doc only supplies entries that pass. With no usable
+// fragment_doc, the kit's own fragment is used. Returns { fragment, ignored, fromRecord }: how many
+// record entries were ignored, and how many passed.
+function ownedHookFragment(entry, spec) {
+  const kit = kitFragment(spec);
+  const known = kit ? allCommands(kit) : null;
+  const isKit = (c) => (known ? known.has(c) : typeof c === 'string' && c.includes('agents/hooks/') && c.includes('gabbe-hook.js'));
+  const doc = entry.fragment_doc;
+  if (!doc || typeof doc.hooks !== 'object' || doc.hooks === null) return { fragment: kit || { hooks: {} }, ignored: 0, fromRecord: 0 };
+  const hooks = {};
+  let ignored = 0;
+  let fromRecord = 0;
+  for (const [event, items] of Object.entries(doc.hooks)) {
+    for (const item of Array.isArray(items) ? items : []) {
+      const commands = commandsOfHook(item);
+      if (commands.length && commands.every(isKit)) {
+        (hooks[event] = hooks[event] || []).push(item);
+        fromRecord += 1;
+      } else {
+        ignored += 1;
+      }
     }
   }
+  return { fragment: { hooks, version: kit ? kit.version : doc.version }, ignored, fromRecord };
+}
+
+// True for nothing but empty folders of JSON: {}, {"a": {}}, [] (a file with only that is not content).
+function isEmptyStructure(value) {
+  if (Array.isArray(value)) return value.length === 0;
+  if (value && typeof value === 'object') return Object.values(value).every(isEmptyStructure);
+  return false;
+}
+
+// Take the kit's own hook entries out of a settings file the installer merged into (R4). The file
+// is deleted only when nothing but empty structure is left and the record says the install created
+// it; otherwise the user's file stays, and is not written at all when nothing in it was the kit's.
+// When the file minus our entries equals the backup (as JSON), the backup's exact bytes come back.
+function removeHookMerge(entry, file, backup) {
+  const spec = HOOK_MERGES.find((s) => s.target.join('/') === entry.path);
   const lib = mergeLib();
+  let original;
   let cleaned;
   try {
-    if (!fragment || !fragment.hooks) throw new Error('the recorded fragment is missing');
-    cleaned = lib.removeFragment(JSON.parse(fs.readFileSync(file, 'utf8')), fragment, { addedVersion: entry.added_version === true });
+    original = JSON.parse(fs.readFileSync(file, 'utf8'));
+    const owned = ownedHookFragment(entry, spec);
+    if (owned.ignored) log(`ignored ${owned.ignored} hook entr${owned.ignored === 1 ? 'y' : 'ies'} in the record for ${entry.path}: not the kit's own`);
+    cleaned = lib.removeFragment(original, owned.fragment, { addedVersion: entry.added_version === true });
   } catch (e) {
     process.stderr.write(`warning: ${entry.path} was left as it is (${e.message}); remove the GABBE hook entries by hand\n`);
     return;
   }
-  if (entry.created === true && Object.keys(cleaned).length === 0) {
+  if (entry.created === true && !sameJson(original, cleaned) && isEmptyStructure(cleaned)) {
     fs.unlinkSync(file);
     return;
   }
-  if (backup && isRealFile(backup)) {
+  if (backup) {
     try {
       if (sameJson(JSON.parse(fs.readFileSync(backup, 'utf8')), cleaned)) {
         fs.renameSync(backup, file);
@@ -1281,32 +1594,44 @@ function removeHookMerge(entry, file, backup) {
       /* the backup is not JSON: keep it and write the cleaned file */
     }
   }
-  fs.writeFileSync(file, JSON.stringify(cleaned, null, 2) + '\n');
+  if (!sameJson(original, cleaned)) fs.writeFileSync(file, JSON.stringify(cleaned, null, 2) + '\n');
 }
 
-// Remove one recorded artifact. Returns the path when the user's edits were kept as a backup.
-function removeEntry(entry, file) {
-  const backup = entry.backup_of ? resolveOrWarn(entry.backup_of, `backup_of of ${JSON.stringify(entry.path)}`) : null;
+// The generated files of a recorded folder (tree), each looked at again before it is removed.
+function removeGenerated(dir) {
+  const base = fs.realpathSync(PROJECT_ROOT);
+  for (const f of generatedFiles(dir)) {
+    const spot = inspectPath(path.relative(base, f).split(path.sep).join('/'), false);
+    if (!spot.problem && spot.st && spot.st.isFile()) fs.unlinkSync(spot.file);
+  }
+}
+
+// Carry out one decision of decideEntry (the entry's file and backup were just inspected).
+function applyRemoval({ entry, file, backup }) {
   if (entry.kind === 'block') {
     removeBlock(file, backup);
-    return null;
+    return;
   }
   if (entry.kind === 'hook-merge') {
     removeHookMerge(entry, file, backup);
+    return;
+  }
+  if (entry.kind === 'tree') removeGenerated(file);
+  else if (pathTaken(file)) fs.unlinkSync(file);
+  if (backup && !pathTaken(file)) fs.renameSync(backup, file); // R3: only once the entry's own file is gone
+}
+
+// Remove one planned entry after looking at it again (R6). Returns the paths removed, or null
+// when it is kept now (the disk changed since the plan).
+function removeEntry(planned) {
+  const now = decideEntry(planned.entry, QUIET);
+  if (now.action !== 'remove') {
+    log(`skipped ${planned.entry.path}: ${now.reason || 'it cannot be used now'} (changed since the plan)`);
     return null;
   }
-  let preserved = null;
-  if (entry.kind === 'tree') {
-    if (isRealDir(file)) generatedFiles(file).forEach((f) => fs.unlinkSync(f));
-  } else {
-    if (isModifiedCopy(entry, file)) {
-      fs.copyFileSync(file, freeBackupPath(file)); // the user edited it: keep their text
-      preserved = entry.path;
-    }
-    if (pathTaken(file)) fs.unlinkSync(file);
-  }
-  if (backup && isRealFile(backup) && !pathTaken(file)) fs.renameSync(backup, file);
-  return preserved;
+  const paths = removedPaths([now]);
+  applyRemoval(now);
+  return paths;
 }
 
 function isEmptyRealDir(dir) {
@@ -1360,12 +1685,15 @@ function removeStaleGenerated() {
   }
 }
 
-// Remove folders that became empty once their entries were removed, up to the project.
+// Remove folders that became empty once their entries were removed, up to the project. Each
+// folder is looked at again first: a link anywhere on its path stops it (R6).
 function pruneEmptyAncestors(base, removed) {
   for (const rel of removed) {
     if (rel.startsWith('.git/')) continue; // git's own folders are never pruned
     let dir = path.dirname(path.join(base, rel));
-    while (dir !== base && dir.startsWith(base + path.sep) && isEmptyRealDir(dir)) {
+    while (dir !== base && dir.startsWith(base + path.sep)) {
+      const spot = inspectPath(path.relative(base, dir).split(path.sep).join('/'), false);
+      if (spot.problem || !spot.st || !spot.st.isDirectory() || !isEmptyRealDir(dir)) break;
       fs.rmdirSync(dir);
       dir = path.dirname(dir);
     }
@@ -1440,7 +1768,12 @@ function uninstallNow(opts) {
     log(`Would remove ${removed.length} path(s) from ${base}`);
     return 0;
   }
-  const edited = toRemove.map(({ entry, file }) => removeEntry(entry, file)).filter(Boolean);
+  const removedNow = [];
+  for (const planned of toRemove) {
+    const paths = removeEntry(planned);
+    if (paths) removedNow.push(...paths);
+    else kept.push(planned.entry); // skipped now: it stays in the record
+  }
   if (kept.length && agents !== null) {
     record.entries = kept;
     record.agents = (record.agents || []).filter((a) => !agents.includes(a));
@@ -1448,15 +1781,9 @@ function uninstallNow(opts) {
   } else if (fs.existsSync(MANIFEST_FILE)) {
     fs.unlinkSync(MANIFEST_FILE);
   }
-  if (edited.length) {
-    process.stderr.write(
-      `warning: preserved your edits to ${edited.length} modified file(s) as <name>.gabbe-bak: ` +
-        edited.sort().join(', ') + '\n'
-    );
-  }
-  pruneEmptyAncestors(base, removed);
+  pruneEmptyAncestors(base, removedNow);
   pruneEmptyDirs(base);
-  log(`Removed ${removed.length} path(s) from ${base}`);
+  log(`Removed ${removedNow.length} path(s) from ${base}`);
   const left = agents && agents.length ? [] : remainingKitFiles(base);
   if (left.length) {
     log(
@@ -1517,6 +1844,11 @@ function runDoctor() {
         report(false, `record names a path outside the project: ${entry && entry.path}`);
         continue;
       }
+      const refused = entryProblem(entry, false);
+      if (refused) {
+        log(`kept ${entry.path}: ${refused}`);
+        continue;
+      }
       if (!pathTaken(file)) missing.push(entry.path);
       else if (entry.kind === 'symlink' && !fs.existsSync(file)) dangling.push(entry.path);
       else if (entry.kind === 'copy' && isModifiedCopy(entry, file)) changed += 1;
@@ -1544,6 +1876,13 @@ Usage:
   gabbe uninstall [options]   Reverse an install from .gabbe/manifest.json
   gabbe doctor                Read-only check of the install (exit 1 when not consistent)
   gabbe --help                Show this help
+
+Every command acts on the current folder, or on the folder given with --dir.
+
+Options (all commands):
+  --dir <path>      The project folder to act on instead of the current folder; it must
+                    exist. Run the package from another folder and name the project here:
+                    a project's own .npmrc and node_modules then do not decide what runs.
 
 Options (init):
   --agents <list>   Comma-separated agents to wire, e.g. claude,cursor,copilot.
@@ -1583,6 +1922,7 @@ Examples:
   npx gabbe-kit init --agents claude,cursor --yes
   npx gabbe-kit init --agents claude --hooks
   npx gabbe-kit uninstall --dry-run
+  npx gabbe-kit@<version> init --yes --dir /path/to/project   (from another folder)
   npx gabbe-kit update
   npx gabbe-kit init --wizard
 `;
@@ -1599,6 +1939,7 @@ function parseArgs(argv) {
     force: false,
     hooks: false,
     dryRun: false,
+    dir: null,
     unknown: [],
     badOption: false,
   };
@@ -1620,6 +1961,15 @@ function parseArgs(argv) {
       opts.hooks = true;
     } else if (a === '--wizard') {
       opts.wizard = true;
+    } else if (a === '--dir') {
+      if (i + 1 >= argv.length) {
+        process.stderr.write(red('--dir needs a path') + '\n');
+        opts.badOption = true;
+      } else {
+        opts.dir = argv[++i];
+      }
+    } else if (a.startsWith('--dir=')) {
+      opts.dir = a.slice('--dir='.length);
     } else if (a === '--agents') {
       opts.agents = (argv[++i] || '').split(',');
     } else if (a.startsWith('--agents=')) {
@@ -1634,6 +1984,19 @@ function parseArgs(argv) {
     }
   }
   return opts;
+}
+
+// `--dir <path>` makes that folder the project. Returns an error text, or null when it is set.
+function chooseProject(dir) {
+  if (dir === null) return null;
+  try {
+    const real = fs.realpathSync(path.resolve(process.cwd(), dir));
+    if (!fs.statSync(real).isDirectory()) throw new Error('not a folder');
+    setProjectRoot(real);
+    return null;
+  } catch (e) {
+    return `--dir ${JSON.stringify(dir)}: there is no such folder. Nothing was changed.`;
+  }
 }
 
 function resolveAgents(rawList) {
@@ -1666,7 +2029,7 @@ function delegateToPython(opts) {
     if (probe.status === 0) {
       log(blue(`→ Delegating to the Python wizard (${py} ${initPy})...`));
       const args = [initPy, ...(opts && opts.force ? ['--force'] : []), ...(opts && opts.hooks ? ['--hooks'] : [])];
-      const res = spawnSync(py, args, { stdio: 'inherit' });
+      const res = spawnSync(py, args, { stdio: 'inherit', cwd: PROJECT_ROOT });
       return res.status == null ? 1 : res.status;
     }
   }
@@ -1881,6 +2244,11 @@ function main() {
   if (opts.help) {
     process.stdout.write(USAGE);
     return 0;
+  }
+  const dirError = chooseProject(opts.dir);
+  if (dirError) {
+    process.stderr.write(red(`Error: ${dirError}`) + '\n');
+    return 2;
   }
   // `init` is the default command.
   if (opts.command === null) opts.command = 'init';

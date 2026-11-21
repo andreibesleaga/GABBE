@@ -357,6 +357,40 @@ def _decision(result):
         "git filter-branch --tree-filter x",
         "git filter-repo --path a",
         "FOO=1 time git reset --hard",
+        "gh workflow run release.yml",
+        "gh -R o/r pr merge 81",
+        "gh release create v1",
+        "gh release upload v1 file.zip",
+        "gh release delete v1",
+        "gh repo delete o/r",
+        "docker buildx build --push -t img .",
+        "docker build --push .",
+        "docker compose push",
+        "python -m twine upload dist/*",
+        "python3 -m twine upload dist/*",
+        "twine upload dist/*",
+        "npm unpublish pkg",
+        "npm deprecate pkg 'old'",
+        "npm dist-tag add pkg@1 latest",
+        "pnpm publish",
+        "yarn publish",
+        "yarn npm publish",
+        "cargo publish",
+        "gem push a.gem",
+        "poetry publish",
+        "uv publish",
+        "hatch publish",
+        "helm push chart.tgz oci://r",
+        "terraform apply",
+        "terraform destroy",
+        "tofu apply",
+        "tofu destroy",
+        "pulumi up",
+        "pulumi destroy",
+        "kubectl apply -f x.yaml",
+        "kubectl delete pod x",
+        "git subtree push --prefix=a origin b",
+        "echo ok && gh workflow run x.yml",
     ],
 )
 def test_claude_bash_asks(command, tmp_path):
@@ -389,6 +423,21 @@ def test_claude_bash_asks(command, tmp_path):
         "git restore --staged .",
         "git restore src/a.py",
         "git branch -d merged",
+        'echo "gh workflow run x"',
+        'grep -r "docker push" .',
+        'grep -rn "docker buildx build --push" docs',
+        'echo "python -m twine upload"',
+        'echo "terraform destroy"',
+        "grep 'kubectl delete' notes.md",
+        'echo "npm unpublish x"',
+        "gh pr view 3",
+        "gh release list",
+        "gh workflow list",
+        "npm dist-tag ls pkg",
+        "kubectl get pods",
+        "docker build .",
+        "python -m pytest -q",
+        "terraform plan",
     ],
 )
 def test_claude_bash_no_question(command, tmp_path):
@@ -703,3 +752,156 @@ def test_merge_remove_takes_out_only_the_fragments_exact_entries(tmp_path):
         left["PreToolUse"] == mine["hooks"]["PreToolUse"][:2]
     )  # same command, other matcher: kept
     assert left["Stop"] == mine["hooks"]["Stop"]
+
+
+# --- merge-hooks.js and links (RA-06) ---
+
+
+@needs_node
+def test_merge_refuses_a_target_that_is_a_link_and_writes_nothing_outside(tmp_path):
+    frag = HOOKS / "cursor" / "hooks.fragment.json"
+    outside = tmp_path / "global-hooks.json"
+    outside.write_text('{"version": 1}')
+    proj = tmp_path / "proj"
+    (proj / ".cursor").mkdir(parents=True)
+    (proj / ".cursor" / "hooks.json").symlink_to(outside)
+    r = subprocess.run(
+        [NODE, str(MERGE), str(frag), ".cursor/hooks.json", "--write"],
+        cwd=proj,
+        capture_output=True,
+        text=True,
+    )
+    assert r.returncode == 1
+    assert "link" in r.stderr
+    assert outside.read_text() == '{"version": 1}'
+    assert sorted(p.name for p in outside.parent.iterdir() if "gabbe" in p.name) == []
+
+
+@needs_node
+def test_merge_refuses_a_dangling_backup_link_and_creates_nothing(tmp_path):
+    frag = HOOKS / "claude-code" / "settings.fragment.json"
+    proj = tmp_path / "proj"
+    (proj / ".claude").mkdir(parents=True)
+    (proj / ".claude" / "settings.json").write_text('{"model": "x"}')
+    victim = tmp_path / "victim.json"
+    (proj / ".claude" / "settings.json.gabbe-bak").symlink_to(victim)
+    r = subprocess.run(
+        [NODE, str(MERGE), str(frag), ".claude/settings.json", "--write"],
+        cwd=proj,
+        capture_output=True,
+        text=True,
+    )
+    assert r.returncode == 1
+    assert not victim.exists()
+    assert (proj / ".claude" / "settings.json").read_text() == '{"model": "x"}'
+
+
+@needs_node
+def test_merge_refuses_a_folder_that_is_a_link(tmp_path):
+    frag = HOOKS / "cursor" / "hooks.fragment.json"
+    proj = tmp_path / "proj"
+    proj.mkdir()
+    elsewhere = tmp_path / "elsewhere"
+    elsewhere.mkdir()
+    (proj / ".cursor").symlink_to(elsewhere)
+    r = subprocess.run(
+        [NODE, str(MERGE), str(frag), ".cursor/hooks.json", "--remove"],
+        cwd=proj,
+        capture_output=True,
+        text=True,
+    )
+    assert r.returncode == 1
+    assert list(elsewhere.iterdir()) == []
+
+
+@needs_node
+def test_merge_relative_target_still_merges_and_leaves_no_temp_file(tmp_path):
+    frag = HOOKS / "claude-code" / "settings.fragment.json"
+    proj = tmp_path / "proj"
+    (proj / ".claude").mkdir(parents=True)
+    (proj / ".claude" / "settings.json").write_text('{"model": "x"}')
+    run = lambda flag: subprocess.run(  # noqa: E731
+        [NODE, str(MERGE), str(frag), ".claude/settings.json", flag],
+        cwd=proj,
+        capture_output=True,
+        text=True,
+    )
+    assert run("--write").returncode == 0
+    assert "hooks" in json.loads((proj / ".claude" / "settings.json").read_text())
+    assert run("--remove").returncode == 0
+    assert json.loads((proj / ".claude" / "settings.json").read_text()) == {"model": "x"}
+    assert not [p for p in (proj / ".claude").iterdir() if "tmp" in p.name]
+
+
+# --- pre-commit: newer token shapes and UTF-16 (RA-12) ---
+
+TOKENS = {
+    "github_pat": "github_pat_" + "A1b2C3d4E5" * 3,
+    "npm": "npm_" + "aB3dE6gH9j" * 3 + "klmnop",
+    "gitlab": "glpat-" + "x1Y2z3W4v5" * 2,
+    "google": "AIza" + "Sy" + "a1B2c3D4e5" * 3 + "fghij"[:3],
+}
+
+
+@pytest.mark.parametrize("kind", sorted(TOKENS))
+def test_pre_commit_refuses_newer_token_shapes(repo, kind):
+    _stage(repo, "conf.txt", f"token = {TOKENS[kind]}\n")
+    r = _pre_commit(repo)
+    assert r.returncode == 1
+    assert "conf.txt:1" in r.stderr
+    assert TOKENS[kind] not in r.stderr
+
+
+@pytest.mark.skipif(shutil.which("iconv") is None, reason="iconv is not installed")
+@pytest.mark.parametrize("encoding", ["utf-16", "utf-16-be"])
+def test_pre_commit_refuses_a_key_in_a_utf16_file(repo, encoding):
+    data = ("first line\nkey = " + FAKE_KEY + "\n").encode(encoding)
+    if encoding == "utf-16-be":
+        data = b"\xfe\xff" + data
+    (repo / "wide.txt").write_bytes(data)
+    _git(repo, "add", "--", "wide.txt")
+    r = _pre_commit(repo)
+    assert r.returncode == 1
+    assert "wide.txt:2" in r.stderr
+    assert FAKE_KEY not in r.stderr
+
+
+def test_pre_commit_utf16_without_secret_passes_and_plain_binary_is_not_scanned(repo):
+    (repo / "wide.txt").write_bytes("hello\n".encode("utf-16"))
+    (repo / "blob.bin").write_bytes(b"\x00\x01 " + FAKE_KEY.encode() + b"\n")
+    _git(repo, "add", "--", "wide.txt", "blob.bin")
+    r = _pre_commit(repo)
+    assert r.returncode == 0, r.stderr
+
+
+def test_pre_commit_utf16_without_iconv_says_it_was_not_checked(repo, tmp_path):
+    (repo / "wide.txt").write_bytes(("k=" + FAKE_KEY + "\n").encode("utf-16"))
+    _git(repo, "add", "--", "wide.txt")
+    bindir = tmp_path / "bin"
+    bindir.mkdir()
+    for tool in (
+        "git",
+        "sh",
+        "tr",
+        "wc",
+        "sed",
+        "grep",
+        "awk",
+        "cat",
+        "rm",
+        "mktemp",
+        "head",
+        "od",
+        "cut",
+    ):
+        found = shutil.which(tool)
+        if found:
+            (bindir / tool).symlink_to(found)
+    r = subprocess.run(
+        [str(bindir / "sh"), str(GIT_DIR / "pre-commit")],
+        cwd=repo,
+        capture_output=True,
+        text=True,
+        env=_env(PATH=str(bindir)),
+    )
+    assert "not checked for secrets" in r.stderr

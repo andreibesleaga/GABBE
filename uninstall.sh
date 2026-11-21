@@ -10,6 +10,10 @@
 # Nothing outside the project is changed. The arguments go to the tool that runs, and
 # its exit status is this script's exit status.
 #
+# npx runs from a new, empty temporary folder, never from the project, and gets the project
+# as `--dir <absolute path>`: the project's own .npmrc (registry, node-options) and
+# node_modules then do not decide what runs. Your own ~/.npmrc still applies.
+#
 # The tool, in this order:
 #   1. Node present   -> `gabbe-kit uninstall` (this package's bin/install.js when it is
 #                        next to this script, else `npx --yes gabbe-kit@<this release> uninstall`)
@@ -48,8 +52,10 @@ Usage:
   sh uninstall.sh [--dry-run] [--agents claude,cursor] [--purge] [--dir PATH] [--global]
 
 Removes exactly what .gabbe/manifest.json records and restores backed-up files.
-Uses Node (npx gabbe-kit@<this release> uninstall) when present, else the Python CLI
-(gabbe), else prints the manual steps. The exit status is that of the tool that ran.
+Uses Node (npx gabbe-kit@<this release> uninstall --dir <project>, run from a temporary
+folder) when present, else the Python CLI (gabbe), else prints the manual steps. The exit
+status is that of the tool that ran. --dir PATH names the project (default: the current
+folder); a relative PATH is made absolute first.
 
 Environment:
   GABBE_KIT_VERSION   Run that gabbe-kit version (for example 1.2.0) instead of the
@@ -100,10 +106,12 @@ if [ "$KIT_VERSION" != "latest" ]; then
   KIT_SPEC="gabbe-kit@$KIT_VERSION"
 fi
 
-# `--dir PATH` means "work in that folder": both tools act on the current folder.
+# `--dir PATH` names the project folder (made absolute here: npx runs from another folder, and
+# the Python CLI acts on the current folder, so it is entered before that tool runs).
 # `--global` is only known to the Python CLI.
 WANT_PYTHON=0
 DIR=""
+HAVE_DIR=0
 N=$#
 while [ "$N" -gt 0 ]; do
   arg=$1
@@ -116,10 +124,14 @@ while [ "$N" -gt 0 ]; do
         exit 2
       fi
       DIR=$1
+      HAVE_DIR=1
       shift
       N=$((N - 1))
       ;;
-    --dir=*) DIR=${arg#--dir=} ;;
+    --dir=*)
+      DIR=${arg#--dir=}
+      HAVE_DIR=1
+      ;;
     --global)
       WANT_PYTHON=1
       set -- "$@" "$arg"
@@ -127,17 +139,32 @@ while [ "$N" -gt 0 ]; do
     *) set -- "$@" "$arg" ;;
   esac
 done
-if [ -n "$DIR" ]; then
-  cd -- "$DIR" || exit 2
+if [ "$HAVE_DIR" -eq 1 ]; then
+  PROJECT_ABS=$(CDPATH= cd -- "$DIR" 2>/dev/null && pwd) || {
+    echo "uninstall.sh: --dir: there is no such folder: $DIR" >&2
+    exit 2
+  }
+else
+  PROJECT_ABS=$(pwd)
 fi
 
 run_node() {
   if [ -n "$SCRIPT_DIR" ] && [ -f "$SCRIPT_DIR/bin/install.js" ]; then
-    exec node "$SCRIPT_DIR/bin/install.js" uninstall "$@"
+    exec node "$SCRIPT_DIR/bin/install.js" uninstall "$@" --dir "$PROJECT_ABS"
   fi
-  # npx prefers a gabbe-kit of the same name and version found in the project's own
-  # node_modules; that is why the version is fixed.
-  exec npx --yes "$KIT_SPEC" uninstall "$@"
+  # npx reads the .npmrc of the folder it runs in and prefers a gabbe-kit of the same name and
+  # version in that folder's node_modules. So it runs from a new empty folder, never from the
+  # project, and the project is named with --dir. The version is fixed as well.
+  WORK_DIR=$(mktemp -d 2>/dev/null) || {
+    echo "Error: could not make a temporary folder (mktemp)." >&2
+    exit 1
+  }
+  trap 'rm -rf -- "$WORK_DIR"' EXIT
+  trap 'exit 130' INT
+  trap 'exit 143' TERM HUP
+  rc=0
+  (cd -- "$WORK_DIR" && npx --yes "$KIT_SPEC" uninstall "$@" --dir "$PROJECT_ABS") || rc=$?
+  exit "$rc"
 }
 
 # python3 without the project on its import path. A `gabbe/` folder in the current
@@ -166,6 +193,7 @@ has_gabbe_command() {
 }
 
 run_python() {
+  cd -- "$PROJECT_ABS" || exit 2
   if has_gabbe_command; then
     exec gabbe uninstall "$@"
   fi

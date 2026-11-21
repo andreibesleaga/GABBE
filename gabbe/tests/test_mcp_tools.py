@@ -8,7 +8,7 @@ import io
 import json
 import os
 import sqlite3
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import pytest
 
@@ -349,8 +349,8 @@ def test_handler_refuses_a_lookalike_binary_and_runs_the_listed_one(tmp_path, mo
         exe.chmod(0o755)
     monkeypatch.setenv("PATH", str(good.parent))
     monkeypatch.setenv("GABBE_MCP_ALLOWED_COMMANDS", "tool")
-    done = MagicMock(stdout="", stderr="", returncode=0)
-    with patch("gabbe.mcp_server.subprocess.run", return_value=done) as run:
+    done = {"stdout": "", "stderr": "", "returncode": 0}
+    with patch("gabbe.mcp_server._run_capped", return_value=done) as run:
         refused = run_command_handler(f"{evil} --x")
         assert refused["returncode"] == 126
         run.assert_not_called()

@@ -15,9 +15,13 @@
 
 ## 2. Score
 
-| Mutants | Killed | Survived | Timeout / unviable | Score (killed / (killed + survived)) | Floor | Pass? |
-|---|---|---|---|---|---|---|
-| [n] | [n] | [n] | [n] | [percent] | [percent] | [yes/no] |
+| Mutants | Killed | Timeout | Survived | Skipped / unviable | Score | Floor | Pass? |
+|---|---|---|---|---|---|---|---|
+| [n] | [n] | [n] | [n] | [n] | [percent] | [percent] | [yes/no] |
+
+Score = (killed + timeout) / (mutants - skipped or unviable). A timeout counts as detected; a skipped or
+unviable mutant is not counted at all. Use the same formula as the check that enforces the floor (in this
+repository `scripts/gates/check_mutation_floor.py`; in your project the tool's own threshold).
 
 ## 3. Survivors and decisions
 

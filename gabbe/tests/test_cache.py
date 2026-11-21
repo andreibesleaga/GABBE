@@ -74,3 +74,36 @@ def test_a_link_at_the_entry_path_is_not_written_through(tmp_path):
     os.symlink(victim, cache._path(key))
     cache.set(key, {"a": 1})
     assert not victim.exists()
+
+
+def test_a_link_at_the_entry_path_is_not_read_through(tmp_path):
+    import json
+    import os
+
+    from gabbe.cache import ContentCache, content_key
+
+    cache = ContentCache(tmp_path / "c", namespace="n")
+    key = content_key("y")
+    secret = tmp_path / "outside.json"
+    secret.write_text(json.dumps({"value": "from outside the cache"}))
+    os.symlink(secret, cache._path(key))
+    assert cache.get(key) is None  # a planted link is a miss
+
+    os.unlink(cache._path(key))
+    cache.set(key, {"a": 1})
+    assert cache.get(key) == {"a": 1}  # an ordinary entry still reads back
+
+
+def test_a_fifo_at_the_entry_path_is_a_miss_and_does_not_block(tmp_path):
+    import os
+
+    import pytest
+
+    from gabbe.cache import ContentCache, content_key
+
+    if not hasattr(os, "mkfifo"):
+        pytest.skip("no FIFOs on this platform")
+    cache = ContentCache(tmp_path / "c", namespace="n")
+    key = content_key("z")
+    os.mkfifo(cache._path(key))
+    assert cache.get(key) is None

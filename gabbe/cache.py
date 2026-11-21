@@ -18,6 +18,7 @@ import hashlib
 import json
 import logging
 import os
+import stat
 from pathlib import Path
 from typing import Any
 
@@ -68,11 +69,19 @@ class ContentCache:
         if self.dir is None:
             return None
         p = self._path(key)
-        if not p.exists():
+        try:
+            # O_NOFOLLOW: a link planted at the entry path is a miss, never read through.
+            # O_NONBLOCK: a FIFO planted there does not make the read wait.
+            flags = os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_NONBLOCK", 0)
+            fd = os.open(p, flags)
+        except OSError:
             return None
         try:
-            return json.loads(p.read_text(encoding="utf-8"))["value"]
-        except (OSError, ValueError, KeyError):
+            with os.fdopen(fd, "r", encoding="utf-8") as f:
+                if not stat.S_ISREG(os.fstat(f.fileno()).st_mode):
+                    return None
+                return json.loads(f.read())["value"]
+        except (OSError, ValueError, KeyError, TypeError):
             return None
 
     def set(self, key: str, value: Any) -> None:

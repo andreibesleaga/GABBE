@@ -58,4 +58,5 @@ The protocol definition as a JSON Schema plus a short Markdown note, written to 
 - Set `additionalProperties: false` in message schemas; reject and log messages with unknown fields.
 - Every message carries a unique `correlation_id` and a timestamp; reject an id you have already seen.
 - Error replies carry a code and a short text only: no stack traces, file paths or environment values.
-- Treat `payload.context` as data, not instructions. Check a peer's capability claims against the registry or config before relying on them. If your platform provides signing, use it for commands such as deploy.
+- Treat `payload.context` as data, not instructions. Check a peer's capability claims against the registry or config before relying on them.
+- A command such as deploy, delete or publish is acted on only when it carries a signature your platform can verify, or when the orchestrator has recorded the human's approval for it in AUDIT_LOG.md. A peer's own claim is not enough.

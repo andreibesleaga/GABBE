@@ -3,7 +3,7 @@
 # GABBE bootstrap installer (Windows PowerShell).
 #
 #   irm https://raw.githubusercontent.com/andreibesleaga/GABBE/main/install.ps1 | iex
-#   .\install.ps1 [-Agents claude,cursor] [-Yes] [-Force] [-Help]
+#   .\install.ps1 [-Agents claude,cursor] [-Yes] [-Force] [-Dir PATH] [-Help]
 #
 # Picks the best available installer:
 #   1. Node present  -> `npx --yes gabbe-kit@<this release> init` (Python-independent path).
@@ -11,8 +11,12 @@
 #                       GABBE checkout: run the script from a file, not piped.
 #
 # No destructive operations: it only runs an installer that copies the kit into the
-# current directory. -Agents, -Yes and -Force become --agents, --yes and --force; any other
-# argument is passed on as it is (for example: .\install.ps1 init --agents claude --yes).
+# current directory (or -Dir). -Agents, -Yes and -Force become --agents, --yes and --force; any
+# other argument is passed on as it is (for example: .\install.ps1 init --agents claude --yes).
+#
+# npx runs from a new, empty temporary folder, never from the project: a project's own .npmrc
+# (registry, node-options) and node_modules then do not decide what runs. The project is passed
+# as `--dir <absolute path>`. Your own user .npmrc still applies (it is yours).
 
 [CmdletBinding()]
 param(
@@ -20,6 +24,7 @@ param(
     [switch]$Force,
     [switch]$Yes,
     [string]$Agents,
+    [string]$Dir,
     [Parameter(ValueFromRemainingArguments = $true)]
     [string[]]$InstallerArgs
 )
@@ -35,10 +40,12 @@ function Show-Usage {
 GABBE bootstrap installer (PowerShell)
 
 Usage:
-  .\install.ps1 [-Agents claude,cursor] [-Yes] [-Force] [-Help] [installer-args...]
+  .\install.ps1 [-Agents claude,cursor] [-Yes] [-Force] [-Dir PATH] [-Help] [installer-args...]
 
 Behavior:
-  - If Node is installed, runs:   npx --yes gabbe-kit@<this release> init [args...]
+  - If Node is installed, runs:   npx --yes gabbe-kit@<this release> init [args...] --dir <project>
+    from a new empty temporary folder (removed afterwards), so the project's own .npmrc and
+    node_modules decide nothing. The project is the current folder, or -Dir (made absolute).
   - Else if Python is installed and this script is run from a GABBE checkout:
                                   python scripts/init.py [--force] [--hooks]
     (the wizard has only --force and --hooks; other arguments are ignored and listed)
@@ -83,6 +90,29 @@ if ($kitVersion -ne 'latest') {
     $kitSpec = "gabbe-kit@$kitVersion"
 }
 
+# The project: -Dir, or `--dir PATH` among the other arguments, else the current folder. It is made
+# absolute here, because npx runs from another folder.
+$projectDir = $Dir
+$passOn = @()
+for ($i = 0; $i -lt $rest.Count; $i++) {
+    if ($rest[$i] -eq '--dir') {
+        if ($i + 1 -ge $rest.Count) { Write-Host 'install.ps1: --dir needs a path'; exit 2 }
+        $projectDir = $rest[$i + 1]
+        $i++
+    }
+    elseif ($rest[$i] -like '--dir=*') { $projectDir = $rest[$i].Substring(6) }
+    else { $passOn += $rest[$i] }
+}
+$rest = $passOn
+$projectAbs = (Get-Location).ProviderPath
+if ($projectDir) {
+    if (-not (Test-Path -LiteralPath $projectDir -PathType Container)) {
+        Write-Host "install.ps1: --dir: there is no such folder: $projectDir"
+        exit 2
+    }
+    $projectAbs = (Resolve-Path -LiteralPath $projectDir).ProviderPath
+}
+
 $toolArgs = @()
 if ($Force) { $toolArgs += '--force' }
 if ($Yes) { $toolArgs += '--yes' }
@@ -93,10 +123,21 @@ Write-Output 'GABBE installer: detecting runtime...'
 
 if (Test-Cmd 'npx') {
     Write-Output "-> Node (npx) detected. Using: npx --yes $kitSpec init"
-    # npx prefers a gabbe-kit of the same name and version found in the project's own
-    # node_modules; that is why the version is fixed.
-    & npx --yes $kitSpec init @toolArgs
-    exit $LASTEXITCODE
+    # npx reads the .npmrc of the folder it runs in and prefers a gabbe-kit of the same name and
+    # version in that folder's node_modules. So it runs from a new empty folder, never from the
+    # project, and the project is named with --dir. The version is fixed as well.
+    $workDir = Join-Path ([System.IO.Path]::GetTempPath()) ('gabbe-' + [System.Guid]::NewGuid().ToString('N'))
+    New-Item -ItemType Directory -Path $workDir | Out-Null
+    Push-Location -LiteralPath $workDir
+    try {
+        & npx --yes $kitSpec init @toolArgs --dir $projectAbs
+        $npxExit = $LASTEXITCODE
+    }
+    finally {
+        Pop-Location
+        Remove-Item -LiteralPath $workDir -Recurse -Force -ErrorAction SilentlyContinue
+    }
+    exit $npxExit
 }
 
 foreach ($py in @('python', 'python3')) {
@@ -122,6 +163,7 @@ foreach ($py in @('python', 'python3')) {
     if ($Force -or ($toolArgs -contains '--force')) { $wizardArgs += '--force' }
     if ($toolArgs -contains '--hooks') { $wizardArgs += '--hooks' }
     Write-Output "-> Node not found; $py detected. Using: $py $initPy"
+    Set-Location -LiteralPath $projectAbs   # the wizard installs into its current folder
     & $py $initPy @wizardArgs
     exit $LASTEXITCODE
 }

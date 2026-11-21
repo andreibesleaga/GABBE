@@ -91,7 +91,36 @@ if [ "$APPLY" -eq 0 ]; then
 fi
 
 # --apply: merge memory/tasks/config. Memory is additive; back up anything replaced.
-BACKUP="$KIT_ROOT/agents/memory/.import-backup-$(date -u +%Y%m%dT%H%M%SZ 2>/dev/null || echo bak)"
+BACKUP_REL="agents/memory/.import-backup-$(date -u +%Y%m%dT%H%M%SZ 2>/dev/null || echo bak)"
+BACKUP="$KIT_ROOT/$BACKUP_REL"
+# Refuse a path in the project when it, or any folder above it inside KIT_ROOT, is a
+# link: a link planted in the project would send the write outside it. $1 = path
+# relative to KIT_ROOT. Prints one message naming the link and exits 1.
+refuse_links() {
+    _acc=""
+    _rest="$1"
+    while [ -n "$_rest" ]; do
+        _part=${_rest%%/*}
+        case "$_rest" in */*) _rest=${_rest#*/} ;; *) _rest="" ;; esac
+        _acc="${_acc:+$_acc/}$_part"
+        if [ -L "$KIT_ROOT/$_acc" ]; then
+            echo "ERROR: $_acc in the project is a link; refusing to write through it. Nothing was imported." >&2
+            exit 1
+        fi
+    done
+}
+
+# Check every destination and the backup folder BEFORE the first write.
+refuse_links "$BACKUP_REL"
+if [ -d "$STAGE/agents/memory" ]; then
+    ( cd "$STAGE/agents/memory" && find . -type f | while IFS= read -r rel; do
+        refuse_links "agents/memory/${rel#./}"
+    done ) || exit 1
+fi
+for f in project/TASKS.md project/gabbe.config.json; do
+    if [ -e "$STAGE/$f" ]; then refuse_links "$f"; fi
+done
+
 copy_in() {
     # $1 = relative path under bundle/project
     # Refuse an absolute path or any ".." component: the copy must stay inside KIT_ROOT.

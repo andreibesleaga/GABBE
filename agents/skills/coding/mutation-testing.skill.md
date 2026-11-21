@@ -9,7 +9,7 @@ context_cost: medium
 # Mutation Testing
 
 ## Goal
-A mutation tool makes small faults ("mutants") in the code and re-runs the tests; a mutant the tests do not catch (a survivor) shows a missing or weak test. Score = killed mutants / (killed + survived). It adds evidence to G3 (coverage); it does not replace it. Report: `agents/templates/coding/MUTATION_REPORT_TEMPLATE.md`.
+A mutation tool makes small faults ("mutants") in the code and re-runs the tests; a mutant the tests do not catch (a survivor) shows a missing or weak test. Score = (killed + timed-out mutants) / (all mutants - skipped or unviable ones). It adds evidence to G3 (coverage); it does not replace it. Report: `agents/templates/coding/MUTATION_REPORT_TEMPLATE.md`.
 
 ## Steps
 1. Pick the tool for the ecosystem (commands checked 2026-11-21 on each tool's own site):

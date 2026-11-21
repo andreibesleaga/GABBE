@@ -7,10 +7,12 @@ import logging
 import os
 import shlex
 import shutil
+import signal
 import sqlite3
 import subprocess
 import sys
-import tempfile
+import threading
+import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Callable
@@ -63,6 +65,14 @@ _MAX_CALL_CHARS = 64 * 1024
 # run_command output kept per stream (stdout, stderr); the rest is cut before the reply
 # and before the audit trace.
 _MAX_OUTPUT_BYTES = 1024 * 1024
+# Hard stop (RA-08): a command that writes more than this to one stream is ended. Output past
+# _MAX_OUTPUT_BYTES is read and discarded (never stored, never written to disk) until then.
+_HARD_OUTPUT_BYTES = 16 * 1024 * 1024
+# After SIGTERM the process group gets this long before SIGKILL.
+_KILL_GRACE_SECONDS = 0.5
+# After the child exits, how long to wait for its output pipes to close.
+_DRAIN_SECONDS = 2.0
+_POLL_SECONDS = 0.02
 
 # Hardened input contract for the run_command tool (Track E5). A single source of
 # truth used by BOTH the registered ToolDefinition (gateway-enforced via
@@ -127,10 +137,27 @@ def _command_timeout() -> int:
 _CHILD_ENV_BASE = ("PATH", "HOME", "LANG", "LC_ALL", "TERM")
 
 
+def _search_path() -> str:
+    """The server's PATH reduced to absolute folders (RA-09). Empty entries (the current
+    folder), ``.`` and every other relative entry are ignored, so a bare name never resolves
+    to a file of the project folder. Used for the allow-list check, for finding the program,
+    and as the PATH that the child gets."""
+    entries = os.environ.get("PATH", os.defpath).split(os.pathsep)
+    return os.pathsep.join(e for e in entries if e and os.path.isabs(e))
+
+
+def _which(name: str) -> str | None:
+    """Find a command on the sanitised search path (see _search_path)."""
+    return shutil.which(name, path=_search_path())
+
+
 def _child_env() -> dict[str, str]:
     extra = [n.strip() for n in os.environ.get("GABBE_MCP_PASS_ENV", "").split(",")]
     names = list(_CHILD_ENV_BASE) + [n for n in extra if n]
-    return {n: os.environ[n] for n in names if n in os.environ}
+    env = {n: os.environ[n] for n in names if n in os.environ}
+    if "PATH" in env:
+        env["PATH"] = _search_path()
+    return env
 
 
 def _entry_matches(entry: str, typed: str, resolved: str | None) -> bool:
@@ -140,14 +167,17 @@ def _entry_matches(entry: str, typed: str, resolved: str | None) -> bool:
     - A relative path entry (``./git``) permits nothing.
     - A bare name (``git``) permits the bare command ``git`` and the one path that the
       server's PATH resolves ``git`` to (compared as written, links not followed), but not
-      another ``git`` found elsewhere and not another name linked to the same file."""
+      another ``git`` found elsewhere and not another name linked to the same file.
+
+    The PATH used for that is the server's PATH without its empty, ``.`` and other relative
+    entries (see _search_path)."""
     if os.path.isabs(entry):
         return resolved is not None and os.path.abspath(resolved) == os.path.normpath(entry)
     if "/" in entry:
         return False
     if typed == entry:
         return True
-    canonical = shutil.which(entry)
+    canonical = _which(entry)
     if resolved is None or canonical is None:
         return False
     # Links are NOT resolved: busybox-style binaries are one file under many names, and
@@ -192,11 +222,15 @@ def run_command_handler(command: str) -> dict[str, Any]:
         return {"stdout": "", "stderr": "Empty command", "returncode": 1}
     # Fail-closed: an empty allow-list blocks ALL commands (unless insecure mode is
     # on). Directories are never wildcards; see _entry_matches for the matching rules.
-    resolved = shutil.which(tokens[0])
+    resolved = _which(tokens[0])
     refusal = _allowlist_refusal(tokens[0], resolved)
     if refusal is not None:
         return refusal
-    argv = [resolved] + tokens[1:] if resolved else tokens
+    if resolved is None:
+        # Never hand an unresolved name to the OS: with no absolute PATH entry it could
+        # search the current folder (RA-09).
+        return {"stdout": "", "stderr": f"Command '{tokens[0]}' not found", "returncode": 127}
+    argv = [resolved] + tokens[1:]
     try:
         return _run_capped(argv)
     except FileNotFoundError:
@@ -216,33 +250,121 @@ def run_command_handler(command: str) -> dict[str, Any]:
         }
 
 
-def _read_capped(stream: Any) -> tuple[str, bool]:
-    """The first _MAX_OUTPUT_BYTES of a captured stream as text, and whether it was cut."""
-    stream.seek(0)
-    data = stream.read(_MAX_OUTPUT_BYTES + 1)
-    cut = len(data) > _MAX_OUTPUT_BYTES
-    text = data[:_MAX_OUTPUT_BYTES].decode("utf-8", errors="replace")
-    if cut:
-        text += f"\n[output cut at {_MAX_OUTPUT_BYTES} bytes]"
-    return text, cut
+class _Drain(threading.Thread):
+    """Reads one child pipe to its end: keeps the first _MAX_OUTPUT_BYTES (plus one byte, to
+    know that it was cut), counts the rest and throws it away. Sets `overflow` when the
+    stream passes _HARD_OUTPUT_BYTES."""
+
+    def __init__(self, stream: Any, overflow: threading.Event) -> None:
+        super().__init__(daemon=True)
+        self._stream = stream
+        self._overflow = overflow
+        self.kept = bytearray()
+        self.total = 0
+
+    def run(self) -> None:
+        try:
+            while True:
+                chunk = self._stream.read(65536)
+                if not chunk:
+                    return
+                self.total += len(chunk)
+                room = _MAX_OUTPUT_BYTES + 1 - len(self.kept)
+                if room > 0:
+                    self.kept += chunk[:room]
+                if self.total > _HARD_OUTPUT_BYTES:
+                    self._overflow.set()
+        except (OSError, ValueError):
+            return  # the pipe was closed under us: nothing more to read
+
+    def text(self) -> tuple[str, bool]:
+        """The kept output as text, and whether the stream was cut."""
+        cut = self.total > _MAX_OUTPUT_BYTES
+        text = bytes(self.kept[:_MAX_OUTPUT_BYTES]).decode("utf-8", errors="replace")
+        if cut:
+            text += f"\n[output cut at {_MAX_OUTPUT_BYTES} bytes]"
+        return text, cut
+
+
+def _signal_group(proc: subprocess.Popen[bytes], sig: int) -> None:
+    try:
+        os.killpg(proc.pid, sig)
+    except (ProcessLookupError, PermissionError):
+        pass  # the group is already gone
+
+
+def _end_process_tree(proc: subprocess.Popen[bytes]) -> None:
+    """End the child and everything it started: SIGTERM to its process group, SIGKILL after
+    _KILL_GRACE_SECONDS. On Windows there is no process group here: only the child itself is
+    killed (as before RA-08), and a grandchild may keep running."""
+    if os.name != "posix":
+        proc.kill()
+        proc.wait()
+        return
+    _signal_group(proc, signal.SIGTERM)
+    try:
+        proc.wait(timeout=_KILL_GRACE_SECONDS)
+    except subprocess.TimeoutExpired:
+        pass
+    _signal_group(proc, signal.SIGKILL)
+    proc.wait()
+
+
+def _wait_or_stop(proc: subprocess.Popen[bytes], overflow: threading.Event, limit: float) -> str:
+    """Wait for the child; on the timeout or the hard output limit end its whole process
+    tree. Returns "exit", "timeout" or "overflow"."""
+    deadline = time.monotonic() + limit
+    while proc.poll() is None:
+        reason = "overflow" if overflow.is_set() else None
+        if reason is None and time.monotonic() >= deadline:
+            reason = "timeout"
+        if reason is not None:
+            _end_process_tree(proc)
+            return reason
+        overflow.wait(_POLL_SECONDS)
+    return "exit"
+
+
+def _finish_drains(proc: subprocess.Popen[bytes], drains: list[_Drain]) -> None:
+    """Wait for the pipes to close. A leftover process of the group that still holds one is
+    ended (POSIX), so the reply is never held back by a background process."""
+    for d in drains:
+        d.join(_DRAIN_SECONDS)
+    if any(d.is_alive() for d in drains) and os.name == "posix":
+        _signal_group(proc, signal.SIGKILL)
+        for d in drains:
+            d.join(_DRAIN_SECONDS)
 
 
 def _run_capped(argv: list[str]) -> dict[str, Any]:
-    """Run argv with both streams going to temporary files, so a chatty command cannot fill
-    this process's memory; only the first _MAX_OUTPUT_BYTES of each are kept."""
-    with tempfile.TemporaryFile() as out, tempfile.TemporaryFile() as err:
-        code = subprocess.run(
-            argv,
-            shell=False,
-            stdin=subprocess.DEVNULL,
-            stdout=out,
-            stderr=err,
-            timeout=_command_timeout(),
-            env=_child_env(),
-        ).returncode
-        stdout, out_cut = _read_capped(out)
-        stderr, err_cut = _read_capped(err)
-    result: dict[str, Any] = {"stdout": stdout, "stderr": stderr, "returncode": code}
+    """Run argv with both streams read through pipes by this process: the first
+    _MAX_OUTPUT_BYTES of each are kept, the rest is read and discarded (nothing reaches the
+    disk, memory stays bounded), and a stream past _HARD_OUTPUT_BYTES ends the command. The
+    child runs in its own session (POSIX), so the timeout and the hard limit end the child
+    and everything it started."""
+    extra: dict[str, Any] = {"start_new_session": True} if os.name == "posix" else {}
+    limit = _command_timeout()
+    with subprocess.Popen(
+        argv,
+        shell=False,
+        stdin=subprocess.DEVNULL,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        bufsize=0,
+        env=_child_env(),
+        **extra,
+    ) as proc:
+        overflow = threading.Event()
+        drains = [_Drain(proc.stdout, overflow), _Drain(proc.stderr, overflow)]
+        for d in drains:
+            d.start()
+        reason = _wait_or_stop(proc, overflow, limit)
+        _finish_drains(proc, drains)
+    if reason == "timeout":
+        raise subprocess.TimeoutExpired(argv, limit)
+    stdout, out_cut = drains[0].text()
+    stderr, err_cut = drains[1].text()
+    result: dict[str, Any] = {"stdout": stdout, "stderr": stderr, "returncode": proc.returncode}
     if out_cut:
         result["stdout_truncated"] = True
     if err_cut:

@@ -74,8 +74,15 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   is cut, ends with `[output cut at 1048576 bytes]`, and the reply carries `stdout_truncated` or
   `stderr_truncated`. The cut applies before the audit trace. A request line over 1 MiB is refused without
   being held in memory; a deeply nested line gets a parse error (`-32700`) and the server keeps running.
+- `run_command` reads the output through pipes, discards what is over the cap without writing it to disk,
+  ends a command that writes more than 16 MiB to one stream, and on timeout ends the whole process group
+  (POSIX). Empty and relative `PATH` entries are ignored, so an allowed name never runs a file of the
+  project folder; a name that resolves to nothing returns 127.
 - A token that is not ASCII gets the normal authorisation error; a failed `initialize` ends an earlier login
   on that connection.
+- `run_command` also needs `run_command` under `tools.allowed` in `project/policies.yml` (the installers do
+  not create that file). This was already so, but only one page said it: the denial now names the line to
+  add, and `SECURITY.md`, `docs/CLI_REFERENCE.md` and `docs/UPGRADING.md` say it.
 - **Both protocol generations.** The server answers MCP `2026-07-28` requests (`server/discover`, the protocol
   version on every request, error `-32022` for an unsupported version) as well as the `initialize` handshake
   of `2025-11-25` and earlier. In the new form the token for `run_command` travels in the request's `_meta`
@@ -200,6 +207,19 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   changed it, as `gabbe update` already did.
 - The wizard no longer writes through a link planted at `.aider.conf.yml`, `opencode.json`, the memory files
   or `.gitignore`, and creates no folder under a planted folder link.
+- **A wizard install is reversed byte for byte.** The wizard appended `.env` lines to an existing
+  `.gitignore` without a backup or a record, so uninstall left the change; the lines now go into a marked
+  block, after a backup, and both uninstallers restore the file exactly. A declined merge into an `agents/`
+  folder that holds no kit stops with exit 1 instead of printing "Template not found" and exiting 0.
+- Python caches (`__pycache__`, `.pyc`) of a used checkout are no longer copied into a project; the kit's
+  integrity check no longer writes them and now passes inside an installed project. The count the Node
+  installer prints equals the number of paths in the record. `gabbe init` creates an empty `project/TASKS.md`
+  when it is absent, so `gabbe verify` passes its file check right after an install. Windsurf no longer gets
+  a stray link inside `.windsurf/skills`. The package build asks for the setuptools version it needs (77).
+- **The wizard no longer overwrites `agents/memory/PROJECT_STATE.md`.** With "Agent Analytics" on (the
+  default answer) every run wrote a one-line stub over the file, which lost the project's recorded state on
+  a re-run. The file is now created only when it is absent, and the PowerShell set-up script writes the same
+  14-phase state as the shell script (it still wrote the old `S00_INITIALIZED`).
 - The Node installer's output is complete when it goes to a small or slow pipe; a long list, for example
   `uninstall --dry-run`, could be cut while the exit code stayed 0. The wizard ends with one error line, not
   a traceback, when a folder it needs is a dangling link.
@@ -227,6 +247,14 @@ property tests found the defects below. All are fixed and pinned by tests.
   absolute, contains `..` or leaves the target is now refused in both installers. The wizard ran the target
   project's own `agents/scripts/compile_skills.py`; it now runs the compiler of the kit being installed. The
   install record is no longer written through a link.
+- **The install record is untrusted inside the project too** (found by a second audit, which attacked the
+  first fixes). A tampered record could name a planted link as a "backup"; `gabbe uninstall` moved it into
+  place and then deleted files through it, outside the project. A record could also delete `.env` or git
+  files, or swap a local settings file for the repository's. Now uninstall, `update` and `doctor` check every
+  path again right before use, remove a file only when its bytes match the recorded hash, move a backup back
+  only under the two backup names and only when it is a real file, keep unknown kinds, keep `.git/` files
+  other than the two marked hooks, and take out only the kit's own hook entries. An edited kit file now
+  stays in place instead of being backed up and removed.
 - **State files are not written through links.** With `project/`, `project/state.db` or `project/logs` a link,
   GABBE writes nothing there: the tool server runs read-only without an audit trail and command-line commands
   stop with one line and exit 1.
@@ -235,18 +263,28 @@ property tests found the defects below. All are fixed and pinned by tests.
   with `GABBE_KIT_VERSION`; `latest` gives the old behaviour).
 - **Tool server**: the allow-list, size limits and token fixes listed under "tool server" above.
 - **Audit trail.** Redaction now covers assignments whose name contains `password`, `secret`, `token` or
-  `api_key` (`OPENAI_API_KEY=`, `AWS_SECRET_ACCESS_KEY=`), Slack tokens, Google API keys, JSON Web Tokens and
-  PEM private-key blocks. On POSIX, `project/logs` is created with mode 0700 and `state.db` and the run logs
-  with 0600. The content cache does not write through a link.
+  `api_key` (`OPENAI_API_KEY=`, `AWS_SECRET_ACCESS_KEY=`), JSON members named like secrets, `Authorization`
+  headers, passwords in URLs and connection strings, `--password`-style options, GitHub, npm, GitLab, Slack,
+  Google, Hugging Face and Stripe tokens, JSON Web Tokens and private-key blocks (list in `SECURITY.md`). On POSIX, `project/logs` is created with mode 0700 and `state.db` and the run logs
+  with 0600. The content cache neither writes nor reads through a link.
 - **`state_import.sh`** refuses a bundle whose member names contain a backslash or a control character and
-  any path that would leave `agents/memory`; a crafted name could replace files under `agents/`.
+  any path that would leave `agents/memory`; a crafted name could replace files under `agents/`. With
+  `--apply` it also refuses to write when the destination, a folder above it or the backup folder is a link.
 - **Skill packs.** A skill description copied into a generated Cursor rule is reduced to one line, so it can
   no longer add keys such as `alwaysApply`. The registry import scan also flags `wget`/`fetch` piped to a
-  shell, `<(curl` and reads of `~/.ssh/`; every redirect is checked, downloads stop at 20 MiB, special files
-  are refused.
+  shell, `<(curl` and reads of `~/.ssh/`, reverse shells, download-then-run, reads of `.env`, cloud
+  credentials and browser profiles, PowerShell download-and-`iex`, invisible characters and
+  prompt-override phrases; every redirect is checked, downloads stop at 20 MiB, special files are refused.
+  Import accepts only the frontmatter keys the kit's own skills use and refuses a skill named like a kit
+  skill; the compiler keeps the kit's skill on a name collision and copies only known keys.
 - **Policy engine and `.env`**: the fail-closed fixes listed under "command line" above.
 - **Hooks**: the pre-commit secret check could be bypassed by a line starting with `++ `; `merge-hooks.js
-  --remove` removed more than GABBE's own entries. Both fixed before first release.
+  --remove` removed more than GABBE's own entries, and the helper wrote through links. All fixed before first
+  release. The shell guard also asks before about thirty more publish and deploy commands (`gh workflow
+  run`, `docker build --push`, `twine upload`, `npm unpublish`, `terraform destroy`, `kubectl delete` …); the
+  pre-commit check knows `github_pat_`, `npm_`, `glpat-` and `AIza` tokens and reads UTF-16 files.
+- **Publish workflows** no longer leave the job token in the checkout while `npm publish` runs; a manual
+  npm publish validates the dist-tag and uses `next` for a prerelease tag.
 - **Package launchers pinned.** Every `npx` line in the MCP template and guide and in the skills names an
   exact version, verified on npm on 21 November 2026 (35 MCP servers pinned). 28 template entries name
   packages that npm does not have: they are marked `_review` and switched off. Five deprecated servers are

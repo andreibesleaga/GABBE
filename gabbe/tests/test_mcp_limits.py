@@ -8,6 +8,8 @@ import os
 import sqlite3
 import subprocess
 import sys
+import tempfile
+import time
 from pathlib import Path
 
 import pytest
@@ -104,3 +106,85 @@ def test_short_output_has_no_marker(monkeypatch):
     monkeypatch.setenv("GABBE_MCP_INSECURE", "1")
     result = mcp_server.run_command_handler(f"{sys.executable} -c \"print('hi')\"")
     assert result["stdout"] == "hi\n" and "stdout_truncated" not in result
+
+
+# --- disk and process-group limits (RA-08) -------------------------------------------
+
+
+def _alive(pid: int) -> bool:
+    try:
+        state = Path(f"/proc/{pid}/stat").read_text().rsplit(")", 1)[1].split()[0]
+    except (OSError, IndexError):
+        return False  # no such process (or no /proc entry)
+    return state != "Z"
+
+
+def _gone_within(pid: int, seconds: float = 3.0) -> bool:
+    end = time.monotonic() + seconds
+    while time.monotonic() < end:
+        if not _alive(pid):
+            return True
+        time.sleep(0.05)
+    return False
+
+
+@pytest.mark.skipif(os.name != "posix", reason="process groups are POSIX only")
+def test_a_command_that_writes_without_end_is_stopped_and_nothing_reaches_the_disk(
+    tmp_path, monkeypatch
+):
+    scratch = tmp_path / "scratch"
+    scratch.mkdir()
+    monkeypatch.setattr(tempfile, "tempdir", str(scratch))
+    monkeypatch.setattr(mcp_server, "_HARD_OUTPUT_BYTES", 4 * 1024 * 1024)
+    monkeypatch.setenv("GABBE_MCP_INSECURE", "1")
+    monkeypatch.setenv("GABBE_MCP_COMMAND_TIMEOUT", "60")
+    started = time.monotonic()
+    result = mcp_server.run_command_handler(
+        f"{sys.executable} -c \"print('a'*99); import os\nwhile 1: os.write(1, b'a'*65536)\""
+    )
+    assert time.monotonic() - started < 20
+    assert result["stdout_truncated"] is True and "output cut" in result["stdout"]
+    assert len(result["stdout"]) < mcp_server._MAX_OUTPUT_BYTES + 100
+    assert result["returncode"] != 0  # ended by a signal
+    assert sum(p.stat().st_size for p in scratch.rglob("*") if p.is_file()) < 1024 * 1024
+
+
+@pytest.mark.skipif(os.name != "posix", reason="process groups are POSIX only")
+def test_a_timeout_ends_the_grandchildren_too(tmp_path, monkeypatch):
+    pidfile = tmp_path / "pid"
+    monkeypatch.setenv("GABBE_MCP_INSECURE", "1")
+    monkeypatch.setenv("GABBE_MCP_COMMAND_TIMEOUT", "1")
+    script = f"sleep 300 & echo $! > {pidfile}; wait"
+    result = mcp_server.run_command_handler(f"sh -c '{script}'")
+    assert result["returncode"] == 124 and "timed out" in result["stderr"]
+    grandchild = int(pidfile.read_text())
+    try:
+        assert _gone_within(grandchild), "the grandchild survived the timeout"
+    finally:
+        if _alive(grandchild):
+            os.kill(grandchild, 9)
+
+
+@pytest.mark.skipif(os.name != "posix", reason="process groups are POSIX only")
+def test_a_background_process_holding_the_pipe_does_not_hold_back_the_reply(tmp_path, monkeypatch):
+    monkeypatch.setenv("GABBE_MCP_INSECURE", "1")
+    started = time.monotonic()
+    result = mcp_server.run_command_handler("sh -c 'sleep 300 & echo done'")
+    assert result["stdout"] == "done\n" and result["returncode"] == 0
+    assert time.monotonic() - started < 10
+
+
+def test_both_streams_and_the_return_code_are_unchanged_for_a_short_command(monkeypatch):
+    monkeypatch.setenv("GABBE_MCP_INSECURE", "1")
+    code = "import sys; print('o'); print('e', file=sys.stderr); sys.exit(3)"
+    result = mcp_server.run_command_handler(f'{sys.executable} -c "{code}"')
+    assert result == {"stdout": "o\n", "stderr": "e\n", "returncode": 3}
+
+
+def test_the_stderr_stream_is_cut_with_its_own_flag(monkeypatch):
+    monkeypatch.setenv("GABBE_MCP_INSECURE", "1")
+    cap = mcp_server._MAX_OUTPUT_BYTES
+    code = f"import sys; sys.stderr.write('e' * {cap * 2})"
+    result = mcp_server.run_command_handler(f'{sys.executable} -c "{code}"')
+    assert result["stderr_truncated"] is True and "stdout_truncated" not in result
+    assert "output cut" in result["stderr"]

@@ -29,15 +29,12 @@ def mcp_insecure():
 
 
 def test_run_command_handler_uses_shell_false(tmp_project, allowlist_echo):
-    """run_command_handler must call subprocess.run with shell=False (no injection)."""
+    """run_command_handler starts the child with shell=False (no injection)."""
+    import subprocess as sp
+
     from gabbe.mcp_server import run_command_handler
 
-    mock_result = MagicMock()
-    mock_result.stdout = "hello\n"
-    mock_result.stderr = ""
-    mock_result.returncode = 0
-
-    with patch("gabbe.mcp_server.subprocess.run", return_value=mock_result) as mock_run:
+    with patch("gabbe.mcp_server.subprocess.Popen", wraps=sp.Popen) as mock_run:
         run_command_handler("echo hello")
         args, kwargs = mock_run.call_args
         # First positional arg must be a list (shlex.split result), not a string
@@ -61,17 +58,15 @@ def test_run_command_handler_no_shell_injection(tmp_project, allowlist_echo):
 
     shlex.split('echo safe; rm -rf /tmp/evil') returns
     ['echo', 'safe;', 'rm', '-rf', '/tmp/evil'] — all tokens, no shell expansion.
-    subprocess.run is called with shell=False so ';' is never treated as a
-    command separator; the mock verifies the exact token list and shell flag.
+    the child is started with shell=False so ';' is never treated as a command
+    separator; the wrapped Popen shows the exact token list and shell flag (echo only
+    prints the tokens).
     """
+    import subprocess as sp
+
     from gabbe.mcp_server import run_command_handler
 
-    mock_result = MagicMock()
-    mock_result.stdout = ""
-    mock_result.stderr = ""
-    mock_result.returncode = 0
-
-    with patch("gabbe.mcp_server.subprocess.run", return_value=mock_result) as mock_run:
+    with patch("gabbe.mcp_server.subprocess.Popen", wraps=sp.Popen) as mock_run:
         run_command_handler("echo safe; rm -rf /tmp/evil")
         args, kwargs = mock_run.call_args
         cmd_list = args[0]
@@ -270,7 +265,7 @@ def test_run_command_blocked_by_default_no_allowlist(tmp_project, clean_mcp_env)
     """Out of the box (no allowlist, no insecure), commands are BLOCKED (fail-closed)."""
     from gabbe.mcp_server import run_command_handler
 
-    with patch("gabbe.mcp_server.subprocess.run") as mock_run:
+    with patch("gabbe.mcp_server._run_capped") as mock_run:
         result = run_command_handler("echo hello")
     mock_run.assert_not_called()  # never reaches subprocess
     assert result["returncode"] == 126
@@ -282,7 +277,7 @@ def test_run_command_blocked_when_not_in_allowlist(tmp_project, clean_mcp_env):
     from gabbe.mcp_server import run_command_handler
 
     with patch.dict(os.environ, {"GABBE_MCP_ALLOWED_COMMANDS": "pytest"}):
-        with patch("gabbe.mcp_server.subprocess.run") as mock_run:
+        with patch("gabbe.mcp_server._run_capped") as mock_run:
             result = run_command_handler("rm -rf /tmp/x")
     mock_run.assert_not_called()
     assert result["returncode"] == 126
@@ -292,9 +287,9 @@ def test_run_command_allowed_when_in_allowlist(tmp_project, clean_mcp_env):
     """An allowlisted executable runs."""
     from gabbe.mcp_server import run_command_handler
 
-    mock_result = MagicMock(stdout="hi\n", stderr="", returncode=0)
+    mock_result = {"stdout": "hi\n", "stderr": "", "returncode": 0}
     with patch.dict(os.environ, {"GABBE_MCP_ALLOWED_COMMANDS": "echo"}):
-        with patch("gabbe.mcp_server.subprocess.run", return_value=mock_result) as mock_run:
+        with patch("gabbe.mcp_server._run_capped", return_value=mock_result) as mock_run:
             result = run_command_handler("echo hi")
     mock_run.assert_called_once()
     assert result["returncode"] == 0
@@ -304,11 +299,22 @@ def test_insecure_mode_allows_any_command(tmp_project, clean_mcp_env):
     """GABBE_MCP_INSECURE=1 restores legacy allow-all behavior."""
     from gabbe.mcp_server import run_command_handler
 
-    mock_result = MagicMock(stdout="", stderr="", returncode=0)
+    mock_result = {"stdout": "", "stderr": "", "returncode": 0}
     with patch.dict(os.environ, {"GABBE_MCP_INSECURE": "1"}):
-        with patch("gabbe.mcp_server.subprocess.run", return_value=mock_result) as mock_run:
-            run_command_handler("anything goes")
+        with patch("gabbe.mcp_server._run_capped", return_value=mock_result) as mock_run:
+            run_command_handler("echo goes")  # not in any allow-list
     mock_run.assert_called_once()
+
+
+def test_a_name_that_resolves_to_nothing_returns_127_and_runs_nothing(tmp_project, clean_mcp_env):
+    """Since 1.2.0 an unresolved name is not handed to the OS (it could find a project file)."""
+    from gabbe.mcp_server import run_command_handler
+
+    with patch.dict(os.environ, {"GABBE_MCP_INSECURE": "1"}):
+        with patch("gabbe.mcp_server._run_capped") as mock_run:
+            result = run_command_handler("no-such-command-gabbe-test goes")
+    mock_run.assert_not_called()
+    assert result["returncode"] == 127
 
 
 def test_run_command_times_out(tmp_project, clean_mcp_env):
@@ -319,7 +325,7 @@ def test_run_command_times_out(tmp_project, clean_mcp_env):
 
     with patch.dict(os.environ, {"GABBE_MCP_ALLOWED_COMMANDS": "sleep"}):
         with patch(
-            "gabbe.mcp_server.subprocess.run", side_effect=sp.TimeoutExpired(cmd="sleep", timeout=1)
+            "gabbe.mcp_server._run_capped", side_effect=sp.TimeoutExpired(cmd="sleep", timeout=1)
         ):
             result = run_command_handler("sleep 999")
     assert result["returncode"] == 124
@@ -393,7 +399,7 @@ def test_allowlist_directory_is_not_a_wildcard(tmp_project, clean_mcp_env):
     from gabbe.mcp_server import run_command_handler
 
     with patch.dict(os.environ, {"GABBE_MCP_ALLOWED_COMMANDS": "/bin"}):
-        with patch("gabbe.mcp_server.subprocess.run") as mock_run:
+        with patch("gabbe.mcp_server._run_capped") as mock_run:
             result = run_command_handler("/bin/sh -c whoami")
     mock_run.assert_not_called()
     assert result["returncode"] == 126
@@ -403,9 +409,9 @@ def test_allowlist_matches_basename_of_absolute_path(tmp_project, clean_mcp_env)
     """An allowlist of `git` permits an absolute path to git (basename match)."""
     from gabbe.mcp_server import run_command_handler
 
-    mock_result = MagicMock(stdout="", stderr="", returncode=0)
+    mock_result = {"stdout": "", "stderr": "", "returncode": 0}
     with patch.dict(os.environ, {"GABBE_MCP_ALLOWED_COMMANDS": "git"}):
-        with patch("gabbe.mcp_server.subprocess.run", return_value=mock_result) as mock_run:
+        with patch("gabbe.mcp_server._run_capped", return_value=mock_result) as mock_run:
             result = run_command_handler("/usr/bin/git status")
     mock_run.assert_called_once()
     assert result["returncode"] == 0

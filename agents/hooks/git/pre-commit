@@ -4,6 +4,8 @@
 # Failure direction: if git cannot be read, the commit is REFUSED (a guard that cannot look says no).
 # One-commit exception, set by the human: GABBE_ALLOW_SECRET=1 git commit ...
 # One-line exception: put the text gabbe:allow-secret on that line.
+# Binary files (as git decides: a NUL byte) are NOT scanned. The exception is UTF-16 with a byte order
+# mark (FF FE or FE FF): its text is converted with iconv and scanned; without iconv one line says so.
 # Limit: `git commit --no-verify` skips this hook. Server-side branch protection is the real control.
 set -u
 if [ "${GABBE_ALLOW_SECRET:-}" = 1 ]; then
@@ -43,6 +45,19 @@ done < "$tmp/names.txt"
 : > "$tmp/text"
 while IFS= read -r f; do
   git --literal-pathspecs diff --cached -U0 --no-color --no-ext-diff --no-textconv --no-renames --diff-filter=ACMR -- "$f" > "$tmp/diff" || { echo "gabbe pre-commit: git failed; commit refused." >&2; exit 1; }
+  if grep -aq '^Binary files ' "$tmp/diff"; then
+    # UTF-16 with a byte order mark: scan the converted text (every line of the file, not only added ones).
+    bom=$(git cat-file -p ":$f" 2>/dev/null | head -c 2 | od -An -tx1 | tr -d ' \n')
+    if [ "$bom" = fffe ] || [ "$bom" = feff ]; then
+      if command -v iconv >/dev/null 2>&1 && git cat-file -p ":$f" | iconv -f UTF-16 -t UTF-8 > "$tmp/conv" 2>/dev/null; then
+        GABBE_F="$f" awk '{ print ENVIRON["GABBE_F"] ":" NR }' "$tmp/conv" >> "$tmp/meta"
+        awk '{ print }' "$tmp/conv" >> "$tmp/text"
+      else
+        printf 'gabbe pre-commit: %s is UTF-16 and could not be converted (iconv); not checked for secrets.\n' "$f" >&2
+      fi
+    fi
+    continue
+  fi
   GABBE_F="$f" awk -v meta="$tmp/meta.one" -v text="$tmp/text.one" '
     BEGIN { f = ENVIRON["GABBE_F"] }
     /^@@ / { inhunk = 1; split($3, a, ","); n = substr(a[1], 2) + 0; next }
@@ -58,6 +73,10 @@ if [ -s "$tmp/text" ]; then
   grep -anE \
     -e '(^|[^A-Za-z0-9_-])sk-[A-Za-z0-9_-]{16,}' \
     -e '(^|[^A-Za-z0-9_])gh[pousr]_[A-Za-z0-9]{16,}' \
+    -e '(^|[^A-Za-z0-9_])github_pat_[A-Za-z0-9_]{20,}' \
+    -e '(^|[^A-Za-z0-9_])npm_[A-Za-z0-9]{36}' \
+    -e '(^|[^A-Za-z0-9_-])glpat-[A-Za-z0-9_-]{20,}' \
+    -e '(^|[^A-Za-z0-9_-])AIza[A-Za-z0-9_-]{35}' \
     -e '(^|[^A-Za-z0-9])AKIA[0-9A-Z]{16}' \
     -e '(^|[^A-Za-z0-9_-])xox[baprs]-[A-Za-z0-9-]{10,}' \
     -e '-----BEGIN [A-Z ]*PRIVATE KEY-----' \

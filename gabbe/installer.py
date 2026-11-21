@@ -41,6 +41,23 @@ _BACKUP_SUFFIX = ".gabbe-bak"
 # Every skill file the installers emit carries this line; it identifies generated
 # files inside a directory recorded as one `tree` entry by releases before 1.1.4.
 _GENERATED_MARKER = b"gabbe-schema-version:"
+# The record kinds the installers write; any other kind is kept by uninstall.
+_RECORD_KINDS = frozenset({"copy", "skill-emit", "tree", "block", "hook-merge", "symlink"})
+# Kinds that name one regular file whose bytes the record hashes.
+_FILE_KINDS = ("copy", "skill-emit")
+# Backups are named `<path>.gabbe-bak` or `<path>.bak`, then `.1`, `.2`, ... (releases
+# before 1.1.4 and the link/pointer-block code write `.bak`).
+_BACKUP_TAIL_RE = re.compile(r"\.(gabbe-bak|bak)(\.[0-9]+)?")
+# Under `.git/` only these two hooks are ever touched, and only when they carry the mark.
+_GIT_HOOKS = ("pre-commit", "pre-push")
+_HOOK_MARK = b"GABBE-HOOK"
+# The settings files the installers merge hooks into, and the kit's fragment for each.
+_HOOK_FILES = {
+    ".claude/settings.json": "claude-code/settings.fragment.json",
+    ".cursor/hooks.json": "cursor/hooks.fragment.json",
+}
+# Where the kit's own files are for the running code (same place `gabbe update` reads).
+_KIT_HOOKS_DIR = Path(__file__).resolve().parent.parent / "agents" / "hooks"
 # The pointer block the installers append to a user's own instruction file. Matched
 # on bytes so that the user's encoding and line endings are never touched.
 _BLOCK_RE = re.compile(rb"<!-- GABBE-KIT:BEGIN.*?<!-- GABBE-KIT:END -->(\r?\n)?", re.DOTALL)
@@ -202,10 +219,16 @@ def _write_manifest(target: Path, manifest: dict[str, Any]) -> None:
         tmp.unlink(missing_ok=True)
 
 
+def _is_build_leftover(rel: Path) -> bool:
+    """A cache of a used checkout (`__pycache__`, `*.pyc`): never part of the kit."""
+    return "__pycache__" in rel.parts or rel.suffix in (".pyc", ".pyo")
+
+
 def _iter_source_files(source: Path) -> Iterator[tuple[Path, Path]]:
     for p in sorted(source.rglob("*")):
-        if p.is_file():
-            yield p, p.relative_to(source)
+        rel = p.relative_to(source)
+        if p.is_file() and not _is_build_leftover(rel):
+            yield p, rel
 
 
 def _entries_by_path(manifest: dict[str, Any]) -> dict[str, dict[str, Any]]:
@@ -452,7 +475,7 @@ def _is_unmodified_kit_copy(target: Path, entry: dict[str, Any]) -> bool:
     if rel.parts[:1] != ("agents",) or _is_user_owned(rel):
         return False
     try:
-        path = _resolve_within(target, entry["path"])
+        path = _checked_path(target, entry["path"])
     except ValueError:
         return False
     return path.is_file() and not path.is_symlink() and _sha256(path) == entry.get("hash")
@@ -505,7 +528,7 @@ def update_kit(
 
     for key in sorted(set(merged) - emitted):
         if _is_unmodified_kit_copy(target, merged[key]):
-            _resolve_within(target, key).unlink()
+            _checked_path(target, key).unlink()
             del merged[key]
 
     manifest = {
@@ -532,17 +555,6 @@ def _generated_files(tree: Path) -> list[Path]:
             if is_generated:
                 found.append(p)
     return found
-
-
-def _is_modified_copy(entry: dict[str, Any], path: Path) -> bool:
-    if entry.get("kind") != "copy" or not entry.get("hash"):
-        return False
-    if not path.is_file() or path.is_symlink():
-        return False
-    try:
-        return bool(_sha256(path) != entry["hash"])
-    except OSError:
-        return False
 
 
 def strip_pointer_block(data: bytes) -> bytes:
@@ -577,15 +589,10 @@ def _remove_block(path: Path, backup: Path | None) -> None:
 def _same_hook_entry(a: Any, b: Any) -> bool:
     """Two hook entries are the same when event-level matcher and command strings are equal."""
 
-    def commands(item: Any) -> list[Any]:
-        if isinstance(item, dict) and isinstance(item.get("hooks"), list):
-            return [h.get("command") if isinstance(h, dict) else None for h in item["hooks"]]
-        return [item.get("command") if isinstance(item, dict) else None]
-
     def matcher(item: Any) -> Any:
         return item.get("matcher") if isinstance(item, dict) else None
 
-    return bool(matcher(a) == matcher(b) and commands(a) == commands(b))
+    return bool(matcher(a) == matcher(b) and _entry_commands(a) == _entry_commands(b))
 
 
 def remove_hook_fragment(
@@ -619,31 +626,219 @@ def remove_hook_fragment(
     return cleaned  # type: ignore[no-any-return]
 
 
+def _text(value: Any) -> str:
+    """`value` as one short printable line (the record is untrusted: no control characters)."""
+    return "".join(c if c.isprintable() else "?" for c in str(value))[:120]
+
+
+def _say(verb: str, entry: Any, why: str) -> None:
+    where = entry.get("path") if isinstance(entry, dict) else entry
+    print(f"{verb} {_text(where)}: {why}")
+
+
+def _taken(path: Path) -> bool:
+    """True when something (a file, a folder or a link, even a dangling one) is at `path`."""
+    return path.exists() or path.is_symlink()
+
+
+def _checked_path(target: Path, rel: Any) -> Path:
+    """`_resolve_within`, and no link in any folder above the path inside `target`.
+
+    Called when the record is planned and again right before an entry is acted on, so a
+    link that appears in between (or one the record itself makes) is never followed.
+    `target` must be resolved. The leaf is judged by `_keep_reason`.
+    """
+    path = _resolve_within(target, rel)
+    current = target
+    for part in Path(rel).parts[:-1]:
+        current = current / part
+        if current.is_symlink():
+            raise ValueError(f"a link is on the path ({_text(part)})")
+    return path
+
+
+def _git_reason(entry: dict[str, Any], path: Path) -> str | None:
+    """Under `.git/` only `hooks/pre-commit` and `hooks/pre-push` are touched, and only
+    when they carry the GABBE-HOOK mark."""
+    parts = Path(entry["path"]).parts
+    if ".git" not in parts:
+        return None
+    is_hook = (
+        len(parts) == 3
+        and parts[:2] == (".git", "hooks")
+        and parts[2] in _GIT_HOOKS
+        and entry.get("kind") == "copy"
+    )
+    if not is_hook:
+        return "files under .git/ are never touched (only hooks/pre-commit and hooks/pre-push)"
+    if _taken(path) and not (
+        path.is_file() and not path.is_symlink() and _HOOK_MARK in path.read_bytes()
+    ):
+        return "it does not carry the GABBE-HOOK mark"
+    return None
+
+
+def _file_reason(entry: dict[str, Any], path: Path) -> str | None:
+    """A recorded file is removed only when it is a regular file with the recorded bytes."""
+    if not _taken(path):
+        return None
+    if path.is_symlink() or not path.is_file():
+        return "it is a link or a folder now, not the recorded file"
+    recorded = entry.get("hash")
+    if not isinstance(recorded, str) or not recorded:
+        return "the record holds no hash for it"
+    try:
+        same = _sha256(path) == recorded
+    except OSError:
+        return "it cannot be read"
+    return None if same else "it changed since the install"
+
+
+def _link_reason(target: Path, path: Path) -> str | None:
+    """A recorded link is removed only when it is a link that points into `agents/`."""
+    if not _taken(path):
+        return None
+    if not path.is_symlink():
+        return "it is not a link now"
+    try:
+        dest = os.path.normpath(os.path.join(str(path.parent.resolve()), os.readlink(path)))
+    except OSError:
+        return "the link cannot be read"
+    kit = str(target / "agents")
+    if dest == kit or dest.startswith(kit + os.sep):
+        return None
+    return "the link does not point into the project's agents/ folder"
+
+
+def _settings_reason(entry: dict[str, Any], path: Path) -> str | None:
+    """Hooks are merged only into the settings files the installers write."""
+    if "/".join(Path(entry["path"]).parts) not in _HOOK_FILES:
+        return "it is not a settings file the installers write hooks into"
+    if _taken(path) and (path.is_symlink() or not path.is_file()):
+        return "it is a link or a folder now"
+    return None
+
+
+def _keep_reason(target: Path, entry: dict[str, Any], path: Path) -> str | None:
+    """Why an uninstall must leave this entry alone, or None when it may act on it."""
+    kind = entry.get("kind")
+    if not (isinstance(kind, str) and kind in _RECORD_KINDS):
+        return f"unknown record kind '{_text(kind)}'"
+    reason = _git_reason(entry, path)
+    if reason is None and kind in _FILE_KINDS:
+        reason = _file_reason(entry, path)
+    if reason is None and kind == "symlink":
+        reason = _link_reason(target, path)
+    if reason is None and kind == "hook-merge":
+        reason = _settings_reason(entry, path)
+    return reason
+
+
+def _entry_commands(item: Any) -> list[Any]:
+    """The command strings of one hook entry (a Claude Code group or a Cursor entry)."""
+    if isinstance(item, dict) and isinstance(item.get("hooks"), list):
+        return [h.get("command") if isinstance(h, dict) else None for h in item["hooks"]]
+    return [item.get("command") if isinstance(item, dict) else None]
+
+
+def _kit_fragment(rel: str) -> dict[str, Any] | None:
+    """The kit's own hook fragment for the settings file `rel`; None when the kit is absent."""
+    try:
+        doc = json.loads((_KIT_HOOKS_DIR / _HOOK_FILES[rel]).read_text(encoding="utf-8"))
+    except (OSError, ValueError, KeyError):
+        return None
+    return doc if isinstance(doc, dict) and isinstance(doc.get("hooks"), dict) else None
+
+
+def _kit_commands(fragment: dict[str, Any]) -> set[str]:
+    commands: set[str] = set()
+    for items in fragment["hooks"].values():
+        for item in items if isinstance(items, list) else []:
+            commands.update(c for c in _entry_commands(item) if isinstance(c, str))
+    return commands
+
+
+def _is_kits_command(command: Any, kit_commands: set[str] | None) -> bool:
+    """A command is the kit's when the kit's fragment contains it; when the kit is not
+    available, when it runs `agents/hooks/**/gabbe-hook.js`."""
+    if not isinstance(command, str):
+        return False
+    if kit_commands is not None:
+        return command in kit_commands
+    return "agents/hooks/" in command and "gabbe-hook.js" in command
+
+
+def _kits_own_hooks(
+    recorded: dict[str, Any], kit_commands: set[str] | None
+) -> tuple[dict[str, list[Any]], int]:
+    """(the recorded hook entries that are the kit's own, number ignored)."""
+    own: dict[str, list[Any]] = {}
+    ignored = 0
+    for event, items in recorded["hooks"].items():
+        for item in items if isinstance(items, list) else []:
+            commands = _entry_commands(item)
+            if commands and all(_is_kits_command(c, kit_commands) for c in commands):
+                own.setdefault(event, []).append(item)
+            else:
+                ignored += 1
+    return own, ignored
+
+
+def _recorded_fragment(target: Path, entry: dict[str, Any]) -> dict[str, Any]:
+    """The fragment the record holds: `fragment_doc`, or the file `fragment` names."""
+    doc = entry.get("fragment_doc")
+    if isinstance(doc, dict) and isinstance(doc.get("hooks"), dict):
+        return doc
+    file = _checked_path(target, entry["fragment"])
+    if file.is_symlink() or not file.is_file():
+        raise ValueError("the recorded fragment file is not a regular file")
+    doc = json.loads(file.read_text(encoding="utf-8"))
+    if not isinstance(doc, dict) or not isinstance(doc.get("hooks"), dict):
+        raise ValueError("the recorded fragment has an unexpected shape")
+    return doc
+
+
+def _own_fragment(target: Path, entry: dict[str, Any]) -> dict[str, Any]:
+    """The part of the record's fragment that is the kit's own. Anything else the record
+    lists (the user's own hooks) is ignored with one line."""
+    import sys
+
+    recorded = _recorded_fragment(target, entry)
+    kit = _kit_fragment("/".join(Path(entry["path"]).parts))
+    own, ignored = _kits_own_hooks(recorded, None if kit is None else _kit_commands(kit))
+    if ignored:
+        print(
+            f"warning: {_text(entry['path'])}: ignored {ignored} hook entr"
+            f"{'y' if ignored == 1 else 'ies'} in the record that are not the kit's own",
+            file=sys.stderr,
+        )
+    fragment: dict[str, Any] = {"hooks": own}
+    version = (kit or recorded).get("version")
+    if version is not None:
+        fragment["version"] = version
+    return fragment
+
+
 def _remove_hook_merge(
     target: Path, entry: dict[str, Any], path: Path, backup: Path | None
 ) -> None:
-    """Undo a `hook-merge` entry: take the recorded fragment's entries out of the user's
+    """Undo a `hook-merge` entry: take the kit's own hook entries out of the user's
     settings file. A file the installer created and nothing else uses is removed. When the
     file minus our entries equals the backup as JSON, the backup's exact bytes come back;
-    otherwise the cleaned JSON is written and the backup stays."""
+    otherwise the cleaned JSON is written (only when something was removed) and the backup
+    stays."""
     import sys
 
     if not path.is_file() or path.is_symlink():
         return
-    fragment = entry.get("fragment_doc")
     try:
-        if not isinstance(fragment, dict) or not isinstance(fragment.get("hooks"), dict):
-            fragment = json.loads(
-                _resolve_within(target, entry["fragment"]).read_text(encoding="utf-8")
-            )
+        doc = json.loads(path.read_text(encoding="utf-8"))
         cleaned = remove_hook_fragment(
-            json.loads(path.read_text(encoding="utf-8")),
-            fragment,
-            added_version=entry.get("added_version") is True,
+            doc, _own_fragment(target, entry), added_version=entry.get("added_version") is True
         )
     except (ValueError, KeyError, TypeError, OSError, AttributeError) as e:
         print(
-            f"warning: {entry['path']} was left as it is ({e}); "
+            f"warning: {_text(entry['path'])} was left as it is ({_text(e)}); "
             "remove the GABBE hook entries by hand",
             file=sys.stderr,
         )
@@ -651,49 +846,75 @@ def _remove_hook_merge(
     if entry.get("created") is True and not cleaned:
         path.unlink()
         return
-    if backup is not None and backup.is_file() and not backup.is_symlink():
+    if backup is not None:
         try:
             if json.loads(backup.read_text(encoding="utf-8")) == cleaned:
                 shutil.move(str(backup), str(path))
                 return
         except (ValueError, OSError):
             pass  # the backup is not JSON: keep it and write the cleaned file
-    path.write_text(json.dumps(cleaned, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    if cleaned != doc:
+        path.write_text(json.dumps(cleaned, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 
 
-def _remove_entry(target: Path, entry: dict[str, Any], path: Path) -> list[str]:
-    """Remove one recorded artifact. Returns files kept in place as backups."""
-    preserved: list[str] = []
+def _is_backup_name(rel: Any, backup: Any) -> bool:
+    """True for `<path>.gabbe-bak` or `<path>.bak`, with an optional `.<n>` after it."""
+    return (
+        isinstance(rel, str)
+        and isinstance(backup, str)
+        and backup.startswith(rel)
+        and _BACKUP_TAIL_RE.fullmatch(backup[len(rel) :]) is not None
+    )
+
+
+def _usable_backup(target: Path, entry: dict[str, Any]) -> Path | None:
+    """The entry's backup when it may be moved back, else None (with one line when the
+    record names one that is refused). A backup must carry the entry's own name, sit on a
+    path without links, and be a regular file (a real folder for a link or tree entry:
+    the wizard moves a folder of the user's aside)."""
+    raw = entry.get("backup_of")
+    if not raw:
+        return None
+    try:
+        if not _is_backup_name(entry["path"], raw):
+            raise ValueError("it is not <path>.gabbe-bak or <path>.bak (with an optional .n)")
+        backup = _checked_path(target, raw)
+    except ValueError as e:
+        _skip_message(f"backup_of of {_text(entry['path'])!r}", e)
+        return None
+    if not _taken(backup):
+        return None
+    is_file = backup.is_file() and not backup.is_symlink()
+    is_folder = (
+        backup.is_dir() and not backup.is_symlink() and entry.get("kind") in ("symlink", "tree")
+    )
+    if is_file or is_folder:
+        return backup
+    _skip_message(f"backup_of of {_text(entry['path'])!r}", ValueError("it is not a regular file"))
+    return None
+
+
+def _remove_entry(target: Path, entry: dict[str, Any], path: Path) -> None:
+    """Remove one recorded artifact (already vetted by `_keep_reason` just before)."""
     kind = entry.get("kind")
-    backup: Path | None = None
-    if entry.get("backup_of"):
-        try:
-            backup = _resolve_within(target, entry["backup_of"])
-        except ValueError:
-            backup = None
+    backup = _usable_backup(target, entry)
     if kind == "block":
         _remove_block(path, backup)
-        return preserved
+        return
     if kind == "hook-merge":
         _remove_hook_merge(target, entry, path, backup)
-        return preserved
+        return
     if kind == "tree":
         # Recorded as one directory by releases before 1.1.4. The directory may hold
         # the user's own files, so remove only the files an installer generated.
         if path.is_dir() and not path.is_symlink():
             for generated in _generated_files(path):
                 generated.unlink()
-    else:
-        if _is_modified_copy(entry, path):
-            # The user edited an installed file: keep their text as a backup.
-            backup_file(path)
-            preserved.append(entry["path"])
-        if path.exists() or path.is_symlink():
-            path.unlink()
-    # Restore a backup if this install shadowed a user file.
-    if backup is not None and backup.exists() and not path.exists():
+    elif _taken(path):
+        path.unlink()
+    # Restore a backup if this install shadowed a user file, once the path is free.
+    if backup is not None and not _taken(path):
         shutil.move(str(backup), str(path))
-    return preserved
 
 
 def _removal_plan(
@@ -701,16 +922,16 @@ def _removal_plan(
 ) -> tuple[list[tuple[dict[str, Any], Path]], list[dict[str, Any]]]:
     """Split the manifest into (entries to remove with their paths, entries to keep).
 
-    Kept: paths that escape the target (tampered manifest); entries outside the
-    requested agents; shared kit files when only some agents are removed; user-owned
-    files (`_PRESERVE`, `memory/`, `project/`) unless the file still has exactly the
-    bytes the install wrote (then it is the kit's untouched copy and is removed).
+    Kept: paths that escape the target or sit behind a link (tampered record); entries
+    outside the requested agents; shared kit files when only some agents are removed; and
+    every entry `_keep_reason` refuses (unknown kind, a file that is not the recorded
+    bytes, `.git/` paths, a link that points elsewhere...), each with one line.
     """
     to_remove: list[tuple[dict[str, Any], Path]] = []
     kept: list[dict[str, Any]] = []
     for entry in manifest.get("entries", []):
         try:
-            path = _resolve_within(target, entry["path"])
+            path = _checked_path(target, entry["path"])
         except (ValueError, KeyError, TypeError) as e:
             _skip_message(
                 (
@@ -725,27 +946,14 @@ def _removal_plan(
         in_scope = agents is None or (
             entry.get("agent") in agents and entry.get("agent") != "shared"
         )
-        user_owned = entry.get("kind") == "copy" and _is_user_owned(Path(entry["path"]))
-        if user_owned and entry.get("hash"):
-            user_owned = _is_modified_copy(entry, path)
-        if not user_owned:
-            user_owned = _is_not_what_was_recorded(entry, path)
-        if in_scope and not user_owned:
+        reason = _keep_reason(target, entry, path) if in_scope else None
+        if reason is not None:
+            _say("kept", entry, reason)
+        if in_scope and reason is None:
             to_remove.append((entry, path))
         else:
             kept.append(entry)
     return to_remove, kept
-
-
-def _is_not_what_was_recorded(entry: dict[str, Any], path: Path) -> bool:
-    """True when the user replaced a recorded file with a link or a folder, or a
-    recorded link with a file or folder of their own. It is theirs now: kept."""
-    kind = entry.get("kind")
-    if kind in ("tree", "block") or not (path.exists() or path.is_symlink()):
-        return False
-    if kind == "symlink":
-        return not path.is_symlink()
-    return path.is_symlink() or path.is_dir()
 
 
 def _removed_paths(target: Path, to_remove: list[tuple[dict[str, Any], Path]]) -> list[str]:
@@ -759,6 +967,16 @@ def _removed_paths(target: Path, to_remove: list[tuple[dict[str, Any], Path]]) -
     return paths
 
 
+def _recheck(target: Path, entry: dict[str, Any]) -> tuple[Path | None, str | None]:
+    """The entry's path and `None`, or `None` and why it may no longer be acted on: the
+    checks of the plan, repeated right before the entry is touched."""
+    try:
+        path = _checked_path(target, entry["path"])
+    except (ValueError, KeyError, TypeError) as e:
+        return None, str(e)
+    return path, _keep_reason(target, entry, path)
+
+
 def uninstall(
     target: Path,
     *,
@@ -770,22 +988,29 @@ def uninstall(
 
     With `agents`, removes only those agents' wiring. `dry_run` changes nothing and
     returns the same list a real run would. `purge` also removes empty directories
-    left under `agents/`. Nothing that was not recorded is ever deleted, and a
-    user-owned file (`_PRESERVE`, `memory/`, `project/`) the user changed stays in
-    place: backups, memory files and the user's own files stay.
+    left under `agents/`. The record is untrusted (a cloned project can carry one): an
+    entry is acted on only by the rules of `_keep_reason`, a backup only by
+    `_usable_backup`, and every path is checked again right before it is touched.
+    Nothing that was not recorded is ever deleted; a file that is not the recorded bytes,
+    memory files, backups and the user's own files stay.
     """
     target = target.resolve()
     if manifest_problem(target):
         return []  # a damaged record is never acted on and never deleted
     manifest = read_manifest(target)
     to_remove, kept_entries = _removal_plan(target, manifest, agents)
-    removed = _removed_paths(target, to_remove)
     if dry_run:
-        return removed
+        return _removed_paths(target, to_remove)
 
-    modified: list[str] = []  # user-edited files preserved as a backup on removal
-    for entry, path in to_remove:
-        modified.extend(_remove_entry(target, entry, path))
+    removed: list[str] = []
+    for entry, _planned in to_remove:
+        path, why = _recheck(target, entry)
+        if path is None or why is not None:
+            _say("skipped", entry, f"{why} (changed since the plan)")
+            kept_entries.append(entry)
+            continue
+        removed.extend(_removed_paths(target, [(entry, path)]))
+        _remove_entry(target, entry, path)
 
     # Rewrite the manifest with whatever we kept (or drop it entirely on full uninstall).
     if kept_entries and agents is not None:
@@ -797,14 +1022,6 @@ def uninstall(
         if mp.exists():
             mp.unlink()
 
-    if modified:
-        import sys
-
-        print(
-            "warning: preserved your edits to "
-            f"{len(modified)} modified file(s) as <name>.gabbe-bak: " + ", ".join(sorted(modified)),
-            file=sys.stderr,
-        )
     _prune_empty_ancestors(target, removed)
     _prune_empty_dirs(target, purge=purge)
     return removed
@@ -815,11 +1032,12 @@ def _prune_empty_ancestors(target: Path, removed: list[str]) -> None:
 
     Walks each removed path's ancestor chain bottom-up and rmdir()s any directory
     that is now empty, stopping at `target`. Leaves no empty wiring dirs (e.g.
-    `.claude/`, `.cursor/`) behind. Bounded to within `target`.
+    `.claude/`, `.cursor/`) behind. Bounded to within `target`; every folder is checked
+    again for a link on its own path before it is removed.
     """
     base = target.resolve()
     for rel in removed:
-        if rel.startswith(".git/"):
+        if ".git" in Path(rel).parts:
             continue  # git's own folders are never pruned
         d = (base / rel).parent
         while d != base:
@@ -828,13 +1046,17 @@ def _prune_empty_ancestors(target: Path, removed: list[str]) -> None:
             except ValueError:
                 break
             try:
-                if d.is_dir() and not d.is_symlink() and not any(d.iterdir()):
-                    d.rmdir()
-                else:
+                if _link_in_chain(base, d) or any(d.iterdir()):
                     break
+                d.rmdir()
             except OSError:
                 break
             d = d.parent
+
+
+def _link_in_chain(base: Path, folder: Path) -> bool:
+    """True when `folder` or a folder between it and `base` is a link."""
+    return any(p.is_symlink() for p in (folder, *folder.parents) if p != base and base in p.parents)
 
 
 def remove_agents(target: Path, agents: list[str]) -> list[str]:

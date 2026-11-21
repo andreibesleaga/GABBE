@@ -264,8 +264,18 @@ pwsh ./uninstall.ps1 -Dir C:\work\proj -Agents cursor -Purge
 
 Uninstall reads `.gabbe/manifest.json` and removes **exactly** what is recorded there. It
 restores a file of yours that the install replaced from its backup, takes the pointer block
-out of your instruction files, keeps any installed file you edited as `<name>.gabbe-bak`
-instead of deleting it, prunes now-empty directories, and is idempotent (safe to run twice).
+out of your instruction files, keeps any installed file you edited where it is (it prints
+`kept <path>: it changed since the install`; since 1.2.0 no `.gabbe-bak` copy is made), prunes
+now-empty directories, and is idempotent (safe to run twice).
+
+The record is treated as untrusted (a cloned repository can carry one). Uninstall, `update` and
+`doctor` act on an entry only when it is a kind the installers write; they remove a file only when
+its bytes match the recorded hash; they move a backup back only when it is named
+`<path>.gabbe-bak` or `<path>.bak` (with an optional `.<n>`) and is a real file; they take out only
+the kit's own hook entries, and only in `.claude/settings.json` and `.cursor/hooks.json`; under
+`.git/` they touch only the two marked GABBE hooks; and they check every path again right before
+use. An entry the record cannot prove (no hash, an unknown kind, a link that points outside
+`agents/`) is kept with one line that says why.
 
 It never deletes a file the install did not record. These always stay: your own files
 (including your own skills inside `.claude/skills` and similar folders), files under

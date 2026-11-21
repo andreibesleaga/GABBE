@@ -56,7 +56,9 @@ Do this by hand:
    compaction rule (section 13), and the six human gates. Keep your own section 1 values and section 14.
 5. Set the line `*GABBE Kit version: 1.2.0*` at the end of each file once they match.
 6. Delete the two `.gabbe-new` files. Until you delete one, a later `update` replaces it with the newest kit
-   version as long as you did not edit it; `uninstall` removes it.
+   version as long as you did not edit it; `uninstall` removes it. They are written again by every later
+   `update` while your file differs from the kit's (which it will, because it keeps your own lines): delete
+   them again, or leave them as a reference.
 
 If an update says `kept your X; Y is not ours or was changed: left alone`, rename or delete that file and run
 `update` again. An install that has no record (`.gabbe/manifest.json`) gets no `.gabbe-new` file: run
@@ -82,9 +84,11 @@ Each warning points to this page. The check is read-only.
 ## Renamed skills
 
 Four skills have new names that equal their file names: `agent-interop` (was `agent-interoperability`),
-`knowledge-connect`, `production-health` and `system-benchmark`. `init`, `update` and the wizard remove the
-old generated skill and rule files, but only when you did not change them and they lie in a folder that run
-wrote to. A file you changed is kept and reported; delete it yourself if you do not need it.
+`knowledge-connect`, `production-health` and `system-benchmark`. `npx gabbe-kit init`, `npx gabbe-kit update`
+and the wizard remove the old generated skill and rule files, but only when you did not change them and they
+lie in a folder that run wrote to. A file you changed is kept and reported; delete it yourself if you do not
+need it. `gabbe update` (Python) refreshes `agents/` only and does not regenerate the per-agent skill folders:
+run `npx gabbe-kit update` (or the wizard) after it to remove the old ones.
 
 ## Tool server (`gabbe serve-mcp`)
 
@@ -92,6 +96,17 @@ wrote to. A file you changed is kept and reported; delete it yourself if you do 
 `GABBE_MCP_INSECURE=1` no longer enables it by itself. If you used `run_command` before, add the flag or
 the variable to your server configuration. A command now runs with only `PATH`, `HOME`, `LANG`, `LC_ALL`,
 `TERM` and the names listed in `GABBE_MCP_PASS_ENV`. See [CLI_REFERENCE.md](CLI_REFERENCE.md).
+
+Four things must all be in place before a command runs: the flag (or variable), a token
+(`GABBE_MCP_TOKEN`), the command in `GABBE_MCP_ALLOWED_COMMANDS`, and `run_command` allowed in the
+project's policy file. Without the policy line the call is answered `Policy denied`. The installers do not
+create that file:
+
+```yaml
+# project/policies.yml
+tools:
+  allowed: ["run_command"]
+```
 
 ## Exit codes that changed
 
@@ -117,7 +132,8 @@ Check any script or CI job that relied on exit 0 in these cases.
 - [ ] Run `npx gabbe-kit update` (or `gabbe update`) and read what it reports.
 - [ ] Bring Article 0 into `agents/CONSTITUTION.md` and the new sections into `agents/AGENTS.md`.
 - [ ] Run `gabbe doctor`: no upgrade warning is left.
-- [ ] Remove old generated skill files that the update reported as kept.
+- [ ] Remove old generated skill files that the update reported as kept (after `gabbe update`, run `npx gabbe-kit update` too).
+- [ ] If you use `run_command`, allow it in `project/policies.yml`.
 - [ ] If you use the tool server's `run_command`, enable it explicitly.
 - [ ] Check scripts that depend on the exit codes above.
 - [ ] Plugin users: install `gabbe-brain` if you use Loki or Brain mode.

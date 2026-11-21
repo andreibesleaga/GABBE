@@ -30,11 +30,12 @@ SH = shutil.which("sh") or "/bin/sh"
 
 
 def _tool_dir(tmp_path: Path, **fakes: str) -> Path:
-    """A PATH folder holding `dirname` and `cat` plus the fake programs given as
-    name=shell-body. Nothing else is on it, so a missing runtime is really missing."""
+    """A PATH folder holding `dirname`, `cat`, `mktemp` and `rm` (the scripts make and remove a
+    temporary folder for npx) plus the fake programs given as name=shell-body. Nothing else is
+    on it, so a missing runtime is really missing."""
     bin_dir = tmp_path / "bin"
     bin_dir.mkdir()
-    for real in ("dirname", "cat"):
+    for real in ("dirname", "cat", "mktemp", "rm"):
         (bin_dir / real).symlink_to(shutil.which(real))
     for name, body in fakes.items():
         tool = bin_dir / name
@@ -244,6 +245,141 @@ def test_uninstall_sh_with_a_pinned_version_runs_that_release(tmp_path):
     result = _run(script, ["--dry-run"], path_dir, tmp_path)
     assert result.returncode == 0, result.stderr
     assert f"npx --yes gabbe-kit@{PACKAGE_VERSION} uninstall --dry-run" in result.stdout
+
+
+# --------------------------------------------------------------------------
+# npx runs from a new, empty folder; the project is passed with --dir (RA-03)
+# --------------------------------------------------------------------------
+
+# A fake npx that records the folder it runs in, what that folder holds, and its arguments.
+RECORDING_NPX = (
+    '{ pwd; echo "args: $*"; [ -e .npmrc ] && echo HAS-NPMRC; '
+    "[ -e node_modules ] && echo HAS-NODE-MODULES; [ -e package.json ] && echo HAS-PACKAGE-JSON; "
+    'exit 0; } > "$RECORD"'
+)
+
+
+def _hostile_project(tmp_path: Path):
+    """A project whose .npmrc names a dead registry and a --require file that records a run."""
+    project = tmp_path / "proj"
+    (project / "node_modules").mkdir(parents=True)
+    marker = tmp_path / "NPMRC-RAN"
+    (tmp_path / "marker.js").write_text(f"require('fs').writeFileSync({str(marker)!r}, 'ran')\n")
+    (project / ".npmrc").write_text(
+        f"registry=http://127.0.0.1:1/\nnode-options=--require={tmp_path / 'marker.js'}\n"
+    )
+    (project / "package.json").write_text("{}\n")
+    return project, marker
+
+
+def _run_with_recording_npx(tmp_path: Path, which: str, args, cwd: Path, **extra):
+    """Run a script copy (so the npx route is taken) and return (result, record lines, temp root)."""
+    path_dir = _tool_dir(tmp_path, node="echo node-ok", npx=RECORDING_NPX)
+    script = _fake_script_copy(tmp_path, INSTALL_SH if which == "install" else UNINSTALL_SH)
+    temp_root = tmp_path / "tmp"
+    temp_root.mkdir()
+    record = tmp_path / "npx-record.txt"
+    result = _run(script, args, path_dir, cwd, RECORD=str(record), TMPDIR=str(temp_root), **extra)
+    lines = record.read_text().splitlines() if record.exists() else []
+    return result, lines, temp_root
+
+
+@pytest.mark.parametrize("which", ["install", "uninstall"])
+def test_npx_runs_from_an_empty_temp_folder_not_the_project(tmp_path, which):
+    """A project .npmrc (registry, node-options) and its node_modules decide what npx runs, so
+    npx must not start in the project. With the fake npx this shows the working folder only; the
+    marker proves nothing ran here, and the real run is the experiment in the release notes."""
+    project, marker = _hostile_project(tmp_path)
+
+    result, lines, temp_root = _run_with_recording_npx(tmp_path, which, [], project)
+
+    assert result.returncode == 0, result.stderr
+    work_dir = Path(lines[0])
+    assert work_dir != project and project not in work_dir.parents
+    assert temp_root in work_dir.parents, "the working folder is not a new folder under TMPDIR"
+    assert not {"HAS-NPMRC", "HAS-NODE-MODULES", "HAS-PACKAGE-JSON"} & set(lines), lines
+    assert not marker.exists()
+    assert list(temp_root.iterdir()) == [], "the temporary folder was not removed"
+    assert lines[1].endswith(f"--dir {project.resolve()}"), lines[1]
+    assert "(.npmrc" not in lines[1]
+
+
+@pytest.mark.parametrize("which", ["install", "uninstall"])
+def test_the_temp_folder_is_removed_and_the_exit_status_kept_when_npx_fails(tmp_path, which):
+    project, _ = _hostile_project(tmp_path)
+    path_dir = _tool_dir(tmp_path, node="echo node-ok", npx='pwd > "$RECORD"; exit 3')
+    script = _fake_script_copy(tmp_path, INSTALL_SH if which == "install" else UNINSTALL_SH)
+    temp_root = tmp_path / "tmp"
+    temp_root.mkdir()
+    record = tmp_path / "rec.txt"
+    result = _run(script, [], path_dir, project, RECORD=str(record), TMPDIR=str(temp_root))
+    assert result.returncode == 3
+    assert record.exists() and list(temp_root.iterdir()) == []
+
+
+@pytest.mark.parametrize("which", ["install", "uninstall"])
+@pytest.mark.parametrize("style", ["separate", "equals"])
+def test_a_dir_argument_is_made_absolute_and_replaces_the_current_folder(tmp_path, which, style):
+    project, _ = _hostile_project(tmp_path)
+    arg = ["--dir", "proj"] if style == "separate" else ["--dir=proj"]
+
+    result, lines, _ = _run_with_recording_npx(
+        tmp_path, which, [*arg, "--agents", "claude"], tmp_path
+    )
+
+    assert result.returncode == 0, result.stderr
+    assert Path(lines[0]) not in (tmp_path.resolve(), project.resolve())
+    words = lines[1].split()
+    assert words.count("--dir") == 1, lines[1]
+    assert words[words.index("--dir") + 1] == str(project.resolve())
+    assert "--agents claude" in lines[1]
+
+
+@pytest.mark.parametrize("which", ["install", "uninstall"])
+def test_a_dir_that_does_not_exist_is_refused_before_npx_runs(tmp_path, which):
+    result, lines, temp_root = _run_with_recording_npx(
+        tmp_path, which, ["--dir", "no-such-folder"], tmp_path
+    )
+    assert result.returncode == 2
+    assert "no such folder" in result.stderr
+    assert lines == [] and list(temp_root.iterdir()) == []
+
+
+def test_uninstall_sh_run_from_a_checkout_passes_the_project_with_dir(tmp_path):
+    path_dir = _tool_dir(tmp_path, node='echo "node $*"', npx='echo "npx $*"')
+    project = tmp_path / "proj"
+    project.mkdir()
+    result = _run(UNINSTALL_SH, ["--dir", str(project), "--dry-run"], path_dir, tmp_path)
+    assert result.returncode == 0, result.stderr
+    assert f"install.js uninstall --dry-run --dir {project}" in result.stdout
+
+
+def test_install_sh_without_mktemp_stops_instead_of_running_npx_in_the_project(tmp_path):
+    path_dir = _tool_dir(tmp_path, node="echo node-ok", npx='echo "NPX RAN"')
+    (path_dir / "mktemp").unlink()
+    script = _fake_script_copy(tmp_path, INSTALL_SH)
+    result = _run(script, [], path_dir, tmp_path)
+    assert result.returncode == 1
+    assert "temporary folder" in result.stderr and "NPX RAN" not in result.stdout
+
+
+@pytest.mark.parametrize("script,param", [(INSTALL_PS1, "Dir"), (UNINSTALL_PS1, "Dir")])
+def test_ps1_scripts_declare_a_dir_parameter(script, param):
+    assert param in _declared(script)
+
+
+@pytest.mark.parametrize("script", [INSTALL_PS1, UNINSTALL_PS1], ids=lambda p: p.name)
+def test_ps1_npx_runs_from_a_new_temp_folder_and_names_the_project(script):
+    """Read, not run (PowerShell is not available here): the npx call sits between
+    Push-Location of a new folder under the temp path and its removal, and carries --dir."""
+    text = script.read_text()
+    assert "[System.IO.Path]::GetTempPath()" in text
+    npx_line = next(ln for ln in text.splitlines() if re.match(r"\s*& npx\b", ln))
+    assert "--dir $projectAbs" in npx_line
+    before = text[: text.index(npx_line)]
+    assert before.rindex("Push-Location -LiteralPath $workDir") > before.rindex("New-Item")
+    after = text[text.index(npx_line) :]
+    assert "Remove-Item -LiteralPath $workDir -Recurse" in after.split("exit $npxExit")[0]
 
 
 # --------------------------------------------------------------------------

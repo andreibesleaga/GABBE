@@ -10,6 +10,8 @@ outside, and the record's one honest entry must still be removed. The same table
 through the Node installer (skipped when `node` is not on PATH).
 """
 
+from __future__ import annotations
+
 import hashlib
 import json
 import os

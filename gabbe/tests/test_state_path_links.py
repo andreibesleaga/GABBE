@@ -4,6 +4,8 @@
 The tool server runs without an audit trail (read-only tools only, run_command refused);
 a CLI command that needs the database stops with one line and exit status 1."""
 
+from __future__ import annotations
+
 import json
 import os
 import subprocess

@@ -1,6 +1,8 @@
 # SPDX-License-Identifier: Apache-2.0
 """Input and output limits of the tool server (SEC-C-09): the real server, over stdio."""
 
+from __future__ import annotations
+
 import json
 import os
 import sqlite3

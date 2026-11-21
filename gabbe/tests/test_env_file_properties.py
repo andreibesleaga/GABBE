@@ -79,7 +79,7 @@ def _load(text, real):
     try:
         with tempfile.TemporaryDirectory() as d, patch.dict(os.environ, real, clear=True):
             path = Path(d) / ".env"
-            path.write_text(text, encoding="utf-8", newline="")
+            path.write_bytes(text.encode("utf-8"))  # exact bytes; newline= needs 3.10
             config._load_env_file(path)
             return dict(os.environ), handler.messages
     finally:
@@ -136,7 +136,7 @@ def test_loading_twice_gives_the_same_environment(text):
     with patch.dict(os.environ, first, clear=True):
         with tempfile.TemporaryDirectory() as d:
             path = Path(d) / ".env"
-            path.write_text(text, encoding="utf-8", newline="")
+            path.write_bytes(text.encode("utf-8"))  # exact bytes; newline= needs 3.10
             config._load_env_file(path)
             assert dict(os.environ) == first
 
@@ -147,7 +147,7 @@ def test_parse_returns_stripped_pairs_without_comments(text):
     """Parsed pairs have no comment lines, no blank keys and no surrounding quotes."""
     with tempfile.TemporaryDirectory() as d:
         path = Path(d) / ".env"
-        path.write_text(text, encoding="utf-8", newline="")
+        path.write_bytes(text.encode("utf-8"))  # exact bytes; newline= needs 3.10
         pairs = config._parse_env_file(path)
     for key, value in pairs.items():
         assert key == key.strip() and not key.startswith("#") and "=" not in key

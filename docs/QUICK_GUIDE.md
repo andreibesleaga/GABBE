@@ -302,7 +302,7 @@ Or activate the swarm skill explicitly:
 > Activate `agents/skills/brain/loki-mode.skill.md` with your goal.
 
 **Using Pure Agent Mode (No CLI):**
-> "Activate `agents/skills/brain/loki-mode.skill.md`. Goal: [build X]. Do not ask me for permission unless you hit a mandatory Human Approval Gate or a task requires True A2A Delegation."
+> "Activate `agents/skills/brain/loki-mode.skill.md`. Goal: [build X]. Work through the phases on your own and stop at every Human Approval Gate, before any commit, push, publish or deploy, and when a task requires True A2A Delegation."
 
 
 ```

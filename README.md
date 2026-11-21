@@ -103,9 +103,9 @@ curl -fsSL https://raw.githubusercontent.com/andreibesleaga/GABBE/main/install.s
 > [!WARNING]
 > **Known issues in 1.1.3** (fixed in 1.1.4, in preparation):
 >
-> - **Installing into an existing project.** Copy your root `AGENTS.md`, `.github/copilot-instructions.md`, your `agents/` folder and your `docs/` folder somewhere safe first. The npm installer replaces the root `AGENTS.md`, and the Copilot file when Copilot is selected (originals kept as `<name>.bak`), merges the kit into an `agents/` folder you already have, and copies the kit's documents into `docs/`, replacing files of the same name (originals kept as `<name>.gabbe-bak`).
-> - **Do not run `gabbe update` on a project installed with the wizard** (`python3 scripts/init.py` or `gabbe setup`). It stops with an error after it has already replaced `agents/AGENTS.md` and `agents/CONSTITUTION.md` without a backup.
-> - **Do not run `gabbe uninstall --purge`.** It removes the whole `agents/` folder, including your own files, your memory files and the backups. Plain `gabbe uninstall` also removes your own files inside `.claude/skills`, `.github/skills` and `.cursor/rules`. To remove the kit by hand, follow [`docs/INSTALL.md`](docs/INSTALL.md).
+> - **Installing into an existing project.** Copy your root `AGENTS.md`, `.github/copilot-instructions.md`, your `agents/` folder and your `docs/` folder somewhere safe first. The npm installer replaces the root `AGENTS.md`, and the Copilot file when Copilot is selected (originals moved to `<name>.bak`; a `.bak` left by an earlier run can be overwritten, so keep your own copy), merges the kit into an `agents/` folder you already have, and copies the kit's documents into `docs/`, replacing files of the same name (originals kept as `<name>.gabbe-bak`).
+> - **Do not run `gabbe update` on a project installed with the wizard** (`python3 scripts/init.py` or `gabbe setup`). It replaces `agents/AGENTS.md` and `agents/CONSTITUTION.md` without a backup, and on an install that has generated skill folders it then stops with an error part-way.
+> - **Do not run `gabbe uninstall --purge`.** It removes the whole `agents/` folder, including your own files, your memory files and the backups. Plain `gabbe uninstall` also removes your own files inside `.claude/skills`, `.github/skills` and `.cursor/rules`. Run `gabbe uninstall --dry-run` first and move your own files out of the listed folders.
 
 **Python / PyPI:**
 ```bash

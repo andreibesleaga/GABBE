@@ -26,7 +26,7 @@
 # The kit version this script belongs to is the line below (the release gate checks it
 # against package.json). GABBE_KIT_VERSION overrides it; `latest` means the newest release.
 
-GABBE_KIT_DEFAULT_VERSION="1.1.4"
+GABBE_KIT_DEFAULT_VERSION="1.2.0"
 
 set -eu
 

@@ -6,9 +6,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
-## [Unreleased]
-
-<!-- 1.2.0 in preparation. Sections are filled as the work lands; the heading gets its version and date at release. -->
+## [1.2.0] — 2026-11-22 — the complete kit
 
 ### Changed — the kit's rules (read these before you upgrade a project)
 

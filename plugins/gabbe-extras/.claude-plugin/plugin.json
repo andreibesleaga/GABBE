@@ -1,6 +1,6 @@
 {
   "name": "gabbe-extras",
-  "version": "1.1.4",
+  "version": "1.2.0",
   "description": "GABBE extras skills (8): kit maintenance and research helpers: skill registry imports, update scan, state export and import, traceability matrix, agent analytics, empirical methods, emerging technology and knowledge connectors.",
   "author": {
     "name": "Andrei Nicolae Besleaga",

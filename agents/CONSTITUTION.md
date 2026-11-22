@@ -198,5 +198,5 @@ Choose the cheapest model tier, tool and path that reliably meets the task. Ask 
 *Amended by: [team member name]*
 *Reason for amendment: [brief explanation]*
 
-*GABBE Kit version: 1.1.4*
+*GABBE Kit version: 1.2.0*
 *This file is maintained by the team and updated when project conventions change.*

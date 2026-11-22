@@ -34,7 +34,7 @@ $ErrorActionPreference = 'Stop'
 
 # The kit version this script belongs to (the release gate checks this line against
 # package.json). $env:GABBE_KIT_VERSION overrides it; `latest` means the newest release.
-$GabbeKitDefaultVersion = '1.1.4'
+$GabbeKitDefaultVersion = '1.2.0'
 
 if ($Help) {
     @'

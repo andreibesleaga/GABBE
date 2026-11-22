@@ -65,28 +65,9 @@ Produce an analytics + delivery-metrics plan containing:
 - The DORA Four Keys with current/target values, and the SPACE dimensions with how each is measured.
 - Owners, instrumentation sources, and review cadence.
 
-## Security & Guardrails
-
-### 1. Skill Security
-- **Risk**: Result-shopping — the agent surfaces a favorable post-hoc segment or stops a test on a lucky
-  peek; mitigation: the agent enforces the pre-registered hypothesis, primary metric, and stopping rule and
-  reports any deviation as exploratory-only, not confirmatory.
-- **Risk**: Metric gaming — a single DORA or SPACE figure (deploy count, commits) is optimized in isolation;
-  mitigation: the agent MUST present the balanced metric set and flag movements that improve one key while
-  degrading a counterbalancing one.
-
-### 2. System Integration Security
-- **Risk**: PII and over-collection in events — the taxonomy captures raw emails, precise location, or other
-  sensitive fields by default; mitigation: the agent instruments only question-driven events, excludes or
-  hashes sensitive properties, and notes the lawful basis and retention for each.
-- **Risk**: Experiment exposure of vulnerable users — an A/B test routes harmful or untested experiences to
-  real users without guardrails; mitigation: the agent requires guardrail metrics and a kill-switch before
-  ramp and excludes experiments that could materially harm a user segment.
-
-### 3. LLM & Agent Guardrails
-- **Risk**: Correlation-as-causation — the model reads an observational funnel change as proof a feature
-  caused it; mitigation: the agent distinguishes correlational from controlled-experiment evidence and
-  attaches confidence intervals rather than asserting a causal point lift.
-- **Risk**: Surveillance creep — instrumentation drifts toward tracking individuals across unrelated contexts
-  to "improve analytics"; mitigation: the agent refuses event designs whose value depends on covert
-  cross-context tracking and keeps collection scoped to the stated product question.
+## Limits and safety
+- Fix the hypothesis, primary metric, MDE and stopping rule before the test; report any deviation as exploratory.
+- Event properties carry no raw email, precise location or other personal data; hash or leave them out, and note retention.
+- An experiment needs guardrail metrics and a kill switch before ramp-up; do not run one that could harm a user group.
+- A change seen in an observational funnel is not proof of cause; say so and give confidence intervals.
+- Do not design tracking across unrelated contexts.

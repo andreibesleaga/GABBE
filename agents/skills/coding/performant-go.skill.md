@@ -1,6 +1,6 @@
 ---
 name: performant-go
-description: Strategies for high-performance Go systems (Goroutines, Channels, Pprof, Memory Alignment).
+description: "Profile and speed up Go services: goroutine lifecycle, allocations, struct layout, pprof, GC settings, benchmarks. Use when a Go service is slow, uses too much memory, leaks goroutines or needs a benchmark."
 triggers: [go, golang, performance, goroutines, channels, pprof, gc, scalability]
 tags: [coding, go, architecture]
 context_cost: medium
@@ -42,20 +42,17 @@ Harnessing Go's concurrency primitives and runtime efficiency to build systems c
 3. **Escape Analysis**: Run `go build -gcflags="-m"` to see what variables move to the heap.
 4. **Identify Contention**: Use the Race Detector (`-race`) and look for Mutex contention in pprof.
 
-## Deliverables
+## Output Format
 - `ARCHITECTURE_REVIEW_TEMPLATE.md`: Visualizations and analysis of CPU/Memory bottlenecks.
 - `BENCHMARK_REPORT_TEMPLATE.md`: Results from `go test -bench . -benchmem`.
 - `SCALABILITY_ANALYSIS_TEMPLATE.md`: Strategy for minimizing heap allocations and scaling goroutines.
 
-## Security & Guardrails
+## Constraints
+- Every goroutine has a termination signal (`context.Context`).
+- Prefer clear Go over pointer tricks; optimise only what a benchmark or profile shows.
 
-### 1. Concurrency Safety
-- **Race Conditions**: MUST run tests with the `-race` flag. Never share memory without synchronization (Mutex/Channels).
-- **Deadlock Detection**: Ensure no circular dependencies between channels or locks.
-
-### 2. CGO Cautions
-- **Overhead**: Be aware that CGO calls are significantly slower than native Go. Avoid calling C code in tight loops.
-
-### 3. Agent Guardrails
-- **No Premature Fasthttp**: Do not recommend `fasthttp` over `net/http` unless the standard library is proven insufficient, as `fasthttp` breaks many HTTP features.
-- **Simplicity First**: Favor clean, readable Go over "clever" pointer arithmetic or `unsafe` hackery unless absolutely necessary.
+## Limits and safety
+- Run the tests with `-race` after any change to concurrent code; a reported race is a failure.
+- Expose `net/http/pprof` only on a local or authenticated admin port, never on the public listener.
+- Reset a pooled object before it goes back into `sync.Pool`, so data from one request cannot reach another.
+- Use `unsafe`, cgo, `fasthttp` or a replacement JSON library only when a benchmark shows the standard library is the bottleneck; keep the benchmark.

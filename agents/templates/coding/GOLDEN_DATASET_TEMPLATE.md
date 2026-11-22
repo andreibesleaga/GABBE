@@ -4,7 +4,7 @@ A golden dataset is the small, curated set of input/expected pairs that defines 
 for a probabilistic system. This template uses a **promptfoo-compatible** YAML shape so
 the same file can be run by two harnesses:
 
-- the external `promptfoo` CLI (`npx promptfoo eval`), or
+- the external `promptfoo` CLI (`npx promptfoo@0.126.0 eval`), or
 - GABBE's home-grown harness `agents/scripts/eval_skills.py`, which reuses `gabbe/llm.py`
   for model calls instead of promptfoo's provider plumbing.
 

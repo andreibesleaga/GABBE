@@ -61,3 +61,62 @@ def test_llm_cache_off_by_default(tmp_project, monkeypatch):
     llm.call_llm_with_usage("p", "s", temperature=0)
     llm.call_llm_with_usage("p", "s", temperature=0)
     assert calls["n"] == 2  # no caching when disabled
+
+
+def test_a_link_at_the_entry_path_is_not_written_through(tmp_path):
+    import os
+
+    from gabbe.cache import ContentCache, content_key
+
+    cache = ContentCache(tmp_path / "c", namespace="n")
+    key = content_key("x")
+    victim = tmp_path / "victim.txt"
+    os.symlink(victim, cache._path(key))
+    cache.set(key, {"a": 1})
+    assert not victim.exists()
+
+
+def test_a_link_at_the_entry_path_is_not_read_through(tmp_path):
+    import json
+    import os
+
+    from gabbe.cache import ContentCache, content_key
+
+    cache = ContentCache(tmp_path / "c", namespace="n")
+    key = content_key("y")
+    secret = tmp_path / "outside.json"
+    secret.write_text(json.dumps({"value": "from outside the cache"}))
+    os.symlink(secret, cache._path(key))
+    assert cache.get(key) is None  # a planted link is a miss
+
+    os.unlink(cache._path(key))
+    cache.set(key, {"a": 1})
+    assert cache.get(key) == {"a": 1}  # an ordinary entry still reads back
+
+
+def test_a_fifo_at_the_entry_path_is_a_miss_and_does_not_block(tmp_path):
+    import os
+
+    import pytest
+
+    from gabbe.cache import ContentCache, content_key
+
+    if not hasattr(os, "mkfifo"):
+        pytest.skip("no FIFOs on this platform")
+    cache = ContentCache(tmp_path / "c", namespace="n")
+    key = content_key("z")
+    os.mkfifo(cache._path(key))
+    assert cache.get(key) is None
+
+
+def test_the_cache_is_off_where_files_cannot_be_opened_without_following_links(
+    tmp_path, monkeypatch
+):
+    import gabbe.cache as cache_mod
+
+    monkeypatch.setattr(cache_mod, "_NOFOLLOW", None)
+    cache = cache_mod.ContentCache(tmp_path / "c", namespace="n")
+    key = cache_mod.content_key("w")
+    cache.set(key, {"a": 1})
+    assert cache.get(key) is None
+    assert not (tmp_path / "c").exists()

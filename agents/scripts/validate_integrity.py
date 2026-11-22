@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
-import py_compile
 import sys
 from pathlib import Path
 
@@ -13,9 +12,17 @@ GREEN = "\033[0;32m"
 BLUE = "\033[0;34m"
 NC = "\033[0m"
 
-REQUIRED_FILES = [
+# The repository also holds the wizard and the README next to `agents/`; an installed
+# kit has neither. The repository is recognised by its package folder and project file,
+# not by the files it is checked for.
+IS_REPOSITORY = (PROJECT_ROOT / "gabbe").is_dir() and (PROJECT_ROOT / "pyproject.toml").is_file()
+
+REPOSITORY_ONLY_FILES = [
     PROJECT_ROOT / "scripts/init.py",
     PROJECT_ROOT / "README.md",
+]
+
+REQUIRED_FILES = (REPOSITORY_ONLY_FILES if IS_REPOSITORY else []) + [
     AGENTS_DIR / "AGENTS.md",
     AGENTS_DIR / "CONSTITUTION.md",
     AGENTS_DIR / "skills/00-index.md",
@@ -39,10 +46,10 @@ def check_exists(path):
 
 def check_python_syntax(path):
     try:
-        py_compile.compile(path, doraise=True)
-        # print(f"{GREEN}[SYNTAX OK] {path.relative_to(PROJECT_ROOT)}{NC}")
+        # Compile in memory: writing a __pycache__ into the kit would change it.
+        compile(path.read_bytes(), str(path), "exec")
         return True
-    except py_compile.PyCompileError as e:
+    except (SyntaxError, ValueError) as e:
         print(f"{RED}[SYNTAX ERROR] {path.relative_to(PROJECT_ROOT)}: {e}{NC}")
         return False
 

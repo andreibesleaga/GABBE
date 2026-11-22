@@ -1,7 +1,7 @@
 ---
 name: dev-workflow
-description: Standardized Github operations, Diátaxis documentation framework, and visual assets
-triggers: [git workflow, github, gh cli, documentation, diataxis, restructure docs]
+description: Handle git and GitHub tasks with the gh CLI and organise documentation with the Diataxis quadrants (tutorial, how-to, reference, explanation). Use when you restructure docs, prepare commits or a PR, or need to pick a doc type.
+triggers: [git workflow, github pull request, gh cli, diataxis, restructure docs, write documentation]
 tags: [git, github, documentation, diataxis]
 context_cost: low
 ---
@@ -22,7 +22,14 @@ You have been invoked to refine project documentation, execute complex git workf
    - If history needs cleaning, propose a rebase to the human and run it only after they confirm.
    - Ensure all commits use Conventional Commits formatting.
 
-## Security & Guardrails
-- Never document sensitive environment variables, internal IP routes, or PII in cleartext markdown files.
-- Never force push (`git push -f`) to a shared branch without explicit human coordination. Use `--force-with-lease` if absolutely necessary on personal feature branches.
-- Follow the overarching rules defined in `AGENTS.md` and `CONSTITUTION.md`.
+## Constraints
+- Each document belongs to one Diataxis quadrant and keeps to its rules.
+- Commits use Conventional Commits; the human decides what is committed and pushed.
+
+## Output Format
+The edited or new documentation files, or the exact git and `gh` commands proposed for the human to run.
+
+## Limits and safety
+- Do not write secret values, internal addresses or personal data into Markdown files.
+- Do not force-push to a shared branch without explicit human coordination; on a personal feature branch use `--force-with-lease` only after the human confirms.
+- If history needs cleaning, propose the rebase to the human and run it only after they confirm.

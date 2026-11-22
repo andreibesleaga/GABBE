@@ -1,7 +1,7 @@
 ---
 name: queue-management
-description: Standards for DLQs (Dead Letter Queues), Idempotency, and Retry policies.
-triggers: [queue management]
+description: Set rules for message queues - dead-letter queues, idempotent consumers, retries, at-least-once delivery, ordering and poison pills. Use when you add a consumer, messages are lost or processed twice, or a DLQ fills up.
+triggers: [dead letter queue, idempotent consumer, retry policy for queue, duplicate messages, poison pill message, message ordering]
 tags: [ops]
 role: eng-backend, ops-sre
 context_cost: low
@@ -37,16 +37,18 @@ Async messaging is powerful but dangerous. Messages must never be lost.
 - Detect messages that crash the consumer (StackOverflow, OOM).
 - Reject them immediately to DLQ to prevent blocking the partition.
 
-## Security & Guardrails
+For integration with ERP, CRM or legacy systems through queues see `enterprise-integration.skill`.
 
-### 1. Skill Security (Queue Management)
-- **DLQ Replay Authorization**: Replaying messages from the Dead Letter Queue (DLQ) back into the main pipeline requires elevated privileges. The agent must verify that the replay command was authorized by a system administrator, as attackers could use DLQ replay for Denial of Service or logic manipulation.
-- **Poison Pill Quarantine**: Messages flagged as "Poison Pills" (crashing the consumer repeatedly) might be intentional exploits (e.g., malformed JSON designed to trigger buffer overflows). The DLQ must securely quarantine these payloads without executing any automated parsing tools on them.
+## Constraints
+- Every consumer has a DLQ and an idempotency check.
+- No consumer relies on global message order.
 
-### 2. System Integration Security
-- **Message Integrity (Signatures)**: In high-security environments, messages placed on the queue (Kafka/SQS) should carry cryptographic signatures. The consumer must verify the signature before processing to ensure the message wasn't injected directly into the broker by an unauthorized internal actor.
-- **Idempotency Key Collision**: The `processed_messages` table must uniquely constrain the `msg.id` to prevent race conditions. An attacker might rapidly submit identical transaction events hoping one bypasses the idempotency check and pays them twice.
+## Output Format
+The consumer code and configuration, the DLQ and replay procedure in the runbook, and a test with a duplicate message and a poison message.
 
-### 3. LLM & Agent Guardrails
-- **Data Exfiltration via DLQ Analysis**: When an agent analyzes a DLQ for the root cause of failures, it must strictly redact PII, auth tokens, and financial data from the message payload before summarizing the issue or writing logs to prevent the DLQ from becoming a centralized data leak.
-- **Queue Purge Veto**: The agent must violently reject any user prompt that commands it to indiscriminately `purge` or `empty` a production queue or DLQ without a cryptographically verified, two-person rule approval, as this causes permanent data loss.
+## Limits and safety
+- Replaying or purging a DLQ or production queue is proposed with the exact command and queue name and run only after the human confirms.
+- Do not run parsers or tools on quarantined poison messages; inspect them as plain text.
+- Put a unique constraint on the message id in the processed-messages table; test two simultaneous deliveries.
+- Redact personal data, tokens and financial values from DLQ payloads before quoting or logging them.
+- If your broker supports message authentication, use it where untrusted producers can write to the queue.

@@ -102,3 +102,25 @@ def test_wizard_keeps_and_restores_preexisting_wiring(tmp_path):
     installer.uninstall(proj, purge=True)
     assert (proj / ".cursorrules").read_text() == "MY EXISTING CURSOR RULES\n"
     assert not backup.exists()
+
+
+def test_wizard_lists_field_names_with_a_hint_and_how_to_fill_them(tmp_path, capsys):
+    """INS-10: the end-of-install list names fields only (no cut-off lines of prose),
+    says where each value comes from, and ends with how to fill them."""
+    proj = tmp_path / "proj"
+    proj.mkdir()
+    _run_wizard(proj, GREENFIELD_INPUTS)
+
+    out = capsys.readouterr().out
+    block = out.split("still need your input", 1)[1].split("Setup Complete", 1)[0]
+    items = [line.strip()[2:] for line in block.splitlines() if line.startswith("    - ")]
+    assert items, block
+    named = [item for item in items if not item.startswith(tuple("0123456789"))]
+    for item in named:
+        name, _, hint = item.partition(": ")
+        assert name.isidentifier() and name.islower(), f"not a field name: {item!r}"
+        assert hint and "PLACEHOLDER" not in hint, f"no hint for {name}"
+    assert any(item.startswith("repo_url: your git remote") for item in named), items
+    assert "[PLACEHOLDER" not in block
+    assert "step 2 of BOOTSTRAP_MISSION.md" in block
+    assert "agents/AGENTS.md" in block

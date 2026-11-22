@@ -165,7 +165,7 @@ construction, backward compatible.
 
 Because every extension is additive and every existing surface is gate-protected, GABBE can take on
 a new methodology — a new persona swarm, a new lifecycle phase id (the phase validator already
-accepts extended Day-2 phases like S11/S12 alongside S01–S10), a new skill family, a new target
+accepts the Day-2 phases S11–S13 alongside the earlier ones), a new skill family, a new target
 agent — by **adding** the artifacts that express it, never by mutating what is already there.
 Nothing that works today stops working tomorrow. That is the contract that lets the system grow
 indefinitely without a breaking change, and it is worth following exactly rather than approximately:

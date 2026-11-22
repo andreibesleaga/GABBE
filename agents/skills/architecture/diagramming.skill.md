@@ -1,6 +1,6 @@
 ---
 name: "diagramming"
-description: Choose and create the right diagram type (UML, C4, ER, BPMN, domain) in standard notation; Mermaid-compatible output.
+description: Pick the right diagram type and draw it in Mermaid (or PlantUML) — C4, sequence, state, ER, flowchart, data flow, context map. Use when the human asks for a diagram or when structure or flow must be shown.
 triggers: ["create diagram", "draw diagram", "which diagram", "diagram this", "visualize", "sequence diagram", "class diagram", "flowchart", "architecture diagram", "ER diagram", "state diagram", "activity diagram", "context diagram", "swimlane"]
 tags: ["architecture"]
 context_cost: "low"
@@ -12,6 +12,15 @@ context_cost: "low"
 Select the appropriate diagram type for the communication need, create it using correct
 notation and standards, and produce output in Mermaid syntax (or PlantUML as fallback).
 Diagrams are communication tools — choose based on what question the reader needs answered.
+For Miro, Draw.io or Figma boards see `visual-whiteboarding.skill`.
+
+---
+
+## Steps
+1. Pick the diagram type with the selection guide below.
+2. Draw it following the standards for that type.
+3. Run the review checklist.
+4. Fix what the checklist finds, then deliver.
 
 ---
 
@@ -364,17 +373,11 @@ Before finalizing any diagram:
 - Include diagram title and date — diagrams without metadata become unreliable
 - Simple is better — if a diagram needs extensive explanation, simplify the diagram
 
-## Security & Guardrails
+## Output Format
+A Mermaid (or PlantUML) diagram in the file or code block the human named, with a title, the scope, the date, and the one question it answers.
 
-### Steps
-## 1. Skill Security (Diagramming)
-- **Visual IP Leakage**: The agent must not include highly specific, sensitive configuration details (e.g., hardcoded IP subnets, plaintext API keys, precise firewall port numbers) within the generated Mermaid diagrams. Diagrams act as a high-level topographical map; embedding literal secrets turns the documentation into a target for credential scraping.
-- **Malicious Syntax Injection**: The agent must sanitize any user-provided names or labels before injecting them into Mermaid or PlantUML syntax. An attacker providing a component name like `"); DROP TABLE users;` must not be able to break the markdown renderer or cause HTML injection/XSS when the diagram is visualized in a browser.
-
-### 2. System Integration Security
-- **Threat Model Anchoring**: When generating a System Context (Level 1) or Container (Level 2) diagram, the agent must ensure that all external boundaries and trust domains align perfectly with the application's Threat Model. A diagram that omits an external third-party service creates a blind spot where zero security controls will be applied.
-- **Data Classification in DFDs**: When creating Data Flow Diagrams (DFDs), the agent should distinguish the flow of highly sensitive data (e.g., marking PCI/PHI flows in red or with specific labels). This provides visual proof to auditors that regulated data is exclusively traversing encrypted, approved pathways.
-
-### 3. LLM & Agent Guardrails
-- **Aspirational Architecture Bias**: The LLM might hallucinate security components (e.g., drawing a "WAF" or "KMS" box) simply because it mathematically associates them with enterprise deployments, even if they explicitly do not exist in the current system. The agent must strictly adhere to rendering *only* the verified, ground-truth architecture, preventing a false sense of security.
-- **Protocol Hallucination**: The agent must accurately reflect communication protocols (e.g., `HTTPS` vs `HTTP`, `TLS` vs `TCP`). If the agent "guesses" that an internal connection uses `HTTPS` when it actually uses plaintext `HTTP`, it actively orchestrates a critical vulnerability misrepresentation. If the protocol is unknown, it must be labeled `[UNKNOWN]`, not assumed secure.
+## Limits and safety
+- Draw only the verified current system. An unknown protocol is labelled `[UNKNOWN]`; do not add components (WAF, KMS) the system does not have.
+- No secrets, internal IP ranges or port lists in diagrams, especially in a public repository.
+- Escape user-provided names and labels before inserting them into Mermaid or PlantUML.
+- Context and container diagrams show every external system and match the threat model if one exists; mark flows of sensitive data.

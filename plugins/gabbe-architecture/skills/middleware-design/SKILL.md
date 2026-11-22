@@ -1,6 +1,6 @@
 ---
 name: middleware-design
-description: "Designing robust middleware chains (Auth, Rate Limiting, Logging). Use when: middleware design."
+description: "Request pipeline design with a fixed order — request id, CORS, rate limit, authentication, authorization, parsing, validation, error handler. Use when adding or reviewing middleware for a web API."
 license: CC-BY-SA-4.0
 metadata:
   source: "agents/skills/architecture/middleware-design.skill.md"
@@ -18,10 +18,10 @@ This skill guides the creation of the request processing pipeline ("The Onion Ar
 
 1.  **Request ID**: Generate `trace_id` immediately. (Before logs).
 2.  **CORS**: Allow/Block origins. (Before processing).
-3.  **Body Parser**: JSON/Form parsing. (Limit size to prevent DoS).
-4.  **Rate Limiter**: Token Bucket algorithm. (Stop abuse cheaply).
-5.  **Authentication**: Verify JWT/Session. (Who is it?).
-6.  **Authorization**: Check Roles/Scopes. (Can they do it?).
+3.  **Rate Limiter**: Token Bucket algorithm. (Stop abuse cheaply).
+4.  **Authentication**: Verify JWT/Session. (Who is it?).
+5.  **Authorization**: Check Roles/Scopes. (Can they do it?).
+6.  **Body Parser**: JSON/Form parsing. (Limit size to prevent DoS; runs only after the checks above).
 7.  **Validation**: Zod/Pydantic schema check. (Is input valid?).
 8.  **Controller**: Business Logic.
 9.  **Error Handler**: Catch exceptions, format JSON, scrub sensitive data.
@@ -46,16 +46,16 @@ This skill guides the creation of the request processing pipeline ("The Onion Ar
 - **NEVER** return raw stack trace to client in Production.
 - **ALWAYS** log raw stack trace to logger.
 
-## Security & Guardrails
+## Constraints
+- Middleware stays generic: no business queries.
+- Pipeline order is fixed as in section 1.
 
-### 1. Skill Security (Middleware Design)
-- **Bypass via Pipeline Ordering**: The agent is strictly commanded to never deviate from the defined security ordering (e.g., `RateLimiter -> Authentication -> Authorization`). Placing the `BodyParser` or a complex GraphQL execution context *before* the `RateLimiter` or `Authentication` layer allows unauthenticated attackers to exhaust CPU and RAM parsing massive payloads.
-- **Error Handler Data Leakage**: The agent must mathematically ensure the final `ErrorHandler` middleware catches all uncaught downstream exceptions. Crucially, the handler must strip raw stack traces, database schema names, SQL syntax errors, and internal IP addresses before formatting the RFC 7807 response for the client in production mode.
+## Output Format
+The middleware order list and the middleware code or configuration for the project's framework.
 
-### 2. System Integration Security
-- **Forged Context Defeat**: The agent must ensure that HTTP headers (like `X-Forwarded-For` or `X-User-Role`) injected by external reverse proxies are aggressively stripped or overwritten by the entry-point middleware if they cannot be cryptographically verified. Trusting spoofed headers allows attackers to gain arbitrary privileges in the `Authorization` middleware.
-- **Auth Token Replay and Expiration**: The `Authentication` middleware must not only validate the cryptographic signature of a JWT but also strictly verify the `exp` (expiration) and `nbf` (not before) claims. If the integration utilizes distributed cache invalidation (like logging out), the middleware must also check a high-speed blacklist (e.g., Redis) to prevent the replay of revoked tokens.
-
-### 3. LLM & Agent Guardrails
-- **Hallucinated "Catch-All" Security**: The LLM might propose a single, massive middleware function that attempts to handle Auth, Logging, and Rate Limiting simultaneously. The agent must reject this spaghetti design, enforcing the Unix philosophy: distinct, highly-focused middleware focused on exactly one security concern (The Onion Architecture).
-- **False Density in Rate Limiting**: If the LLM suggests using basic array structures or local memory (`{}`) for the `RateLimiter` in a Node/Python app, the agent must override this with a distributed storage solution (like Redis). Local memory rate limiting provides a false sense of security in Kubernetes/Load-Balanced environments where traffic is distributed across multiple pods.
+## Limits and safety
+- Rate limiting, authentication and authorization run before the body is parsed.
+- The final error handler catches everything and strips stack traces, SQL errors and internal addresses.
+- Strip or overwrite forwarded headers (`X-Forwarded-For`, `X-User-Role`) from outside unless a trusted proxy sets them.
+- Authentication checks expiry and not-before claims, and the revocation list where logout or revocation exists.
+- One concern per middleware; with more than one instance, keep rate-limit counters in shared storage, not process memory.

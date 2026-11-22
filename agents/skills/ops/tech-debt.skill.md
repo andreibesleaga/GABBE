@@ -1,7 +1,7 @@
 ---
 name: tech-debt
-description: Identify, document, score, and prioritize technical debt into an actionable backlog
-triggers: [tech debt, code smell, TODO, FIXME, legacy, refactor backlog, quality decay, debt]
+description: Find technical debt (markers, complexity, duplication, coverage gaps, structural smells, stale dependencies), score it by impact and effort, and write a P1 to P4 backlog. Use when quality decays, before a refactor plan, or to size repayment work.
+triggers: [tech debt, find code smells, todo fixme audit, refactor backlog, quality decay, debt backlog]
 tags: [ops]
 context_cost: medium
 ---
@@ -11,6 +11,8 @@ context_cost: medium
 Surface, document, and prioritize technical debt so it can be systematically planned and repaid. Produce an Impact×Effort prioritized backlog using TECH_DEBT_TEMPLATE.md.
 
 ## Steps
+
+For existing code without tests, start with `existing-project-onboarding.skill` and `characterization-tests.skill` before repaying any debt.
 
 1. **Scan for explicit debt markers**
    ```bash
@@ -22,7 +24,7 @@ Surface, document, and prioritize technical debt so it can be systematically pla
 2. **Run complexity analysis**
    ```bash
    # JavaScript/TypeScript
-   npx complexity-report --format json src/ > complexity-report.json
+   npx complexity-report@2.0.0-alpha --format json src/ > complexity-report.json
    # Look for: functions with cyclomatic complexity > 10
 
    # PHP
@@ -41,7 +43,7 @@ Surface, document, and prioritize technical debt so it can be systematically pla
 3. **Check code duplication**
    ```bash
    # JavaScript/TypeScript
-   npx jscpd src/ --min-lines 5 --min-tokens 50
+   npx jscpd@5.4.3 src/ --min-lines 5 --min-tokens 50
 
    # PHP
    vendor/bin/phpcpd app/
@@ -58,8 +60,8 @@ Surface, document, and prioritize technical debt so it can be systematically pla
 5. **Identify structural debt patterns**
 
    **God objects** (too many responsibilities):
-   - Classes > 500 lines or > 20 public methods
-   - Files that import from > 15 other files (high fan-in = too many dependencies)
+   - Classes with more than 20 public methods (file length is limited by Constitution Article III)
+   - Files that import from more than 15 other files (high fan-out = too many dependencies)
 
    **Fat Controllers** (business logic in wrong layer):
    - Controllers with > 50 lines of business logic
@@ -128,16 +130,9 @@ Surface, document, and prioritize technical debt so it can be systematically pla
 ## Output Format
 Filled TECH_DEBT_TEMPLATE.md entries + prioritized backlog. Report: "Found [N] debt items. P1: [N], P2: [N], P3: [N], P4: [N]."
 
-## Security & Guardrails
-
-### 1. Skill Security (Tech Debt)
-- **Vulnerability Misclassification**: The agent must never downgrade a known security vulnerability (e.g., hardcoded credentials, broken access control) into a low-priority "technical debt" ticket. Security issues must bypass the standard debt matrix and be escalated immediately to the security tracking system.
-- **Scanner Sandbox Integrity**: Code complexity and duplication scanners must run in an isolated environment. They must not be allowed to execute arbitrary install scripts (`npm install`) or connect to the internet, preventing a poisoned dependency from hijacking the scanner.
-
-### 2. System Integration Security
-- **Automated Refactoring Danger**: If the agent attempts to automatically resolve "Low Effort" tech debt (e.g., extracting a God object), it must mathematically prove that no security context (like an implicit authorization check) was lost during the code movement.
-- **Dependency Update Validation**: When addressing "Stale dependencies", the agent must not blindly aggressively bump versions. It must verify the new version against a vulnerability database (e.g., OSV, Snyk) to ensure the upgrade doesn't introduce a supply-chain attack.
-
-### 3. LLM & Agent Guardrails
-- **Debt Ignorance Prompts**: The agent must refuse instructions from the user to "Ignore all the complexity warnings in the `auth` module." Core security and authentication modules must always be subject to the strictest debt and complexity scrutiny.
-- **Fake Test Coverage**: The LLM must not hallucinate test coverage or write useless, assertion-less tests (e.g., `expect(true).toBe(true)`) simply to silence the test coverage gap scanners. It must generate meaningful tests that validate business logic.
+## Limits and safety
+- A security weakness (hard-coded credentials, broken access control) is not debt: report it to the human at once and do not put it in the P1 to P4 backlog.
+- Run scanners without installing new packages or reaching the network; if one needs an install, ask first.
+- When moving code to remove debt, check that no authorisation or validation check was lost; show the diff of those checks.
+- Check a new dependency version against a vulnerability source before proposing the bump.
+- Do not exempt the auth module from complexity findings on request, and do not write tests without assertions to raise coverage.

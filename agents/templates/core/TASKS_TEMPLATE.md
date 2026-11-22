@@ -1,5 +1,5 @@
 # Tasks: [Feature Name]
-<!-- Atomic task breakdown — 15-minute rule: if a task takes > 15 min, decompose further -->
+<!-- Atomic task breakdown. A task is atomic when it has one concern, at most three files, one verifying test, and an expert would finish it in about 15 minutes. If not, decompose further. -->
 <!-- Derived from: PLAN_TEMPLATE.md | Created by: prod-tech-lead | Date: [date] -->
 
 ---
@@ -8,7 +8,7 @@
 
 ```
 TODO         - Not started
-IN_PROGRESS  - Currently being worked on (max 1 task in this state)
+IN_PROGRESS  - Currently being worked on (one per agent; parallel groups allowed)
 DONE         - Completed and verified (tests pass)
 BLOCKED      - Cannot proceed — reason documented below
 ```

@@ -51,9 +51,11 @@ Pre-deploy:
 
 Deployment:
   [ ] Deploy to staging → smoke test → verify healthy
+  [ ] S10 gate: the human said "deploy now" in the current request, and that approval is written in
+      AUDIT_LOG.md. Without it, stop here and hand the human the exact deploy command (Constitution Article 0)
   [ ] Deploy to production (blue/green or rolling)
   [ ] Verify health check endpoints respond 200
-  [ ] Monitor error rate for 15 minutes post-deploy
+  [ ] Monitor error rate until the observation window in the S10 row of the phase guide ends
 
 Post-deploy:
   [ ] Write deployment record to AUDIT_LOG.md

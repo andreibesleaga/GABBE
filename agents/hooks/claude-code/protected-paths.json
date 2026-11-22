@@ -1,0 +1,25 @@
+{
+  "action": "ask",
+  "protected": [
+    ".env*",
+    ".git/**",
+    "agents/CONSTITUTION.md",
+    "agents/hooks/**",
+    ".claude/settings*.json",
+    ".cursor/hooks.json",
+    ".mcp.json",
+    ".npmrc",
+    ".pypirc",
+    ".gabbe/manifest.json",
+    "package-lock.json",
+    "yarn.lock",
+    "pnpm-lock.yaml",
+    "Cargo.lock",
+    "poetry.lock",
+    "uv.lock",
+    "Gemfile.lock",
+    "composer.lock",
+    ".github/workflows/**"
+  ],
+  "allow": [".env.example", ".env.sample", ".env.template"]
+}

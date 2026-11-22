@@ -64,28 +64,8 @@ Produce an opportunity brief containing:
 - A RICE-ranked table of candidate bets with each factor shown, the score, and a confidence note.
 - A clear recommendation (pursue / pursue-with-conditions / decline) with the assumptions it depends on.
 
-## Security & Guardrails
-
-### 1. Skill Security
-- **Risk**: Number-laundering — a desired conclusion is back-justified by tuning sizing assumptions or RICE
-  Confidence; mitigation: the agent MUST expose every assumption and weight so the brief is reproducible,
-  and refuse to emit a single headline figure without its supporting range.
-- **Risk**: Vanity North-Star — a gameable metric (raw signups, page views) is chosen because it looks good;
-  mitigation: the agent validates the metric against delivered user value and rejects ones that can rise
-  while users are harmed.
-
-### 2. System Integration Security
-- **Risk**: Confidential-data leakage — sizing draws on internal financials, contracts, or non-public market
-  intel; mitigation: the agent segregates confidential inputs, labels the brief with its sensitivity, and
-  scrubs source-identifying detail from any externally shareable version.
-- **Risk**: Over-trusted brief drives spend — downstream agents treat ranked bets as approved budget;
-  mitigation: the agent marks the brief as a decision input requiring human sign-off and ties commitment to
-  a separate financial gate such as `financial-governance.skill`.
-
-### 3. LLM & Agent Guardrails
-- **Risk**: Hallucinated market data — the model invents a plausible TAM figure or competitor statistic;
-  mitigation: every quantitative claim must trace to a named input, and the agent labels any figure it
-  cannot source as an explicit assumption to be validated, never as fact.
-- **Risk**: Overconfidence framing — the model presents speculative estimates with false certainty;
-  mitigation: the agent attaches confidence levels and ranges to all projections and states the dominant
-  uncertainty that would most change the recommendation.
+## Limits and safety
+- Keep every sizing assumption and RICE weight visible; give ranges, not one headline number.
+- Every figure traces to a named input; otherwise label it "assumption to validate".
+- The brief is a decision input: it needs human sign-off, and commitment goes through a financial gate such as `financial-governance.skill`.
+- Mark a brief that uses internal financials or non-public data as confidential and scrub it before sharing.

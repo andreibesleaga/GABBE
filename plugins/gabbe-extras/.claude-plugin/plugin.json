@@ -1,0 +1,19 @@
+{
+  "name": "gabbe-extras",
+  "version": "1.1.4",
+  "description": "GABBE extras skills (8): kit maintenance and research helpers: skill registry imports, update scan, state export and import, traceability matrix, agent analytics, empirical methods, emerging technology and knowledge connectors.",
+  "author": {
+    "name": "Andrei Nicolae Besleaga",
+    "url": "https://github.com/andreibesleaga/GABBE"
+  },
+  "homepage": "https://github.com/andreibesleaga/GABBE#readme",
+  "repository": "https://github.com/andreibesleaga/GABBE",
+  "license": "CC-BY-SA-4.0",
+  "keywords": [
+    "gabbe",
+    "agent-skills",
+    "sdlc",
+    "agentic-engineering",
+    "extras"
+  ]
+}

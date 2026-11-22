@@ -67,8 +67,27 @@ def _update_gene_success_rate(conn: sqlite3.Connection, gene_id: int, delta: flo
         logger.warning("Could not update gene success_rate for id=%s: %s", gene_id, e)
 
 
+def api_key_missing() -> bool:
+    """Print a clear message and return True when GABBE_API_KEY is not configured."""
+    from . import llm
+
+    if getattr(llm, "GABBE_API_KEY", None):
+        return False
+    print(
+        f"{Colors.FAIL}GABBE_API_KEY is not set.{Colors.ENDC}\n"
+        "  Set it first, e.g.: export GABBE_API_KEY=<your key> (or put it in .env)."
+    )
+    return True
+
+
 def activate_brain(run_context: RunContext | None = None) -> None:
     """Run the Active Inference Loop with Real LLM using MVA Platform Rules."""
+    activate_brain_status(run_context)
+
+
+def activate_brain_status(run_context: RunContext | None = None) -> bool:
+    """activate_brain, returning True on success and False on a state-read error, API error
+    or platform stop (the CLI maps False to exit code 1)."""
     print(f"{Colors.HEADER}🧠 Brain Mode: Active Inference Loop{Colors.ENDC}")
 
     ctx = run_context or RunContext.from_config(
@@ -85,7 +104,7 @@ def activate_brain(run_context: RunContext | None = None) -> None:
         except Exception as e:
             logger.error("Brain Observation Failed: %s", e)
             print(f"  {Colors.FAIL}Error reading project state: {e}{Colors.ENDC}")
-            return
+            return False
 
         todo = stats.get(TASK_STATUS_TODO, 0)
         in_progress = stats.get(TASK_STATUS_IN_PROGRESS, 0)
@@ -148,6 +167,7 @@ def activate_brain(run_context: RunContext | None = None) -> None:
                     reward_conn.close()
             else:
                 print(f"  {Colors.FAIL}Brain Freeze (API Error){Colors.ENDC}")
+                return False
 
         except Exception as e:
             from .escalation import EscalationPaused
@@ -160,6 +180,8 @@ def activate_brain(run_context: RunContext | None = None) -> None:
                 trigger=EscalationTrigger.REPEATED_TOOL_FAILURE, context_dict={"error": str(e)}
             )
             print(f"  {Colors.FAIL}Execution Interrupted by Platform Controls: {e}{Colors.ENDC}")
+            return False
+    return True
 
 
 def evolve_prompts(skill_name: str) -> None:
@@ -240,6 +262,11 @@ def evolve_prompts(skill_name: str) -> None:
 
 def run_healer() -> None:
     """Self-Healing Watchdog: checks DB connectivity and required files."""
+    run_healer_status()
+
+
+def run_healer_status() -> bool:
+    """run_healer, returning True when healthy and False when issues were found (CLI exit 1)."""
     print(f"{Colors.HEADER}🚑 Self-Healing Watchdog{Colors.ENDC}")
     issues = []
 
@@ -269,5 +296,6 @@ def run_healer() -> None:
         print(f"\n  {Colors.FAIL}Health Issues Found ({len(issues)}):{Colors.ENDC}")
         for issue in issues:
             print(f"    - {issue}")
-    else:
-        print(f"\n  {Colors.GREEN}System Health: Nominal{Colors.ENDC}")
+        return False
+    print(f"\n  {Colors.GREEN}System Health: Nominal{Colors.ENDC}")
+    return True

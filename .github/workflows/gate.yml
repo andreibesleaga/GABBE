@@ -1,0 +1,97 @@
+name: Release gate
+
+# Reusable workflow: the one gate every publishing path calls before it publishes
+# or attaches anything (release.yml, publish-npm.yml, publish-github-packages.yml).
+# It checks that the tag equals every version number in the repository, then runs
+# the Python test suite (from the hashed lock) and the Node installer tests.
+# The `github` context here is the caller's, so the checkout is the caller's commit.
+#
+# It can also be run by hand (Actions > Release gate > Run workflow, pick the branch,
+# type the tag you are about to push, for example v1.2.0). That is a dry run: the gate
+# only checks and tests, it publishes nothing. `inputs.ref_name` is the tag name for
+# both triggers (the `inputs` context covers reusable and manually triggered workflows:
+# https://docs.github.com/en/actions/reference/workflows-and-actions/contexts).
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref_name:
+        description: "Tag name to check against the version numbers, for example v1.2.0"
+        required: true
+        type: string
+  workflow_call:
+    inputs:
+      ref_name:
+        description: "Tag name to check against the version numbers, for example v1.2.0"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  release-gate:
+    name: Tests + tag equals version
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Tag equals every version number
+        env:
+          TAG_NAME: ${{ inputs.ref_name }}
+        run: |
+          python - <<'PY'
+          import json, os, re, sys, tomllib
+          from pathlib import Path
+
+          tag = os.environ["TAG_NAME"]
+          if not re.fullmatch(r"v[0-9][0-9A-Za-z.+-]*", tag):
+              sys.exit(f"not a version tag: {tag!r}")
+          want = tag[1:]
+          found = {}
+          found["pyproject.toml"] = tomllib.loads(Path("pyproject.toml").read_text())["project"]["version"]
+          found["gabbe/__init__.py"] = re.search(r'__version__ = "([^"]+)"', Path("gabbe/__init__.py").read_text()).group(1)
+          found["package.json"] = json.loads(Path("package.json").read_text())["version"]
+          if Path("server.json").exists():
+              server = json.loads(Path("server.json").read_text())
+              found["server.json (version)"] = server["version"]
+              for i, pkg in enumerate(server.get("packages", [])):
+                  found[f"server.json (packages[{i}].version)"] = pkg["version"]
+          if Path("CITATION.cff").exists():
+              m = re.search(r'^version:\s*"?([^"\s]+)"?\s*$', Path("CITATION.cff").read_text(), re.M)
+              found["CITATION.cff"] = m.group(1) if m else "(no version line)"
+          # The four bootstrap scripts each state the kit version they belong to.
+          for script, pattern in (
+              ("install.sh", r'^GABBE_KIT_DEFAULT_VERSION="([^"]+)"'),
+              ("uninstall.sh", r'^GABBE_KIT_DEFAULT_VERSION="([^"]+)"'),
+              ("install.ps1", r"^\$GabbeKitDefaultVersion = '([^']+)'"),
+              ("uninstall.ps1", r"^\$GabbeKitDefaultVersion = '([^']+)'"),
+          ):
+              m = re.search(pattern, Path(script).read_text(), re.M)
+              found[f"{script} (kit version line)"] = m.group(1) if m else "(no version line)"
+          bad = False
+          print(f"tag={want}")
+          for name, value in found.items():
+              ok = value == want
+              bad = bad or not ok
+              print(f"  {'ok  ' if ok else 'BAD '} {name} = {value}")
+          if bad:
+              sys.exit("version mismatch: the tag and the version files must agree")
+          PY
+      # The hashed lock (Python 3.12) is what the gate tests; the package itself is
+      # installed without dependencies so nothing outside the lock is resolved.
+      - name: Install from the hashed lock
+        run: |
+          pip install --require-hashes -r requirements-lock.txt
+          pip install --no-deps -e .
+      - name: Test suite
+        run: pytest gabbe/tests/ scripts/tests/ -q -m "not slow and not live_llm and not mutation"
+      - name: Node installer tests
+        run: npm test

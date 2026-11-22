@@ -1,4 +1,6 @@
-usage: main.py serve-mcp [-h]
+usage: main.py serve-mcp [-h] [--enable-run-command]
 
 options:
-  -h, --help  show this help message and exit
+  -h, --help            show this help message and exit
+  --enable-run-command  Also offer the run_command tool (off by default; see
+                        SECURITY.md)

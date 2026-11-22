@@ -17,11 +17,11 @@ This is the international standard for software lifecycle processes. It defines 
 - It strongly mandates rigorous Software Configuration Management (SCM)—meaning every requirement, test case, code change, and deployment manifest must be rigidly version-controlled and traceable.
 
 ## 4. IEEE SWEBOK (Software Engineering Body of Knowledge)
-Compiled by the IEEE Computer Society, SWEBOK defines the 15 Knowledge Areas (KAs) that a professional software engineer must understand.
+Compiled by the IEEE Computer Society, SWEBOK (Guide V4, IEEE Computer Society) defines the 18 Knowledge Areas (KAs) that a professional software engineer must understand.
 When building systems in GABBE, agents will cross-reference architectural decisions against SWEBOK categories, particularly:
-- **KA 2: Software Design** (Enforcing cohesion and minimizing coupling)
-- **KA 4: Software Testing** (Unit, Integration, and System testing boundaries)
-- **KA 10: Software Quality** (Static analysis, metrics, and technical debt measurement)
+- **KA 3: Software Design** (Enforcing cohesion and minimizing coupling)
+- **KA 5: Software Testing** (Unit, Integration, and System testing boundaries)
+- **KA 12: Software Quality** (Static analysis, metrics, and technical debt measurement)
 
 ## 5. ACM Code of Ethics and Professional Conduct
 Software engineering has profound societal impacts. The ACM Code is the Hippocratic Oath of software developers.

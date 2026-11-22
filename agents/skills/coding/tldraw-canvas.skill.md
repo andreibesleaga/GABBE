@@ -1,6 +1,6 @@
 ---
 name: tldraw-canvas
-description: Create, manage, and search tldraw canvases for visual design, wireframing, and UI prototyping.
+description: "Create, edit and search tldraw canvases (.tldr files) for wireframes, architecture sketches and visual notes through the MCP server. Use when the user asks for a tldraw canvas, a UI wireframe or a visual scratchpad."
 triggers: [tldraw, canvas, wireframe, visual scratchpad, UI sketch, make-real]
 tags: [coding, architecture, visual, design, prototyping]
 context_cost: medium
@@ -96,14 +96,14 @@ Follow Section 3 guardrails: pre-map geometry, sync state to text, verify before
 > "Search all tldraw canvases for shapes mentioning 'auth' or 'login'"
 ```
 
-## Security & Guardrails
+## Constraints
+- Calculate x and y positions before adding shapes; random placement gives unreadable canvases.
+- Mirror every structural change into the text documentation (PRD, PLAN.md).
 
-### 1. Local Files Only
-- tldraw MCP operates exclusively on local `.tldr` files — no network access, no cloud storage.
-- No API key required — fully offline operation.
+## Output Format
+`.tldr` canvas files in the project's docs folders, and a text summary of each canvas in the project documentation.
 
-### 2. Agent Guardrails
-- **Pre-map Layout**: Calculate X/Y positions mathematically before adding shapes. Random placement creates unreadable canvases.
-- **State Sync**: Always update text-based documentation when modifying visual canvases.
-- **File Organization**: Follow project conventions for canvas file paths (`docs/wireframes/`, `docs/architecture/`).
-- **Verify Content**: Call `tldraw_get_shapes` or `tldraw_read` after modifications to validate the canvas state.
+## Limits and safety
+- Keep `.tldr` files inside the project (`docs/wireframes/`, `docs/architecture/`); read a canvas before `tldraw_write` and do not replace one the human made without their yes.
+- Canvases are committed to git: put no secrets, internal hostnames or personal data in shapes or labels.
+- After changes call `tldraw_get_shapes` or `tldraw_read` to check the canvas, and update the text documentation to match.

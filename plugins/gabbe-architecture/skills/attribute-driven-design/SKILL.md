@@ -1,6 +1,6 @@
 ---
 name: attribute-driven-design
-description: "Drive architecture from quality-attribute scenarios using the iterative ADD 3.0 method, producing a reviewable design workbook. Use when: run attribute-driven design, design from quality attribute scenarios, add 3.0 design round, decompose architecture element, choose tactics and patterns, build an add workbook."
+description: "ADD 3.0 workbook that traces each structural decision to a quality scenario, one element per round. Use when architecture must be derived step by step from drivers and each choice must be explainable."
 license: CC-BY-SA-4.0
 metadata:
   source: "agents/skills/architecture/attribute-driven-design.skill.md"
@@ -78,33 +78,9 @@ Produce an **ADD workbook** (one section per iteration round), aligning to the s
   carried forward. Close with a coverage summary mapping every high-priority driver to its
   status (covered / deferred / unmet).
 
-## Security & Guardrails
-
-### 1. Skill Security
-- **Risk**: A security or compliance constraint is treated as a soft "nice to have" and
-  silently dropped during a design round to simplify the structure. Mitigation: tag security
-  and regulatory items as non-negotiable constraints in the driver list; the agent MUST refuse
-  to close any round that drops one without an explicit, recorded waiver and human sign-off.
-- **Risk**: The workbook is presented as proof the architecture is sound, masking that no
-  verification occurred. Mitigation: every round's analysis MUST state whether each driver was
-  *verified* (measured/reviewed) or only *addressed* (designed for), and the cover summary MUST
-  carry the honest disclaimer that ADD documents intent, not validated behavior.
-
-### 2. System Integration Security
-- **Risk**: Security-relevant quality scenarios (authn/authz, data confidentiality, auditability)
-  are scattered or absent, so no element is assigned to enforce them. Mitigation: require at
-  least one explicit security quality-attribute scenario per trust boundary, and assign each to
-  a named responsible element; feed unmet ones into `arch-review.skill` and the threat model.
-- **Risk**: A chosen tactic introduces a new external dependency or trust boundary without
-  review. Mitigation: any tactic/pattern that adds a third-party component, network hop, or
-  shared store MUST be logged as a decision with its new attack surface noted for security review.
-
-### 3. LLM & Agent Guardrails
-- **Risk**: The agent hallucinates plausible-sounding quality scenarios or response measures
-  the stakeholders never stated, then designs against fiction. Mitigation: every driver MUST be
-  sourced to a named stakeholder input or document; the agent MUST mark any agent-proposed
-  scenario as "proposed, unconfirmed" and request confirmation before it drives structure.
-- **Risk**: The agent invents non-existent tactics or patterns to justify a decision.
-  Mitigation: tactics and patterns MUST come from the established catalogs (`arch-patterns.skill`,
-  `design-patterns.skill`); the agent MUST NOT present an unrecognized concept as standard
-  practice, and MUST label genuinely novel choices as bespoke and unproven.
+## Limits and safety
+- Security and regulatory constraints are non-negotiable drivers: a round that drops one needs a recorded waiver and the human's yes.
+- Every driver names its source; a scenario the agent proposed is marked "proposed, unconfirmed" until the human confirms it.
+- For each driver say whether it was verified (measured or reviewed) or only addressed; the workbook records intent, not proof.
+- A tactic that adds a third-party component, network hop or shared store is logged with its new attack surface; keep at least one security scenario per trust boundary.
+- Take tactics and patterns from `arch-patterns.skill` and `design-patterns.skill`; label any other choice bespoke and unproven.

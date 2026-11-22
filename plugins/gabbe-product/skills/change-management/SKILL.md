@@ -65,28 +65,8 @@ Produce a change-management plan (aligned to `CHANGE_MANAGEMENT_PLAN_TEMPLATE.md
 - A resistance-management section: anticipated objections, root causes, and planned responses.
 - Adoption and reinforcement metrics with target timeframes.
 
-## Security & Guardrails
-
-### 1. Skill Security
-- **Risk**: Manufactured consent — the plan is used to push through a change that the data shows is harmful,
-  manufacturing Desire through spin; mitigation: the agent surfaces genuine objections in the resistance
-  section and refuses to generate messaging that misrepresents the change's impact on affected staff.
-- **Risk**: Unauthorized sponsor impersonation — a request escalates a non-sponsor as the credible "why"
-  messenger to fake authority; mitigation: the agent attributes sponsor messaging only to the verified,
-  authorized sponsor and will not fabricate executive endorsement.
-
-### 2. System Integration Security
-- **Risk**: Internal plan leakage — change plans expose reorg, layoff, or sensitive transition detail;
-  mitigation: the agent routes communications only to verified internal channels and audiences and scrubs
-  sensitive detail from any broadly distributed update.
-- **Risk**: Training-system overreach — automated training rollout provisions access or sends to unverified
-  recipient lists; mitigation: the agent confines training actions to approved systems and verified
-  audience lists and requires human confirmation before bulk distribution.
-
-### 3. LLM & Agent Guardrails
-- **Risk**: Manipulative persuasion — the model generates gaslighting or coercive comms designed to suppress
-  legitimate dissent about the change; mitigation: the agent refuses deceptive templates and frames
-  resistance as actionable signal rather than something to neutralize.
-- **Risk**: Empathy and accessibility blind spots — the plan assumes a uniform, high-capability audience and
-  ignores those needing more support; mitigation: the agent segments audiences by readiness and accessibility
-  needs and ensures training formats reach lower-resource and less-technical groups.
+## Limits and safety
+- Do not write messages that misstate the change's impact; list real objections in the resistance section.
+- Attribute a message to the sponsor only when the human confirms the sponsor said or approved it.
+- Keep reorganisation, layoff and other sensitive detail out of broadly distributed drafts; ask the human who may see each draft.
+- Draft only. Do not send communications or grant training access; the human sends after confirming the audience list.

@@ -1,6 +1,6 @@
 ---
 name: telecom-networks
-description: Architect Telecom interfaces using TM Forum ODA, GSMA CAMARA, and eSIM standards
+description: Telecom API and architecture map using TM Forum ODA and Open APIs, GSMA CAMARA and eSIM provisioning. Use when building for carrier BSS or OSS systems or exposing network capabilities to developers.
 triggers: [design telecom api, integrate tm forum, camara network api, esim provisioning, tmf, oda]
 tags: [telecom, networking, camara, tmf, gsma]
 context_cost: high
@@ -18,13 +18,15 @@ To architect, integrate, and audit enterprise software running in or interfacing
    - For IoT and Mobile deployments, incorporate **GSMA eSIM (SGP.22/SGP.32)** provisioning architectures (SM-DP+ integrations).
 3. **Output**: Generate the API topology and architecture map using `agents/templates/industry/TELECOM_API_TEMPLATE.md`.
 
-## Security & Guardrails
+## Constraints
+- Use TM Forum Open APIs where one exists instead of custom payloads.
+- State whether the system sits in BSS, OSS or network exposure.
 
-### 1. Skill Security
-- **Strict Privacy Enforcement**: Telecom data includes hyper-sensitive CPNI (Customer Proprietary Network Information). The agent must enforce strict OAuth2/OIDC scoping and TLS encryption when designing data transit layers for location or billing data.
+## Output Format
+`TELECOM_API_TEMPLATE.md` (`agents/templates/industry/`) filled in with the API topology and architecture map.
 
-### 2. System Integration Security
-- **Rate Limiting at the Edge**: When exposing Core Network capabilities to the public via CAMARA APIs, the agent must mandate robust API gateway rate-limiting to prevent signaling storms from taking down physical cell towers.
-
-### 3. LLM & Agent Guardrails
-- **No Hallucinated TMF Specs**: The LLM must not invent custom payload structures for operations where TM Forum APIs exist. It must reference the exact TMF specification number (e.g., `TMF620` for Product Catalog) to maintain strict interoperability.
+## Limits and safety
+- Location, billing and subscriber data need OAuth2 or OIDC scopes and TLS; confirm consent and legal basis with the human.
+- Public network-exposure APIs (CAMARA) get gateway rate limits; write down the limits assumed.
+- Cite TM Forum APIs by exact number (for example TMF620); if you are not sure of a number, write "unverified" and do not invent payloads.
+- Use a sandbox, never live network or provisioning APIs with real subscribers.

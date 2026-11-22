@@ -1,6 +1,6 @@
 ---
 name: performant-python
-description: "Strategies for high-performance Python systems (FastAPI, Asyncio, UVloop, Memory Optimization). Use when: python, fastapi, performance, asyncio, uvloop, pydantic, scalability, profiling."
+description: "Speed up Python services: async I/O, FastAPI and Pydantic v2, connection pooling, memory use, profiling with py-spy and load tests. Use when a Python service is slow, blocks the event loop or uses too much memory."
 license: CC-BY-SA-4.0
 metadata:
   source: "agents/skills/coding/performant-python.skill.md"
@@ -46,20 +46,18 @@ Building high-concurrency, low-latency Python services by leveraging asynchronou
 3. **Pydantic Check**: Upgrade to V2 and optimize model validation constraints.
 4. **Benchmark**: Use `Locust` or `k6` to verify speed improvements under load.
 
-## Deliverables
+## Output Format
 - `ARCHITECTURE_REVIEW_TEMPLATE.md`: Analysis of blocking calls and memory architecture.
 - `SCALABILITY_ANALYSIS_TEMPLATE.md`: Roadmap for converting sync logic to async.
 - `BENCHMARK_REPORT_TEMPLATE.md`: Response time comparisons (Before/After load testing).
 
-## Security & Guardrails
+## Constraints
+- Measure with a load test (`Locust` or `k6`) before and after each change.
+- No synchronous libraries (`requests`, `psycopg2`) inside async code.
 
-### 1. Async Hazards
-- **Race Conditions**: Be cautious with shared state (globals) in async contexts; use `asyncio.Lock` where necessary.
-- **Loop Blocking**: Never run `time.sleep()` or heavy math in the main thread of an async app.
-
-### 2. Data Security
-- **Parameterization**: Ensure all DB queries are parameterized, especially when using raw SQL via async drivers.
-
-### 3. Agent Guardrails
-- **No Over-optimization**: Don't use `cython` or `numba` unless the pure Python/FastAPI path is fully optimized and still proves insufficient.
-- **Versioning**: Ensure compatibility with Python 3.9+ for modern async features.
+## Limits and safety
+- Pass every value in raw SQL through query parameters, also with async drivers.
+- Do not block the event loop (`time.sleep()`, heavy computation); guard shared state with `asyncio.Lock` or avoid it.
+- Attach a sampling profiler such as `py-spy` to a production process only with the human's go-ahead.
+- Check the project's Python version before using newer features (`asyncio.TaskGroup` needs 3.11).
+- Use `cython` or `numba` only when profiling shows the pure Python path is still too slow.

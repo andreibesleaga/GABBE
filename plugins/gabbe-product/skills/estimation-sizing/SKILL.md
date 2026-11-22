@@ -62,28 +62,7 @@ Produce a sized backlog (aligned to `ESTIMATION_TEMPLATE.md`) containing:
 - An explicit statement that the figures are probabilistic ranges, where on the cone of uncertainty they
   sit, and when they will be re-estimated — not delivery commitments.
 
-## Security & Guardrails
-
-### 1. Skill Security
-- **Risk**: Coerced point estimate — a stakeholder pressures the agent to emit a single hard date stripped
-  of its range; mitigation: the agent MUST always attach the P50/P90 spread and refuse to present a point
-  number as a commitment, restating that the range is the honest answer.
-- **Risk**: Sandbagging or anchoring abuse — estimates are gamed up or down to manipulate planning;
-  mitigation: the agent grounds estimates in the reference class of real outcomes and flags any figure that
-  deviates sharply from comparable history for review.
-
-### 2. System Integration Security
-- **Risk**: Reference-data integrity — historical velocity or cycle-time data feeding the reference class is
-  stale or from a non-comparable team; mitigation: the agent records the source and recency of the reference
-  class and refuses to anchor on data it cannot attribute to comparable work.
-- **Risk**: Estimate-to-commitment drift — downstream tools convert a P50 into a fixed roadmap date;
-  mitigation: the agent labels every estimate as probabilistic and requires explicit human sign-off before
-  any range is treated as a planning commitment.
-
-### 3. LLM & Agent Guardrails
-- **Risk**: False precision — the model emits an over-confident, narrow estimate to sound authoritative;
-  mitigation: the agent MUST widen ranges to reflect genuine uncertainty and place the estimate on the cone,
-  never compressing the spread for the sake of a cleaner-looking number.
-- **Risk**: Inside-view optimism bias — the model decomposes a task and underestimates by ignoring overhead
-  and unknowns; mitigation: the agent leads with reference-class outcomes and treats any bottom-up figure as
-  a lower-bound sanity check, not the headline estimate.
+## Limits and safety
+- Give P50 and P90 ranges, never a single date; if asked for one, restate the range.
+- Name the source and period of the reference data; if you cannot, label the estimate an assumption. Do not invent velocity or cycle-time data.
+- A range becomes a planning commitment only when a human signs it off.

@@ -13,7 +13,7 @@ This directory contains the **High-Level Orchestrators** for the Agentic Enginee
 - **Use Case**: Complex, ambiguous, or high-stakes projects.
 - **Key Feature**: **Dynamic Cost Routing** (Local vs Remote).
 
-**Trigger**: `brain activate`, `supermode`
+**Trigger**: `brain activate`, `brain mode`
 
 ---
 
@@ -21,8 +21,8 @@ This directory contains the **High-Level Orchestrators** for the Agentic Enginee
 > **The Executor (System 1)**
 
 - **Role**: SDLC Orchestrator.
-- **Function**: Executes the 14-phase lifecycle (10-phase core build loop S01–S10, plus Day-0 S00 and Day-2 S11–S13).
-- **Logic**: Deterministic Workflow (core build loop S01 -> S10).
+- **Function**: Executes the 14-phase lifecycle S00–S13 (canonical table: `agents/guides/processes/loki-sdlc-phases.md`).
+- **Logic**: Deterministic Workflow (S00 -> S13, six human gates).
 - **Use Case**: Building software with strict process requirements.
 - **Key Feature**: **Human-in-the-Loop Gates**.
 
@@ -47,14 +47,14 @@ graph TD
     User -->|Request| Brain[🧠 Brain Mode]
     Brain -->|Route: Complex| Loki[⚡ Loki Exec Layer]
     Brain -->|Route: Simple| Local[💻 Local Script]
-    Loki -->|Phase S01-S10| Artifacts[📂 Project Files]
+    Loki -->|Phases S00-S13| Artifacts[📂 Project Files]
     Brain -.->|Monitor| Loki
 ```
 
 ```text
 [User] --(Request)--> [Brain Mode 🧠]
                         |
-                        +--(Route: Complex)--> [Loki Exec Layer ⚡] --(Phase S01-S10)--> [Project Files 📂]
+                        +--(Route: Complex)--> [Loki Exec Layer ⚡] --(Phases S00-S13)--> [Project Files 📂]
                         |                           ^
                         |                           | (Monitor)
                         |                           |

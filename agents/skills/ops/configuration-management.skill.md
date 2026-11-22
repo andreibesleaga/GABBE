@@ -1,7 +1,7 @@
 ---
 name: configuration-management
-description: Establish a unified software configuration management discipline covering branching, baselines, change control, reproducible builds, versioning, SBOM, and config audit.
-triggers: [define a software configuration management plan, choose branching strategy trunk vs gitflow, set baseline and release versioning, establish change control process, ensure reproducible builds, generate sbom and artifact identification, run a configuration audit]
+description: Write a software configuration management plan - branching model, baselines, change control, reproducible builds, versioning, SBOM and configuration audit. Use when a project has no clear release identity, builds differ between machines, or you must choose trunk or git-flow.
+triggers: [define a software configuration management plan, choose branching strategy trunk vs gitflow, set baseline and release versioning, establish change control process, ensure reproducible builds, run a configuration audit]
 tags: [ops, scm, versioning, release]
 core: false
 context_cost: medium
@@ -80,28 +80,8 @@ Produce an **SCM plan** containing:
 - **Artifact identification and SBOM** approach.
 - A **configuration-audit** checklist (functional + physical) and how drift is reported.
 
-## Security & Guardrails
-
-### 1. Skill Security
-- **Risk**: Unidentifiable or untracked release — an artifact ships without a traceable version/hash, making
-  rollback and forensics impossible; mitigation: the agent requires an immutable identifier and
-  source-to-artifact traceability before treating a build as releasable.
-- **Risk**: Change-control bypass — a baselined item is edited outside the process to "save time";
-  mitigation: the agent records every change against its authorization and flags any baseline modification
-  lacking an approved change request.
-
-### 2. System Integration Security
-- **Risk**: Supply-chain tampering — a dependency or build step is compromised between source and artifact;
-  mitigation: the agent pins dependencies with lockfiles, generates and verifies an SBOM, and prefers
-  hermetic, recorded build environments so injected components are detectable.
-- **Risk**: Build/CI credential or environment leakage — secrets or signing keys exposed through the build
-  pipeline; mitigation: the agent keeps secrets out of configuration items and version control and confines
-  signing to controlled, access-restricted infrastructure.
-
-### 3. LLM & Agent Guardrails
-- **Risk**: Overstated reproducibility — the model claims a build is reproducible without verifying pinning
-  or determinism; mitigation: the agent only marks a build reproducible when pinning and a recorded
-  environment are present, and otherwise states it as a known gap.
-- **Risk**: Stale or hallucinated version/SBOM data — the model invents component versions or a clean SBOM;
-  mitigation: the agent derives identifiers and SBOM entries from actual manifests and lockfiles and refuses
-  to fabricate supply-chain attestations.
+## Limits and safety
+- Do not call a build reproducible or a release clean until pinned dependencies, a recorded build environment and an SBOM exist; otherwise write the gap.
+- Take identifiers and SBOM entries from the real manifests and lockfiles; do not invent versions.
+- A change to a baselined item without an approved change request is reported, not silently included in a release.
+- Keep secrets and signing keys out of the configuration items; if your platform provides protected CI secrets, use them.

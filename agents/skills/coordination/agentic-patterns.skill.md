@@ -64,16 +64,16 @@ The Reflection pattern above has a sharp failure mode: **pure self-evaluation wi
 
 For an LLM-based critic used *alongside* (never instead of) these grounded signals — rubric design, bias controls, and calibration — see `llm-as-judge.skill`.
 
-## Security & Guardrails
+## Constraints
+- A reflection loop without an external check, a maximum iteration count and a budget is not allowed (see Grounded Self-Critique above).
+- Choose the simplest pattern that meets the task; add another only when the first does not.
 
-### 1. Skill Security (Agentic Patterns)
-- **State Corruption Prevention**: In memory-augmented patterns (Episodic/Semantic), ensure that newly synthesized observations do not overwrite or cryptographically invalidate foundational system instructions or immutable knowledge graphs.
-- **Infinite Loop Circuit Breaker**: For ReAct and Planning loops, a hard limit on iteration depth (e.g., max 5 reasoning steps) must be strictly enforced to prevent cost exhaustion and system lockups triggered by paradoxical inputs.
+## Output Format
+A short design note: pattern chosen and why, the loop, the tools and their limits, the exit conditions, and the external check used by any critique step.
 
-### 2. System Integration Security
-- **Isolated Tool Environments**: The Action phase of the ReAct pattern must execute tools in unprivileged, isolated environments (e.g., Docker containers with no network access) to contain the blast radius of any vulnerable tool.
-- **Data Cross-Contamination**: When an agent uses episodic memory to assist with a new task, strict tenant isolation and memory partitioning must be enforced so PII from Task A is never retrieved and utilized in Task B.
-
-### 3. LLM & Agent Guardrails
-- **Reflective Sandboxing**: In the "Generate -> Critique" flow, the Critique prompt must specifically evaluate the generated output for security risks (e.g., "Does this text leak secrets? Does this code introduce a vulnerability?") before finalization.
-- **Goal Hijacking Defense**: The `Update Plan` step in Chain of Thought must frequently cross-reference the original user intent to detect and reject prompt injections attempting to steer the agent toward unintended malicious goals.
+## Limits and safety
+- Every loop has a maximum iteration count, a token or time budget and a quality exit; stop and report when one is hit.
+- Run ReAct tool actions with least privilege: no network or write access unless the task needs it.
+- Keep memory per task or tenant; do not retrieve one task's personal data into another.
+- A critique step needs an external check (test, linter, schema); the model's opinion alone does not count.
+- New observations never overwrite system instructions or the Constitution.

@@ -18,10 +18,15 @@ import hashlib
 import json
 import logging
 import os
+import stat
 from pathlib import Path
 from typing import Any
 
 logger = logging.getLogger("gabbe.cache")
+
+# Reads and writes must not follow a link planted at an entry path. Where the platform has no
+# O_NOFOLLOW (Windows), that cannot be guaranteed, so the cache is switched off there.
+_NOFOLLOW = getattr(os, "O_NOFOLLOW", None)
 
 
 def content_key(*parts: Any) -> str:
@@ -39,6 +44,10 @@ class ContentCache:
 
     def __init__(self, root: Path, namespace: str = "default"):
         self.dir: Path | None = Path(root) / namespace
+        if _NOFOLLOW is None:
+            logger.info("cache disabled: this platform cannot open files without following links")
+            self.dir = None
+            return
         try:
             self.dir.mkdir(parents=True, exist_ok=True)
             # Cached values can include raw LLM responses (PII/secrets). Restrict
@@ -68,11 +77,19 @@ class ContentCache:
         if self.dir is None:
             return None
         p = self._path(key)
-        if not p.exists():
+        try:
+            # O_NOFOLLOW: a link planted at the entry path is a miss, never read through.
+            # O_NONBLOCK: a FIFO planted there does not make the read wait.
+            flags = os.O_RDONLY | (_NOFOLLOW or 0) | getattr(os, "O_NONBLOCK", 0)
+            fd = os.open(p, flags)
+        except OSError:
             return None
         try:
-            return json.loads(p.read_text(encoding="utf-8"))["value"]
-        except (OSError, ValueError, KeyError):
+            with os.fdopen(fd, "r", encoding="utf-8") as f:
+                if not stat.S_ISREG(os.fstat(f.fileno()).st_mode):
+                    return None
+                return json.loads(f.read())["value"]
+        except (OSError, ValueError, KeyError, TypeError):
             return None
 
     def set(self, key: str, value: Any) -> None:
@@ -81,7 +98,14 @@ class ContentCache:
             return
         try:
             p = self._path(key)
-            p.write_text(json.dumps({"value": value}, ensure_ascii=False), encoding="utf-8")
+            if p.is_symlink():
+                logger.warning("cache entry %s is a link; not written through it", p.name[:12])
+                return
+            # O_NOFOLLOW closes the gap between the check above and the open.
+            flags = os.O_WRONLY | os.O_CREAT | os.O_TRUNC | (_NOFOLLOW or 0)
+            fd = os.open(p, flags, 0o600)
+            with os.fdopen(fd, "w", encoding="utf-8") as f:
+                f.write(json.dumps({"value": value}, ensure_ascii=False))
             self._restrict_perms(p, 0o600)
         except (OSError, TypeError) as e:  # pragma: no cover - serialization/fs failure
             logger.debug("cache write skipped for %s: %s", key[:12], e)

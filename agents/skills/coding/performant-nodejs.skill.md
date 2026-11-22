@@ -1,6 +1,6 @@
 ---
 name: performant-nodejs
-description: Strategies for high-performance, scalable Node.js systems (Worker Threads, ESM, Observability, Clean Architecture).
+description: "Speed up Node.js services: profile first, then worker threads, streams with backpressure, ESM, structured logging and tracing. Use when a Node.js service is slow, blocks the event loop or uses too much memory."
 triggers: [nodejs, performance, scalability, worker threads, clustering, esm, observability, hexagonal architecture]
 tags: [coding, nodejs, architecture]
 context_cost: medium
@@ -15,7 +15,7 @@ Build and maintain high-throughput, low-latency, and horizontally scalable Node.
 ### 1. Concurrency & Parallelism
 - **Clustering**: Scale vertically by spawning a process per CPU core using the `cluster` module.
 - **Worker Threads**: Offload CPU-intensive tasks (encryption, compression, heavy logic) to separate threads using `worker_threads` to avoid blocking the Event Loop.
-- **Event Loop Management**: Prevent starvation by avoiding long-running synchronous operations and heavy JSON parsing on the main thread.
+- **Event Loop Management**: Prevent starvation by avoiding long-running synchronous operations and heavy JSON parsing on the main thread (for Node.js internals and Fastify see `nodejs-expert.skill`).
 
 ### 2. Modern Standards & Async
 - **ES Modules (ESM)**: Favor ESM for new projects for better tree-shaking, top-level await, and future-proofing.
@@ -23,7 +23,7 @@ Build and maintain high-throughput, low-latency, and horizontally scalable Node.
 - **Concurrency Control**: Use libraries like `p-limit` or custom semaphores to prevent resource exhaustion when calling external APIs or databases.
 
 ### 3. High-Performance Streams
-- **Backpressure Handling**: Efficiently stream large files or data sets using `stream.pipeline` to manage memory usage.
+- **Backpressure Handling**: Efficiently stream large files or data sets using `stream.pipeline` to manage memory usage (see `file-processing.skill` for uploads and large files).
 - **HTTP Streaming**: Implement streaming responses for real-time data processing and low TTFB (Time To First Byte).
 
 ### 4. Observability & Monitoring
@@ -47,21 +47,17 @@ Build and maintain high-throughput, low-latency, and horizontally scalable Node.
 3. **Analyze Concurrency**: Determine if the bottleneck is CPU-bound (needs Workers) or I/O-bound (needs better async flow/caching).
 4. **Implement Observability**: Add structured logs and basic metrics as the first step of any performance task.
 
-## Deliverables
+## Output Format
 - `BENCHMARK_REPORT_TEMPLATE.md`: Flamegraph analysis and latency baseline.
 - `SCALABILITY_ANALYSIS_TEMPLATE.md`: Strategy for clustering, sharding, or worker usage.
 - `ARCHITECTURE_REVIEW_TEMPLATE.md`: Standardized logging, tracing configuration, and architecture review.
 
-## Security & Guardrails
+## Constraints
+- Profile first (`node --inspect` or `0x`); do not optimise code that is not shown to be a bottleneck.
+- Never trust raw JSON; validate against a strict schema.
 
-### 1. Skill Security
-- **Worker Isolation**: Do not pass sensitive objects (like raw DB connections or secrets) directly to workers if they run untrusted code.
-- **Stream Injection**: Validate input before piping to file systems or external sinks to prevent injection attacks.
-
-### 2. System Integration Security
-- **Rate Limiting**: Always implement at the gateway or app level to prevent DoS when scaling.
-- **Schema-First**: Never trust raw JSON; always validate against a strict schema (e.g., Zod).
-
-### 3. LLM & Agent Guardrails
-- **Avoid Micro-optimizations**: Refuse to optimize code that isn't on the critical path or hasn't been profiled as a bottleneck.
-- **Clustering awareness**: Remind the user that `cluster` and `worker_threads` change state management (no shared memory in clusters).
+## Limits and safety
+- Do not pass secrets or raw database connections to worker threads that run untrusted code.
+- Validate input against a schema (`zod` or `ajv`) before piping it into the file system or any external sink.
+- Rate-limit at the gateway or app level when scaling out.
+- `cluster` processes and worker threads do not share memory: move in-process state (caches, sessions, rate-limit counters) to a shared store first.

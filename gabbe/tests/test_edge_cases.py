@@ -86,7 +86,10 @@ def test_forecast_command_dispatches(tmp_project):
     """gabbe forecast dispatches to run_forecast."""
     from gabbe.main import main
 
-    with patch("sys.argv", ["gabbe", "forecast"]), patch("gabbe.forecast.run_forecast") as mock_fc:
+    with (
+        patch("sys.argv", ["gabbe", "forecast"]),
+        patch("gabbe.forecast.run_forecast_status") as mock_fc,
+    ):
         main()
     mock_fc.assert_called_once()
 

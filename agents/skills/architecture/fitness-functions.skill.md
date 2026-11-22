@@ -1,6 +1,6 @@
 ---
 name: fitness-functions
-description: Define objective, measurable tests for architectural characteristics and wire them into CI as automated, continuous architecture governance.
+description: Set of measurable architecture checks (dependency rules, complexity, latency budgets) with thresholds, tools and CI wiring. Use when architectural properties should be tested automatically instead of reviewed by hand.
 triggers: [write architecture fitness functions, measure architectural characteristics, enforce layering rules in ci, set a latency budget test, atomic vs holistic fitness function, catch architectural drift automatically]
 tags: [architecture, governance, evolutionary-architecture, ci, testing]
 core: false
@@ -80,32 +80,9 @@ Close with a coverage note listing which characteristics are governed and which 
 unmeasured. Hand the CI-gate wiring to `architecture-governance.skill` and custom rule authoring
 to `agentic-linter.skill`.
 
-## Security & Guardrails
-
-### 1. Skill Security
-- **Risk**: Ruleset or threshold files are edited to weaken a check (e.g. raising a complexity
-  cap) so a non-compliant PR merges. Mitigation: protect fitness-function config under CODEOWNERS
-  requiring architecture/security approval, and review threshold diffs as carefully as code; the
-  agent MUST refuse to quietly loosen a rule to make a failing build pass.
-- **Risk**: A passing suite is reported as "architecture is sound," overstating its guarantee.
-  Mitigation: every report MUST scope the claim to the measured characteristics and list what is
-  unmeasured; the agent MUST NOT escalate "fitness functions pass" into "architecture is correct."
-
-### 2. System Integration Security
-- **Risk**: A fitness function fails open — a crashed analyzer or missing ruleset is silently
-  treated as success, giving false assurance. Mitigation: mandate fail-closed CI behavior; a tool
-  that cannot complete its check MUST block the pipeline, not pass it.
-- **Risk**: Security boundary rules (e.g. "presentation layer may not open a DB connection";
-  "all external callers go through a circuit breaker") are absent, so violations ship undetected.
-  Mitigation: require explicit fitness functions for each security/trust boundary, and treat their
-  violations as build-breaking, not advisory.
-
-### 3. LLM & Agent Guardrails
-- **Risk**: The agent generates invalid or non-existent rule syntax (e.g. a fabricated ArchUnit
-  predicate) that silently no-ops, creating a false sense of governance. Mitigation: emit only
-  valid, tested syntax for the target tool; the agent MUST verify a generated rule actually
-  executes and can fail, never present an unrun rule as enforcing.
-- **Risk**: Under pressure to unblock a developer, the agent recommends suppressing or deleting a
-  failing fitness function instead of fixing the underlying drift. Mitigation: the agent MUST
-  default to refactoring the violation; any bypass requires a ticketed, time-boxed, ADR-backed
-  waiver and MUST be surfaced for human review, never applied silently.
+## Limits and safety
+- Threshold and rule files change only with the human's review. If your platform provides CODEOWNERS, use it. Do not raise a threshold or delete a function to turn a build green.
+- CI fails closed: a crashed analyser or missing ruleset blocks the pipeline.
+- Run every generated rule against a known violation and see it fail; never present an unrun rule as enforcing.
+- Report a green suite as "the measured properties hold" and list what is unmeasured.
+- A bypass needs a ticketed, time-boxed waiver with an ADR.

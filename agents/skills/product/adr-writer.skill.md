@@ -3,6 +3,7 @@ name: adr-writer
 description: Generate Architecture Decision Records for significant technical decisions
 triggers: [architecture decision, ADR, why did we choose, why are we using, architectural choice]
 tags: [product]
+core: true
 context_cost: low
 ---
 # ADR Writer Skill
@@ -79,8 +80,8 @@ Document significant architectural decisions in a structured format so that futu
    - Number ADRs sequentially (ADR-001, ADR-002, ...)
 
 6. **Update the ADR index**
-   - If `docs/architecture/decisions/README_FULL.md` exists, add the new ADR to the table
-   - If not, create it with a table of all ADRs
+   - If `docs/architecture/decisions/README.md` exists, add the new ADR to the table
+   - If not, create it with a table of all ADRs (README.md is the index of a user project; the kit's own docs use README_FULL.md)
 
 7. **Log to AUDIT_LOG.md**
    - Add entry with action type: ADR_CREATED
@@ -95,16 +96,8 @@ Document significant architectural decisions in a structured format so that futu
 ## Output Format
 Completed ADR file at `docs/architecture/decisions/ADR-[NNN]-[slug].md`. Report the file path.
 
-## Security & Guardrails
-
-### 1. Skill Security (ADR Writer)
-- **ADR Immutability**: ADRs are historical ledgers of decisions. Once an ADR is marked "Accepted", the agent is strictly forbidden from editing the text to alter the original justification or options. Any changes must be made by creating a new ADR that supersedes the old one.
-- **Cryptographic Signatures**: To prevent unauthorized agents or developers from unilaterally changing system architecture, the resulting `ADR-[NNN].md` file must require cryptographic sign-off (via approved pull request mechanisms) from the designated deciders.
-
-### 2. System Integration Security
-- **Threat Model Triggers**: The agent must automatically instantiate a `threat-modeling` task or explicitly flag the need for a security review if the proposed ADR touches on Authentication, Cryptography, Data Storage, or External Integrations.
-- **Vulnerability History Scanning**: When researching "Options Considered" (e.g., evaluating Library A vs. Library B), the agent must query CVE databases (NVD) or OSS vulnerability feeds to objectively document the historical security track record of the proposed dependancies.
-
-### 3. LLM & Agent Guardrails
-- **Vendor Bias Deflection**: The LLM must be actively monitored for systemic bias towards specific vendors or frameworks. It must provide objective pros/cons and actively resist user prompts that attempt to poison the ADR (e.g., "Write an ADR that justifies using MongoDB by hiding the fact that it doesn't support our required transaction isolation level.").
-- **Sensitive Context Scrubbing**: When writing the "Context" section, the agent must aggressively redact proprietary algorithmic details, exact network topologies, or hardcoded secrets that might have been part of the discussion prompt, ensuring the ADR is safe for broader internal consumption.
+## Limits and safety
+- Do not edit an Accepted ADR; write a new one that supersedes it.
+- If the decision touches authentication, cryptography, data storage or an external integration, say in the ADR that a security review is needed (`threat-model.skill`).
+- Take a library's vulnerability history from a named advisory database and give the date; do not write "no known issues" without searching.
+- Remove secrets, internal hostnames and network details from the Context section.

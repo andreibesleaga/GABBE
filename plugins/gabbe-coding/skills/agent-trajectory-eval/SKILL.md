@@ -1,6 +1,6 @@
 ---
 name: agent-trajectory-eval
-description: "Evaluate an agent's trajectory — its sequence of tool calls and state transitions — not just its final answer. Use when: evaluate agent trajectory, tool-use precision recall, in-order trajectory match, state transition check, task success rate, pass at k agent reliability."
+description: "Score an agent's run by its tool calls and state transitions, not only its final answer: tool and parameter F1, in-order match, legal transitions, pass^k. Use when you evaluate how an agent reached an answer or need a reliability figure over repeated runs."
 license: CC-BY-SA-4.0
 metadata:
   source: "agents/skills/coding/agent-trajectory-eval.skill.md"
@@ -65,30 +65,8 @@ Produce a **trajectory scorecard** containing:
 - **pass^k** across k trials, with the value of k stated.
 - A disclaimer that the eval samples runs and does not prove correctness.
 
-## Security & Guardrails
-
-### 1. Skill Security
-- **Outcome-only blind spots**: Scoring just the final answer lets a dangerous path (illegal
-  transitions, destructive tool calls that happened to be reverted) pass undetected. The agent MUST
-  evaluate trajectory legality and tool-use metrics in addition to outcome, and treat any illegal
-  state transition as a failure even when the final state looks correct.
-- **Sampling overconfidence**: A single green run is not evidence of a reliable agent. The agent
-  MUST report pass^k over multiple trials and label results as sampled, never as a correctness
-  proof.
-
-### 2. System Integration Security
-- **Trace tampering**: Traces drive the verdict, so a writable or mutable trace can be edited to
-  hide bad steps. The agent MUST capture traces in an append-only audit log with integrity checks,
-  so the evaluated record cannot be retroactively altered.
-- **Replaying destructive tool calls**: Re-running k trials of a trajectory can re-trigger
-  real-world side effects (payments, deletes, emails). The agent MUST execute trajectory evals
-  against sandboxed/mock tools or an isolated environment, never against live production systems.
-
-### 3. LLM & Agent Guardrails
-- **Benchmark contamination**: Evaluating against a leaked or memorized benchmark inflates scores
-  without real capability. The agent MUST hold out fresh, unseen tasks and report on them
-  separately, treating any public benchmark as potentially contaminated.
-- **Trajectory reward-hacking**: An agent can learn to game the trajectory metric — calling the
-  "expected" tools for appearance while not actually achieving the goal, or padding optional steps
-  to satisfy an in-order matcher. The agent MUST verify the real outcome *state*, not just the
-  path, and cross-check that scored tool calls produced their expected observations.
+## Limits and safety
+- Run the k trials against sandboxed or mock tools only; replaying a trajectory against live systems repeats payments, deletes and emails.
+- Treat any illegal state transition as a failure even when the final state is correct, and check the real end state, not only that the expected tools were called.
+- Save the trace to a file before scoring and score from that file; do not edit it afterwards.
+- Hold out tasks the agent has not seen; public benchmarks may be contaminated. Report pass^k with k and call the result a sample, not a proof.

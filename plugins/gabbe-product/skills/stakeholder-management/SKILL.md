@@ -1,6 +1,6 @@
 ---
 name: stakeholder-management
-description: "Matrices for managing expectations and communication plans. Use when: stakeholder management."
+description: "Build a power/interest grid, a RACI matrix and a communication plan for the people a project affects. Use when you must align stakeholders, clarify who decides, or plan status updates."
 license: CC-BY-SA-4.0
 metadata:
   source: "agents/skills/product/stakeholder-management.skill.md"
@@ -41,16 +41,16 @@ This skill helps Product Managers align diverse groups of people.
 2.  **Data**: Use data, not opinion. "Analytics show 99% of users don't use feature Y".
 3.  **Trade-off**: "We can do X, but it delays Y by 2 weeks. Is that acceptable?"
 
-## Security & Guardrails
+## Constraints
+- One Accountable person per deliverable in the RACI.
+- Use data, not opinion, in a conflict, and record the trade-off agreed.
 
-### 1. Skill Security (Stakeholder Management)
-- **Role-Based Deception Prevention**: The Stakeholder map (Power/Interest Grid) must never be altered by the agent to artificially inflate the authority of an unauthorized user. A developer account cannot prompt the agent to move itself into the "Key Player / Executive" quadrant to bypass feature approval gates.
-- **Communication Channel Integrity**: The "Communication Plan" generator must only schedule updates to verified, internal corporate channels (e.g., Slack `#internal-eng`, corporate email). The agent must actively decline requests to post roadmap updates or RACI charts to public/external platforms.
+## Output Format
+A stakeholder register with the power/interest grid, the RACI matrix and the communication plan (audience, message, channel, frequency), in `docs/stakeholders/STAKEHOLDER_REGISTER.md`.
 
-### 2. System Integration Security
-- **Security Checkpoint Integration**: The RACI matrix MUST inherently include a `Consulted` (C) or `Accountable` (A) role for "Security/AppSec" on all deliverables involving customer data, authentication, or infrastructure changes. The agent must reject matrixes that isolate engineering from security review.
-- **Need-to-Know Alignment**: When generating the weekly status reports, the agent must scrub highly sensitive vulnerability details, active incident data, and unpatched CVEs from the broad "Keep Informed" stakeholder newsletters to prevent the tactical leak of actionable intel to the wider crowd.
-
-### 3. LLM & Agent Guardrails
-- **Manipulative Persuasion Blocks**: The agent must refuse prompts instructing it to generate "gaslighting" communication templates or reports designed to actively deceive a stakeholder about a security incident, data breach, or slipped technical debt deadline.
-- **Unauthorized Conflict Resolution**: While practicing "Disagree and Commit", the agent must never unilaterally override a stated security constraint (e.g., "We can skip the pen-test, it delays launch by 2 weeks. Is that acceptable?"). Security overrides require explicit, human, executive sign-off.
+## Limits and safety
+- Do not change the stakeholder map to raise someone's authority; the human owns the map.
+- Send plans and reports only to internal channels the human names; do not post roadmaps or RACI charts publicly.
+- Keep security as C or A in the RACI for work that touches customer data, authentication or infrastructure.
+- Remove vulnerability details, incident data and unpatched CVEs from broad status reports.
+- Do not write messages that mislead stakeholders about an incident or a slipped deadline; skipping a security check needs the human's recorded sign-off.

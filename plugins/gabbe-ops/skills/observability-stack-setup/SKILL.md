@@ -1,6 +1,6 @@
 ---
 name: observability-stack-setup
-description: "Bootstrap end-to-end observability with OpenTelemetry traces, metrics, and logs, including GenAI LLM span conventions, dashboards, alerts, and SLO/SLI definition. Use when: set up observability for the payments service, instrument with opentelemetry, add tracing and metrics, emit gen_ai spans for llm calls, track token usage and cost in traces, define slo and sli for the api, bootstrap dashboards and alerts."
+description: "Plan OpenTelemetry traces, metrics and logs, GenAI span attributes, SLIs and SLOs, dashboards and alerts that each link to a runbook. Use when you add tracing, define SLOs, or cannot see why a service or LLM call is slow or costly."
 license: CC-BY-SA-4.0
 metadata:
   source: "agents/skills/ops/observability-stack-setup.skill.md"
@@ -42,16 +42,9 @@ An observability setup plan in Markdown:
 - **Dashboards & alerts** — panels per dashboard; alert rules with burn-rate windows and the runbook each maps to.
 - **Open questions / approvals needed.**
 
-## Security & Guardrails
-
-### 1. Skill Security
-- **Risk**: Telemetry leaking secrets or PII into spans/logs. Mitigation: enforce an attribute allowlist and a Collector-side redaction/attribute-filter processor; never emit prompt/completion content or auth tokens by default.
-- **Risk**: Cardinality explosion from unbounded attribute values causing backend cost blowups or outages. Mitigation: bound attribute keys, bucket high-cardinality dimensions, and sample high-volume traces with a documented head/tail policy.
-
-### 2. System Integration Security
-- **Risk**: An OTLP exporter pointed at an attacker-controlled or unencrypted endpoint exfiltrating telemetry. Mitigation: pin Collector/exporter endpoints in reviewed IaC, require TLS + authenticated OTLP, and treat endpoint changes as security-reviewed config.
-- **Risk**: Silent alert/SLO tampering masking an incident or attack. Mitigation: store SLO definitions and alert rules as version-controlled IaC under branch protection so thresholds cannot be quietly relaxed.
-
-### 3. LLM & Agent Guardrails
-- **Risk**: The agent disabling or down-sampling instrumentation to "reduce noise," blinding operators during an incident. Mitigation: instrumentation removal and sampling-rate reductions require explicit human approval and an audit-trail entry.
-- **Risk**: Cost metrics being gamed (e.g., omitting token attributes) to hide overspend. Mitigation: token usage and cost attributes are mandatory on every LLM span; the agent must refuse requests to strip them to flatter a budget.
+## Limits and safety
+- Keep prompts, completions, tokens and personal data out of spans and logs; if the Collector supports an attribute filter, use it to enforce this.
+- Bound attribute values; do not use raw user input or full URLs as attribute keys.
+- Exporter endpoints use TLS and authentication and are pinned in reviewed IaC; a changed endpoint needs the human's review.
+- Do not remove instrumentation or lower sampling without the human's approval and an `AUDIT_LOG.md` row.
+- Token and cost attributes stay on every LLM span.

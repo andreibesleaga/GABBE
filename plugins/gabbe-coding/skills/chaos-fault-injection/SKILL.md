@@ -1,6 +1,6 @@
 ---
 name: chaos-fault-injection
-description: "Deliberately inject faults — dropped connections, corrupted writes, latency, malformed responses, resource exhaustion — and assert the system's expected recovery (escalation, hardstop, rollback). Use when: inject faults to test recovery, build a fault injection matrix, simulate a dropped connection in tests, test rollback on corrupted write, deterministic fault injection with mocks, control chaos blast radius."
+description: "Produce a fault-injection matrix: each fault (dropped connection, corrupt write, latency, bad response, resource exhaustion) with its expected recovery and an assertion. Use when you must show that a system recovers, rolls back or stops safely when a dependency fails."
 license: CC-BY-SA-4.0
 metadata:
   source: "agents/skills/coding/chaos-fault-injection.skill.md"
@@ -88,31 +88,9 @@ are not) and the honesty disclaimer that the matrix samples failures and does no
 resilience. Cross-reference `pbt-strategy.skill` for generating fault *sequences* via stateful
 property testing.
 
-## Security & Guardrails
-
-### 1. Skill Security
-- **Risk**: A passing matrix is reported as "the system is resilient," overstating coverage.
-  Mitigation: every report MUST scope the claim to the faults and dependencies actually injected
-  and disclose that combinations/timing faults are unsampled; the agent MUST NOT equate "matrix
-  passed" with "resilient."
-- **Risk**: A fault test asserts only "an error was returned" and misses persisted corruption.
-  Mitigation: the agent MUST require an integrity/state assertion for every data-mutating fault,
-  not just an error-path assertion.
-
-### 2. System Integration Security
-- **Risk**: Fault injection runs against production or shared infrastructure and causes a real
-  outage or data loss. Mitigation: default to isolated test environments and deterministic mocks;
-  production chaos requires explicit human authorization, staging-first validation, a bounded blast
-  radius, and a tested abort/rollback switch — the agent MUST NOT initiate unbounded live chaos.
-- **Risk**: A corrupt-write or exhaustion test leaves the test environment in a broken state,
-  contaminating later runs. Mitigation: run inside transactions/sandboxes with guaranteed
-  teardown, and verify clean state after each scenario before proceeding.
-
-### 3. LLM & Agent Guardrails
-- **Risk**: The agent assumes a recovery happened because no exception surfaced, masking a silent
-  failure (e.g. a swallowed retry that lost data). Mitigation: the agent MUST assert the *specific*
-  expected recovery mechanism with positive evidence; absence of an error is never accepted as
-  proof of recovery.
-- **Risk**: The agent escalates from deterministic mocks to real destructive chaos on its own
-  initiative. Mitigation: the agent MUST treat any live, destructive, or production-targeting fault
-  as requiring explicit human sign-off, and default to in-test injection with controllable seams.
+## Limits and safety
+- Default to deterministic injection in tests (mocks, a fault proxy) in an isolated environment; run live chaos on staging or production only when the human asked for it in this request, with the smallest blast radius and an abort switch tested first.
+- Run each scenario in a transaction or sandbox with guaranteed teardown, and check the state is clean before the next one.
+- Every fault that writes data needs a state assertion (nothing half-applied), not only "an error was returned".
+- No exception is not proof of recovery: assert the specific mechanism (circuit opened, rollback done, alert fired).
+- Scope the claim to the faults and dependencies actually injected; combinations and timing faults are not sampled.

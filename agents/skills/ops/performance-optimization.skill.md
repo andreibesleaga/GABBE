@@ -1,7 +1,7 @@
 ---
 name: performance-optimization
-description: Optimize systems for speed and scale (Caching, Sharding, Async).
-triggers: [performance, optimization, scaling, caching, sharding, profiling, latency, slow]
+description: Choose and apply speed and scale fixes after profiling - caching, read replicas, sharding, indexes, queues, event-driven design. Use when measured latency or load needs a design change, not just a code tweak.
+triggers: [scale this service, add read replicas, shard the database, offload work to a queue, database index for slow query, reduce p99 latency]
 tags: [ops]
 context_cost: medium
 ---
@@ -27,7 +27,7 @@ To ensure systems behave predictably under load and utilize resources efficientl
 -   **Event-Driven**: Services react to changes instead of polling.
 
 ## Steps
-1.  **Stop Guessing**: Use a profiler (pprof, Flamegraphs) before optimizing.
+1.  **Stop Guessing**: Use a profiler (pprof, Flamegraphs) before optimizing; for the measurement procedure and Web Vitals see `performance-audit.skill`, for cache design see `caching-strategy.skill`.
 2.  **N+1 Problem**: Watch for loops triggering DB queries.
 3.  **Database First**: 99% of bottlenecks are in the data layer.
 
@@ -36,16 +36,16 @@ To ensure systems behave predictably under load and utilize resources efficientl
 -   `caching-strategy.md`: Redis/Memcached plan.
 -   `load-test-plan.md`: k6/JMeter script design.
 
-## Security & Guardrails
+## Constraints
+- No optimisation without a measured baseline and a target.
+- Do not add caching, sharding or replicas to an endpoint whose measured load does not need them.
 
-### 1. Skill Security (Performance Optimization)
-- **Safe Profiler Execution**: Profiling tools executed by the agent must be strictly isolated to the target container or process. The agent must not have root access on the host node, preventing an attacker from using a profiling tool to dump the memory of adjacent applications.
-- **Optimization Artifact Integrity**: The generated `profiling-report.md` must be cryptographically signed by the auditing agent to prevent unauthorized parties from tampering with the reported hotspots to mislead the engineering team.
+## Output Format
+The files named under Deliverables (`profiling-report.md`, `caching-strategy.md`, `load-test-plan.md`) with measured before and after numbers.
 
-### 2. System Integration Security
-- **Stale Auth Data Prevention**: When implementing Cache-Aside or Write-Through caching strategies, the agent must guarantee that authentication and authorization lookups (e.g., permission checks, session validation) are either NOT cached, or use incredibly short, verifiable TTLs to prevent privilege escalation.
-- **Queue Poisoning Defense**: When decoupling heavy work using Message Queues (e.g., Kafka, RabbitMQ), the optimizing agent must design the queue consumers to gracefully handle "Poison Pills" (malformed or excessively large messages) without crashing, avoiding a Denial of Service attack vector.
-
-### 3. LLM & Agent Guardrails
-- **Premature Optimization Trap**: The LLM must be equipped with a generic threshold (e.g., "p99 latency < 100ms is acceptable"). It must actively refuse user prompts to over-engineer caching or sharding for low-traffic endpoints, avoiding unnecessary architectural complexity and security surface area.
-- **Index Hijacking Warning**: If asked to "just index everything to make it fast," the agent must warn that excessive indexing drastically slows down `INSERT`/`UPDATE` operations and consumes massive disk space, which can be weaponized in a disk-exhaustion DoS attack.
+## Limits and safety
+- Run profilers against the target process or container only, not the host node.
+- Do not cache authentication or authorisation lookups, or give them a very short TTL with a stated reason.
+- Queue consumers must handle malformed or oversized messages without crashing; test with one.
+- Index changes are proposed with the exact statement and write cost, and run only after the human confirms; "index everything" is refused.
+- Do not add caching or sharding for low-traffic endpoints; state the measured threshold used.

@@ -1,6 +1,6 @@
 ---
 name: semantic-web
-description: Design Semantic Web structures, Ontologies, and Meta-knowledge graphs
+description: Ontology and RDF design with a mapping from existing data and SPARQL access. Use when data from several systems must share one vocabulary or a knowledge graph is needed.
 triggers: [design ontology, semantic web, knowledge graph architecture, rdf data model, sparql, linked data]
 tags: [data, semantic, owl, rdf, knowledge-graph]
 context_cost: medium
@@ -16,13 +16,14 @@ To architect machine-readable data structures using Semantic Web standards (RDF,
 3. **Query Interface**: Outline the SPARQL endpoints required for human and agent interaction with the Knowledge Graph.
 4. **Output**: Generate the formal definitions and structure using `agents/templates/data/ONTOLOGY_TEMPLATE.md`.
 
-## Security & Guardrails
+## Constraints
+- Reuse existing vocabularies before defining new terms.
+- Every mapping from relational or document data is written down.
 
-### 1. Skill Security
-- **SPARQL Injection**: Ensure the agent explicitly enforces parameterized queries when designing applications that interface with graph databases to prevent malicious graph traversals.
+## Output Format
+`ONTOLOGY_TEMPLATE.md` (`agents/templates/data/`) filled in: vocabulary, mappings and SPARQL access points.
 
-### 2. System Integration Security
-- **Inference Leakage**: Agents must account for automated inference engines (reasoners) inadvertently linking two unclassified data points to deduce classified information (aggregation attacks).
-
-### 3. LLM & Agent Guardrails
-- **URI Standardization**: The LLM must not hallucinate random namespaces. It must use established ontologies (e.g., `schema.org`, `foaf`, `dublin core`) before inventing custom property URIs.
+## Limits and safety
+- Application queries bind parameters; no string concatenation into SPARQL.
+- Check whether a reasoner could combine unclassified facts into a classified one, and list the inference risks.
+- Reuse established vocabularies (`schema.org`, FOAF, Dublin Core) before inventing property URIs; do not make up namespaces.

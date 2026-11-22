@@ -1,7 +1,7 @@
 ---
 name: learning-adaptation
-description: Mechanisms for In-Context Reinforcement Learning, Meta-Learning, and Neuroplasticity.
-triggers: [learning adaptation]
+description: Turns successful outcomes into a few-shot example bank and reviewed rule changes with a way back. Use after a task to record what worked, or when a recurring failure should change behaviour.
+triggers: [learning adaptation, few-shot bank, record what worked, recurring failure rule, reviewed rule change]
 tags: [brain]
 context_cost: high
 tools: [replace_file_content, write_to_file]
@@ -25,7 +25,7 @@ After a task is complete, perform a "Post-Mortem":
 1.  **Observation:** "I hallucinated a library name."
 2.  **Hypothesis:** "I didn't check the docs first."
 3.  **New Rule:** ("ALWAYS check docs for library imports.")
-4.  **Storage:** Save to `system_rules.md`.
+4.  **Storage:** Save to `agents/memory/semantic/rules.md` (create the file if it does not exist).
 
 ## 3. Reinforcement Learning (RL) Integration
 - **Actor:** The Agent performing the task.
@@ -37,8 +37,8 @@ After a task is complete, perform a "Post-Mortem":
 ## 4. Episodic Consolidation (Dreaming)
 Biological brains consolidate short-term memories into long-term structures during sleep.
 
-### Implementation: The "Nightly Build"
-1.  **Compress:** Run a summarization job on the day's logs.
+### Implementation: The consolidation pass (at the end of a task or the next session start)
+1.  **Compress:** Run a summarization job on the logs since the last pass.
 2.  **Extract:** Extract key facts and successful code patterns.
 3.  **Consolidate:** Update the Knowledge Graph and clear the raw logs.
 
@@ -46,23 +46,23 @@ Biological brains consolidate short-term memories into long-term structures duri
 Adaptation is bounded by `GABBE_AUTONOMY` + budget:
 - **Potentiate from success, not frequency:** strengthen patterns that demonstrably succeeded; never reinforce a pattern just because it recurred (misaligned-replay guard) — especially for security-sensitive flows, which need explicit validation.
 - **Reversible by design:** every adaptation is a canary with an auto-revert path; version it so a regression rolls back cleanly. This is the rollback substrate `update-scan.skill` / `self-improvement.skill` rely on.
-- **Cost-aware consolidation:** the "nightly build" consolidation must itself respect budget — summarize cheaply; don't run an expensive model over raw logs when a cheaper pass suffices.
+- **Cost-aware consolidation:** the consolidation pass must itself respect budget — summarize cheaply; don't run an expensive model over raw logs when a cheaper pass suffices.
 - **Auditable:** record adaptations + reverts in `AUDIT_LOG.md`.
 
 ## References
 - **Sutton, R. S., & Barto, A. G.** (2018). *Reinforcement Learning: An Introduction*.
 - **Hebb, D. O.** (1949). *The Organization of Behavior*.
 
-## Security & Guardrails
+## Constraints
+- Rules are additive and must not contradict the Constitution.
+- Every adaptation can be reverted: keep the old text in the same change.
 
-### 1. Skill Security (Learning & Adaptation)
-- **Malicious Hebbian Wiring**: If an attacker continuously forces the agent to interact with a vulnerable code pattern, "Hebbian Learning" (Step 1) might inadvertently strengthen the agent's reliance on that insecure pattern, mistaking frequency for correctness. The agent must ensure that "Potentiation" (saving to Best Practices) requires a cryptographic signature or explicit human validation for core security flows.
-- **System Rule Corruption**: The "Strategy Reflection Loop" (Step 2) culminates in writing new constraints to `system_rules.md`. An attacker who compromises the agent's observation capabilities could trick the agent into inducing a rule like "Never use HTTPS for internal requests." The agent must mandate that `system_rules.md` is strictly additive and that new rules physically cannot contradict explicit, hardcoded constitutional security laws.
+## Output Format
+The rule or example added, its source (outcome and test result), and the `AUDIT_LOG.md` row that records it.
 
-### 2. System Integration Security
-- **Critic Compromise in RL**: In the Reinforcement Learning loop (Step 3), the "Critic" scores the outcome. If the Critic relies on easily spoofable metrics (like "Did the code compile?" or "Did the tests pass without error?"), an attacker can feed malicious code that compiles perfectly, securing a high "Reward." The Critic MUST integrate systemic security scanners (SAST/DAST) into its reward function.
-- **Consolidation Data Leakage**: The "Nightly Build" (Step 4) compresses logs into long-term structures. These logs often capture highly sensitive tokens or temporary PII used during the day's operations. The compression and extraction algorithms must be coupled with an aggressive Data Loss Prevention (DLP) sanitization pass, ensuring no ephemeral secrets are permanently etched into the Knowledge Graph.
-
-### 3. LLM & Agent Guardrails
-- **Over-Fitting to the Context Window**: Meta-Learning algorithms implemented entirely within an LLM's context window are prone to catastrophic interference (forgetting old, safe rules when learning new, dangerous ones). The agent must anchor its "Few-Shot Context" (Step 3) to an external, rigorously audited Vector Database to ensure historical safety precedents are never arbitrarily evicted from memory.
-- **Hallucinated Causality in Post-Mortems**: During the Reflection Loop, the LLM might hallucinate the root cause of a failure (e.g., blaming a network timeout when the actual cause was a SQL injection payload crashing the DB). If the agent learns a strategy based on a hallucinated cause, it will actively generate blind spots. Root cause extraction must be strictly grounded in system stack-traces and audit trails.
+## Limits and safety
+- Strengthen a pattern only after it passed tests and a scan; security-sensitive flows need the human's validation first. A pattern that merely recurred is not a success.
+- New rules go to `agents/memory/semantic/rules.md`, additive only, and must not contradict the Constitution.
+- Take the cause in a post-mortem from stack traces and audit rows, not from a guess.
+- Mask secrets and personal data before summarising logs into memory.
+- Record each adaptation and each revert in `AUDIT_LOG.md`; if results get worse, propose the revert to the human.

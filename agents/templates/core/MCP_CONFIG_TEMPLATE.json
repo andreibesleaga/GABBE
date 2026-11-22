@@ -2,13 +2,14 @@
   "_comment": "MCP (Model Context Protocol) server configuration template",
   "_comment2": "Customise for your project. Security rules: prod databases = read-only, dev = read-write.",
   "_comment3": "Install instructions: see docs/MCP_CONFIGURATIONS.md for detailed per-server setup",
+  "_comment4": "Versions pinned on 2026-11-21 (npm packages) and 2026-11-22 (entries that were marked _review: PyPI, Docker, hosted servers). A pinned version does not update itself: before you enable a server, check its current version and its publisher on the registry, then re-pin on purpose. Entries with _source name the page that documents the install form; entries with _review and \"_enabled\": false have no pinned version or no maintained distribution and stay disabled.",
   "mcpServers": {
     "_section_essential": "=== ESSENTIAL (install for every project) ===",
     "context7": {
       "_description": "Up-to-date SDK docs \u2014 prevents API hallucination. HIGHLY RECOMMENDED.",
       "command": "npx",
       "args": [
-        "@upstash/context7-mcp"
+        "@upstash/context7-mcp@4.7.3"
       ],
       "env": {}
     },
@@ -17,17 +18,19 @@
       "command": "npx",
       "args": [
         "-y",
-        "@modelcontextprotocol/server-sequential-thinking"
+        "@modelcontextprotocol/server-sequential-thinking@2.2.0"
       ],
       "env": {}
     },
     "brave-search": {
+      "_enabled": false,
       "_description": "Authoritative web research with source filtering.",
+      "_review": "deprecated on npm; pinned to its last version only so that the entry is reproducible; check it before use. Successor: Brave's own server https://github.com/brave/brave-search-mcp-server (npm @brave/brave-search-mcp-server). Checked 2026-11-22; the npm notice names none.",
       "_note": "Deprecated: npm marks this package 'no longer supported' (checked 2026-10-30); it still installs. Prefer an actively maintained alternative.",
       "command": "npx",
       "args": [
         "-y",
-        "@modelcontextprotocol/server-brave-search"
+        "@modelcontextprotocol/server-brave-search@0.6.2"
       ],
       "env": {
         "BRAVE_API_KEY": "${BRAVE_API_KEY}"
@@ -38,45 +41,49 @@
       "command": "npx",
       "args": [
         "-y",
-        "@modelcontextprotocol/server-filesystem",
+        "@modelcontextprotocol/server-filesystem@2.4.0",
         "./"
       ],
       "env": {}
     },
     "_section_version_control": "=== VERSION CONTROL & PROJECT MANAGEMENT ===",
     "github": {
+      "_enabled": false,
       "_description": "PR review, code search, issue management, git history.",
+      "_review": "deprecated on npm; pinned to its last version only so that the entry is reproducible; check it before use. Successor: GitHub's official server https://github.com/github/github-mcp-server (Go binary or Docker image). Checked 2026-11-22; the npm notice names none.",
       "_note": "Deprecated: npm marks this package 'no longer supported' (checked 2026-10-30); it still installs. Prefer an actively maintained alternative.",
       "command": "npx",
       "args": [
         "-y",
-        "@modelcontextprotocol/server-github"
+        "@modelcontextprotocol/server-github@2025.4.8"
       ],
       "env": {
         "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_TOKEN}"
       }
     },
     "githits": {
-      "_description": "Lets the agent navigate the open-source code your app depends on — search/grep/read dependency source, docs, issues, PRs and changelogs without cloning. Prevents dependency-API hallucination. No API key.",
+      "_description": "Lets the agent navigate the open-source code your app depends on \u2014 search/grep/read dependency source, docs, issues, PRs and changelogs without cloning. Prevents dependency-API hallucination. No API key.",
       "command": "npx",
       "args": [
         "-y",
-        "githits@latest",
+        "githits@0.41.0",
         "mcp",
         "start"
       ],
       "env": {},
-      "_install": "Auto-config: `npx githits@latest init` detects your tool and wires this in. Docs: https://docs.githits.com/installation/automatic-setup (manual: /installation/manual-setup)."
+      "_install": "Auto-config: `npx githits@0.41.0 init` detects your tool and wires this in. Docs: https://docs.githits.com/installation/automatic-setup (manual: /installation/manual-setup)."
     },
     "_section_database": "=== DATABASES ===",
     "postgres-dev": {
+      "_enabled": false,
       "_description": "PostgreSQL for development \u2014 READ-WRITE allowed.",
+      "_review": "deprecated on npm; pinned to its last version only so that the entry is reproducible; check it before use. Successor: DBHub (the `dbhub` entry, https://github.com/bytebase/dbhub), whose README names this package as the one it replaces. Checked 2026-11-22; the npm notice names none.",
       "_note": "Deprecated: npm marks this package 'no longer supported' (checked 2026-10-30); it still installs. Prefer an actively maintained alternative.",
       "_security": "DEVELOPMENT ONLY \u2014 never use read-write in production",
       "command": "npx",
       "args": [
         "-y",
-        "@modelcontextprotocol/server-postgres"
+        "@modelcontextprotocol/server-postgres@0.6.2"
       ],
       "env": {
         "POSTGRES_CONNECTION_STRING": "${DATABASE_URL_DEV}"
@@ -84,40 +91,46 @@
     },
     "greptime": {
       "_description": "Time-series analytics and robust metrics logging.",
-      "command": "npx",
+      "_source": "https://github.com/GreptimeTeam/greptimedb-mcp-server (PyPI greptimedb-mcp-server 0.6.1), checked 2026-11-22",
+      "_enabled": true,
+      "_note": "Official GreptimeDB server on PyPI; the console script has the package name.",
+      "command": "uvx",
       "args": [
-        "-y",
-        "@greptimedb/mcp-server"
+        "greptimedb-mcp-server@0.6.1"
       ],
       "env": {
-        "GREPTIME_HOST": "${GREPTIME_HOST}",
-        "GREPTIME_DB": "${GREPTIME_DB}",
-        "GREPTIME_USERNAME": "${GREPTIME_USERNAME}",
-        "GREPTIME_PASSWORD": "${GREPTIME_PASSWORD}"
+        "GREPTIMEDB_HOST": "${GREPTIME_HOST}",
+        "GREPTIMEDB_DATABASE": "${GREPTIME_DB}",
+        "GREPTIMEDB_USER": "${GREPTIME_USERNAME}",
+        "GREPTIMEDB_PASSWORD": "${GREPTIME_PASSWORD}"
       }
     },
     "clickhouse": {
       "_description": "Agentic OLAP and real-time reporting via ClickHouse.",
-      "command": "npx",
+      "_source": "https://github.com/ClickHouse/mcp-clickhouse (PyPI mcp-clickhouse 0.7.0), checked 2026-11-22",
+      "_enabled": true,
+      "_note": "Official ClickHouse server on PyPI.",
+      "command": "uvx",
       "args": [
-        "-y",
-        "@clickhouse/mcp-server"
+        "mcp-clickhouse@0.7.0"
       ],
       "env": {
-        "CLICKHOUSE_URL": "${CLICKHOUSE_URL}",
+        "CLICKHOUSE_HOST": "${CLICKHOUSE_HOST}",
         "CLICKHOUSE_USER": "${CLICKHOUSE_USER}",
         "CLICKHOUSE_PASSWORD": "${CLICKHOUSE_PASSWORD}"
       }
     },
     "postgres-prod": {
+      "_enabled": false,
       "_description": "PostgreSQL for production \u2014 READ-ONLY. Schema introspection only.",
+      "_review": "deprecated on npm; pinned to its last version only so that the entry is reproducible; check it before use. Successor: DBHub (the `dbhub` entry, https://github.com/bytebase/dbhub), whose README names this package as the one it replaces; keep it read-only. Checked 2026-11-22; the npm notice names none.",
       "_note": "Deprecated: npm marks this package 'no longer supported' (checked 2026-10-30); it still installs. Prefer an actively maintained alternative.",
       "_security": "PRODUCTION \u2014 read-only access enforced by database user permissions",
       "_enable_only_when_needed": true,
       "command": "npx",
       "args": [
         "-y",
-        "@modelcontextprotocol/server-postgres"
+        "@modelcontextprotocol/server-postgres@0.6.2"
       ],
       "env": {
         "POSTGRES_CONNECTION_STRING": "${DATABASE_URL_PROD_READONLY}"
@@ -152,7 +165,7 @@
       "command": "npx",
       "args": [
         "-y",
-        "@sentry/mcp-server"
+        "@sentry/mcp-server@0.50.0"
       ],
       "env": {
         "SENTRY_AUTH_TOKEN": "${SENTRY_AUTH_TOKEN}",
@@ -165,7 +178,7 @@
       "_description": "Browser automation for visual TDD and E2E testing.",
       "command": "npx",
       "args": [
-        "@playwright/mcp",
+        "@playwright/mcp@0.0.86",
         "--headless"
       ],
       "env": {}
@@ -175,7 +188,7 @@
       "command": "npx",
       "args": [
         "-y",
-        "tavily-mcp"
+        "tavily-mcp@0.2.22"
       ],
       "env": {
         "TAVILY_API_KEY": "${TAVILY_API_KEY}"
@@ -183,50 +196,61 @@
     },
     "image-recognition": {
       "_description": "Vision API proxy for image analysis \u2014 sketch recognition, diagram interpretation, OCR.",
+      "_enabled": false,
       "_security": "Images are sent to configured vision API (Anthropic/OpenAI/Cloudflare) for processing",
-      "command": "npx",
+      "command": "uvx",
       "args": [
-        "-y",
-        "mcp-image-recognition"
+        "mcp-image-recognition@1.2.2"
       ],
       "env": {
         "ANTHROPIC_API_KEY": "${ANTHROPIC_API_KEY}"
-      }
+      },
+      "_review": "unmaintained community package: PyPI mcp-image-recognition 1.2.2 (2025-03), repository untouched since 2025-04, no official vendor server; checked 2026-11-22; kept for reference, disabled",
+      "_source": "https://pypi.org/project/mcp-image-recognition/, checked 2026-11-22"
     },
     "_section_infrastructure": "=== CLOUD & INFRASTRUCTURE ===",
     "terraform": {
       "_description": "Agentic Infrastructure as Code (IaC) via HashiCorp Terraform.",
-      "_note": "No npm package (E404 checked 2026-10-30). HashiCorp ships terraform-mcp-server as a Go binary and Docker image.",
+      "_source": "https://github.com/hashicorp/terraform-mcp-server (Docker Hub hashicorp/terraform-mcp-server:1.4.1), checked 2026-11-22",
       "_enabled": false,
-      "command": "npx",
+      "_note": "Official HashiCorp container image, pinned to a tag.",
+      "command": "docker",
       "args": [
-        "-y",
-        "@hashicorp/terraform-mcp-server"
+        "run",
+        "-i",
+        "--rm",
+        "-e",
+        "TFE_TOKEN",
+        "hashicorp/terraform-mcp-server:1.4.1"
       ],
       "env": {
-        "TERRAFORM_CLOUD_TOKEN": "${TERRAFORM_CLOUD_TOKEN}"
+        "TFE_TOKEN": "${TERRAFORM_CLOUD_TOKEN}"
       }
     },
     "_section_optional": "=== OPTIONAL \u2014 Enable as needed ===",
     "docker": {
       "_enabled": false,
       "_description": "Docker daemon integration \u2014 manage containers, images, and read local logs.",
-      "_note": "No npm package (E404 checked 2026-10-30). Desktop server: use the MCP Toolkit in Docker Desktop.",
-      "command": "npx",
+      "_source": "https://github.com/docker/mcp-gateway, checked 2026-11-22",
+      "_note": "Docker MCP Toolkit (the `docker mcp` CLI plugin of Docker Desktop).",
+      "command": "docker",
       "args": [
-        "-y",
-        "@docker/mcp-server"
+        "mcp",
+        "gateway",
+        "run"
       ],
-      "env": {}
+      "env": {},
+      "_review": "the version is that of the installed Docker Desktop (`docker mcp` plugin), not set here; kept disabled"
     },
     "google-cloud": {
       "_enabled": false,
       "_description": "Google Cloud Platform access \u2014 manage Firebase, Cloud Run, GKE, BigQuery.",
-      "_note": "No npm package (E404 checked 2026-10-30). Use Google Cloud's own MCP documentation instead of npx.",
+      "_source": "https://github.com/googleapis/gcloud-mcp (npm @google-cloud/gcloud-mcp 0.5.3), checked 2026-11-22",
+      "_note": "Official Google Cloud server (gcloud commands).",
       "command": "npx",
       "args": [
         "-y",
-        "@googlecloud/mcp-server"
+        "@google-cloud/gcloud-mcp@0.5.3"
       ],
       "env": {
         "GOOGLE_APPLICATION_CREDENTIALS": "${GOOGLE_APPLICATION_CREDENTIALS}"
@@ -235,10 +259,14 @@
     "azure": {
       "_enabled": false,
       "_description": "Azure Resource management \u2014 Key Vault, CosmosDB, Azure Storage.",
+      "_source": "https://github.com/microsoft/mcp/blob/main/servers/Azure.Mcp.Server/README.md (npm @azure/mcp), checked 2026-11-22",
+      "_note": "Latest stable release; the npm \"latest\" tag points to a 4.0.0 beta.",
       "command": "npx",
       "args": [
         "-y",
-        "@microsoft/azure-mcp-server"
+        "@azure/mcp@3.0.0",
+        "server",
+        "start"
       ],
       "env": {
         "AZURE_CLIENT_ID": "${AZURE_CLIENT_ID}",
@@ -249,24 +277,20 @@
     "vercel": {
       "_enabled": false,
       "_description": "Vercel deployments, aliases, and serverless log integration.",
-      "_note": "No npm package (E404 checked 2026-10-30). Hosted server: use Vercel's hosted MCP; @vercel/mcp-adapter builds your own.",
-      "command": "npx",
-      "args": [
-        "-y",
-        "@vercel/mcp-server"
-      ],
-      "env": {
-        "VERCEL_API_TOKEN": "${VERCEL_API_TOKEN}"
-      }
+      "_source": "https://vercel.com/docs/agent-resources/vercel-mcp, checked 2026-11-22",
+      "_note": "Hosted server with OAuth: run `/mcp` in Claude Code to sign in.",
+      "type": "http",
+      "url": "https://mcp.vercel.com"
     },
     "gitlab": {
       "_enabled": false,
       "_description": "GitLab alternative to GitHub MCP.",
+      "_review": "deprecated on npm; pinned to its last version only so that the entry is reproducible; check it before use. Successor: GitLab's own MCP server https://docs.gitlab.com/user/model_context_protocol/mcp_server/. Checked 2026-11-22; the npm notice names none.",
       "_note": "Deprecated: npm marks this package 'no longer supported' (checked 2026-10-30); it still installs. Prefer an actively maintained alternative.",
       "command": "npx",
       "args": [
         "-y",
-        "@modelcontextprotocol/server-gitlab"
+        "@modelcontextprotocol/server-gitlab@2025.4.25"
       ],
       "env": {
         "GITLAB_PERSONAL_ACCESS_TOKEN": "${GITLAB_TOKEN}",
@@ -279,7 +303,7 @@
       "command": "npx",
       "args": [
         "-y",
-        "aashari/mcp-server-atlassian-jira"
+        "@aashari/mcp-server-atlassian-jira@3.3.0"
       ],
       "env": {
         "ATLASSIAN_SITE_NAME": "${JIRA_SITE}",
@@ -293,7 +317,7 @@
       "command": "npx",
       "args": [
         "-y",
-        "@notionhq/notion-mcp-server"
+        "@notionhq/notion-mcp-server@2.6.1"
       ],
       "env": {
         "OPENAPI_MCP_HEADERS": "{\"Authorization\": \"Bearer ${NOTION_TOKEN}\"}"
@@ -305,7 +329,7 @@
       "command": "npx",
       "args": [
         "-y",
-        "mcp-server-qdrant"
+        "mcp-server-qdrant@0.0.1"
       ],
       "env": {
         "QDRANT_URL": "${QDRANT_URL}",
@@ -316,39 +340,40 @@
     "datadog": {
       "_enabled": false,
       "_description": "Monitoring, alerts, observability queries.",
-      "_note": "No npm package (E404 checked 2026-10-30). Hosted server: connect to Datadog's hosted MCP.",
-      "command": "npx",
-      "args": [
-        "-y",
-        "@datadog/mcp-server"
-      ],
-      "env": {
+      "_source": "https://docs.datadoghq.com/mcp_server/setup.md, checked 2026-11-22",
+      "_note": "Hosted server. The URL is for the US1 site; other sites use their own URL (see the page). OAuth is the alternative to the two keys.",
+      "type": "http",
+      "url": "https://mcp.datadoghq.com/v1/mcp",
+      "headers": {
         "DD_API_KEY": "${DATADOG_API_KEY}",
-        "DD_APP_KEY": "${DATADOG_APP_KEY}"
+        "DD_APPLICATION_KEY": "${DATADOG_APP_KEY}"
       }
     },
     "grafana": {
       "_enabled": false,
       "_description": "Dashboard search, datasource queries, incident management.",
-      "_note": "No npm package (E404 checked 2026-10-30). Grafana ships the Go mcp-grafana server.",
-      "command": "npx",
+      "_source": "https://github.com/grafana/mcp-grafana (PyPI mcp-grafana 2.2.0), checked 2026-11-22",
+      "_note": "Official Grafana server; the token is a service account token.",
+      "command": "uvx",
       "args": [
-        "-y",
-        "@grafana/mcp-server"
+        "mcp-grafana@2.2.0"
       ],
       "env": {
         "GRAFANA_URL": "${GRAFANA_URL}",
-        "GRAFANA_API_KEY": "${GRAFANA_API_KEY}"
+        "GRAFANA_SERVICE_ACCOUNT_TOKEN": "${GRAFANA_API_KEY}"
       }
     },
     "aws-core": {
       "_enabled": false,
       "_description": "AWS core services \u2014 documentation, CDK, Lambda.",
-      "_note": "No npm package (E404 checked 2026-10-30). AWS ships awslabs.* servers on PyPI (run with uvx).",
-      "command": "npx",
+      "_source": "https://github.com/aws/agent-toolkit-for-aws (PyPI mcp-proxy-for-aws-cli 2.0.0), checked 2026-11-22",
+      "_note": "AWS MCP Server (managed, SigV4 through the AWS proxy). awslabs.core-mcp-server is yanked on PyPI.",
+      "command": "uvx",
       "args": [
-        "-y",
-        "@aws/mcp-server-core"
+        "mcp-proxy-for-aws-cli@2.0.0",
+        "https://aws-mcp.us-east-1.api.aws/mcp",
+        "--metadata",
+        "AWS_REGION=us-west-2"
       ],
       "env": {
         "AWS_ACCESS_KEY_ID": "${AWS_ACCESS_KEY_ID}",
@@ -363,7 +388,7 @@
       "command": "npx",
       "args": [
         "-y",
-        "mcp-server-kubernetes"
+        "mcp-server-kubernetes@4.2.3"
       ],
       "env": {
         "KUBECONFIG": "${KUBECONFIG}"
@@ -372,37 +397,29 @@
     "slack": {
       "_enabled": false,
       "_description": "Workspace channels, DMs, message history.",
-      "command": "npx",
-      "args": [
-        "-y",
-        "@slack/mcp-server"
-      ],
-      "env": {
-        "SLACK_BOT_TOKEN": "${SLACK_BOT_TOKEN}",
-        "SLACK_TEAM_ID": "${SLACK_TEAM_ID}"
-      }
+      "_source": "https://docs.slack.dev/ai/mcp-server, checked 2026-11-22",
+      "_note": "Hosted server with OAuth; Slack requires a registered or directory-listed app, see the page.",
+      "type": "http",
+      "url": "https://mcp.slack.com/mcp"
     },
     "_section_design_visual": "=== DESIGN & VISUAL ARCHITECTURE ===",
     "figma": {
       "_enabled": false,
       "_description": "UI/UX semantic understanding, component specs, and design-to-code.",
-      "_note": "No npm package (E404 checked 2026-10-30). Desktop server: enable the Dev Mode MCP server in the Figma desktop app.",
-      "command": "npx",
-      "args": [
-        "-y",
-        "@figma/mcp-server"
-      ],
-      "env": {
-        "FIGMA_ACCESS_TOKEN": "${FIGMA_ACCESS_TOKEN}"
-      }
+      "_source": "https://developers.figma.com/docs/figma-mcp-server/remote-server-installation/, checked 2026-11-22",
+      "_note": "Hosted server with OAuth. The desktop server needs the Figma desktop app instead.",
+      "type": "http",
+      "url": "https://mcp.figma.com/mcp"
     },
     "drawio": {
       "_enabled": false,
       "_description": "Programmatic generation and editing of C4, UML, and Network diagrams in Draw.io.",
+      "_source": "https://github.com/jgraph/drawio-mcp (npm @drawio/mcp 1.13.0), checked 2026-11-22",
+      "_note": "Official draw.io server. A hosted variant exists at https://mcp.draw.io/mcp.",
       "command": "npx",
       "args": [
         "-y",
-        "@jgraph/drawio-mcp-server"
+        "@drawio/mcp@1.13.0"
       ],
       "env": {}
     },
@@ -412,7 +429,7 @@
       "command": "npx",
       "args": [
         "-y",
-        "@cmd8/excalidraw-mcp",
+        "@cmd8/excalidraw-mcp@1.2.0",
         "--diagram",
         "./docs/architecture.excalidraw"
       ],
@@ -424,22 +441,17 @@
       "command": "npx",
       "args": [
         "-y",
-        "@talhaorak/tldraw-mcp"
+        "@talhaorak/tldraw-mcp@0.1.1"
       ],
       "env": {}
     },
     "miro": {
       "_enabled": false,
       "_description": "Read context from virtual whiteboards and continuously sync architecture PRDs.",
-      "_note": "No npm package (E404 checked 2026-10-30). Connect through Miro's own MCP documentation instead of npx.",
-      "command": "npx",
-      "args": [
-        "-y",
-        "@mirohq/miro-mcp-server"
-      ],
-      "env": {
-        "MIRO_ACCESS_TOKEN": "${MIRO_ACCESS_TOKEN}"
-      }
+      "_source": "https://developers.miro.com/docs/connecting-to-miro-mcp, checked 2026-11-22",
+      "_note": "Hosted server with OAuth.",
+      "type": "http",
+      "url": "https://mcp.miro.com/"
     },
     "mermaid": {
       "_enabled": false,
@@ -447,40 +459,47 @@
       "command": "npx",
       "args": [
         "-y",
-        "mermaid-mcp-server"
+        "mermaid-mcp-server@1.0.8"
       ],
       "env": {}
     },
     "dbhub": {
       "_enabled": false,
       "_description": "Universal DB client (MySQL, MariaDB, PG, SQL Server).",
+      "_source": "https://github.com/bytebase/dbhub (npm @bytebase/dbhub 2.1.0), checked 2026-11-22",
+      "_note": "Bytebase DBHub. Add `readonly = true` in a TOML `--config` to keep it read-only (see its README).",
       "command": "npx",
       "args": [
         "-y",
-        "@modelcontextprotocol/server-dbhub"
+        "@bytebase/dbhub@2.1.0",
+        "--dsn",
+        "${DBHUB_DSN}"
       ],
       "env": {}
     },
     "mongodb": {
       "_enabled": false,
       "_description": "MongoDB exploration and query tool.",
+      "_source": "https://github.com/mongodb-js/mongodb-mcp-server (npm mongodb-mcp-server 3.3.0), checked 2026-11-22",
+      "_note": "Official MongoDB server.",
       "command": "npx",
       "args": [
         "-y",
-        "@modelcontextprotocol/server-mongodb-lens"
+        "mongodb-mcp-server@3.3.0"
       ],
       "env": {
-        "MONGODB_CONNECTION_STRING": "${MONGODB_URI}"
+        "MDB_MCP_CONNECTION_STRING": "${MONGODB_URI}"
       }
     },
     "redis": {
       "_enabled": false,
       "_description": "Redis interaction and key management.",
+      "_review": "deprecated on npm; pinned to its last version only so that the entry is reproducible; check it before use. Successor: Redis's official server https://github.com/redis/mcp-redis (PyPI redis-mcp-server). Checked 2026-11-22; the npm notice names none.",
       "_note": "Deprecated: npm marks this package 'no longer supported' (checked 2026-10-30); it still installs. Prefer an actively maintained alternative.",
       "command": "npx",
       "args": [
         "-y",
-        "@modelcontextprotocol/server-redis"
+        "@modelcontextprotocol/server-redis@2025.4.25"
       ],
       "env": {
         "REDIS_URL": "${REDIS_URL}"
@@ -492,7 +511,7 @@
       "command": "npx",
       "args": [
         "-y",
-        "sqlite-mcp"
+        "sqlite-mcp@0.0.1"
       ],
       "env": {
         "SQLITE_PATH": "./database.sqlite"
@@ -504,7 +523,7 @@
       "command": "npx",
       "args": [
         "-y",
-        "pinecone-mcp"
+        "pinecone-mcp@1.0.0"
       ],
       "env": {
         "PINECONE_API_KEY": "${PINECONE_API_KEY}"
@@ -516,7 +535,7 @@
       "command": "npx",
       "args": [
         "-y",
-        "chromadb-mcp"
+        "chromadb-mcp@0.1.0"
       ],
       "env": {}
     },
@@ -526,7 +545,7 @@
       "command": "npx",
       "args": [
         "-y",
-        "weaviate-mcp"
+        "weaviate-mcp@1.0.3"
       ],
       "env": {
         "WEAVIATE_URL": "${WEAVIATE_URL}",
@@ -536,17 +555,10 @@
     "confluence": {
       "_enabled": false,
       "_description": "Confluence pages and spaces.",
-      "_note": "No npm package (E404 checked 2026-10-30). Use a community Atlassian server such as mcp-atlassian.",
-      "command": "npx",
-      "args": [
-        "-y",
-        "@modelcontextprotocol/server-confluence"
-      ],
-      "env": {
-        "ATLASSIAN_URL": "${CONFLUENCE_URL}",
-        "ATLASSIAN_USERNAME": "${CONFLUENCE_EMAIL}",
-        "ATLASSIAN_API_TOKEN": "${CONFLUENCE_TOKEN}"
-      }
+      "_source": "https://support.atlassian.com/atlassian-rovo-mcp-server/docs/getting-started-with-the-atlassian-remote-mcp-server/, checked 2026-11-22",
+      "_note": "Atlassian hosted server (Jira and Confluence) with OAuth.",
+      "type": "http",
+      "url": "https://mcp.atlassian.com/v2/mcp"
     },
     "linear": {
       "_enabled": false,
@@ -554,7 +566,7 @@
       "command": "npx",
       "args": [
         "-y",
-        "linear-mcp-server"
+        "linear-mcp-server@0.1.0"
       ],
       "env": {
         "LINEAR_API_KEY": "${LINEAR_API_KEY}"
@@ -563,14 +575,23 @@
     "sonarqube": {
       "_enabled": false,
       "_description": "Code quality and security analysis.",
-      "command": "npx",
+      "_source": "https://github.com/SonarSource/sonarqube-mcp-server (Docker Hub sonarsource/sonarqube-mcp:1.33.0.5260), checked 2026-11-22",
+      "_note": "Official SonarSource image, pinned to a tag.",
+      "command": "docker",
       "args": [
-        "-y",
-        "sonarqube-mcp"
+        "run",
+        "--init",
+        "-i",
+        "--rm",
+        "-e",
+        "SONARQUBE_TOKEN",
+        "-e",
+        "SONARQUBE_URL",
+        "sonarsource/sonarqube-mcp:1.33.0.5260"
       ],
       "env": {
-        "SONAR_URL": "${SONAR_URL}",
-        "SONAR_TOKEN": "${SONAR_TOKEN}"
+        "SONARQUBE_URL": "${SONAR_URL}",
+        "SONARQUBE_TOKEN": "${SONAR_TOKEN}"
       }
     },
     "firecrawl": {
@@ -579,7 +600,7 @@
       "command": "npx",
       "args": [
         "-y",
-        "firecrawl-mcp"
+        "firecrawl-mcp@3.41.0"
       ],
       "env": {
         "FIRECRAWL_API_KEY": "${FIRECRAWL_API_KEY}"
@@ -588,20 +609,26 @@
     "duckduckgo": {
       "_enabled": false,
       "_description": "Privacy-focused web search.",
-      "command": "npx",
+      "_source": "https://github.com/nickclyde/duckduckgo-mcp-server (PyPI duckduckgo-mcp-server 0.7.0), checked 2026-11-22",
+      "_note": "Community server (no official DuckDuckGo one); maintained, last release 2026-09.",
+      "command": "uvx",
       "args": [
-        "-y",
-        "@modelcontextprotocol/server-duckduckgo"
+        "duckduckgo-mcp-server@0.7.0"
       ],
       "env": {}
     },
     "snyk": {
       "_enabled": false,
       "_description": "Vulnerability scanning for code and dependencies.",
+      "_source": "https://docs.snyk.io/agent-security/agentic-security-with-snyk-studio/quickstart-guides/cline-guide (npm snyk 1.1309.0), checked 2026-11-22",
+      "_note": "Snyk CLI with its built-in MCP server.",
       "command": "npx",
       "args": [
         "-y",
-        "snyk-mcp-server"
+        "snyk@1.1309.0",
+        "mcp",
+        "-t",
+        "stdio"
       ],
       "env": {
         "SNYK_TOKEN": "${SNYK_TOKEN}"
@@ -610,6 +637,7 @@
     "gitleaks": {
       "_enabled": false,
       "_description": "Secret detection in git repositories.",
+      "_review": "no published distribution found on 2026-11-22 (npm search \"gitleaks mcp\", PyPI gitleaks-mcp, the gitleaks README and the GitHub repository search show no MCP server from gitleaks or a maintained community one); kept for reference",
       "command": "npx",
       "args": [
         "-y",
@@ -620,50 +648,50 @@
     "jupyter": {
       "_enabled": false,
       "_description": "Execute Python code in Jupyter notebooks.",
-      "command": "npx",
+      "_source": "https://github.com/datalayer/jupyter-mcp-server (PyPI jupyter-mcp-server 2.2.6), checked 2026-11-22",
+      "_note": "Datalayer server (the Jupyter project's MCP server).",
+      "command": "uvx",
       "args": [
-        "-y",
-        "jupyter-mcp-server"
+        "jupyter-mcp-server@2.2.6"
       ],
-      "env": {}
+      "env": {
+        "JUPYTER_URL": "${JUPYTER_URL}",
+        "JUPYTER_TOKEN": "${JUPYTER_TOKEN}"
+      }
     },
     "zapier": {
       "_enabled": false,
       "_description": "Connect to 6,000+ apps via Zapier.",
-      "_note": "No npm package (E404 checked 2026-10-30). Hosted server: connect to your per-user URL at mcp.zapier.com.",
-      "command": "npx",
-      "args": [
-        "-y",
-        "@zapier/mcp-server"
-      ],
-      "env": {
-        "ZAPIER_NLA_API_KEY": "${ZAPIER_NLA_API_KEY}"
-      }
+      "_source": "https://docs.zapier.com/mcp/get-started/connect/claude-code.md, checked 2026-11-22",
+      "_note": "Hosted server with OAuth.",
+      "type": "http",
+      "url": "https://mcp.zapier.com/api/v1/connect"
     },
     "stripe": {
       "_enabled": false,
       "_description": "Search and manage Stripe resources.",
-      "command": "npx",
-      "args": [
-        "-y",
-        "@stripe/mcp-server"
-      ],
-      "env": {
-        "STRIPE_API_KEY": "${STRIPE_SECRET_KEY}"
+      "_source": "https://docs.stripe.com/mcp, checked 2026-11-22",
+      "_note": "Hosted server; OAuth is the default, an agent API key is the alternative (full-access secret keys stop working on 2027-01-11). npm @stripe/mcp is no longer maintained.",
+      "type": "http",
+      "url": "https://mcp.stripe.com",
+      "headers": {
+        "Authorization": "Bearer ${STRIPE_AGENT_API_KEY}"
       }
     },
     "_section_api_knowledge": "=== API INTROSPECTION & KNOWLEDGE ===",
     "graphql": {
       "_enabled": false,
       "_description": "GraphQL schema introspection, query validation, and documentation.",
+      "_source": "https://github.com/blurrah/mcp-graphql (npm mcp-graphql 2.0.4), checked 2026-11-22",
+      "_note": "Community server (no official generic one); last release 2025-05.",
       "command": "npx",
       "args": [
         "-y",
-        "graphql-mcp-server"
+        "mcp-graphql@2.0.4"
       ],
       "env": {
-        "GRAPHQL_ENDPOINT": "${GRAPHQL_ENDPOINT}",
-        "GRAPHQL_HEADERS": "{\"Authorization\": \"Bearer ${GRAPHQL_TOKEN}\"}"
+        "ENDPOINT": "${GRAPHQL_ENDPOINT}",
+        "HEADERS": "{\"Authorization\": \"Bearer ${GRAPHQL_TOKEN}\"}"
       }
     },
     "elasticsearch": {
@@ -672,7 +700,7 @@
       "command": "npx",
       "args": [
         "-y",
-        "elasticsearch-mcp-server"
+        "elasticsearch-mcp-server@1.0.0"
       ],
       "env": {
         "ELASTICSEARCH_URL": "${ELASTICSEARCH_URL}",
@@ -683,13 +711,14 @@
       "_enabled": false,
       "_security": "DEVELOPMENT ONLY \u2014 restrict to project directory. Never enable in production.",
       "_description": "Execute shell commands for local build, test, and system introspection (internal RAG).",
-      "_note": "No npm package (E404 checked 2026-10-30). Do not use; run shell commands through your agent's own tools.",
+      "_review": "no published distribution found on 2026-11-22 (it is not a published package; the vendor-neutral shell servers are community code with no official source); kept for reference",
       "command": "npx",
       "args": [
         "-y",
         "@anthropic/mcp-server-shell"
       ],
-      "env": {}
+      "env": {},
+      "_note": "Not a published package. Do not use; run shell commands through your agent's own tools."
     },
     "openapi": {
       "_enabled": false,
@@ -697,7 +726,7 @@
       "command": "npx",
       "args": [
         "-y",
-        "openapi-mcp-server"
+        "openapi-mcp-server@2.1.0"
       ],
       "env": {
         "OPENAPI_SPEC_URL": "${OPENAPI_SPEC_URL}"
@@ -710,7 +739,7 @@
       "command": "npx",
       "args": [
         "-y",
-        "@modelcontextprotocol/server-memory"
+        "@modelcontextprotocol/server-memory@2.2.1"
       ],
       "env": {
         "MEMORY_FILE_PATH": "${MEMORY_FILE_PATH}"
@@ -722,7 +751,7 @@
       "command": "npx",
       "args": [
         "-y",
-        "mcp-evals"
+        "mcp-evals@2.0.1"
       ],
       "env": {
         "OPENAI_API_KEY": "${OPENAI_API_KEY}"
@@ -734,7 +763,7 @@
       "command": "npx",
       "args": [
         "-y",
-        "mcp-chaos-rig"
+        "mcp-chaos-rig@1.6.0"
       ],
       "env": {}
     },
@@ -744,7 +773,7 @@
       "command": "npx",
       "args": [
         "-y",
-        "@supabase/mcp-server-supabase",
+        "@supabase/mcp-server-supabase@0.19.0",
         "--read-only"
       ],
       "env": {
@@ -754,14 +783,10 @@
     "pagerduty": {
       "_enabled": false,
       "_description": "On-call automation \u2014 incidents, rotations, resolution workflows. Day-2 (S11 Operate & Maintain).",
-      "command": "npx",
-      "args": [
-        "-y",
-        "@pagerduty/mcp-server"
-      ],
-      "env": {
-        "PAGERDUTY_API_TOKEN": "${PAGERDUTY_API_TOKEN}"
-      }
+      "_source": "https://docs.pagerduty.com/ai-automation/advance/pagerduty-mcp-server, checked 2026-11-22",
+      "_note": "PagerDuty hosted server with OAuth (EU accounts: https://mcp.eu.pagerduty.com/mcp). The local uvx server is deprecated.",
+      "type": "http",
+      "url": "https://mcp.pagerduty.com/mcp"
     },
     "cloudflare": {
       "_enabled": false,
@@ -769,7 +794,7 @@
       "command": "npx",
       "args": [
         "-y",
-        "@cloudflare/mcp-server-cloudflare"
+        "@cloudflare/mcp-server-cloudflare@0.2.0"
       ],
       "env": {
         "CLOUDFLARE_API_TOKEN": "${CLOUDFLARE_API_TOKEN}"
@@ -781,7 +806,7 @@
       "command": "npx",
       "args": [
         "-y",
-        "obsidian-mcp"
+        "obsidian-mcp@2.0.1"
       ],
       "env": {
         "OBSIDIAN_VAULT_PATH": "${OBSIDIAN_VAULT_PATH}"
@@ -793,7 +818,7 @@
       "command": "npx",
       "args": [
         "-y",
-        "mcp-discord"
+        "mcp-discord@1.3.4"
       ],
       "env": {
         "DISCORD_TOKEN": "${DISCORD_TOKEN}"

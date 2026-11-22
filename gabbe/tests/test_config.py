@@ -126,3 +126,49 @@ def test_autonomy_module_constant_is_valid():
     from gabbe.config import GABBE_AUTONOMY
 
     assert GABBE_AUTONOMY in {"ask", "auto", "hybrid"}
+
+
+# ---------------------------------------------------------------------------
+# _find_project_root markers (SW-31)
+# ---------------------------------------------------------------------------
+
+
+def test_root_found_by_git_marker(tmp_path):
+    from gabbe.config import _find_project_root
+
+    (tmp_path / ".git").mkdir()
+    sub = tmp_path / "a" / "b"
+    sub.mkdir(parents=True)
+    assert _find_project_root(sub) == tmp_path.resolve()
+
+
+@pytest.mark.parametrize("marker", ["agents/AGENTS.md", "project/state.db", "project/TASKS.md"])
+def test_root_found_by_gabbe_markers(tmp_path, marker):
+    from gabbe.config import _find_project_root
+
+    (tmp_path / marker).parent.mkdir(parents=True, exist_ok=True)
+    (tmp_path / marker).touch()
+    sub = tmp_path / "src"
+    sub.mkdir()
+    assert _find_project_root(sub) == tmp_path.resolve()
+
+
+def test_bare_project_folder_does_not_hijack(tmp_path):
+    """A stray ~/project/ folder must not become the root of projects below it."""
+    from gabbe.config import _find_project_root
+
+    (tmp_path / "project").mkdir()  # bare folder: not a marker
+    real = tmp_path / "work" / "app"
+    (real / ".git").mkdir(parents=True)
+    sub = real / "src"
+    sub.mkdir()
+    assert _find_project_root(sub) == real.resolve()
+
+
+def test_root_falls_back_to_start_directory(tmp_path):
+    from gabbe.config import _find_project_root
+
+    (tmp_path / "project").mkdir()
+    sub = tmp_path / "x"
+    sub.mkdir()
+    assert _find_project_root(sub) == sub.resolve()

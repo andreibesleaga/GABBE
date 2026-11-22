@@ -1,6 +1,6 @@
 ---
 name: performance-audit
-description: "Profiling, benchmarking, Web Vitals audit, N+1 detection, and performance optimization. Use when: performance, profiling, Web Vitals, N+1, slow, optimize, benchmark, latency, throughput."
+description: "Find bottlenecks by measurement - load tests, CPU and memory profiles, Web Vitals, N+1 queries, slow SQL, bundle size, then check each fix with a before and after benchmark. Use when an endpoint or page is slow and you must prove why."
 license: CC-BY-SA-4.0
 metadata:
   source: "agents/skills/ops/performance-audit.skill.md"
@@ -18,7 +18,7 @@ Identify performance bottlenecks through measurement (never guessing), propose e
 1. **Establish performance baseline** (always measure before optimizing)
    ```bash
    # API endpoint load testing
-   npx autocannon -c 100 -d 30 http://localhost:3000/api/users
+   npx autocannon@9.0.0 -c 100 -d 30 http://localhost:3000/api/users
 
    # Node.js profiling
    node --prof src/server.js
@@ -37,7 +37,7 @@ Identify performance bottlenecks through measurement (never guessing), propose e
 2. **Web Vitals audit** (for web applications)
    ```bash
    # Lighthouse CI
-   npx lighthouse http://localhost:3000 --output=json --output-path=./lighthouse-report.json
+   npx lighthouse@13.6.0 http://localhost:3000 --output=json --output-path=./lighthouse-report.json
 
    # Target thresholds (Core Web Vitals):
    LCP (Largest Contentful Paint): < 2.5s (Good), < 4s (Needs Improvement)
@@ -86,8 +86,8 @@ Identify performance bottlenecks through measurement (never guessing), propose e
 5. **Memory and CPU profiling**
    ```bash
    # Node.js: clinic.js for comprehensive profiling
-   npx clinic doctor -- node src/server.js
-   npx clinic flame -- node src/server.js   # Flamegraph for CPU
+   npx clinic@13.0.0 doctor -- node src/server.js
+   npx clinic@13.0.0 flame -- node src/server.js   # Flamegraph for CPU
 
    # Python: cProfile
    python -m cProfile -o profile.stats src/main.py
@@ -97,8 +97,8 @@ Identify performance bottlenecks through measurement (never guessing), propose e
 6. **Frontend performance**
    ```bash
    # Bundle size analysis
-   npx webpack-bundle-analyzer dist/stats.json  # Webpack
-   npx vite-bundle-visualizer                   # Vite
+   npx webpack-bundle-analyzer@5.4.3 dist/stats.json  # Webpack
+   npx vite-bundle-visualizer@1.2.1                   # Vite
 
    # Look for: unnecessarily large bundles, duplicate dependencies
    # Target: main bundle < 200KB gzipped for initial load
@@ -117,10 +117,10 @@ Identify performance bottlenecks through measurement (never guessing), propose e
 8. **Verify improvement with benchmark**
    ```bash
    # Before fix: baseline benchmark saved
-   npx autocannon -c 100 -d 30 http://localhost:3000/api/users > before.txt
+   npx autocannon@9.0.0 -c 100 -d 30 http://localhost:3000/api/users > before.txt
 
    # After fix: run same benchmark
-   npx autocannon -c 100 -d 30 http://localhost:3000/api/users > after.txt
+   npx autocannon@9.0.0 -c 100 -d 30 http://localhost:3000/api/users > after.txt
 
    # Compare: must show measurable improvement
    ```
@@ -166,16 +166,10 @@ Identify performance bottlenecks through measurement (never guessing), propose e
 ## Output Format
 Performance report with before/after benchmarks + list of optimizations applied + verification results.
 
-## Security & Guardrails
-
-### 1. Skill Security (Performance Audit)
-- **Profiling Payload Security**: Performance profiles (`.pstats`, `.cpuprofile`, flamegraphs) often capture raw memory heaps or live function arguments. These artifacts must be treated as highly sensitive, scrubbed of PII/credentials, and never uploaded to public visualizers (like public speedscope.app).
-- **Non-Destructive Measurement**: The profiling agent must use safe, sampling-based profilers (like `py-spy` or `ebpf`) in production environments to avoid pausing the runtime or causing Out-Of-Memory (OOM) crashes that could lead to a Denial of Service.
-
-### 2. System Integration Security
-- **Safe Load Generation**: When executing `autocannon` or `k6` to establish baselines, the agent must ensure it targets safe, non-mutating endpoints (e.g., `GET /api/users`) or targets dedicated ephemeral staging databases. Executing load tests against production `POST /api/checkout` risks massive data corruption and financial loss.
-- **Query Log Sanitization**: If the agent enables database query logging (e.g., `pg_stat_statements`) to detect N+1 issues, it must ensure that the logging mechanism automatically masks bound variables and PII to prevent passwords traversing the query logs.
-
-### 3. LLM & Agent Guardrails
-- **Blind Optimization Rejection**: The LLM must rigidly refuse to implement a "performance fix" (like ripping out a complex regex or disabling a validation check) if it degrades the security posture of the application. Security boundaries cannot be sacrificed for latency.
-- **Cache Invalidation Hallucination**: When recommending a caching layer to solve an N+1 issue, the agent must immediately define the precise cache invalidation strategy. It must recognize that stale authorization data in a cache is a critical security vulnerability, not just a bug.
+## Limits and safety
+- Run load tests against a local or staging target with non-mutating endpoints; production only when the human names the window in that request.
+- Use sampling profilers on production processes; a profiler that pauses the process needs the human's yes.
+- Profiles and heap dumps can hold secrets and personal data; scrub them and keep them out of public viewers and the repository.
+- Turn on query logging only in development, with bound values masked.
+- Index and schema changes are proposed with the exact statement and run after the human confirms.
+- Do not remove a validation or security check to gain speed.

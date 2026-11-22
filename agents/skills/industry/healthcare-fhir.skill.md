@@ -1,6 +1,6 @@
 ---
 name: healthcare-fhir
-description: Design RESTful clinical data exchanges using HL7 FHIR standards
+description: FHIR resource mapping, profiles and REST interactions for clinical data exchange. Use when integrating with an electronic health record system or building a healthcare API.
 triggers: [fhir, hl7, healthcare api, clinical data, snomed, loinc]
 tags: [healthcare, data, fhir, standards]
 context_cost: high
@@ -16,13 +16,15 @@ To architect healthcare interoperability solutions that comply with the Fast Hea
 3. **RESTful Interactions**: Define the API capabilities (e.g., `read`, `vread`, `search`, `create`, `update`).
 4. **Output**: Generate the architecture and resource mappings using `agents/templates/industry/FHIR_INTEGRATION_TEMPLATE.md`.
 
-## Security & Guardrails
+## Constraints
+- Prefer standard resources and implementation guides over custom extensions.
+- Name the implementation guide (for example US Core) when one applies.
 
-### 1. Skill Security
-- **PHI / HIPAA Enforcement**: The agent must natively decline requests to generate test data containing realistic Protected Health Information (PHI). All mock data must use obviously fake nomenclature (e.g., John Doe, 555-0199).
+## Output Format
+`FHIR_INTEGRATION_TEMPLATE.md` (`agents/templates/industry/`) filled in with resource mappings and interactions.
 
-### 2. System Integration Security
-- **SMART on FHIR**: The agent must propose OAuth2 / OIDC authentication patterns (specifically the SMART on FHIR standard) for any application requesting clinical data access.
-
-### 3. LLM & Agent Guardrails
-- **Clinical Liability Warning**: If an agent generates code designed to parse patient observations (e.g., Lab Results) to make an automated clinical decision, it must explicitly output a high-visibility warning that human clinical review is required by medical software regulations (e.g., FDA SaMD rules).
+## Limits and safety
+- Test data is obviously fake (John Doe, 555-0199); if a file holds real patient data, stop and tell the human.
+- Propose SMART on FHIR (OAuth2 and OIDC) for any access to clinical data.
+- Code that turns observations into automated clinical decisions carries a visible warning that clinical review and regulation (for example FDA software-as-a-medical-device rules) apply; never claim approval.
+- Use a sandbox FHIR server, never a live one with real patients.

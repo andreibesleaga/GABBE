@@ -6,17 +6,31 @@ on:
       - "v*"
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
+  # --- Gate: nothing is published or attached from a tag whose tree fails its
+  # tests or whose version numbers disagree with the tag. Every job below that
+  # publishes or attaches release assets needs this job (the same gate is called by
+  # publish-npm.yml and publish-github-packages.yml). ---
+  gate:
+    name: Gate (tests + tag equals version)
+    permissions:
+      contents: read
+    uses: ./.github/workflows/gate.yml
+    with:
+      ref_name: ${{ github.ref_name }}
+
   # --- Detect whether the PyPI token is present. The `secrets` context cannot
   # be used in a job-level `if:`, so we read it inside a step here and expose
-  # a boolean that the PyPI jobs gate on via `needs`. This keeps the workflow
-  # green when the token is absent. npm is published by publish-npm.yml on the
+  # a boolean that the PyPI job reads via `needs` to choose its publishing path
+  # (token when present, otherwise PyPI trusted publishing; either way the job
+  # fails when it cannot publish). npm is published by publish-npm.yml on the
   # same tag, with npm trusted publishing (OIDC, no token). ---
   secret-gate:
     name: Detect publish secrets
     runs-on: ubuntu-latest
+    permissions: {}
     outputs:
       has_pypi: ${{ steps.check.outputs.has_pypi }}
     steps:
@@ -29,27 +43,35 @@ jobs:
   # --- Existing job: build sdist+wheel, generate a CycloneDX SBOM, attach. ---
   sbom-and-build:
     name: Build + CycloneDX SBOM
+    needs: [gate]
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # attaches the release assets
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-python@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
         with:
           python-version: '3.12'
-          cache: pip
 
       - name: Install build tooling
-        run: pip install build cyclonedx-bom
+        run: pip install build==1.6.1 cyclonedx-bom==7.6.0
 
       - name: Build sdist + wheel
         run: python -m build
 
-      - name: Generate CycloneDX 1.6 SBOM
+      # The SBOM describes the package's own runtime dependencies: the built wheel is
+      # installed into a clean environment (no build tools, no dev extras) and that
+      # environment is read. (requirements-lock.txt includes the dev extras.)
+      - name: Generate CycloneDX 1.6 SBOM of the installed wheel
         run: |
-          pip install -e .
-          cyclonedx-py environment --output-format JSON --spec-version 1.6 --output-file sbom.json
+          python -m venv --without-pip "$RUNNER_TEMP/sbom-venv"
+          python -m pip --python "$RUNNER_TEMP/sbom-venv/bin/python" install dist/*.whl
+          cyclonedx-py environment --output-format JSON --spec-version 1.6 --pyproject pyproject.toml --output-file sbom.json "$RUNNER_TEMP/sbom-venv/bin/python"
 
       - name: Attach artifacts to release
-        uses: softprops/action-gh-release@v3
+        uses: softprops/action-gh-release@8a0cd651e5b2365bd640854a3fa5dfc70e4875f3 # v3
         with:
           files: |
             dist/*
@@ -58,10 +80,15 @@ jobs:
   # --- Build the npm package tarball and a standalone kit tarball. ---
   build-npm-and-kit:
     name: Build npm + kit tarballs
+    needs: [gate]
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # attaches the release assets
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
           node-version: '20'
 
@@ -77,52 +104,66 @@ jobs:
           tar -czf "dist/gabbe-kit.tar.gz" agents docs scripts/init.py install.sh install.ps1 bin/install.js package.json README.md LICENSE LICENSE-CODE
 
       - name: Attach npm + kit tarballs to release
-        uses: softprops/action-gh-release@v3
+        uses: softprops/action-gh-release@8a0cd651e5b2365bd640854a3fa5dfc70e4875f3 # v3
         with:
           files: |
             ./*.tgz
             dist/gabbe-kit.tar.gz
 
-  # --- Publish to PyPI ONLY when PYPI_API_TOKEN is configured (gated on the
-  # secret-gate job's output, since `secrets` cannot be used in `if:`). ---
+  # --- Publish to PyPI. Two paths, one job:
+  #   1. PYPI_API_TOKEN present: twine with the token (as before).
+  #   2. token absent: PyPI trusted publishing through the official PyPA action
+  #      (OIDC, no secret, attestations on by default). This needs the trusted
+  #      publisher to be registered on pypi.org for this repository, workflow
+  #      `release.yml` and environment `pypi`.
+  # If neither path can publish, this job fails: a release never ends green
+  # without reaching PyPI. ---
   publish-pypi:
     name: Publish to PyPI
-    needs: [secret-gate, sbom-and-build]
+    needs: [secret-gate, sbom-and-build, gate]
     runs-on: ubuntu-latest
-    if: needs.secret-gate.outputs.has_pypi == 'true'
+    environment: pypi
+    permissions:
+      contents: read
+      id-token: write # PyPI trusted publishing (path 2); unused by the token path
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-python@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
         with:
           python-version: '3.12'
-          cache: pip
 
       - name: Install build + twine
-        run: pip install build twine
+        run: pip install build==1.6.1 twine==7.0.0
 
       - name: Build sdist + wheel
         run: python -m build
 
-      - name: Publish to PyPI
+      - name: Publish to PyPI with the token
+        if: needs.secret-gate.outputs.has_pypi == 'true'
         env:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
         run: twine upload --non-interactive dist/*
+
+      - name: Publish to PyPI with trusted publishing
+        if: needs.secret-gate.outputs.has_pypi != 'true'
+        uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086 # v1.14.3
 
   # --- Post-publish verification (Track E8): install the PUBLISHED package from
   # PyPI on every OS and confirm a single-command install + autodetect works. The
   # npm channel is smoke-tested by build-npm-and-kit and publish-npm.yml. ---
   release-verify:
     name: Verify published install (multi-OS)
-    needs: [secret-gate, publish-pypi]
-    if: needs.secret-gate.outputs.has_pypi == 'true'
+    needs: [publish-pypi]
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
     steps:
-      - uses: actions/setup-python@v7
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
         with:
           python-version: '3.12'
       - name: Install the published package (single command, with PyPI-propagation retry)

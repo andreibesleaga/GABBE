@@ -121,6 +121,8 @@ Set `GABBE_POLICY_FILE` to override the path (default: `project/policies.yml`).
 
 > **Note on `policies.yml` sections:** The parser reads `version`, `tools`, `roles`, `content_safety`, and `parameter_bounds`. The `budgets:` section is informational only (budget limits are enforced by `budget.py` via env vars). The `escalation:` section is currently not parsed — escalation triggers and modes are configured via env vars (`GABBE_ESCALATION_MODE`) and the `EscalationTrigger` enum in code.
 
+> **Wrong shapes are refused at load (since 1.2.0):** a policy file with a wrongly shaped value (a null list, a role list instead of a mapping, a non-numeric bound, `content_safety: null`) is not loaded: the command prints `policy file invalid: <key> ...` and exits 1. A request whose tool name is empty is denied.
+
 ### Built-in policies
 
 | Class | Purpose |

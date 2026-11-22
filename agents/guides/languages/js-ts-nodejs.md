@@ -118,7 +118,7 @@ migrate: pnpm prisma migrate dev
 | Role | Library | Command |
 |---|---|---|
 | Dep audit | `npm audit` | `pnpm audit --audit-level=moderate` |
-| SAST | Semgrep | `npx semgrep --config=p/security-audit src/` |
+| SAST | Semgrep | `semgrep --config=p/security-audit src/` (install Semgrep at a pinned version, see its documentation) |
 | Secret detection | gitleaks | `gitleaks detect --source=. --verbose` |
 | HTTP security | Helmet.js | `app.register(fastifyHelmet)` |
 | Rate limiting | `@fastify/rate-limit` | `app.register(fastifyRateLimit)` |
@@ -338,13 +338,13 @@ await app.register(fastifyCors, {
 
 ```bash
 # Cyclomatic complexity (flag > 10)
-npx complexity-report --format json src/ | jq '.functions[] | select(.cyclomatic > 10)'
+npx complexity-report@2.0.0-alpha --format json src/ | jq '.functions[] | select(.cyclomatic > 10)'
 
 # Code duplication
-npx jscpd src/ --min-lines 5 --min-tokens 50
+npx jscpd@5.4.3 src/ --min-lines 5 --min-tokens 50
 
 # Circular dependencies
-npx madge --circular --extensions ts src/
+npx madge@8.0.0 --circular --extensions ts src/
 
 # Outdated dependencies
 pnpm outdated

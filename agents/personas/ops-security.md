@@ -41,42 +41,53 @@ Load on activation:
 - `threat-model.skill` — verify mitigations are implemented
 - `privacy-audit.skill` — PII and data handling review
 
+## Owner of the security baseline
+
+ops-security owns `project/SECURITY_BASELINE.md` (skill `security-baseline.skill.md`, guide `guides/principles/security-baseline.md`).
+
+- **S01 and S02:** proposes the tier from the requirements and asks the human to confirm it. Records the confirmation in the baseline and one `AUDIT_LOG.md` row. Never lowers a tier alone.
+- **S02 to S06:** checks at each phase end that the rows of the baseline have a status and an evidence path.
+- **S07:** opens every evidence path. A row without a file is a FAIL. Fills `SECURITY_CHECKLIST.md`, writes `docs/security/SECURITY_REVIEW.md` and asks the human for the sign-off.
+- **Veto:** as defined in `CONSTITUTION.md`: phase `BLOCKED`, one `AUDIT_LOG.md` row `VETO` with the reason, lifted only by the human. Open HIGH findings, a missing tier confirmation or missing evidence are grounds for it.
+- **Accepted risks:** only the human accepts one, in the open-risks table. ops-security never writes the acceptance.
+- **Skills added:** `security-baseline.skill`, `security-requirements.skill`, `agent-tool-review.skill`, `dependency-security.skill`, `secrets-management.skill`.
+
 ## Attack Mindset Checklist
 
 ```
-Injection (A01):
+Injection (A05):
   - SQL injection: are all queries parameterized? Try: ' OR '1'='1
   - Command injection: are shell commands constructed from user input?
   - SSTI: user input rendered in templates?
 
-Authentication (A02):
+Authentication (A07):
   - Token entropy: JWT secrets < 256 bits?
   - Session fixation: session ID regenerated after login?
   - Brute force: rate limiting on /login?
   - Password policy enforced server-side?
 
-Data Exposure (A04):
+Cryptographic Failures and data exposure (A04):
   - PII in logs, error messages, or URLs?
   - Sensitive fields in JSON response that shouldn't be there?
   - HTTPS enforced? HSTS header present?
 
-Access Control (A01/A05):
+Access Control (A01):
   - IDOR: can user A access user B's resources by changing ID?
   - Privilege escalation: can regular user call admin endpoints?
   - Missing authorization checks?
 
-Security Misconfiguration (A05):
+Security Misconfiguration (A02):
   - Default credentials?
   - Debug endpoints in production?
   - Overly permissive CORS?
   - Stack traces in production error responses?
 
-Secrets (A02/misc):
+Secrets (A02/A04):
   - Hardcoded API keys, passwords, secrets in code?
   - Secrets in git history?
   - .env file committed?
 
-Dependencies (A06):
+Dependencies and supply chain (A03):
   - npm audit / composer audit: any HIGH or CRITICAL CVEs?
   - Outdated libraries with known vulnerabilities?
 ```

@@ -1,6 +1,8 @@
 # GABBE (Generative Architectural Brain Base Engine)
 ## Agentic Software R&D Engineering Kit
 
+<!-- mcp-name: io.github.andreibesleaga/gabbe -->
+
 ## Quick Reference
 
 ![GABBE Agentic Software R&D Engineering Kit](docs/assets/GABBE.png)
@@ -20,8 +22,8 @@ methods, and stops for your approval where it matters. Open source, for any lang
   `SKILL.md`, `.claude/skills`, and `.agents/skills/` for agentskills.io tools). Switch agents
   mid-project: the project state exports and imports.
 - **Engineering discipline built in.** One lifecycle from idea to retirement (S00–S13): strategy
-  and discovery, the S01–S10 build loop, then operate, evolve and decommission. Every phase ends at
-  a gate. Work is spec-driven (spec → evals → tests → code) and grounded in named methods: ADD 3.0,
+  and discovery (Day 0), build and ship (Day 1, S01–S10), then operate, evolve and decommission
+  (Day 2). Every phase ends at a gate; six of them are human approvals. Work is spec-driven (spec → evals → tests → code) and grounded in named methods: ADD 3.0,
   ATAM, Wardley mapping, JTBD, RICE, DORA/SPACE, ADKAR.
 - **You stay in charge.** Human approval for risky or expensive steps; budgets, token limits and
   hard stops; policy rules; an audit trail and deterministic replay. You manage the agents instead
@@ -33,7 +35,7 @@ methods, and stops for your approval where it matters. Open source, for any lang
   mutation testing (`gabbe verify --chaos`).
 - **See what the agents did and what it cost.** Decision and cost traces in the OpenTelemetry GenAI
   conventions.
-- **Scales from a bug fix to a large programme.** **Loki Mode** runs a swarm of 30+ specialist roles
+- **Scales from a bug fix to a large programme.** **Loki Mode** runs a swarm of 37 specialist roles
   with episodic and semantic memory, checkpoints and a project history. **Brain Mode** (experimental)
   is a meta-cognitive orchestrator, inspired by neuroscience and cognitive psychology (Active
   Inference), that plans, routes work between local and remote models and learns from past outcomes.
@@ -48,15 +50,15 @@ epsilon-greedy selection on their success rate. Evals and property-based tests s
 raise confidence; they do not prove correctness.
 
 It contains:
-- **214 Skills** (specialized capabilities)
-- **100 Templates** (standardized documents)
-- **86 Guides** (language & domain expertise)
-- **36 Personas** (specialized roles)
+- **231 Skills** (specialized capabilities)
+- **107 Templates** (standardized documents)
+- **95 Guides** (language & domain expertise)
+- **37 Personas** (specialized roles)
 - **66 MCP servers** (configuration and guides for AI tools)
 - **Brain Mode** (meta-cognitive orchestration)
 - **Loki Mode** (multi-agent swarm engineering personas team for large projects)
 
-> **214 Skills · 100 Templates · 86 Guides · 36 Personas · 66 MCPs · Loki / Brain Mode CLI**
+> **231 Skills · 107 Templates · 95 Guides · 37 Personas · 66 MCPs · Loki / Brain Mode CLI**
 
 ---
 
@@ -97,6 +99,8 @@ npx gabbe-kit init --force               # re-template even preserved files (eac
 # or, without npm:
 curl -fsSL https://raw.githubusercontent.com/andreibesleaga/GABBE/main/install.sh | sh
 ```
+
+To fix the version, use the pinned form: `npx gabbe-kit@1.1.4 init`. The pinned form does not change when a new release appears. To move a project from 1.1.x to 1.2.0, read [`docs/UPGRADING.md`](docs/UPGRADING.md).
 
 > **Safe on existing projects (since 1.1.4).** A file you already have is kept or backed up first (`<name>.gabbe-bak`; a backup is never overwritten). Your root `AGENTS.md` and other instruction files stay yours: the installer adds a short block that points to `agents/AGENTS.md`. Your `docs/` folder is not touched. Every path is recorded in `.gabbe/manifest.json`, so `gabbe uninstall` removes exactly what was installed. Details: [`docs/INSTALL.md`](docs/INSTALL.md).
 
@@ -145,37 +149,49 @@ chmod +x agents/scripts/setup-context.sh && agents/scripts/setup-context.sh
 
 ### Install as a Claude Code plugin
 
-The skills also ship as Claude Code plugins in one marketplace, so Claude Code can use
-them without installing the kit into the project:
+GABBE ships as **one overall plugin, `gabbe`**: 49 curated skills that cover the whole
+system, with a start-here skill (`gabbe-start`) that carries the operating rules, so it
+works without the kit's other files. It is also the one plugin submitted to Anthropic's
+directory; once it is listed, install it from there. Until then, or to get the optional
+topic plugins, use the project's own marketplace:
 
 ```bash
 claude plugin marketplace add andreibesleaga/GABBE
 claude plugin install gabbe@gabbe
 ```
 
-`gabbe` holds the core skills (every skill in `agents/skills/core/` and every skill
-marked `core: true`). The other skills come as topic plugins from the same marketplace:
+Start with `/gabbe:gabbe-start`. Plugin skills are namespaced (`/gabbe:tdd-cycle`,
+`/gabbe:code-review`, `/gabbe:debug`).
+
+The plugin does not include Loki and Brain mode (they need the kit's personas and guides),
+the always-loaded `AGENTS.md` and `CONSTITUTION.md`, or most other skills. The full kit
+installs with `npx gabbe-kit init`, which downloads and runs the `gabbe-kit` package from
+npm and writes files into the current folder; you decide whether to run it. Ten optional
+**topic plugins** hold the other skills and stay in the project's marketplace only:
 `gabbe-ai`, `gabbe-architecture`, `gabbe-brain`, `gabbe-coding`, `gabbe-coordination`,
-`gabbe-data`, `gabbe-industry`, `gabbe-ops`, `gabbe-product` and `gabbe-security`
-(for example `claude plugin install gabbe-security@gabbe`). Each installed skill costs a
-little context (the core plugin about 2,700 tokens per session), so install only the topics
-you use ([details](docs/INSTALL.md#claude-code-plugins-and-the-context-budget)).
+`gabbe-data`, `gabbe-industry`, `gabbe-ops`, `gabbe-product` and `gabbe-security` (for
+example `claude plugin install gabbe-security@gabbe`), plus `gabbe-extras` for the
+kit-maintenance skills. Claude Code keeps every installed skill's name and description in
+context, within about 1% of the context window. The `gabbe` plugin lists about 13,000
+characters (about 3,300 tokens; our computation, see
+[details](docs/INSTALL.md#claude-code-plugins-and-the-context-budget)), so install only the
+topic plugins you use.
 
 The same skills install one by one with the skills CLI ([skills.sh](https://skills.sh)):
 
 ```bash
-npx skills add andreibesleaga/GABBE -a claude-code
+npx skills@1.9.0 add andreibesleaga/GABBE -a claude-code
 ```
 
-Plugin skills are namespaced (`/gabbe:code-review`, `/gabbe:debug`). The skills CLI
-instead writes them to `.claude/skills/` in the project, where GABBE's `code-review` and
-`debug` take the place of Claude Code's built-in `/code-review` and `/debug` in that
+The skills CLI writes them to `.claude/skills/` in the project, where GABBE's `code-review`
+and `debug` take the place of Claude Code's built-in `/code-review` and `/debug` in that
 project; skip those two there if you want the built-ins.
 
 The plugins are content only (Markdown skills and the templates they name: no hooks,
-no MCP servers, no executables). They are generated from `agents/skills/`; after
-editing a skill run `python scripts/build_claude_plugin.py` (CI checks the tree is in
-sync).
+no MCP servers, no executables). The plugin folder `plugins/gabbe` is generated from
+`agents/skills/` (the skills flagged `core: true`) and checked against the directory's
+rules; after editing a skill run `python scripts/build_claude_plugin.py` (CI checks the tree
+is in sync).
 
 ### 🌍 Cross-Platform Support
 - **Linux / macOS / WSL:** Native support.
@@ -186,6 +202,8 @@ sync).
 ---
 
 ## 🚀 Common Actions (Copy-Paste Prompts)
+
+How to work in each situation (new project, existing codebase, small change, Brain mode, Loki mode, resuming): [`docs/WORKFLOWS.md`](docs/WORKFLOWS.md).
 
 ### Strategy & Ideation (Step 0)
 ```
@@ -266,9 +284,9 @@ Uses Active Inference to plan, route between local/remote models, and learn from
 
 ### Activate Loki Mode (Large Projects)
 **Using Pure Agent Mode (No CLI):**
-> "Activate `agents/skills/brain/loki-mode.skill.md`. Goal: [build X]. Work through the phases on your own and stop at every Human Approval Gate, before any commit, push, publish or deploy, and when a task requires True A2A Delegation."
+> "Loki mode. Activate `agents/skills/brain/loki-mode.skill.md`. Goal: [build X]. Work through the phases on your own and stop at every Human Approval Gate, before any commit, push, publish or deploy, and when a task requires True A2A Delegation."
 
-Multi-agent swarm with 30+ specialized personas for projects >5 features or >20 files.
+Multi-agent swarm with 37 specialized personas for projects >5 features or >20 files.
 
 ---
 
@@ -384,9 +402,9 @@ graph TB
     end
 
     subgraph Tools ["Capability Layer"]
-        S[214 Skills]
-        T[100 Templates]
-        G[86 Guides]
+        S[231 Skills]
+        T[107 Templates]
+        G[95 Guides]
     end
 
     subgraph Memory ["Memory System"]
@@ -443,27 +461,28 @@ The "Golden Path" for every feature.
 
 ```mermaid
 flowchart TD
-    S0[S00: Strategy] -->|Business Case| S1[S01: Specify]
+    P00[S00: Strategy] -->|Business Case, human go / no-go| P01[S01: Requirements]
     
     subgraph Definition
-        S1 -->|PRD Draft| Ambiguity{Ambiguous?}
+        P01 -->|PRD Draft| Ambiguity{Ambiguous?}
         Ambiguity -- Yes --> Clarify[Clarify Questions]
-        Clarify --> S1
-        Ambiguity -- No --> S2[S02: Plan]
+        Clarify --> P01
+        Ambiguity -- No --> P02[S02: Architecture]
     end
 
     subgraph Design
-        S2 -->|PLAN.md + C4| Review1{Approved?}
-        Review1 -- No --> S2
-        Review1 -- Yes --> S3[S04: Tasks]
+        P02 -->|PLAN.md + C4| Review1{Approved?}
+        Review1 -- No --> P02
+        Review1 -- Yes --> P03[S03: Technical Spec]
+        P03 --> P04[S04: Task Decomposition]
     end
 
     subgraph Execution
-        S3 -->|project/TASKS.md| Decomp{Task < 15m?}
-        Decomp -- No --> S3
-        Decomp -- Yes --> S4[S05: Implement]
+        P04 -->|project/TASKS.md| Decomp{Task atomic?}
+        Decomp -- No --> P04
+        Decomp -- Yes --> P05[S05: Implementation]
         
-        S4 --> TDD[TDD Cycle]
+        P05 --> TDD[TDD Cycle]
         TDD --> RARV[RARV: Reason/Act/Reflect/Verify]
         RARV --> Audit[Audit Log]
     end
@@ -474,8 +493,9 @@ flowchart TD
 ### Text SDLC (ASCII)
 
 ```text
-0. STRATEGY
+0. STRATEGY (S00)
    -> Why are we building this? (Value/ROI)
+   -> Human go / no-go
    v
 1. SPECIFY (S01)
    -> spec-writer.skill -> PRD.md (EARS Syntax)
@@ -486,16 +506,20 @@ flowchart TD
    -> arch-design.skill -> PLAN.md + C4 Diagrams
    -> adr-writer.skill -> Architectural Decisions
    v
-3. DECOMPOSE (S03/S04)
-   -> project/TASKS.md -> Atomic steps (<15 mins each)
+3. SPECIFY IN DETAIL AND DECOMPOSE (S03, S04)
+   -> SPEC.md -> project/TASKS.md -> Atomic tasks (one concern, about 15 minutes each)
    v
 4. IMPLEMENT (S05)
    -> One task at a time
    -> TDD Loop: Red -> Green -> Refactor
    -> RARV Loop: Reason -> Act -> Reflect -> Verify
    v
-5. VERIFY & SHIP (S06-S10)
-   -> Integrity Check -> Security Audit -> Deploy
+5. VERIFY & SHIP (S06–S10)
+   -> Quality gates G1–G9 -> Security Audit (human sign-off) -> Human review -> Staging
+   -> Human says "deploy now" -> Production
+
+6. OPERATE, EVOLVE, SUNSET (S11–S13)
+   -> Runbooks and SLOs -> Retrospectives -> Decommission on the human's decision
 
 6. COGNITIVE ORCHESTRATION & HEALING
    -> gabbe brain activate -> Predict bottlenecks & route complexity
@@ -511,7 +535,7 @@ flowchart TD
 agents/
 ├── AGENTS.md                 # Universal config (edit per project)
 ├── CONSTITUTION.md           # Immutable project law
-├── skills/                   # 214 .skill.md files
+├── skills/                   # 231 .skill.md files
 │   ├── 00-index.md           # Full skills registry
 │   ├── coding/               # tdd, review, debug, refactor, git...
 │   ├── architecture/         # arch-design, patterns, api-design...
@@ -522,7 +546,7 @@ agents/
 │   ├── data/                 # data-engineering, db-migration
 │   ├── coordination/         # multi-agent-orch, agent-protocol
 │   └── brain/                # active-inference, consciousness, memory...
-├── templates/                # 100 fill-in-the-blank documents
+├── templates/                # 107 fill-in-the-blank documents
 │   ├── 00-index.md           # Full templates registry
 │   ├── coding/               # test plans, checklists, devcontainer
 │   ├── architecture/         # ADR, C4, domain model, integration
@@ -532,8 +556,8 @@ agents/
 │   ├── core/                 # plan, tasks, audit log, traceability
 │   ├── coordination/         # agent profiles, swarm config
 │   └── brain/                # inference loop, episodic memory, OODA
-├── guides/                   # 86 language & domain guides
-├── personas/                 # 36 specialized agent roles
+├── guides/                   # 95 language & domain guides
+├── personas/                 # 37 specialized agent roles
 ├── memory/                   # Episodic + semantic + project state
 └── scripts/                  # setup-context, validators, state export/import
 ```
@@ -596,24 +620,31 @@ Config in AGENTS.md: test_cmd="pytest", lint_cmd="ruff check ."
 
 ---
 
-## 📋 SDLC Phases (10 Gates)
+## 📋 SDLC Phases (14 phases, 6 human gates)
 
-The table below enumerates the **10 SDLC gates (S01–S10)**. These are bracketed by
-the Day-0 phase **S00 (Strategy & Discovery)** and the Day-2 phases **S11–S13
-(Operate / Evolve / Decommission)** that complete the cradle-to-grave ADLC (S00–S13).
+The lifecycle has 14 phases, S00–S13: Day 0 is S00, Day 1 is S01–S10, Day 2 is
+S11–S13. The full table (lead persona, skills, entry, exit, artefacts) is
+"Lifecycle at a glance" in
+[`agents/guides/processes/loki-sdlc-phases.md`](agents/guides/processes/loki-sdlc-phases.md).
+The six human gates are S00, S01, S02, S07, S08 and S10. The nine quality gates
+G1–G9 run at S06 and are defined in `agents/personas/orch-judge.md`.
 
-| Phase | Gate | Key Artifact |
-|---|---|---|
-| S01 | Requirements | `PRD_TEMPLATE.md` (EARS syntax) |
-| S02 | Design | `ADR_TEMPLATE.md` + C4 diagrams |
-| S03 | Specification | `SPEC_TEMPLATE.md` + API contracts |
-| S04 | Tasks | `TASKS_TEMPLATE.md` (15-min rule) |
-| S05 | Implementation | TDD Red→Green→Refactor + RARV |
-| S06 | Testing | Unit >99% + integration + E2E |
-| S07 | Security | `SECURITY_CHECKLIST.md` + audit |
-| S08 | Review | Human code review |
-| S09 | Staging | Smoke tests + benchmarks |
-| S10 | Production | Rollback plan + monitoring |
+| Phase | Name | Gate | Key Artifact |
+|---|---|---|---|
+| S00 | Strategy & Discovery | HUMAN go / no-go | `docs/discovery/PROBLEM_STATEMENT.md` |
+| S01 | Requirements | HUMAN | `PRD_TEMPLATE.md` (EARS syntax) |
+| S02 | Architecture | HUMAN | `ADR_TEMPLATE.md` + C4 diagrams |
+| S03 | Technical Spec | prod-tech-lead | `SPEC_TEMPLATE.md` + API contracts |
+| S04 | Task Decomposition | orch-judge | `TASKS_TEMPLATE.md` (atomic tasks) |
+| S05 | Implementation | verify green | TDD Red→Green→Refactor + RARV |
+| S06 | Testing & Quality | orch-judge (G1–G9) | quality report + final-review |
+| S07 | Security Review | HUMAN sign-off | `SECURITY_CHECKLIST.md` + audit |
+| S08 | Human Review | HUMAN | review summary |
+| S09 | Staging | smoke tests green | Smoke tests + benchmarks |
+| S10 | Production | HUMAN "deploy now", then health check | Rollback plan + monitoring |
+| S11 | Operate & Maintain | recurring review | runbooks, SLO report |
+| S12 | Evolve & Improve | recurring review | retrospective, improvement backlog |
+| S13 | Decommission & Sunset | entered on the human's decision | decommission plan |
 
 ---
 
@@ -621,10 +652,10 @@ the Day-0 phase **S00 (Strategy & Discovery)** and the Day-2 phases **S11–S13
 
 | Category | Count | Key Skills |
 |---|---|---|
-| **Coding** | 10+ | `tdd-cycle`, `debug`, `refactor`, `code-review`, `git-workflow` |
-| **Architecture** | 15+ | `arch-design`, `microservices`, `systems-architecture`, `system-scalability`, `blockchain-dlt` |
-| **Operations** | 15+ | `reliability-sre`, `production-health`, `dev-environments`, `cost-optimization` |
-| **Security** | 15+ | `security-audit`, `secure-architecture`, `privacy-data-protection`, `api-security` |
+| **Coding** | 10+ | `tdd-cycle`, `debug`, `refactor`, `code-review`, `git-workflow`, `characterization-tests`, `mutation-testing`, `assurance-ladder` |
+| **Architecture** | 15+ | `arch-design`, `microservices`, `systems-architecture`, `system-scalability`, `blockchain-dlt`, `existing-project-onboarding`, `code-archaeology` |
+| **Operations** | 15+ | `reliability-sre`, `production-health`, `dev-environments`, `cost-optimization`, `dependency-upgrade` |
+| **Security** | 15+ | `security-audit`, `secure-architecture`, `privacy-data-protection`, `api-security`, `security-baseline`, `security-requirements`, `agent-tool-review` |
 | **Product** | 10+ | `spec-writer`, `req-elicitation`, `visual-specs`, `green-software` |
 | **Core** | 10+ | `research`, `self-heal`, `knowledge-gap`, `meta-optimize` |
 | **Data** | 5+ | `data-engineering`, `db-migration`, `semantic-web` |
@@ -643,11 +674,11 @@ Full catalog: `agents/skills/00-index.md`
 | Category | Count | Examples |
 |---|---|---|
 | **Coding** | 5+ | Clean Code Checklist, Test Plan, E2E Suite |
-| **Architecture** | 10+ | ADR, C4, Domain Model, Scalability Plan, Smart Contract |
+| **Architecture** | 10+ | ADR, C4, Domain Model, Scalability Plan, Smart Contract, Codebase Map, Assessment |
 | **Ops** | 5+ | Incident Postmortem, Deploy Config, Capacity Plan, FinOps |
-| **Security** | 5+ | Threat Model, Safety Case, Ethical Impact |
+| **Security** | 5+ | Threat Model, Safety Case, Ethical Impact, Security Baseline |
 | **Product** | 10+ | PRD, Spec, User Story Map, Visual Spec, Green Software |
-| **Core** | 5+ | Plan, Tasks, Audit Log, Project State, Continuity |
+| **Core** | 5+ | Plan, Tasks, Audit Log, Project State, Continuity, Assurance Plan |
 | **Coordination** | 5+ | Agent Profile, Swarm Config, Handshake, Swarm Architecture |
 | **Brain** | 5+ | Active Inference Loop, Episodic Memory, OODA Trace |
 | **Data** | 3 | Data Pipeline, Database Schema, OWL Ontology |
@@ -743,18 +774,26 @@ Task → Knowledge gap? → research.skill → Execute → Verify
 | Time Complexity | `guides/patterns/time-complexity-analysis.md` |
 | Troubleshooting | `guides/ops/troubleshooting-guide.md` |
 | Enterprise Migration | `guides/patterns/enterprise-migration-scenario.md` |
+| Existing projects | `guides/processes/brownfield-lifecycle.md` |
+| Assurance ladder | `guides/principles/assurance-ladder.md` |
+| Security baseline | `guides/principles/security-baseline.md` |
+| Skill guardrails | `guides/principles/skill-guardrails.md` |
+| Guardrail probes | `guides/ai/guardrail-probes.md` |
+| Hooks (optional) | `guides/ops/hooks.md` |
+| SWEBOK v4 map | `guides/industry/swebok-v4-map.md` |
 
 ---
 
-## 🛡️ Security & Guardrails
+## 🛡️ Limits and safety
 
-All 214 skills in the GABBE kit feature a heavily enforced **"Security & Guardrails"** section that binds agents to the project's CONSTITUTION.md. The 3-layer security constraints include:
+All 231 skills in the GABBE kit have a short **"Limits and safety"** section. The shared rules are in `agents/CONSTITUTION.md` (Article 0) and `agents/guides/principles/skill-guardrails.md`; that guide also lists the controls you must provide outside the model (hooks, permissions, branch protection, CI checks).
 
-1.  **Skill Security**: Tool-specific protection (e.g., preventing command injection or sandbox escapes).
-2.  **System Integration Security**: Safe external integration (e.g., verifying boundary enforcement or ensuring test coverage).
-3.  **LLM/Agent Guardrails**: Protection from AI-specific failures (e.g., hallucinated metrics, confirmation bias, or prompt injection).
+An agent stops and asks the human before anything irreversible or security-relevant that is unclear.
 
-Agents are explicitly configured to **Fail-Closed**—they must wait for human approval rather than bypassing a guardrail.
+- Supported versions and what is stable: [`docs/SUPPORT.md`](docs/SUPPORT.md).
+- Security path for the software you build (risk tier, controls per phase): `agents/guides/principles/security-baseline.md`.
+- Probes that check your agent against the Article 0 rules: `agents/guides/ai/guardrail-probes.md`.
+- Optional hooks that enforce rules outside the model (off by default): `agents/guides/ops/hooks.md`.
 
 ---
 

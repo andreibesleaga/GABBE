@@ -56,7 +56,7 @@ Load on activation:
 - Components must be accessible: ARIA labels, keyboard navigation, focus management
 - No inline styles — use design system tokens or Tailwind classes
 - Never fetch data directly in a component — use service layer / store
-- Cyclomatic complexity of any component function < 10
+- Cyclomatic complexity of any component function <= 10
 
 ## Invocation Example
 

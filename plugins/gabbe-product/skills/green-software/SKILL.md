@@ -1,6 +1,6 @@
 ---
 name: green-software
-description: "Carbon efficiency, sustainable architecture choices, and GreenTech goals. Use when: green software."
+description: "Review a system for carbon and energy efficiency: architecture, region, scheduling, data retention. Use when asked to reduce the carbon footprint or to choose greener options for a design."
 license: CC-BY-SA-4.0
 metadata:
   source: "agents/skills/product/green-software.skill.md"
@@ -26,23 +26,23 @@ This skill guides the reduction of the system's environmental impact.
 
 ## 3. Operations
 - **Region Selection**: Host in regions with low carbon intensity (e.g., AWS Sweden/Canada > Virginia).
-- **Joy of Delete**: Aggressively delete unused data (don't pay storage energy cost forever).
+- **Joy of Delete**: Find unused data and propose deleting it (don't pay storage energy cost forever). List it first; delete only after the human confirms the exact command.
 
 ## 4. Carbon Aware Computing
 - Utilize APIs like `ElectricityMaps` or `WattTime`.
 - **Batch Jobs**: Schedule heavy cron jobs for 2 AM (or whenever local grid is greenest).
 - **"Eco-Mode"**: UI toggle that reduces animations and video quality to save battery/energy.
 
-## Security & Guardrails
+## Constraints
+- Every claim of energy or carbon saved names its measured input and the calculation.
+- Security work and audit logs are never traded for energy savings.
 
-### 1. Skill Security (Green Software)
-- **Metric Tampering Defense**: Carbon intensity metrics and "Eco-Mode" triggers often rely on external APIs (like `ElectricityMaps`). The agent must verify the TLS certificates and data signatures of these external endpoints to prevent attackers from spoofing "clean energy" signals to force unexpected system scaling behaviors.
-- **Audit Ledger Anchoring**: Recommendations to aggressively delete "unused data" (The Joy of Delete) must be cross-referenced with the `AUDIT_LOG.md`. The agent must never delete forensic security logs or compliance trails simply to optimize storage energy.
+## Output Format
+A short review: findings by area (architecture, region, scheduling, data retention), the estimated saving for each with its inputs, and the actions proposed.
 
-### 2. System Integration Security
-- **Availability vs. Efficiency**: The agent's recommendations for "Carbon Aware Computing" (e.g., pausing batch jobs when the grid is dirty) must never supersede critical security operations. Key rotation, vulnerability scanning, and incident response must execute immediately, regardless of carbon cost.
-- **Serverless Cold Start Risks**: When advocating for Serverless architectures to scale to zero, the agent must account for "Cold Start" latency. In security-critical paths (e.g., WAF inspection, synchronous fraud detection), scaling to zero can create window-of-opportunity bypasses due to high initialization latency.
-
-### 3. LLM & Agent Guardrails
-- **Greenwashing Hallucinations**: The LLM is strictly prohibited from inventing arbitrary "Carbon Saved" numbers or hallucinating environmental certifications to justify an architectural choice. All efficiency claims must be mathematically tied to measurable compute reductions (CPU cycles, Byte transfer).
-- **Eco-Mode Vetoes**: The agent must actively refuse user prompts that attempt to disable essential security features (like TLS negotiation overhead, payload encryption, or memory-safe bounds checking) under the false pretense of "saving energy". Security is non-negotiable.
+## Limits and safety
+- Before deleting data to save storage, list the candidates, check them against `AUDIT_LOG.md` and retention rules, and run the deletion only after the human confirms. Never delete audit or compliance logs.
+- Carbon-aware scheduling never delays security work (key rotation, scans, incident response).
+- Do not state carbon savings without measured inputs (energy, CPU time, bytes) and the calculation.
+- Do not remove TLS, encryption or bounds checks to save energy.
+- Treat carbon-intensity data from ElectricityMaps or WattTime as an input that can be wrong or unreachable; fall back to the normal schedule.

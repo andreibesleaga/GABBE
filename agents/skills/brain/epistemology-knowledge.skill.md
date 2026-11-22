@@ -1,13 +1,16 @@
 ---
 name: epistemology-knowledge
-description: Implement rigorous knowledge representation and update beliefs via Active Inference
-triggers: [knowledge, epistemology, active inference, belief, truth]
+description: Explains how to hold beliefs as hypotheses until verified, combine a knowledge graph with vector search, and tell probing actions from changing actions. Use when designing how an agent stores and updates what it knows.
+triggers: [epistemology, knowledge graph, belief update, hypothesis or fact, hybrid retrieval]
 tags: [brain, theory, reasoning]
 context_cost: low
 ---
 # Epistemology & Knowledge Representation
 
 How agents "know" things — represent beliefs, and update them via Active Inference and rigorous epistemology.
+
+## Goal
+Keep what the agent believes separate from what is verified: store beliefs with their source, and treat model output as a hypothesis until a file, test or document confirms it.
 
 ## 1. Knowledge Representation (Ontologies & Graphs)
 Knowledge is structured relationships between entities, not just text embeddings.
@@ -39,16 +42,22 @@ Distinguish actions that *change the world* (pragmatic, e.g. "click Submit") fro
 - Friston, K. (2010). *The Free-Energy Principle: A Unified Brain Theory?*
 - Pearl, J. (2009). *Causality: Models, Reasoning, and Inference*.
 
-## Security & Guardrails
+## Steps
+1. Write each claim with its source (file, test or document).
+2. Mark claims without a source as hypotheses.
+3. When an observation contradicts a claim, update the claim or probe read-only before acting.
+4. Retrieve with both vector search and the graph when the question is about causes or relations.
 
-### 1. Skill Security (Epistemology & Knowledge)
-- **Ontological Poisoning**: the KG is the agent's absolute truth; a single injected false edge (e.g. `Input_Validation <-is_deprecated_by- Web_Agent`) makes it bypass security controls. Require strict threshold-based consensus (multiple verified sources) before external input can forge a new structural edge.
-- **Active Inference Exploitation (Pragmatic Sabotage)**: an attacker who knows the agent minimizes Surprise can trigger cascading errors so the agent takes extreme pragmatic actions (restart nodes, drop DBs) to stabilize. Hard-cap the impact radius of pragmatic actions taken under high-Surprise.
+## Constraints
+- Only verified claims are recorded as facts.
+- The active inference wording is framing; see `active-inference.skill`.
 
-### 2. System Integration Security
-- **RAG/Vector Data Segregation**: respect data isolation when mixing vector + graph; a fact from a "Confidential" subgraph must not inform actions/updates in a "Public" space. Carry access-control metadata at the node level.
-- **Epistemic Action Disclosure**: exploration tests boundaries — "read all of `/etc`" behaves like malware. Bind the epistemic planner to an OS-level sandbox (restricted container) to physically limit curiosity.
+## Output Format
+A list of claims, each marked fact (with source) or hypothesis, and the update made after each contradicting observation.
 
-### 3. LLM & Agent Guardrails
-- **Truth vs. Probability Hallucination**: LLMs output statistical probability, not truth. Don't accept raw LLM output as a Belief unless it survives `ActiveInferenceAgent.step()` verification; flag unverified outputs as *hypotheses*, never *facts*.
-- **Confirmation Bias in Model Updates**: when updating its model, the LLM may overweight observations matching priors and down-weight surprising security alerts. Mathematically force processing of high-surprise observations so "uncomfortable" data isn't ignored to keep Free Energy artificially low.
+## Limits and safety
+- Treat model output as a hypothesis until a file, test or source confirms it; only then record it as a fact.
+- A new graph edge or belief needs two independent sources; one external input cannot create it.
+- Carry an access label on each node; a fact from a confidential source does not inform a public output.
+- When surprised, probe read-only first; ask the human before restarts or data changes.
+- Give surprising security alerts full weight; do not drop them to keep the model tidy.

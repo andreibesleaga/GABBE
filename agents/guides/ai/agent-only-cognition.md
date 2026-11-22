@@ -58,7 +58,7 @@ If your agent is consistently failing at a specific task (e.g., repeatedly gener
 Agents often fail silently or give up when a test breaks. You can manually force them into the "Self-Heal" loop, trapping them in a diagnostic trace until the problem is verified as fixed by the console.
 
 ### The Agent Prompt
-> "The build is failing. Invoke `agents/skills/core/self-heal.skill.md`. Do not ask me for permission between steps. Diagnose the error, hypothesize a fix, write the code, and run the tests. If it fails again, loop back to step 1. You have a maximum of 5 attempts before you must escalate to me."
+> "The build is failing. Invoke `agents/skills/core/self-heal.skill.md`. Do not ask me for permission between steps. Ask me only at the human gates and for anything expensive, destructive or irreversible. Diagnose the error, hypothesize a fix, write the code, and run the tests. If it fails again, loop back to step 1. You have a maximum of 5 attempts before you must escalate to me."
 
 ### What the Agent Does Automatically
 1. It reads the strict "1. Diagnose -> 2. Classify -> 3. Research -> 4. Fix -> 5. Verify" sequence.

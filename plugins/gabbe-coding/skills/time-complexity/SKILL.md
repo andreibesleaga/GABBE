@@ -1,6 +1,6 @@
 ---
 name: time-complexity
-description: "Estimate Big-O time complexity of code via static analysis (tree-sitter MCP). Use when: complexity, big-o, performance, hotspot, time complexity, analyze complexity."
+description: "Estimate the Big-O of functions, files or directories by static analysis with the time-complexity MCP server, and list hotspots. Use when the user asks about algorithm complexity, performance hotspots in code, or complexity before a review."
 license: CC-BY-SA-4.0
 metadata:
   source: "agents/skills/coding/time-complexity.skill.md"
@@ -68,7 +68,7 @@ Results include per-function complexity with:
    - Run on PR diffs to catch new O(n²)+ code.
    - Run on full codebase periodically to track complexity trends.
 
-## Deliverables
+## Output Format
 - `TIME_COMPLEXITY_REPORT_TEMPLATE.md`: Structured complexity analysis with hotspots and recommendations.
 
 ## Usage Examples
@@ -98,18 +98,12 @@ Results include per-function complexity with:
 > Analyze https://github.com/expressjs/express, focus on the lib/ directory
 ```
 
-## Security & Guardrails
+## Constraints
+- Results are an estimate from the code's structure; they cannot see data sizes, caching or constants.
 
-### 1. Skill Security (Time Complexity)
-- **Static Analysis Only**: Code is parsed into ASTs and inspected — never evaluated, executed, or imported. No risk of running malicious code.
-- **Read-Only File Access**: Source files are read for parsing. Nothing is written, modified, or deleted.
-- **Scope Limiting**: When analyzing directories, be aware of repo size. For very large codebases, scope to specific subdirectories.
-
-### 2. System Integration Security
-- **Network Access (opt-in)**: The `analyze_github_repo` tool invokes `git clone` to fetch public GitHub repos. All other tools run locally with no network access. Clone URLs are restricted to HTTPS GitHub URLs only.
-- **No Secrets Exposure**: The tool does not process environment variables, config files, or secrets — only source code syntax.
-
-### 3. LLM & Agent Guardrails
-- **Over-reliance on Static Analysis**: Big-O from static analysis is an *estimate*. It cannot account for runtime data distributions, caching effects, or algorithm-specific constants. Always note: "Static estimate — verify with runtime profiling for critical paths."
-- **False Precision**: The tool may report O(n) for a function that is effectively O(1) due to bounded inputs in practice. Do not blindly optimize functions flagged as complex without considering real-world usage context.
-- **Hallucinated Remediation**: When suggesting fixes for high-complexity functions, the agent must provide concrete, tested alternatives — not theoretical rewrites that may introduce bugs.
+## Limits and safety
+- `analyze_github_repo` clones a remote repository: tell the human first, and clone into a temporary directory outside the project.
+- Label every result "static estimate"; confirm hot paths with a profiler before optimising.
+- Do not optimise a flagged function without looking at how it is used; bounded inputs can make an O(n) function cheap in practice.
+- Test a suggested rewrite (run the project's tests) before recommending it.
+- On a large codebase scope the analysis to subdirectories.

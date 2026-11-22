@@ -1,6 +1,6 @@
 ---
 name: dev-environments
-description: "Set up, configure, and maintain local/remote development environments. Use when: setup dev environment, configure docker compose, build devcontainer."
+description: "Set up a team-wide development environment with DevContainers, DevSpace or Docker Compose, with seed data and sample configuration. Use when onboarding is slow, \"works on my machine\" bugs appear, or a project needs a shared dev setup."
 license: CC-BY-SA-4.0
 metadata:
   source: "agents/skills/ops/dev-environments.skill.md"
@@ -19,16 +19,16 @@ Automate the setup, orchestration, and maintenance of identical development envi
 3. **Scripting**: Write setup scripts for seeding local databases and pulling necessary environment variables.
 4. **Verification**: Run `docker-compose build` or equivalent to verify the environment spins up without errors.
 
-## Security & Guardrails
+## Constraints
+- The setup must start from a clean checkout with the commands written in the project docs.
+- Use sample values for secrets and seed data; never fetch production values.
 
-### 1. Skill Security
-- **Local Sandbox Escape**: Do not map the entire host filesystem to the container (e.g., `-v /:/host`). Bind-mount only the project directory.
-- **Privileged Mode Veto**: Never run development containers with `--privileged` flags unless explicitly requested and warning the user of root compromises.
+## Output Format
+The environment files (`.devcontainer/`, `docker-compose.yml` or equivalent), a sample `.env.example`, and the exact start command in the project docs.
 
-### 2. System Integration Security
-- **Port Collision & Exposure**: Ensure local development environments do not accidentally bind ports to `0.0.0.0` on the host, exposing unauthenticated dev databases to the local LAN.
-- **Production Secret Pollution**: The development setup scripts MUST use dummy/sample `.env` variables and verify they do not download production secrets.
-
-### 3. LLM & Agent Guardrails
-- **Dependency Hallucination**: The LLM must not inject outdated, unsigned/unverified third-party scripts into the Dockerfiles.
-- **OS Bias**: Development environments must remain cross-platform (Linux/Mac/WSL). The LLM cannot implement a solution that breaks for developers not matching its assumed OS.
+## Limits and safety
+- Bind-mount only the project directory; do not mount the host root or use `--privileged` unless the human asks for it in that request.
+- Bind dev services to 127.0.0.1, not 0.0.0.0, so an unauthenticated dev database is not open to the local network.
+- Setup scripts use sample `.env` values and do not download production secrets; check the scripts for production hosts.
+- Take base images and scripts from official sources, pinned to a version; do not pipe unknown scripts into a shell.
+- Keep the setup working on Linux, macOS and WSL, or say which one is not supported.

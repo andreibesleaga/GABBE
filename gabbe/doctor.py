@@ -14,6 +14,7 @@ listed — never an error.
 from __future__ import annotations
 
 import platform
+import re
 import shutil
 import sys
 from pathlib import Path
@@ -111,11 +112,58 @@ def run_doctor(root: Path | None = None) -> int:
     has_installer_runtime = any(runtimes[r] for r in ("npx", "pipx", "pip", "curl"))
     print(f"    [{'PASS' if has_installer_runtime else 'WARN'}] an install channel is available")
 
+    _print_upgrade_warnings(base)
+
     _print_next_steps()
 
     print("=" * 48)
     print("OK" if ok else "FAILED")
     return 0 if ok else 1
+
+
+_STAMP_RE = re.compile(r"^\*GABBE Kit version:\s*([0-9][0-9.]*)\*", re.MULTILINE)
+_KIT_FILES = ("agents/AGENTS.md", "agents/CONSTITUTION.md")
+
+
+def _version_tuple(text: str) -> tuple[int, ...]:
+    return tuple(int(part) for part in text.split(".") if part.isdigit())
+
+
+def kit_upgrade_warnings(root: Path, cli_version: str | None = None) -> list[str]:
+    """Warnings for a project whose kept kit files are older than this CLI (read-only).
+
+    Installers keep AGENTS.md / CONSTITUTION.md once edited, so new kit rules do not
+    arrive by themselves. Returns an empty list when the project has no kit files.
+    """
+    if cli_version is None:
+        from . import __version__
+
+        cli_version = __version__
+    warnings_out: list[str] = []
+    for rel in _KIT_FILES:
+        path = root / rel
+        if not path.is_file():
+            continue
+        try:
+            text = path.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            continue
+        stamps = _STAMP_RE.findall(text)
+        found = stamps[-1] if stamps else None
+        if found is None or _version_tuple(found) < _version_tuple(cli_version):
+            origin = f"is from kit {found}" if found else "has no version stamp"
+            warnings_out.append(
+                f"{rel} {origin}, this CLI is {cli_version}: "
+                "new rules may be missing. See docs/UPGRADING.md"
+            )
+        if rel.endswith("CONSTITUTION.md") and not re.search(r"^### Article 0", text, re.MULTILINE):
+            warnings_out.append(f"{rel} has no 'Article 0' (added in 1.2.0). See docs/UPGRADING.md")
+    return warnings_out
+
+
+def _print_upgrade_warnings(root: Path) -> None:
+    for message in kit_upgrade_warnings(root):
+        print(f"    [WARN] {message}")
 
 
 # Essential MCP servers to enable for full capability (every project).

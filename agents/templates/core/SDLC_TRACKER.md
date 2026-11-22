@@ -7,8 +7,8 @@
 ## Current Status
 
 ```
-Current Phase: S[XX] — [Phase Name]
-Status:        NOT_STARTED | IN_PROGRESS | BLOCKED | COMPLETED
+Current Phase: S<NN> — [Phase Name]   (S00–S13)
+Status:        NOT_STARTED | IN_PROGRESS | BLOCKED | DONE
 Last updated:  [date]
 Updated by:    [agent/human]
 ```
@@ -17,30 +17,35 @@ Updated by:    [agent/human]
 
 ## Phase Progress Board
 
+The lifecycle has 14 phases, S00–S13. The canonical table is in
+`agents/guides/processes/loki-sdlc-phases.md`; this board must match it. Six human
+gates (hard stops): S00, S01, S02, S07, S08, S10. Record each as a `HUMAN_APPROVED`
+row in AUDIT_LOG.md. The quality gates G1–G9 run at S06 (see `agents/personas/orch-judge.md`).
+
 | Phase | Name | Status | Started | Completed | Approver | Gate Criteria |
 |---|---|---|---|---|---|---|
-| S00 | Strategy & Discovery (Day-0) | NOT_STARTED | — | — | — | Problem statement + opportunity assessment + RICE, human GO/NO-GO |
-| S01 | Requirements | NOT_STARTED | — | — | — | PRD.md with EARS, human approval |
-| S02 | Design | NOT_STARTED | — | — | — | Architecture + ADRs + threat model |
-| S03 | Specification | NOT_STARTED | — | — | — | Tech spec + API contracts |
-| S04 | Tasks | NOT_STARTED | — | — | — | All tasks decomposed to 15-min units |
-| S05 | Implementation | NOT_STARTED | — | — | — | All project/TASKS.md items DONE |
-| S06 | Testing | NOT_STARTED | — | — | — | Tests pass, coverage ≥ 99%, 7 gates |
-| S07 | Security | NOT_STARTED | — | — | — | SECURITY_CHECKLIST.md 100%, 0 critical CVEs |
-| S08 | Review | NOT_STARTED | — | — | — | Human code review approved |
-| S09 | Staging | NOT_STARTED | — | — | — | Deployed + smoke tests passing |
-| S10 | Production | NOT_STARTED | — | — | — | Deployed + rollback documented |
-| S11 | Operate & Maintain (Day-2) | NOT_STARTED | — | — | — | SLOs met, runbooks live, no critical CVEs, spend within budget |
-| S12 | Evolve & Improve (Day-2) | NOT_STARTED | — | — | — | Retrospective actions logged, experiments decided, DORA/SPACE reviewed |
-| S13 | Decommission & Sunset (Day-2) | NOT_STARTED | — | — | — | Deprecation approved, data archived/migrated, users notified |
+| S00 | Strategy & Discovery (Day 0) | NOT_STARTED | — | — | Human (go / no-go) | Problem statement + opportunity assessment + RICE, human GO/NO-GO |
+| S01 | Requirements | NOT_STARTED | — | — | Human | PRD.md with EARS, human approval |
+| S02 | Architecture | NOT_STARTED | — | — | Human | Architecture + ADRs + threat model + cost check |
+| S03 | Technical Spec | NOT_STARTED | — | — | prod-tech-lead | Tech spec + API contracts |
+| S04 | Task Decomposition | NOT_STARTED | — | — | orch-judge | Atomic tasks, acyclic dependency graph |
+| S05 | Implementation | NOT_STARTED | — | — | verify green | All project/TASKS.md items DONE |
+| S06 | Testing & Quality | NOT_STARTED | — | — | orch-judge | Quality gates G1–G9 pass, final-review = SHIP |
+| S07 | Security Review | NOT_STARTED | — | — | Human (security sign-off) | SECURITY_CHECKLIST.md 100%, no open HIGH finding |
+| S08 | Human Review | NOT_STARTED | — | — | Human | Human review approved |
+| S09 | Staging | NOT_STARTED | — | — | smoke green | Deployed + smoke tests passing |
+| S10 | Production | NOT_STARTED | — | — | Human ("deploy now") | Human approval before deploy; health checks pass and the human confirms the observation window has ended; rollback documented |
+| S11 | Operate & Maintain (Day 2) | NOT_STARTED | — | — | recurring | SLOs met, runbooks live, no critical CVEs, spend within budget |
+| S12 | Evolve & Improve (Day 2) | NOT_STARTED | — | — | recurring | Retrospective actions logged, experiments decided, DORA/SPACE reviewed |
+| S13 | Decommission & Sunset (Day 2) | NOT_STARTED | — | — | entered on the human's decision | Data archived/migrated, users notified, contracts wound down |
 
-**Status values:** `NOT_STARTED` | `IN_PROGRESS` | `BLOCKED` | `COMPLETED`
+**Status values:** `NOT_STARTED` | `IN_PROGRESS` | `BLOCKED` | `DONE`
 
 ---
 
 ## Definition of Done — Per Phase
 
-### S00 — Strategy & Discovery (Day-0)
+### S00 — Strategy & Discovery (Day 0)
 ```
 [ ] Problem statement drafted (job-to-be-done, who hurts, why now)
 [ ] Opportunity assessment complete (sizing, risks, North-Star + HEART metrics)
@@ -61,34 +66,36 @@ Updated by:    [agent/human]
 [ ] AUDIT_LOG.md entry: HUMAN_APPROVED
 ```
 
-### S02 — Design
+### S02 — Architecture
 ```
 [ ] Architecture approach documented in PLAN.md
 [ ] C4 Level 1+2 diagrams in docs/architecture/ (or documented exception)
 [ ] ADR created for every significant technology choice
 [ ] Threat model completed for ALL security-sensitive features
-[ ] Human approved architecture approach
-[ ] SESSION_SNAPSHOT/S02_design.md created
+[ ] Cost check done (financial-governance.skill)
+[ ] Human approved architecture approach (AUDIT_LOG.md entry: HUMAN_APPROVED)
+[ ] SESSION_SNAPSHOT/S02_architecture.md created
 ```
 
-### S03 — Specification
+### S03 — Technical Spec
 ```
 [ ] SPEC_TEMPLATE.md completed: domain model, API contracts, DB changes
 [ ] OpenAPI spec at docs/api/openapi.yaml (or equivalent)
 [ ] Migration plan documented (if DB changes)
 [ ] Testing strategy defined per layer
-[ ] Human approved technical specification
-[ ] SESSION_SNAPSHOT/S03_specification.md created
+[ ] prod-tech-lead approved the technical specification (the human may review later)
+[ ] SESSION_SNAPSHOT/S03_tech_spec.md created
 ```
 
-### S04 — Tasks
+### S04 — Task Decomposition
 ```
 [ ] All PLAN.md items decomposed into TASKS_TEMPLATE.md
-[ ] Each task: achievable in ~15 minutes
+[ ] Each task is atomic: one concern, at most three files, one verifying test, about 15 minutes for an expert
 [ ] Each task: has testable acceptance criteria
-[ ] Tasks have correct dependency ordering
+[ ] Tasks have correct dependency ordering; the dependency graph has no cycles; parallel groups are conflict-free
+[ ] orch-judge reviewed the decomposition
 [ ] No ambiguous tasks ("do the stuff" — must be specific files/functions)
-[ ] SESSION_SNAPSHOT/S04_TASKS.md created
+[ ] SESSION_SNAPSHOT/S04_task_decomp.md created
 ```
 
 ### S05 — Implementation
@@ -100,34 +107,29 @@ Updated by:    [agent/human]
 [ ] SESSION_SNAPSHOT/S05_implementation.md created
 ```
 
-### S06 — Testing
+### S06 — Testing & Quality
 ```
 [ ] [test command] passes: 0 failing, 0 unexpected skips
-[ ] Coverage >= 99% (run [coverage command])
-[ ] Gate 1 Lint: 0 errors
-[ ] Gate 2 Typecheck: 0 errors
-[ ] Gate 3 Coverage: >= 99%
-[ ] Gate 4 Integration: Docker Compose tests pass
-[ ] Gate 5 Security: npm/composer audit clean (0 critical/high CVEs)
-[ ] Gate 6 Complexity: max cyclomatic complexity < 10
-[ ] Gate 7 EARS compliance: all requirements have tests
-[ ] agentic-linter: 0 architecture violations
+[ ] Quality gates G1–G9 pass (definitions in agents/personas/orch-judge.md; G7 and G8 may be N/A with a reason)
+[ ] G3 Coverage: 99% of new and changed lines, total at or above coverage_min (run [coverage command])
+[ ] G6 Complexity: max cyclomatic complexity 10 or less
+[ ] final-review = SHIP; no performance regression against the baseline
 [ ] SESSION_SNAPSHOT/S06_testing.md created
 ```
 
-### S07 — Security
+### S07 — Security Review
 ```
 [ ] security-audit.skill run on full codebase
 [ ] SECURITY_CHECKLIST.md 100% complete
-[ ] 0 critical CVEs in dependencies
-[ ] 0 high CVEs unresolved (or risk accepted by human)
+[ ] No open CRITICAL or HIGH CVE in dependencies
 [ ] gitleaks detect: CLEAN (no secrets in git)
 [ ] All threat model mitigations implemented
-[ ] Human security approval
+[ ] Sustainability report reviewed
+[ ] Human security sign-off (AUDIT_LOG.md entry: HUMAN_APPROVED)
 [ ] SESSION_SNAPSHOT/S07_security.md created
 ```
 
-### S08 — Review
+### S08 — Human Review
 ```
 [ ] PR created with complete description
 [ ] Human reviewer has reviewed all changes
@@ -149,6 +151,7 @@ Updated by:    [agent/human]
 
 ### S10 — Production
 ```
+[ ] The human said "deploy now" in this request, before the deploy (AUDIT_LOG.md entry: HUMAN_APPROVED)
 [ ] Production deploy completed
 [ ] Database migrations applied to production
 [ ] Smoke tests passing in production
@@ -156,10 +159,10 @@ Updated by:    [agent/human]
 [ ] Rollback plan documented and verified
 [ ] No error spike in first 30 minutes post-deploy
 [ ] SESSION_SNAPSHOT/S10_production.md created
-[ ] Git tag: v[semver] created
+[ ] Git tag: v[semver] proposed to the human (run only when the human asks)
 ```
 
-### S11 — Operate & Maintain (Day-2)
+### S11 — Operate & Maintain (Day 2)
 ```
 [ ] Observability stack live (metrics/logs/traces, dashboards, SLOs)
 [ ] Runbooks authored per service (RUNBOOK_TEMPLATE.md)
@@ -169,7 +172,7 @@ Updated by:    [agent/human]
 [ ] SESSION_SNAPSHOT/S11_operate.md created
 ```
 
-### S12 — Evolve & Improve (Day-2)
+### S12 — Evolve & Improve (Day 2)
 ```
 [ ] Blameless retrospective held; action items logged
 [ ] Product analytics reviewed (funnels, retention, North-Star movement)
@@ -179,8 +182,9 @@ Updated by:    [agent/human]
 [ ] SESSION_SNAPSHOT/S12_evolve.md created
 ```
 
-### S13 — Decommission & Sunset (Day-2)
+### S13 — Decommission & Sunset (Day 2)
 ```
+[ ] The human decided to retire the system (entry condition)
 [ ] Deprecation policy + timeline approved
 [ ] Data retention/migration executed; archives + final backups taken
 [ ] Users notified; migration paths communicated
@@ -204,9 +208,9 @@ Updated by:    [agent/human]
 | Milestone | Target Date | Dependencies |
 |---|---|---|
 | PRD approved (S01) | [date] | Stakeholder availability |
-| Ready to code (S04) | [date] | S01+S02+S03 complete |
+| Ready to code (S04) | [date] | S01–S03 complete |
 | Feature complete (S05) | [date] | All tasks |
-| Production deploy (S10) | [date] | S06-S09 gates |
+| Production deploy (S10) | [date] | S06–S09 done, human "deploy now" |
 
 ---
 

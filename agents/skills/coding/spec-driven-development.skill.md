@@ -1,6 +1,6 @@
 ---
 name: spec-driven-development
-description: Spec-first workflow where an executable, testable specification is written before code and becomes the single source of truth that tests verify against, flowing spec → acceptance criteria → tasks → implementation.
+description: "Run a spec-first workflow: executable spec, acceptance criteria, tasks, then code, with traceability from spec to test. Use when starting a feature or project and the spec should be written and reviewed before any code."
 triggers: [write the spec before the code, run a spec-first workflow, derive acceptance criteria from a spec, decompose a spec into tasks, make the spec the source of truth, spec kit style development]
 tags: [coding, process, spec-driven, sdlc, requirements]
 core: false
@@ -78,33 +78,9 @@ Produce a **spec-driven workflow plan** containing:
   be reviewed on its own merits. Cross-reference `tdd-cycle.skill` for the test-first inner loop
   and `arch-design.skill` for the design phase.
 
-## Security & Guardrails
-
-### 1. Skill Security
-- **Risk**: "Tests pass" is reported as "the system is correct," when it only means the code
-  conforms to a spec that may itself be wrong or incomplete. Mitigation: every report MUST scope
-  the claim to spec-conformance and require the spec to be reviewed independently; the agent MUST
-  NOT present spec conformance as proof of correctness.
-- **Risk**: The spec is silently weakened to make a failing test pass. Mitigation: spec changes
-  MUST be explicit, reviewed, and version-controlled like code; the agent MUST refuse to edit the
-  spec merely to accommodate broken code without surfacing the change for human approval.
-
-### 2. System Integration Security
-- **Risk**: Security and compliance requirements live only in the implementation and never enter
-  the spec, so they are untested and can be dropped in a refactor. Mitigation: require security,
-  authz, data-handling, and compliance requirements to be first-class, testable spec items with
-  their own acceptance criteria and traceable tests.
-- **Risk**: Implementation adds undocumented behavior (a hidden endpoint, an extra side effect)
-  not in the spec, expanding attack surface invisibly. Mitigation: treat any behavior absent from
-  the spec as a divergence to flag; the traceability map MUST expose code paths that map to no
-  spec section.
-
-### 3. LLM & Agent Guardrails
-- **Risk**: The agent invents acceptance criteria or tasks describing behavior the spec never
-  stated, then builds and tests to its own fiction. Mitigation: every criterion and task MUST
-  trace to a spec section; the agent MUST amend the spec first (with human review) before adding
-  derived behavior, and MUST mark agent-proposed requirements as unconfirmed.
-- **Risk**: The agent writes tests that assert the implementation it just wrote rather than the
-  spec, making them tautological and unable to catch spec violations. Mitigation: tests MUST be
-  derived from acceptance criteria/spec, not reverse-engineered from the code; the agent MUST
-  verify each test would fail if the specified behavior were violated.
+## Limits and safety
+- Change the spec explicitly and show the change to the human; never edit the spec only to make a failing test pass.
+- Security, authorisation, data-handling and compliance requirements are spec items with their own acceptance criteria and tests.
+- Code or an endpoint that maps to no spec section is a divergence: list it in the traceability map.
+- Every criterion and task traces to a spec section; mark requirements you proposed as unconfirmed until the human confirms them.
+- Derive tests from the acceptance criteria, not from the code, and make each one fail once; a green suite means "conforms to the spec", not "correct".

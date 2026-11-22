@@ -1,6 +1,6 @@
 ---
 name: state-management
-description: "Manage client-side state, side effects, and data flow. Use when: state management."
+description: "Frontend state architecture — which data is server, UI, global or URL state, library choice and state machines. Use when a web app has prop drilling, duplicated state or an unclear data flow."
 license: CC-BY-SA-4.0
 metadata:
   source: "agents/skills/architecture/state-management.skill.md"
@@ -59,16 +59,16 @@ This skill guides the architecture of frontend state, avoiding "prop drilling" a
 - Log state changes in development.
 - Monitor render counts (React DevTools Profiler).
 
-## Security & Guardrails
+## Constraints
+- Store no derived data.
+- One source of truth: data in the URL is not copied into a store.
 
-### 1. Skill Security (State Management)
-- **Local Storage / Session Storage Exploitation**: The agent must firmly reject any design that stores highly sensitive data (e.g., unencrypted JWT access tokens, PII, Social Security Numbers) in raw `localStorage`, `sessionStorage`, or an unencrypted Redux/Zustand store persisted to disk. These storage mechanisms are trivial targets for Cross-Site Scripting (XSS) attacks.
-- **XSS via Hydration**: When the state management solution involves Server-Side Rendering (SSR) and state hydration (e.g., Next.js passing initial Redux state to the client window), the agent must ensure the server actively sanitizes the JSON payload. Unsanitized state injection directly into the DOM is a severe XSS vulnerability.
+## Output Format
+A table of the app's state by type (server, UI, global, URL) with the chosen solution for each.
 
-### 2. System Integration Security
-- **State Tampering Check**: The agent must design the frontend state architecture operating under the assumption that the client-side state is completely untrusted and easily modified by an attacker in the browser dev-tools. Redux/Zustand state must act *only* as a UI optimization; all critical authorization, pricing, and workflow validation must occur synchronously on the Backend API.
-- **Predictable State Machine Bypass**: If using XState for complex logic (e.g., a multi-step Checkout process), the agent must replicate the exact state machine transitions on the backend. An attacker can use React DevTools to arbitrarily force the client state machine from `cart_review` directly to `payment_success`. The backend must independently enforce the transition guardrails.
-
-### 3. LLM & Agent Guardrails
-- **Over-Caching Hallucination**: The LLM might suggest caching `Server State` (like User Profiles or Order History) indefinitely in Memory or `localStorage` to reduce API calls. The agent must intercept this and enforce strict Cache Invalidation and Time-to-Live (TTL) rules, preventing the UI from displaying stale, unauthorized data if the user's permission level changes mid-session.
-- **Secret Hardcoding in Global State**: The LLM might naively formulate initial state defaults containing API keys or environment secrets (e.g., `const initialState = { stripeKey: 'sk_live_123...' }`). The agent must mathematically scan all proposed frontend state objects to ensure they are scrubbed of Backend/Administrative credentials before compilation.
+## Limits and safety
+- Do not keep access tokens, personal data or secrets in `localStorage`, `sessionStorage` or persisted stores; confirm with the human where the session token lives.
+- Client state is untrusted: price, permission and workflow checks, including state machine transitions, are repeated on the server.
+- Serialise server-rendered initial state safely (escape it before putting JSON into HTML).
+- Cached server data has an expiry or invalidation tied to permission changes.
+- Grep the state files for key and secret patterns before handing over.

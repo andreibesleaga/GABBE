@@ -1,7 +1,7 @@
 ---
 name: log-analysis
-description: Parsing structured logs, finding patterns in noise, and ELK/Splunk querying.
-triggers: [log analysis]
+description: "Read structured logs to find a cause: scope the time range, group by message, follow one trace id. Also flags secrets and personal data in logs. Use when investigating an error or incident from logs, or when reviewing what an application logs."
+triggers: [log analysis, read logs, trace id, logql, error spike, find in logs]
 tags: [security]
 role: ops-monitor
 context_cost: low
@@ -10,6 +10,9 @@ context_cost: low
 
 ## Goal
 This skill helps agents and engineers interpret logging data to find root causes of issues.
+
+## Where it fits
+Phase and gate: S07 (review what the application logs), S11 (operate and incident work, with `ops/incident-response.skill.md`). Evidence: the query and the counts in the incident or review notes.
 
 ## Steps
 ## 1. Structured Logging (The Prerequisite)
@@ -53,16 +56,15 @@ cat logs.json | jq 'select(.level=="error") | .message' | sort | uniq -c
 - **"Noise"**: Periodic errors (e.g., every 5 mins) that everyone ignores. These mask real issues.
 - **"Sensitive Data"**: Passwords or PII in logs. -> **CRITICAL**: Report immediately.
 
-## Security & Guardrails
+## Constraints
+- State the time range and the query used for every finding.
+- Group before reading: counts by message type first.
 
-### 1. Skill Security (Log Analysis)
-- **Mandatory PII Scrubbing**: The agent must utilize `Rebertha` or an equivalent dedicated regex engine to proactively redact SSNs, Credit Card numbers, Auth Tokens, and Passwords BEFORE it writes the log summary to a file or transmits it for analysis. A failure in the redaction layer must cause the log analysis to fail-closed.
-- **Log Forgery Resilience**: The agent must trust the centralized log aggregation server (Splunk/ELK), but it must NOT implicitly trust the contents of the `message` payload. It must recognize the vulnerability of Log Injection (e.g., an attacker injecting `\n [INFO] User Admin Authenticated`) and prioritize `trace_id` and cryptographically signed application context.
+## Output Format
+A short note: time range, queries, counts by message, the trace followed, and any secret or personal data found (type and place only).
 
-### 2. System Integration Security
-- **Access Control on Audit Logs**: The agent must verify that the systems generating high-stakes logs (auth, financial transactions) are forwarding them to an immutable, WORM (Write-Once-Read-Many) storage bucket. If the agent detects that the application layer has `DELETE` permissions on an audit index, it must raise a sev-1 alarm.
-- **Alert Fatigue Exploitation**: An attacker may flood the system with low-severity `WARN` logs to mask a stealthy exfiltration attack occurring under the radar. The agent must implement rate-anomaly detection: if the volume of a specific log spikes by 1000%, it must condense the alert to prevent SOC burnout but escalate the anomaly.
-
-### 3. LLM & Agent Guardrails
-- **Hallucinated Root Cause**: In the presence of highly ambiguous logs, the LLM might confidently hallucinate a plausible but incorrect root cause (e.g., blaming a DNS failure when it was actually a subtle authorization bug). The agent must qualify its findings with confidence scores and cite the exact log line (via `trace_id`) that supports its hypothesis.
-- **Malicious Query Injection**: An attacker with access to the agent's prompts might attempt to inject a destructive Splunk query or perform unconstrained searches (e.g., `* | delete` or searching across all indexes to exfiltrate data). The agent must execute LogQL/Lucene queries under a strictly scoped, read-only service account.
+## Limits and safety
+- Read logs read-only and only for the time range you need. Do not copy raw lines with personal data or secrets into reports or chat; write the type, file and count.
+- A password, token or personal data in a log is a finding. Report it to the human at once and propose rotation. Do not delete log files yourself.
+- Query production log systems only when the human gave access for this task.
+- The query examples show syntax. Check it against your log system's documentation.

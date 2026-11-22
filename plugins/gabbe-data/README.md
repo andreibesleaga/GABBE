@@ -14,18 +14,18 @@ claude plugin install gabbe-data@gabbe
 Or install single skills with the skills CLI (skills.sh):
 
 ```bash
-npx skills add andreibesleaga/GABBE -a claude-code
+npx skills@1.9.0 add andreibesleaga/GABBE -a claude-code
 ```
 
 Version 1.1.4. Generated from `agents/skills/` by `scripts/build_claude_plugin.py`; edit the sources, not these files.
 
 ## Skills
 
-- `data-engineering` — Design and implement data pipelines (ETL/ELT), warehousing, and analytics engineering.
-- `data-governance` — Data lineage, classification (PII/Confidential), and integrity checks (checksums).
-- `db-migration` — Database schema changes and migration workflow — safe, reversible, tested
-- `semantic-web` — Design Semantic Web structures, Ontologies, and Meta-knowledge graphs
-- `sql-optimization` — Query tuning, indexing strategies, and EXPLAIN plan analysis.
+- `data-engineering` — Pipeline and warehouse design — ELT, orchestration, dbt models, idempotent loads, data quality checks and PII handling. Use when data must be moved or transformed for analytics, or when a pipeline is unreliable.
+- `data-governance` — Data classification, lineage, integrity and retention rules with a deletion workflow. Use when handling personal or confidential data, or when asked where a value came from or how long data may be kept.
+- `db-migration` — Schema change workflow — forward and rollback migration, compatibility check, test on a copy and safe rename or drop. Use when a table, column, index or constraint must change.
+- `semantic-web` — Ontology and RDF design with a mapping from existing data and SPARQL access. Use when data from several systems must share one vocabulary or a knowledge graph is needed.
+- `sql-optimization` — Query tuning plan — reading EXPLAIN ANALYZE, index design, keyset pagination, N+1 and transaction fixes. Use when a query is slow, a table scan shows up, or a database workload needs review.
 
 ## Licence
 

@@ -1,6 +1,6 @@
 ---
 name: error-handling-strategy
-description: "Centralized error handling (RFC 7807), circuit breakers, and user-facing fallbacks. Use when: error handling strategy."
+description: "Design of one error model for a service — RFC 9457 problem details, global handler, retries with jitter, circuit breakers and fallbacks. Use when error responses are inconsistent or one dependency takes the service down."
 license: CC-BY-SA-4.0
 metadata:
   source: "agents/skills/architecture/error-handling-strategy.skill.md"
@@ -14,7 +14,7 @@ metadata:
 Errors are inevitable. Handling them must be consistent, predictable, and safe.
 
 ## Steps
-## 1. Unified API Error Format (RFC 7807)
+## 1. Unified API Error Format (RFC 9457, which obsoletes RFC 7807)
 Never return raw stack traces or ad-hoc JSON strings. Use `Problem Details`:
 
 ```json
@@ -45,16 +45,16 @@ Never return raw stack traces or ad-hoc JSON strings. Use `Problem Details`:
 - **Graceful Degradation**: If the "Recommendations" service is down, don't crash the homepage. Show "Popular Items" (static) instead.
 - **Friendly Messages**: "Something went wrong" is bad. "We couldn't load your cart, but your items are safe. Try refreshing." is better.
 
-## Security & Guardrails
+## Constraints
+- Never return raw stack traces or ad-hoc JSON error strings.
+- Retry only transient errors, never 4xx.
 
-### 1. Skill Security (Error Handling)
-- **Stack Trace Suppression Guarantee**: The agent must irrevocably mandate that under no circumstances—not even during `beta` or early deployment phases—will raw stack traces, SQL syntax errors, or server environment variables be returned in HTTP 500 responses. This prevents critical Information Disclosure vulnerabilities.
-- **Trace ID Obfuscation**: While `traceId` (RFC 7807) is critical for debugging, the agent must ensure the generated ID does not inadvertently leak internal system state (like sequential database IDs, IP addresses, or readable timestamps). It must mandate the use of opaque UUIDv4 or cryptographic hashes for public-facing tracing identifiers.
+## Output Format
+A short design note in the project's architecture docs (`docs/architecture/` by default) with the error format, the exception-to-status mapping, the resilience settings and the fallbacks.
 
-### 2. System Integration Security
-- **Fail-Closed by Default**: When an unexpected `DomainException` or `SecurityException` occurs, the Global Exception Handler must inherently default to a restrictive posture (401/403 or a generic 500). It must never "fail-open" by ignoring the error and proceeding with the execution flow or granting unverified access.
-- **Circuit Breaker Poisoning Defense**: If a Circuit Breaker is triggered by a sudden spike in errors (often indicative of a DDoS attack or an intentional exploit attempt against a specific service), the system must degrade gracefully (Step 4) without completely locking out valid, authenticated traffic to unaffected areas.
-
-### 3. LLM & Agent Guardrails
-- **Excessive Error Verbosity Hallucination**: An overly helpful LLM might suggest returning "user-friendly" error messages that inadvertently leak business logic (e.g., "User account exists but is locked due to 5 failed password attempts"). The agent must rigidly enforce the OWASP standard for generic authentication errors (e.g., "Invalid username or password").
-- **Retry Amplification Attack Mitigation**: The agent must not suggest naive Retry logic without strict bounds. If an LLM proposes "retry failed requests up to 10 times," the agent must intervene, enforcing Exponential Backoff and Jitter. Unbounded retries turn a transient internal network issue into a self-inflicted, devastating Denial of Service.
+## Limits and safety
+- Production responses never carry stack traces, SQL errors or environment values, at any stage; log them with the trace id instead.
+- Trace ids are opaque random values: no sequential ids, addresses or readable timestamps.
+- Unexpected errors fail closed: 401, 403 or a generic 500, never continue as if nothing happened.
+- Authentication errors stay generic ("invalid username or password"); no hints about account state.
+- Retries are bounded, with backoff and jitter; an open circuit breaker must not lock out routes it does not protect.

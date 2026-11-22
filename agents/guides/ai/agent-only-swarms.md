@@ -6,7 +6,7 @@ description: Guide to executing Loki Mode, Swarm Management, and Agent Delegatio
 
 The `gabbe` CLI tool offers robust, programmable programmatic control over `loki-mode` and multi-agent coordination by spinning up independent API threads and enforcing filesystem constraints.
 
-However, **all GABBE swarm coordination protocols are defined in Markdown.** This means you can unleash the power of the 10-Phase SDLC or orchestrate a swarm of specialized Personas inside a pure chat environment (like Cursor, Copilot, or Claude Code) without installing the CLI.
+However, **all GABBE swarm coordination protocols are defined in Markdown.** This means you can unleash the power of the 14-phase lifecycle (S00–S13) or orchestrate a swarm of specialized Personas inside a pure chat environment (like Cursor, Copilot, or Claude Code) without installing the CLI.
 
 There are two primary ways to operate Swarms in "Agent-Only" mode:
 1. **In-Context Simulation**: The LLM adopts multiple personas sequentially within the same chat thread.
@@ -14,12 +14,12 @@ There are two primary ways to operate Swarms in "Agent-Only" mode:
 
 ---
 
-## 1. Unsupervised Loki Mode (10-Phase SDLC)
+## 1. Unsupervised Loki Mode (14-Phase Lifecycle)
 
-If you have a massive project and want the agent to meticulously follow the 10-Phase framework (from `S01` to `S10`), you can invoke `loki-mode` directly.
+If you have a massive project and want the agent to meticulously follow the 14-phase lifecycle (from `S00` to `S13`), you can invoke `loki-mode` directly.
 
 ### The Agent Prompt
-> "Activate `agents/skills/brain/loki-mode.skill.md`. Our goal is to [build a new payment gateway]. We are starting from Phase S01. Work through the phases on your own and stop at every Human Approval Gate, before any commit, push, publish or deploy, and when a task requires True A2A Delegation."
+> "Loki mode. Activate `agents/skills/brain/loki-mode.skill.md`. Our goal is to [build a new payment gateway]. We are starting from Phase S00 (or tell me to skip discovery). Work through the phases on your own and stop at every Human Approval Gate, before any commit, push, publish or deploy, and when a task requires True A2A Delegation."
 
 ### What the Agent Does Automatically
 1. Read `AGENTS.md` and define the required Personas.
@@ -60,11 +60,14 @@ Use this when you need true isolation, zero context-pollution, or want to utiliz
 4. The Subagent works in isolation and gives you the final test suite.
 5. You paste the test suite back to the Orchestrator in Cursor: *"Here is the output from the `eng-qa` subagent. Proceed to S06."*
 
+### Tactic C: Native Subagents
+If your platform can start subagents itself (for example Claude Code), no human Router is needed: see Tactic C in `agents/skills/brain/loki-mode.skill.md`.
+
 ---
 
 ## 4. Ad-Hoc Swarm Debate (No SDLC)
 
-You don't need the full 14-phase lifecycle (the 10-phase core build loop S01–S10, plus Day-0 S00 and Day-2 S11–S13) to use Swarms. You can invoke a specific matrix of personas to debate a complex architecture decision.
+You don't need the full 14-phase lifecycle (S00–S13) to use Swarms. You can invoke a specific matrix of personas to debate a complex architecture decision.
 
 ### The Agent Prompt
 > "Invoke `agents/skills/coordination/multi-agent-orch.skill.md`. I need to decide between PostgreSQL and MongoDB. Load the `prod-architect`, `eng-database`, and `ops-cost` personas. Facilitate a sequential debate simulating their perspectives. Synthesize their arguments into a final recommendation."

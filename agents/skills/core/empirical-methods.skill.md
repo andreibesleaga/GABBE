@@ -1,6 +1,6 @@
 ---
 name: empirical-methods
-description: Apply empirical and measurement methods to engineering decisions with sound experiment design, honest statistical interpretation, and root-cause analysis.
+description: Designs a measurement or experiment (metric, hypothesis, controls, sample size) and reports results with effect size and confidence interval. Use when comparing benchmarks, reading A/B results, choosing a metric or tracing a root cause.
 triggers: [design a controlled experiment, interpret benchmark statistics, analyze a b test results, choose measurement scale and metric, check effect size and confidence interval, run root cause analysis, avoid confounds in engineering experiment]
 tags: [core, measurement, experimentation, statistics]
 core: false
@@ -75,27 +75,8 @@ Produce an experiment/measurement design (aligned to `EXPERIMENT_PLAN_TEMPLATE.m
 - For diagnostic use, a root-cause section separating confirmed cause from contributing factors and
   correlates.
 
-## Security & Guardrails
-
-### 1. Skill Security
-- **Risk**: p-hacking / cherry-picking — metrics, segments, or stopping points are chosen after the fact to
-  manufacture significance; mitigation: the agent fixes hypothesis, metric, and stopping rule in advance and
-  labels any post-hoc slice as exploratory, never as confirmation.
-- **Risk**: Causal overreach — an association is presented as a proven cause to justify a decision;
-  mitigation: the agent gates causal language behind controlled randomized design and otherwise reports
-  association plus confounds.
-
-### 2. System Integration Security
-- **Risk**: Benchmark or analytics data integrity — numbers come from a misconfigured, noisy, or
-  non-representative pipeline; mitigation: the agent records the data source, environment, and known biases,
-  and refuses to draw conclusions from data it cannot attribute or reproduce.
-- **Risk**: Experiment side effects on production — an A/B or fault-injection run harms real users;
-  mitigation: the agent requires guardrail metrics, blast-radius limits, and human sign-off before any
-  experiment touches production traffic.
-
-### 3. LLM & Agent Guardrails
-- **Risk**: False precision — the model reports a point estimate with implied certainty and hides variance;
-  mitigation: the agent always attaches intervals and variance and states the uncertainty in plain terms.
-- **Risk**: Confirmation bias — the model interprets ambiguous data in favor of the expected outcome;
-  mitigation: the agent states the null result honestly, lists alternative explanations, and reports
-  inconclusive findings as inconclusive.
+## Limits and safety
+- Fix the hypothesis, metric and stopping rule before looking at data; any later slice is labelled "exploratory".
+- Report effect size, interval and variance; never a p-value alone, and no causal claim without a controlled, randomised design.
+- Record data source, environment and discarded runs; a result that cannot be reproduced from the record is called preliminary.
+- An experiment on production traffic needs a guardrail metric, a size limit and the human's yes first.

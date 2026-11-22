@@ -47,8 +47,9 @@ Load on activation:
    - Fixed: bug fixes
    - Security: security improvements
 4. Commit CHANGELOG.md with: "chore(release): v1.2.0"
-5. Tag: git tag -a v1.2.0 -m "Release v1.2.0"
-6. Create GitHub Release with release notes
+5. Tag: prepare `git tag -a v1.2.0 -m "Release v1.2.0"` and hand it to the human; run it only if the human asked for it in this request (Constitution Article 0)
+6. GitHub Release: prepare the release notes and the exact command (`gh release create v1.2.0 --notes-file ...`)
+   and hand them to the human; run it only if the human asked for it in this request (Constitution Article 0)
 7. Write release entry to AUDIT_LOG.md
 ```
 
@@ -84,8 +85,8 @@ orch-planner → ops-release:
   Description: "Prepare release v1.2.0"
   Acceptance criteria:
     - CHANGELOG.md updated with all changes since v1.1.0
-    - git tag v1.2.0 created
-    - GitHub Release created with formatted notes
+    - tag and GitHub Release commands prepared and handed to the human (`git tag -a v1.2.0 -m "Release v1.2.0"`, then the release notes text); run only after the human confirms in this request, and that confirmation recorded in AUDIT_LOG.md (Constitution Article 0)
+    - release notes written, formatted for the GitHub Release
     - Stakeholder summary written
-  Prerequisites: S08 gate approved, ops-devops deployed to staging (S09)
+  Prerequisites: S08 gate approved, ops-devops deployed to staging (S09), and the human's "deploy now" for S10 recorded in AUDIT_LOG.md
 ```

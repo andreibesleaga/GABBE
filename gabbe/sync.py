@@ -8,7 +8,7 @@ import re
 import sqlite3
 import tempfile
 import time
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -83,16 +83,33 @@ def generate_markdown_tasks(tasks: list[dict[str, str]]) -> str:
     return "\n".join(lines)
 
 
+def ensure_task_file() -> bool:
+    """Create an empty `project/TASKS.md` when there is none (`gabbe verify` requires it).
+
+    Never touches an existing file or link. Returns True when it created the file.
+    """
+    if TASKS_FILE.exists() or TASKS_FILE.is_symlink():
+        return False
+    _atomic_write(TASKS_FILE, generate_markdown_tasks([]))
+    print(f"{Colors.GREEN}✓ Created {TASKS_FILE}{Colors.ENDC}")
+    return True
+
+
 def _parse_db_timestamp(value: Any) -> float:
     """Parse a SQLite datetime string to a Unix timestamp.
 
     Handles both 'YYYY-MM-DD HH:MM:SS' (SQLite default) and ISO-8601
     'YYYY-MM-DDTHH:MM:SS' by normalising the separator before fromisoformat().
+    A stamp without a zone is UTC (SQLite CURRENT_TIMESTAMP and this module both write UTC),
+    never local time, so the result does not depend on the TZ of the machine.
     """
     if not value:
         return 0
     try:
-        return datetime.fromisoformat(str(value).replace(" ", "T")).timestamp()
+        moment = datetime.fromisoformat(str(value).replace(" ", "T"))
+        if moment.tzinfo is None:
+            moment = moment.replace(tzinfo=timezone.utc)
+        return moment.timestamp()
     except (ValueError, AttributeError):
         return 0
 
@@ -141,6 +158,22 @@ def _calculate_state_hash(tasks: list[dict[str, str]]) -> str:
     return hashlib.sha256(combined.encode()).hexdigest()
 
 
+_STALE_LOCK_SECONDS = 600.0  # a lock with unreadable content is stale after 10 minutes
+
+
+def _pid_alive(pid: int) -> bool:
+    """True if a process with this id is running. Not for Windows (os.kill(pid, 0) is unsafe there)."""
+    if pid <= 0:
+        return False
+    try:
+        os.kill(pid, 0)
+    except PermissionError:
+        return True  # exists, owned by someone else
+    except (ProcessLookupError, OverflowError, OSError):
+        return False
+    return True
+
+
 class _SyncLock:
     """Cross-process advisory lock serializing TASKS.md <-> SQLite sync.
 
@@ -172,6 +205,8 @@ class _SyncLock:
             try:
                 self._fd = os.open(str(self.path), os.O_CREAT | os.O_EXCL | os.O_WRONLY)
             except FileExistsError:
+                if self._remove_if_stale():
+                    continue
                 if time.monotonic() >= deadline:
                     raise TimeoutError(
                         f"Could not acquire sync lock {self.path} within "
@@ -202,6 +237,29 @@ class _SyncLock:
                 self._fd = None
             return self
 
+    def _remove_if_stale(self) -> bool:
+        """Remove the lock file when its holder is gone; True if it was removed."""
+        import logging
+        import time
+
+        try:
+            text = self.path.read_text().strip()
+            age = time.time() - self.path.stat().st_mtime
+        except OSError:
+            return False
+        if text.isdigit() and os.name != "nt":
+            stale = not _pid_alive(int(text))
+        else:  # unreadable content: only stale after a safe age
+            stale = age > _STALE_LOCK_SECONDS
+        if not stale:
+            return False
+        try:
+            self.path.unlink()
+        except OSError:
+            return False
+        logging.getLogger("gabbe.sync").warning("Removed stale sync lock %s", self.path)
+        return True
+
     def __exit__(self, *exc: Any) -> None:
         if self._fd is None:
             # Lock was never acquired (best-effort early return in __enter__).
@@ -221,112 +279,145 @@ class _SyncLock:
 
 
 def sync_tasks() -> None:
-    """Bidirectional sync for project/TASKS.md based on content changes."""
+    """Merge project/TASKS.md and the SQLite `tasks` table so both sides end equal.
+
+    Rule: a task that exists on ONE side only is always carried to the other side (union).
+    For a task on BOTH sides, the status of the newer side wins (file mtime against the
+    newest `updated_at` in the database, both as UTC instants); a tie goes to the file.
+    A second run changes nothing.
+
+    Documented limit: a deletion is not propagated. Under the union rule a task removed
+    from one side comes back from the other side at the next sync; to delete a task,
+    remove it from both sides before syncing.
+    """
     print(f"{Colors.HEADER}🔄 Syncing Tasks...{Colors.ENDC}")
     with _SyncLock():
         return _sync_tasks_locked()
+
+
+def _read_db_tasks(c: sqlite3.Cursor) -> list[dict[str, str]]:
+    c.execute("SELECT title, status FROM tasks")
+    # sqlite3.Row supports dict-like ['col'] access; row_factory is set in get_db()
+    return [{"title": row["title"], "status": row["status"]} for row in c.fetchall()]
+
+
+def _read_file_tasks() -> list[dict[str, str]]:
+    """The tasks in the file, first line wins for a repeated title."""
+    if not TASKS_FILE.exists():
+        return []
+    parsed = parse_markdown_tasks(TASKS_FILE.read_text(encoding="utf-8"))
+    first: dict[str, dict[str, str]] = {}
+    for task in parsed:
+        first.setdefault(task["title"], {"title": task["title"], "status": task["status"]})
+    return list(first.values())
+
+
+def _status_map(tasks: list[dict[str, str]]) -> dict[str, str]:
+    return {t["title"]: t["status"] for t in tasks}
+
+
+def _file_is_newer(c: sqlite3.Cursor) -> bool:
+    """True when the file wins the status of shared tasks (a tie goes to the file)."""
+    file_mtime = TASKS_FILE.stat().st_mtime if TASKS_FILE.exists() else 0
+    return bool(file_mtime >= get_db_timestamp(c))
+
+
+def merge_tasks(
+    file_tasks: list[dict[str, str]], db_tasks: list[dict[str, str]], file_wins: bool
+) -> tuple[list[dict[str, str]], list[dict[str, str]]]:
+    """Return (file side after sync, database side after sync), both as ordered task lists.
+
+    The file keeps its order and gets the database-only tasks appended; the database keeps
+    its order and gets the file-only tasks appended. Shared tasks take the winner's status.
+    """
+    file_status, db_status = _status_map(file_tasks), _status_map(db_tasks)
+    winner = file_status if file_wins else db_status
+    merged_file = [{"title": t, "status": winner.get(t, s)} for t, s in file_status.items()]
+    merged_file += [dict(t) for t in db_tasks if t["title"] not in file_status]
+    merged_db = [{"title": t, "status": winner.get(t, s)} for t, s in db_status.items()]
+    merged_db += [dict(t) for t in file_tasks if t["title"] not in db_status]
+    return merged_file, merged_db
 
 
 def _sync_tasks_locked() -> None:
     conn = get_db()
     try:
         c = conn.cursor()
+        db_tasks = _read_db_tasks(c)
+        file_tasks = _read_file_tasks()
 
-        # Check existing data
-        c.execute("SELECT title, status FROM tasks")
-        db_rows = c.fetchall()
-        db_tasks = []
-        # sqlite3.Row supports dict-like ['col'] access; row_factory is set in get_db()
-        for row in db_rows:
-            title = row["title"]
-            status = row["status"]
-            content_hash = hashlib.sha256(f"{title}|{status}".encode()).hexdigest()
-            db_tasks.append({"title": title, "status": status, "hash": content_hash})
-
-        file_exists = TASKS_FILE.exists()
-        file_tasks = []
-        if file_exists:
-            content = TASKS_FILE.read_text(encoding="utf-8")
-            file_tasks = parse_markdown_tasks(content)
-
-        # 1. Check content equality first (Fast Path)
-        if _calculate_state_hash(db_tasks) == _calculate_state_hash(file_tasks):
+        # 1. Fast path: same tasks with the same statuses on both sides.
+        if _status_map(db_tasks) == _status_map(file_tasks):
             print(f"  {Colors.GREEN}✓ Synchronized (No changes detected).{Colors.ENDC}")
             return
 
-        # 2. Decide Sync Direction
-        db_count = len(db_tasks)
-        file_count = len(file_tasks)
-        db_mtime = get_db_timestamp(c)
-        file_mtime = TASKS_FILE.stat().st_mtime if file_exists else 0
-
-        if db_count == 0 and file_count > 0:
-            print(f"  {Colors.BLUE}Bootstrap: Importing from project/TASKS.md{Colors.ENDC}")
-            import_from_md(c, file_tasks)
-            conn.commit()
-
-        elif file_count == 0 and db_count > 0:
-            print(f"  {Colors.BLUE}Bootstrap: Exporting to project/TASKS.md{Colors.ENDC}")
-            export_to_md(c)
-
-        elif file_mtime >= db_mtime:
-            # File is newer (or equal). Check for actual changes.
-            print(f"  {Colors.BLUE}Checking project/TASKS.md for new updates...{Colors.ENDC}")
-            import_from_md(c, file_tasks)
-            conn.commit()
-
-        else:
-            # DB is newer
-            print(f"  {Colors.BLUE}Exporting DB changes to project/TASKS.md...{Colors.ENDC}")
-            export_to_md(c)
-
+        # 2. Union of the tasks; the newer side decides the status of shared tasks.
+        file_wins = _file_is_newer(c)
+        new_file, new_db = merge_tasks(file_tasks, db_tasks, file_wins)
+        stats = _write_db_side(c, db_tasks, new_db)
+        conn.commit()
+        if new_file != file_tasks:
+            _write_task_file(new_file)
+        print(
+            f"  {Colors.GREEN}✓ Sync Complete: {stats['inserted']} added to the database, "
+            f"{stats['updated']} updated, {len(new_file) - len(file_tasks)} added to "
+            f"project/TASKS.md.{Colors.ENDC}"
+        )
     finally:
         conn.close()
 
 
+def _now_utc() -> str:
+    return datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
+
+
+def _write_db_side(
+    c: sqlite3.Cursor, old: list[dict[str, str]], new: list[dict[str, str]]
+) -> dict[str, int]:
+    """Bring the database from `old` to `new` (inserts and status updates only)."""
+    now = _now_utc()
+    old_status = _status_map(old)
+    stats = {"inserted": 0, "updated": 0}
+    for task in new:
+        title, status = task["title"], task["status"]
+        if title not in old_status:
+            c.execute(
+                "INSERT INTO tasks (title, status, updated_at) VALUES (?, ?, ?)",
+                (title, status, now),
+            )
+            stats["inserted"] += 1
+        elif old_status[title] != status:
+            c.execute(
+                "UPDATE tasks SET status = ?, updated_at = ? WHERE title = ?",
+                (status, now, title),
+            )
+            stats["updated"] += 1
+    return stats
+
+
 def import_from_md(c: sqlite3.Cursor, tasks_or_content: str | list[dict[str, str]]) -> None:
+    """Write the given file tasks into the database (insert new, update changed statuses)."""
     if isinstance(tasks_or_content, str):
         tasks = parse_markdown_tasks(tasks_or_content)
     else:
         tasks = tasks_or_content
-    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    stats = {"updated": 0, "inserted": 0, "skipped": 0}
-
-    for t in tasks:
-        # Check if task exists
-        c.execute("SELECT id, title, status FROM tasks WHERE title = ?", (t["title"],))
-        row = c.fetchone()
-
-        if row:
-            db_id, db_title, db_status = row
-            # Calculate DB hash
-            db_hash = hashlib.sha256(f"{db_title}|{db_status}".encode()).hexdigest()
-
-            if t["hash"] != db_hash:
-                # Actual change detected
-                c.execute(
-                    "UPDATE tasks SET status = ?, updated_at = ? WHERE id = ?",
-                    (t["status"], now, db_id),
-                )
-                stats["updated"] += 1
-            else:
-                stats["skipped"] += 1
-        else:
-            c.execute(
-                "INSERT INTO tasks (title, status, updated_at) VALUES (?, ?, ?)",
-                (t["title"], t["status"], now),
-            )
-            stats["inserted"] += 1
-
+    file_tasks = [{"title": t["title"], "status": t["status"]} for t in tasks]
+    db_tasks = _read_db_tasks(c)
+    merged = merge_tasks(file_tasks, db_tasks, True)[1]
+    stats = _write_db_side(c, db_tasks, merged)
     print(
-        f"  {Colors.GREEN}✓ Sync Complete: {stats['inserted']} new, {stats['updated']} updated, {stats['skipped']} unchanged.{Colors.ENDC}"
+        f"  {Colors.GREEN}✓ Sync Complete: {stats['inserted']} new, {stats['updated']} updated.{Colors.ENDC}"
     )
 
 
 def export_to_md(c: sqlite3.Cursor) -> None:
+    """Replace the task lines of the file with every task in the database."""
     c.execute("SELECT * FROM tasks ORDER BY id")
-    db_tasks = c.fetchall()
+    _write_task_file(c.fetchall())
 
+
+def _write_task_file(db_tasks: Any) -> None:
+    """Write `db_tasks` between the markers of TASKS.md, keeping all other content."""
     new_task_lines = _generate_task_lines(db_tasks)
 
     # Default content for new file

@@ -95,31 +95,8 @@ A workflow design containing:
 - **Termination**: max iterations, token/time budget, and quality-threshold exit per loop.
 - **Eval hook**: the metric used to justify each added pattern.
 
-## Security & Guardrails
-
-### 1. Skill Security
-- **Risk**: A routing classifier is steered by injected input to send a request down a more-privileged
-  or unsafe branch (e.g. forcing the "admin tool" route). Mitigation: validate the classifier's output
-  against an allowlist of routes, treat the input as untrusted per `prompt-injection-defense.skill`,
-  and gate privileged branches behind authorization independent of the classification.
-- **Risk**: An unbounded evaluator-optimizer or orchestrator loop spins forever or fans out without
-  limit, exhausting cost. Mitigation: enforce hard max-iteration and token/wall-clock caps and a
-  bounded worker count on every loop and fan-out, with a circuit breaker that halts on breach.
-
-### 2. System Integration Security
-- **Risk**: Parallel workers each hold a slice of sensitive data and one leaks it cross-task or
-  cross-tenant during aggregation. Mitigation: scope each worker's context per task/tenant, pass only
-  the minimal structured result back to the reducer, and strip secrets from inter-step payloads.
-- **Risk**: A compromised or malformed worker output poisons the synthesis step in orchestrator-workers
-  or the tally in voting. Mitigation: schema-validate and red-flag-discard structurally-confused worker
-  outputs before they reach the reducer, per the handoff-contract validation in `multi-agent-orch.skill`.
-
-### 3. LLM & Agent Guardrails
-- **Risk**: Chained steps silently drop a safety constraint or user intent as output passes hand to
-  hand, letting a late step act without it. Mitigation: carry intent and active constraints in a
-  non-droppable field through every hop and re-assert them at consequential steps; log each handoff to
-  an append-only trace.
-- **Risk**: An evaluator-optimizer loop "improves" output past good-enough into unsafe or
-  over-confident territory because the rubric rewards only fluency. Mitigation: include safety and
-  faithfulness in the rubric, anchor scoring with deterministic checks, and exit on the
-  quality-threshold rather than maximizing the score indefinitely.
+## Limits and safety
+- Check a routing classifier's output against a fixed list of routes. A privileged route needs its own authorization check, whatever the classifier said.
+- Give every loop and fan-out a maximum number of iterations, a token or time budget and a worker cap; stop and report when one is reached.
+- Give each worker only its own slice of the data; remove secrets from payloads between steps.
+- Carry the user's intent and active constraints through every hop and repeat them before any step that changes something.

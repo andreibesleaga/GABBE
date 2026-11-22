@@ -1,6 +1,6 @@
 ---
 name: design-patterns
-description: "Identifies, implements, and refactors code using standard Design Patterns (GoF + Modern). Use when: design pattern, refactor pattern, strategy pattern, observer pattern, factory pattern, singleton."
+description: "Match a design problem to a standard pattern (strategy, adapter, facade, observer, circuit breaker) and refactor to it. Use when code has long if/else chains, tangled integrations or repeated construction logic."
 license: CC-BY-SA-4.0
 metadata:
   source: "agents/skills/architecture/design-patterns.skill.md"
@@ -47,16 +47,16 @@ To improve code maintainability, flexibility, and readability by applying proven
 -   **God Object**: Class that does everything.
 -   **Golden Hammer**: Using the same pattern everywhere (e.g., everything is a Singleton).
 
-## Security & Guardrails
+## Constraints
+- Apply a pattern only to a named problem in the code.
+- Avoid the Golden Hammer: one pattern everywhere.
 
-### 1. Skill Security (Design Patterns)
-- **Pattern Implementation Integrity**: When the agent generates code for complex patterns like `Facade` or `Adapter`, it must not inadvertently bypass existing security checks. For example, if an `Adapter` wraps an older API, the agent must ensure it does not accidentally strip out authentication headers or input sanitization routines present in the original call chain.
-- **Singleton State Exhaustion**: If the agent implements a `Singleton` for a shared resource (like a DB connection pool), it must explicitly define maximum bounds and timeout values. An unbound Singleton can be exploited to cause a Denial of Service (DoS) by exhausting memory or connections globally across the application.
+## Output Format
+The refactored code and, for complex cases, `DESIGN_PATTERN_USAGE.md` (`templates/architecture/`).
 
-### 2. System Integration Security
-- **Proxy/Sidecar Bypass**: When the architecture uses a `Sidecar` or `BFF` for security concerns (like TLS termination or global rate limiting), the agent must physically or logically isolate the backend service so it ONLY accepts traffic from the Sidecar/BFF. Any network configuration allowing a direct request to the backend service bypasses the security pattern entirely.
-- **Observer Data Leakage**: In the `Observer` pattern, state changes are broadcast to all subscribed listeners. The agent must verify that sensitive data (e.g., unhashed passwords, PII) is scrubbed from the event payload *before* it is broadcast, ensuring that an arbitrary internal listener cannot silently capture regulated data.
-
-### 3. LLM & Agent Guardrails
-- **Complexity-Driven Vulnerabilities**: The LLM might propose an overly convoluted combination of `Strategy`, `Factory`, and `Decorator` patterns to solve a simple problem. This extreme abstraction (the "Lasagna Architecture") makes it nearly impossible for human reviewers to trace the execution flow and identify authorization bugs. The agent must prioritize the "Keep It Simple, Stupid" (KISS) principle for security-critical pathways.
-- **Hallucinated Thread-Safety**: The agent must definitively know the concurrency model of the target language. If the agent generates a `Singleton` in a multi-threaded language (like Java or Go), it is strictly forbidden from generating naive, thread-unsafe initializations which could lead to race conditions and unpredictable authorization state.
+## Limits and safety
+- A wrapper (adapter, facade, proxy) must keep the authentication and input checks of the call chain it wraps; compare before and after.
+- A shared single instance (pool, singleton) has explicit size and timeout limits and is created thread-safely in multi-threaded languages; check against the language documentation.
+- If a sidecar or BFF carries a security function, confirm that the backend accepts traffic only from it.
+- Events sent to observers carry no secrets or personal data.
+- Use the simplest pattern; do not stack patterns for a problem one `if` would solve.

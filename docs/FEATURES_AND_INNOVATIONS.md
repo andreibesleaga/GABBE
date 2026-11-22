@@ -7,7 +7,7 @@
 > Windsurf, Cline, Aider) into a **governed software-engineering team**, with an optional
 > Python control plane for budgets, policy, audit, and MCP tooling.
 >
-> **At a glance (written for v1.1.1; counts re-checked 2026-10-29 on v1.1.2 and 2026-11-21 on 1.1.3):** 214 skills · 86 guides · 100 templates · 36 personas · 24 runtime
+> **At a glance (written for v1.1.1; counts re-checked 2026-10-29 on v1.1.2 and 2026-11-21 on 1.1.3):** 231 skills · 95 guides · 107 templates · 37 personas · 24 runtime
 > modules · 15 supported agents · install via `npx gabbe-kit init` / `pip install gabbe` /
 > `curl …/install.sh | sh` / git checkout.
 >
@@ -28,13 +28,13 @@ Each line is a feature → the concrete value it delivers.
   format for each agent (`.cursor/rules/*.mdc`, `.claude/skills/<slug>/SKILL.md`,
   `.github/skills/…`, `.gemini/…`, universal `.agents/skills/…`). *Value:* a single, consistent
   engineering standard across a mixed-tool team instead of per-tool rule drift.
-- **Cradle-to-grave ADLC** — a 14-phase lifecycle (Day-0 strategy `S00`; core build loop
-  `S01–S10`: requirements → architecture → tech spec → task decomposition → implement → test →
+- **Cradle-to-grave ADLC** — a 14-phase lifecycle (Day 0: strategy `S00`;
+  Day 1 `S01–S10`: requirements → architecture → tech spec → task decomposition → implement → test →
   security review → human review → staging → production; Day-2 `S11–S13`: operate → evolve → sunset). *Value:* the
   agent is driven by an actual engineering process, not ad-hoc "vibe coding".
-- **Human-in-the-loop gates** at `S00/S01/S02/S07/S08`. *Value:* humans stay managers, not
+- **Human-in-the-loop gates** at `S00/S01/S02/S07/S08/S10`. *Value:* humans stay managers, not
   spectators — approval is required at the expensive/irreversible decision points.
-- **Loki Mode — multi-persona "swarm"** — 36 specialized roles (architect, backend, QA,
+- **Loki Mode — multi-persona "swarm"** — 37 specialized roles (architect, backend, QA,
   security, SRE, …), each with explicit Role / Does-NOT / scope / outputs. *Value:* role
   separation and review discipline that a single undifferentiated prompt doesn't give you.
 - **Brain Mode — meta-cognitive planner/router** — a System-2 layer that picks the next
@@ -120,7 +120,7 @@ already does something, it's noted.
 2. **A methodology kit, not a runtime framework.** MetaGPT, CrewAI, AutoGen, LangGraph, OpenHands
    are Python frameworks you *build agents with*. GABBE is a portable Markdown methodology that
    *drops into the agent you already use* — zero hosting, zero SDK. The role-based "software
-   company" idea overlaps with MetaGPT/CrewAI, but those require their runtime; GABBE's 36-persona
+   company" idea overlaps with MetaGPT/CrewAI, but those require their runtime; GABBE's 37-persona
    swarm is followed by whatever agent reads the kit.
 
 3. **Whole-lifecycle, not just spec→code.** Spec-driven tools (GitHub Spec Kit, Kiro, BMAD,
@@ -150,8 +150,8 @@ already does something, it's noted.
 ## 4. Full feature catalog (everything else)
 
 **Methodology & content layer**
-- 214 skills (packaged workflows w/ triggers + constraints), 86 guides (language/domain/principles
-  expertise), 100 templates (PRD, SPEC, NFR, ADR, C4, test/eval plans, runbooks, …), 36 personas.
+- 231 skills (packaged workflows w/ triggers + constraints), 95 guides (language/domain/principles
+  expertise), 107 templates (PRD, SPEC, NFR, ADR, C4, test/eval plans, runbooks, …), 37 personas.
 - Operating spine: `preflight` (Step 0) → `clarify` → plan → TDD (red/green) → `verify` →
   refactor → log/complete, with a mandated final review.
 - Index + frontmatter conventions make skills discoverable and auto-selectable by keyword.

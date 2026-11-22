@@ -1,13 +1,13 @@
-# Session Snapshot — S[XX]_[PHASE_NAME]
+# Session Snapshot — S<NN>_<name>
 <!-- Created by: sdlc-checkpoint.skill (the SESSION_SNAPSHOT/ directory is created on first checkpoint) -->
-<!-- Store in: agents/memory/episodic/SESSION_SNAPSHOT/S[XX]_[phase].md -->
+<!-- Store in: agents/memory/episodic/SESSION_SNAPSHOT/S<NN>_<name>.md (names: discovery, requirements, architecture, tech_spec, task_decomp, implementation, testing, security, review, staging, production, operate, evolve, sunset) -->
 <!-- IMMUTABLE after creation — never overwrite, create new snapshot for revisions -->
 
 ---
 
-**Snapshot ID:** S[XX]-[YYYYMMDD]-[HH]
+**Snapshot ID:** S<NN>-[YYYYMMDD]-[HH]
 **Timestamp:** [ISO 8601: 2025-03-15T14:30:00Z]
-**SDLC Phase:** S[XX] — [Phase Name: DISCOVERY(S00)/REQUIREMENTS(S01)/DESIGN(S02)/SPEC(S03)/TASKS(S04)/IMPLEMENTATION(S05)/TESTING(S06)/SECURITY(S07)/REVIEW(S08)/STAGING(S09)/PRODUCTION(S10)/OPERATE(S11)/EVOLVE(S12)/DECOMMISSION(S13)]
+**SDLC Phase:** S<NN> — [Phase Name: STRATEGY_DISCOVERY(S00)/REQUIREMENTS(S01)/ARCHITECTURE(S02)/TECH_SPEC(S03)/TASK_DECOMP(S04)/IMPLEMENTATION(S05)/TESTING(S06)/SECURITY(S07)/HUMAN_REVIEW(S08)/STAGING(S09)/PRODUCTION(S10)/OPERATE_MAINTAIN(S11)/EVOLVE_IMPROVE(S12)/DECOMMISSION_SUNSET(S13)]
 **Created by:** [agent persona name or "human"]
 **Project:** [Project name from AGENTS.md]
 
@@ -16,8 +16,8 @@
 ## 1. Current Project State
 
 ```
-SDLC Phase:           S[XX] — [Phase Name]
-Phase status:         COMPLETED / IN_PROGRESS
+SDLC Phase:           S<NN> — [Phase Name]
+Phase status:         DONE / IN_PROGRESS / BLOCKED
 Gate criteria met:    YES / NO (if NO, explain)
 Overall progress:     [X]/14 phases complete (S00–S13)
 Confidence:           HIGH / MEDIUM / LOW
@@ -65,7 +65,7 @@ Last run:     [ISO datetime or "never"]
 Pass:         [N]
 Fail:         [0] (must be 0 at checkpoint)
 Skip:         [0] (or documented reason for each skip)
-Coverage:     [X]% (must be >= 99% at S06+)
+Coverage:     [X]% (G3: 99% of new and changed lines at S06+)
 
 Flaky tests:  [none / list any known flaky tests]
 Last test cmd: [exact command run]
@@ -77,13 +77,17 @@ Last test cmd: [exact command run]
 
 | Gate | Status | Last Run | Score/Notes |
 |---|---|---|---|
-| Gate 1: Lint | PASS/FAIL | [date] | [0 errors] |
-| Gate 2: Typecheck | PASS/FAIL | [date] | [0 errors] |
-| Gate 3: Coverage | PASS/FAIL | [date] | [X]% |
-| Gate 4: Integration | PASS/FAIL | [date] | [N] endpoints tested] |
-| Gate 5: Security scan | PASS/FAIL | [date] | [0 critical CVEs] |
-| Gate 6: Complexity | PASS/FAIL | [date] | [max complexity: X] |
-| Gate 7: EARS compliance | PASS/FAIL | [date] | [N/M requirements covered] |
+| G1: Lint | PASS/FAIL | [date] | [0 errors] |
+| G2: Types | PASS/FAIL | [date] | [0 errors] |
+| G3: Coverage | PASS/FAIL | [date] | [X]% |
+| G4: Integration | PASS/FAIL | [date] | [N] endpoints tested] |
+| G5: Dependency security | PASS/FAIL | [date] | [0 CRITICAL or HIGH CVEs] |
+| G6: Complexity | PASS/FAIL | [date] | [max complexity: X] |
+| G7: Architecture fitness | PASS/FAIL/N/A | [date] | [violations, or reason for N/A] |
+| G8: End-to-end | PASS/FAIL/N/A | [date] | [flows tested, or reason for N/A] |
+| G9: EARS compliance | PASS/FAIL | [date] | [N/M requirements covered] |
+
+<!-- Quality gates G1–G9: defined in agents/personas/orch-judge.md, run at S06. -->
 
 ---
 
@@ -166,3 +170,13 @@ ADRs for decisions:       ALL / [N missing]
 **Gate PASSED: YES / NO**
 
 If NO: list what must be done before this checkpoint is valid.
+
+---
+
+## Memory Checksums
+
+<!-- Filled by sdlc-checkpoint.skill step 7, the only write after creation. Output of: -->
+<!-- sha256sum agents/memory/PROJECT_STATE.md agents/memory/AUDIT_LOG.md agents/memory/CONTINUITY.md -->
+<!-- wc -l agents/memory/AUDIT_LOG.md -->
+
+[filled in step 7]

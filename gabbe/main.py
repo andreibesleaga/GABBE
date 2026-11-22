@@ -59,6 +59,11 @@ def main() -> None:
         action="store_true",
         help="Run fault-injection self-checks (fail-closed tools, hard-stop, escalation)",
     )
+    verify_parser.add_argument(
+        "--allow-empty",
+        action="store_true",
+        help="Exit 0 even when no test command is set (default: exit 3, nothing verified)",
+    )
 
     # --- COMMAND: status ---
     subparsers.add_parser("status", help="Show project dashboard")
@@ -77,7 +82,12 @@ def main() -> None:
     brain_sub.add_parser("heal", help="Run Self-Healing")
 
     # --- COMMAND: serve-mcp ---
-    subparsers.add_parser("serve-mcp", help="Run the JSON-RPC MCP Server (stdio)")
+    serve_parser = subparsers.add_parser("serve-mcp", help="Run the JSON-RPC MCP Server (stdio)")
+    serve_parser.add_argument(
+        "--enable-run-command",
+        action="store_true",
+        help="Also offer the run_command tool (off by default; see SECURITY.md)",
+    )
 
     # --- COMMAND: forecast ---
     subparsers.add_parser("forecast", help="Strategic Forecast of Remaining Work and Budgets")
@@ -132,6 +142,11 @@ def main() -> None:
         "--force",
         action="store_true",
         help="Re-template even preserved files (each backed up to .gabbe-bak first)",
+    )
+    setup_parser.add_argument(
+        "--hooks",
+        action="store_true",
+        help="Also install the optional hooks (off by default; see docs/INSTALL.md)",
     )
 
     # --- COMMAND: eval ---
@@ -194,6 +209,9 @@ def main() -> None:
         if args.command == "init":
             print(f"{Colors.HEADER}Initializing GABBE...{Colors.ENDC}")
             init_db()
+            from .sync import ensure_task_file
+
+            ensure_task_file()
 
         elif args.command == "db":
             if args.init:
@@ -213,10 +231,11 @@ def main() -> None:
                 if not run_chaos_checks():
                     sys.exit(1)
             else:
-                from .verify import run_verification
+                from .verify import verification_exit_code
 
-                if not run_verification():
-                    sys.exit(1)
+                vrc = verification_exit_code(allow_empty=getattr(args, "allow_empty", False))
+                if vrc != 0:
+                    sys.exit(vrc)
 
         elif args.command == "status":
             from .status import show_dashboard
@@ -229,26 +248,33 @@ def main() -> None:
             route_request(args.prompt)
 
         elif args.command == "brain":
-            from .brain import activate_brain, evolve_prompts, run_healer
+            from .brain import activate_brain_status, evolve_prompts, run_healer_status
 
             if args.brain_command == "activate":
-                activate_brain()
+                from .brain import api_key_missing
+
+                if api_key_missing():
+                    sys.exit(1)
+                if activate_brain_status() is False:
+                    sys.exit(1)
             elif args.brain_command == "evolve":
                 evolve_prompts(args.skill)
             elif args.brain_command == "heal":
-                run_healer()
+                if run_healer_status() is False:
+                    sys.exit(1)
             else:
                 brain_parser.print_help()
 
         elif args.command == "serve-mcp":
-            from .mcp_server import serve
+            from .mcp_server import serve_stdio
 
-            serve()
+            serve_stdio(enable_run_command=args.enable_run_command)
 
         elif args.command == "forecast":
-            from .forecast import run_forecast
+            from .forecast import run_forecast_status
 
-            run_forecast()
+            if run_forecast_status() is False:
+                sys.exit(1)
 
         elif args.command == "runs":
             from .database import get_db
@@ -382,6 +408,8 @@ def main() -> None:
                 wizard_cmd = [sys.executable, str(init_script)]
                 if args.force:
                     wizard_cmd.append("--force")
+                if args.hooks:
+                    wizard_cmd.append("--hooks")
                 result = subprocess.run(wizard_cmd, check=False)
                 # Propagate the wizard's exit code so failures don't look successful.
                 if result.returncode != 0:
@@ -408,7 +436,13 @@ def main() -> None:
                 sys.exit(rc)
 
         elif args.command == "uninstall":
-            from .installer import manifest_path, manifest_problem, remaining_kit_files
+            from .installer import (
+                agent_slug,
+                manifest_path,
+                manifest_problem,
+                read_manifest,
+                remaining_kit_files,
+            )
             from .installer import uninstall as _uninstall
 
             target = _resolve_install_target(args)
@@ -435,8 +469,24 @@ def main() -> None:
                 )
                 sys.exit(1)
             agents = (
-                [a.strip() for a in args.agents.split(",") if a.strip()] if args.agents else None
+                [agent_slug(a.strip()) for a in args.agents.split(",") if a.strip()]
+                if args.agents
+                else None
             )
+            if agents:
+                recorded = sorted(
+                    {
+                        str(e.get("agent"))
+                        for e in read_manifest(target)["entries"]
+                        if isinstance(e, dict)
+                    }
+                    - {"None", "shared"}
+                )
+                if not set(agents) & set(recorded):
+                    print(
+                        f"Note: no recorded agent matches {', '.join(agents)}. "
+                        f"The record has: {', '.join(recorded) or 'no agents'}."
+                    )
             removed = _uninstall(target, agents=agents, dry_run=args.dry_run, purge=args.purge)
             verb = "Would remove" if args.dry_run else "Removed"
             if args.dry_run:
@@ -460,7 +510,7 @@ def main() -> None:
             if not source.exists():
                 print(
                     f"{Colors.WARNING}Kit source not found (packaged install): run "
-                    f"'npx gabbe-kit init' / 'gabbe setup' to refresh.{Colors.ENDC}"
+                    f"'npx gabbe-kit update' to refresh.{Colors.ENDC}"
                 )
                 sys.exit(2)
             target = _resolve_install_target(args)

@@ -1,6 +1,6 @@
 ---
 name: session-resume
-description: "Cold-start resume — load all memory and project state to continue any interrupted project. Use when: resume, continue, new session, where were we, restart project, pick up, interrupted, cold start."
+description: "Loads the memory files in order and produces a resume report so a new session can continue interrupted work. Use when starting a new session on an existing project or after an interruption."
 license: CC-BY-SA-4.0
 metadata:
   source: "agents/skills/core/session-resume.skill.md"
@@ -19,10 +19,11 @@ Allow ANY agent at ANY time to load the complete project state and continue as i
 
 ## Steps
 
-1. **Load PROJECT_STATE.md** (primary state file)
+1. **Load RESUME_POINTER.md, then PROJECT_STATE.md** (primary state files)
+   - Read first, if it exists: `agents/memory/RESUME_POINTER.md` (its NEXT ACTION is where you continue)
    - Read: `agents/memory/PROJECT_STATE.md`
-   - Determine: current lifecycle phase — any of S00–S13 (Day-0 S00, core build loop S01–S10,
-     Day-2 S11–S13). S00 and S11–S13 are real phases; resume into them, do not skip them.
+   - Determine: current lifecycle phase — any of S00–S13 (Day 0 S00, Day 1 S01–S10,
+     Day 2 S11–S13). S00 and S11–S13 are real phases; resume into them, do not skip them.
    - Note: last checkpoint, last completed milestone, current blockers
 
 2. **Load CONTINUITY.md** (past failures — CRITICAL, read before doing anything)
@@ -40,7 +41,7 @@ Allow ANY agent at ANY time to load the complete project state and continue as i
    - Restore: task context, open questions, implementation decisions
 
 5. **Load semantic knowledge** (crystallized facts)
-   - Read: `agents/memory/semantic/PROJECT_KNOWLEDGE_TEMPLATE.md`
+   - Read, if it exists: `agents/memory/semantic/PROJECT_KNOWLEDGE.md` (the template file holds no project facts)
    - Note: verified library APIs, confirmed architecture decisions, known constraints
 
 6. **Read current project/TASKS.md**
@@ -50,6 +51,11 @@ Allow ANY agent at ANY time to load the complete project state and continue as i
 7. **Run integrity-check.skill** (before starting any new work)
    - Verify current codebase matches the state recorded in memory
    - Catch: any changes made outside of agent sessions, merge conflicts, etc.
+   - Compare memory checksums: read the `## Memory Checksums` block of the latest snapshot and run
+     `sha256sum agents/memory/PROJECT_STATE.md agents/memory/AUDIT_LOG.md agents/memory/CONTINUITY.md`.
+     PROJECT_STATE.md and CONTINUITY.md may have changed since the snapshot. For the append-only AUDIT_LOG.md, check the first lines:
+     `head -n <N> agents/memory/AUDIT_LOG.md | sha256sum` (N is the line count in the block) must equal the recorded value.
+     A difference in AUDIT_LOG.md, or no checksum block, goes into the report for the human; do not continue silently.
    - If integrity fails: investigate before proceeding
 
 8. **Produce Resume Report** (present to human before continuing)
@@ -59,7 +65,7 @@ Allow ANY agent at ANY time to load the complete project state and continue as i
    ### Project State
    - Current lifecycle phase: [SXX — Phase Name] (one of S00–S13)
    - Last checkpoint: [date] at [phase]
-   - Overall progress: [X/14 lifecycle phases complete (S00–S13); core build loop = S01–S10]
+   - Overall progress: [X/14 lifecycle phases complete (S00–S13)]
 
    ### What Was Completed (last session)
    - [list of completed tasks/phases]
@@ -78,6 +84,7 @@ Allow ANY agent at ANY time to load the complete project state and continue as i
 
    ### Integrity Check Result
    - [PASS/FAIL — details if fail]
+   - Memory checksums: [match | differ: file names | no checksum block in the snapshot]
 
    ### Recommended Next Action
    [What I will do next, starting from: task X in project/TASKS.md]
@@ -95,16 +102,9 @@ Allow ANY agent at ANY time to load the complete project state and continue as i
 
 ## Memory Loading Order (critical — load in this sequence)
 
-```
-1. RESUME_POINTER.md   → the single "where am I" lifeline: current task + NEXT ACTION (read FIRST)
-2. PROJECT_STATE.md    → SDLC phase, last checkpoint
-3. CONTINUITY.md       → past failures (MOST IMPORTANT — read before anything)
-4. AUDIT_LOG.md        → last 50 entries (recent decisions)
-5. SESSION_SNAPSHOT/   → latest milestone snapshot
-6. semantic/           → crystallized project knowledge
-7. project/TASKS.md            → current task status
-8. integrity-check     → verify state is consistent
-```
+Use the session-start list in `AGENTS.md` §13 (RESUME_POINTER, PROJECT_STATE, CONTINUITY,
+project/TASKS.md, latest snapshot, integrity-check, clarify). A full resume adds, after
+CONTINUITY: `AUDIT_LOG.md` (last 50 entries) and `semantic/` (project knowledge).
 `RESUME_POINTER.md` is written first on every save by `state-preserve.skill`, so it
 is the minimal lifeline and is read first here. Continue from its `NEXT ACTION`.
 
@@ -117,16 +117,9 @@ is the minimal lifeline and is read first here. Continue from its `NEXT ACTION`.
 ## Output Format
 Resume Report (presented to human) + confirmation of which task will be worked on next.
 
-## Security & Guardrails
-
-### 1. Skill Security (Session Resume)
-- **State Integrity Verification**: Before loading the state, the agent must verify the Sha-256 checksums or cryptographic signatures of all core memory files (`PROJECT_STATE.md`, `AUDIT_LOG.md`) to detect if they were tampered with while the system was offline.
-- **Credential Ephemerality**: Session resumption must NEVER load raw API keys, database credentials, or access tokens from text files. The skill must re-authenticate with the Secret Manager (e.g., HashiCorp Vault, AWS Secrets Manager) using its IAM role upon waking.
-
-### 2. System Integration Security
-- **Drift Detection**: The `integrity-check.skill` executed during resume must diff the current `HEAD` against the last known `git tag`. Unaudited code shifts (e.g., a backdoor merged by a compromised developer account while the agent slept) must force an immediate lockdown.
-- **Suspended Thread Monitoring**: Ensure that any asynchronous background processes (e.g., database index builds) initiated prior to the session suspension have either safely terminated or are actively monitored upon resumption to prevent race conditions.
-
-### 3. LLM & Agent Guardrails
-- **Amnesia Exploitation Defense**: A malicious prompt sequence could attempt to force a "resume" from an artificially constructed, backdoored `SESSION_SNAPSHOT`. The agent must reject loading any snapshot that is not chronologically continuous and cryptographically signed.
-- **Context Window Verification**: When loading the 7 memory files into the LLM context, the agent must rigorously verify that the combined token count does not exceed the context window, causing critical operational constraints (e.g., security boundaries loaded near the end) to be silently truncated.
+## Limits and safety
+- A checksum difference in `AUDIT_LOG.md`, or a snapshot that does not match the phase in `PROJECT_STATE.md`, goes into the resume report. Do not load it as truth until the human decides.
+- If the repository changed since the last checkpoint (`git log` since the tag or snapshot date shows commits missing from `AUDIT_LOG.md`), list them in the report before new work.
+- If a memory file holds a secret, do not copy it into the report; tell the human.
+- If the memory files are too large for the context, read RESUME_POINTER, PROJECT_STATE and CONTINUITY fully, only the last 50 rows of `AUDIT_LOG.md`, and say what you skipped.
+- Check background jobs started before the interruption (`ps`, job logs) before restarting them; ask before stopping one.

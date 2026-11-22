@@ -101,15 +101,15 @@ Process visual inputs — whiteboard photos, napkin sketches, architecture diagr
 | `design-thinking.skill` | Empathy maps → visual user flows |
 | `user-story-mapping.skill` | Use case diagrams link to user stories |
 
-## Security & Guardrails
+## Constraints
+- No formal diagram is generated before the human has verified the recognised elements.
+- The Design Readiness checklist passes before work moves on.
 
-### 1. Visual Input Security
-- Scanned images may contain sensitive information (credentials, internal IPs, customer data)
-- The agent MUST warn before sending whiteboard photos to external vision APIs
-- For sensitive diagrams: use verbal description or local Tesseract OCR
+## Output Format
+The Visual Spec Package (`VISUAL_SPEC_PACKAGE_TEMPLATE.md`), the generated diagram files, and PRD and SPEC links to them (see Deliverables above).
 
-### 2. Agent Guardrails
-- **Human verification is MANDATORY** after recognition, before formal diagram generation
-- **Design Readiness Gate** must pass before proceeding to implementation
-- **Text-first rule**: Default to Mermaid (text-based, git-diffable) unless visual complexity demands otherwise
-- **State sync**: All visual diagrams must have corresponding text descriptions in PRD/SPEC
+## Limits and safety
+- Before sending whiteboard photos or screenshots to an external vision API, warn the human and wait for a yes; they may show credentials, internal IPs or customer data. For sensitive images use local OCR or a verbal description.
+- The human verifies the recognised nodes and edges before any formal diagram is generated.
+- The Design Readiness checklist must pass and the human approves before S02/S03.
+- Default to Mermaid (text, diffable); every diagram has a text description in the PRD or spec.

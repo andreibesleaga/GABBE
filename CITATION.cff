@@ -1,0 +1,24 @@
+cff-version: 1.2.0
+message: "If you use GABBE, please cite it as below."
+type: software
+title: "GABBE: Generative Architectural Brain Base Engine, an agentic software engineering kit"
+abstract: >-
+  A Markdown kit of skills, guides, personas and templates that gives a coding agent a
+  software engineering lifecycle with human approval gates, plus an optional Python
+  command-line tool and installers.
+authors:
+  - family-names: Besleaga
+    given-names: Andrei N.
+    orcid: "https://orcid.org/0009-0001-3464-5283"
+repository-code: "https://github.com/andreibesleaga/GABBE"
+url: "https://andreibesleaga.github.io/GABBE/"
+license:
+  - Apache-2.0
+  - CC-BY-SA-4.0
+version: 1.1.4
+date-released: "2026-11-21"
+keywords:
+  - agentic software engineering
+  - coding agents
+  - agent skills
+  - software lifecycle

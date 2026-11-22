@@ -3,7 +3,6 @@ name: safety-scan
 description: Active security enforcement — scan for vulnerabilities (SAST), secrets (Gitleaks), insecure deps (SCA) before commit/deploy.
 triggers: [scan security, check vulnerabilities, audit code, gitleaks, semgrep, finding secrets]
 tags: [security]
-core: true
 context_cost: medium
 ---
 # Safety Scan Skill
@@ -11,16 +10,19 @@ context_cost: medium
 ## Goal
 Prevent "Insecure Code" from entering the codebase by strictly enforcing security checks.
 
+## Where it fits
+Phase and gate: S05 (before a commit the human asks for) and S06 (gate G5 and the secret scan). Evidence: the scan output saved to `docs/security/evidence/safety-scan-<date>.txt`. Part of `security-baseline.skill.md`.
+
 ## Flow
 
 ### Steps
 ## 1. Credentials Check (Gitleaks)
-**Command**: `gitleaks detect --source . -v` (or regex fallback)
+**Command**: `gitleaks git -v` (history) and `gitleaks dir -v .` (working tree). `gitleaks detect` is deprecated since v8.19.0. To check only what is about to be committed, use the `pre-commit` gitleaks hook. If gitleaks is not installed, say so; do not claim a regex search is equal.
 **Check**: Are there API Keys, Tokens, or Passwords in the diff?
 *   *If Found*: **BLOCK COMMIT**. Report the finding. Propose removing the secret and rotating the key. Act only after the human confirms. Alert Human.
 
 ### 2. Static Analysis (SAST)
-**Command**: `semgrep scan --config=p/security-audit` (if installed) OR `npm audit` / `pip-audit`.
+**Command**: `semgrep scan --config p/security-audit --error` (if installed; `--error` makes it exit 1 on findings) and the dependency scan from `dependency-security.skill.md`.
 **Check**: High-Severity vulnerabilities (RCE, SQLi, XSS).
 *   *If Found*: **BLOCK COMMIT**. Report the finding and propose `ci-autofix`; invoke it only after the human agrees.
 
@@ -30,20 +32,18 @@ Prevent "Insecure Code" from entering the codebase by strictly enforcing securit
 *   "Does this code execute arbitrary system commands (`exec`, `eval`)?"
 *   *If Risky*: Add `# TODO: SECURITY REVIEW` comment and flag in `project/TASKS.md`.
 
-## Output
+## Output Format
+Save the output to `docs/security/evidence/safety-scan-<date>.txt`.
 *   **PASS**: "No critical issues found."
-*   **FAIL**: "Blocking Commit. Found [N] Issues."
+*   **FAIL**: "Stop. Found [N] issues." Report them to the human; do not commit.
 
-## Security & Guardrails
+## Constraints
+- Run on the diff for a commit, on the full tree at S06.
+- Report findings with file, line and rule, never the secret value.
 
-### 1. Skill Security (Safety Scan)
-- **Scan Configuration Tampering**: The agent must verify the integrity of the scanning configuration files (e.g., `p/security-audit.yml` or `.gitleaks.toml`) before execution. If the agent detects unauthorized modifications designed to weaken the scan (e.g., whitelisting the entire `src/` directory), it must abort the scan and raise a critical alert.
-- **Autofix Exploitation**: When invoking `ci-autofix` to patch SAST vulnerabilities, the agent must ensure the suggested patch does not introduce a secondary, harder-to-detect vulnerability (like mitigating XSS but introducing a DOM clobbering bug). All automated security patches must require secondary human code review.
-
-### 2. System Integration Security
-- **Pipeline Bypass Prevention**: The agent must mandate that the `Safety Scan` is a required, non-bypassable status check in the Version Control System (VCS) for all branches merging into `main` or `production`. It must flag any repository configuration that allows an administrator to "force merge" past a failed security scan.
-- **Fail-Closed Scanning**: If the SAST tool (`semgrep`) or Secret Scanner (`gitleaks`) fails to execute due to a licensing issue, network timeout, or misconfiguration, the CI pipeline MUST fail-closed. The agent must enforce that a lack of scan results is treated as a failed scan, never a pass.
-
-### 3. LLM & Agent Guardrails
-- **Logic Review Hallucination**: During the "Logic & PII Check" (Step 3), the LLM might hallucinate a vulnerability where none exists (False Positive) or miss a subtle logic flaw (False Negative). The agent must qualify its logic review findings with confidence scores and explicitly state that LLM review does not replace deterministic SAST/DAST scanning.
-- **Adversarial Diff Manipulation**: An attacker might submit a Pull Request that intentionally includes highly complex, obfuscated code or a massive diff designed to exhaust the LLM's context window, causing it to truncate the review and miss a hidden backdoor. The agent must enforce strict chunking or reject diffs exceeding maximum token limits for security review.
+## Limits and safety
+- "Block" means the agent stops and reports. A hook or CI check that really blocks comes from your platform.
+- For a leaked secret the human revokes and rotates first (`secrets-management.skill.md`). Deleting it from the file is not enough. Do not print it; report file, line and rule name.
+- Do not run `ci-autofix` by yourself. Propose it and run it after the human agrees.
+- If a scanner is not installed, report "not run". Install only with the human's yes.
+- No finding is not proof of no vulnerability.

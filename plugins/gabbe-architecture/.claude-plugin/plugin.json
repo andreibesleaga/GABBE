@@ -1,7 +1,7 @@
 {
   "name": "gabbe-architecture",
   "version": "1.1.4",
-  "description": "GABBE architecture skills (29): software architecture: patterns, C4 and diagrams, domain models, event-driven and microservice design, governance, migration and scalability.",
+  "description": "GABBE architecture skills (30): software architecture: patterns, C4 and diagrams, domain models, event-driven and microservice design, governance, migration and scalability.",
   "author": {
     "name": "Andrei Nicolae Besleaga",
     "url": "https://github.com/andreibesleaga/GABBE"

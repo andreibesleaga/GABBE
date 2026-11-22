@@ -1,7 +1,7 @@
 ---
 name: production-verifier
-description: Post-deployment smoke tests, synthetic user checks, and "Canary" validation in Prod.
-triggers: [production verifier]
+description: Verify a live deploy with read-only smoke checks, a 10% canary on error rate, p95 and business metrics, and a scripted browser journey. Use right after a production deploy, or to decide on a rollback.
+triggers: [verify production deploy, post-deploy smoke test, canary validation, synthetic monitoring journey, should we roll back, healthz check]
 tags: [ops]
 role: ops-sre
 context_cost: low
@@ -35,16 +35,16 @@ This skill verifies the system *after* it has crossed the finish line.
 - [ ] CDN is serving assets.
 - [ ] SSL Certificate is valid.
 
-## Security & Guardrails
+## Constraints
+- Checks come from the written list; do not explore other production endpoints.
+- A check passes only with output you saw (status code, metric value); do not assume from past stability.
 
-### 1. Skill Security (Production Verifier)
-- **Synthetic Account Sandboxing**: The `test_bot` account used for synthetic journeys must have strictly scoped permissions (e.g., cannot trigger real financial transactions, cannot access admin dashboards). Its credentials must be rotated frequently.
-- **Read-Only Enforcement**: The verifier script must intrinsically block `POST`/`PUT`/`DELETE` HTTP methods unless explicitly defined in an approved, idempotency-guaranteed synthetic test to prevent accidental data mutation during health checks.
+## Output Format
+A verification record in the release notes or `AUDIT_LOG.md`: each check, command, result, time, and the decision (keep or roll back).
 
-### 2. System Integration Security
-- **Canary Blast Radius**: The canary deployment environment must be segmented in a way that if it is compromised immediately after launch, the attacker cannot pivot to the 90% of nodes running the stable version.
-- **Alert Fatigue Prevention**: The synthetic monitoring system must have deduplication logic. An attacker could intentionally trigger minor synthetic test failures to flood the SOC (Security Operations Center) with alerts, masking a real, concurrent attack.
-
-### 3. LLM & Agent Guardrails
-- **False Negative Hallucination**: The LLM must not override a failed `curl` command or synthetic test with a "looks fine to me" assumption based on historic stability. It must require rigorous proof (e.g., HTTP 200 stdout logs) before signing off on the environment.
-- **Sensitive Endpoint Discovery**: During verification, the agent must rigidly stick to the predefined checklist endpoints (`/healthz`). It must reject prompts that ask it to "explore" the production API surface, which mimics reconnaissance activity.
+## Limits and safety
+- Production checks are read-only; a write check uses the dedicated `test_bot` account with narrow rights and never touches real data.
+- Block POST, PUT and DELETE in the verifier script unless an approved test names them.
+- If a check fails, propose the rollback command; run it only after the human confirms or the approved plan says so.
+- Do not call a failed check fine because earlier deploys were stable; show the passing output.
+- Deduplicate synthetic-monitor alerts so a repeated failure pages once.

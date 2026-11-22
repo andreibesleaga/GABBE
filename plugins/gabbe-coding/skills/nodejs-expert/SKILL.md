@@ -1,6 +1,6 @@
 ---
 name: nodejs-expert
-description: "Deep expertise in Node.js internals, Fastify architecture, and advanced TypeScript. Use when: node internals, fastify, advanced typescript, v8, libuv, backend performance, event loop."
+description: "Resolve deep Node.js, Fastify and advanced TypeScript problems: event loop, plugin encapsulation, type constraints. Use when a Node.js backend has a performance or architecture problem, a Fastify route needs review, or a TypeScript type error resists a normal fix."
 license: CC-BY-SA-4.0
 metadata:
   source: "agents/skills/coding/nodejs-expert.skill.md"
@@ -20,7 +20,12 @@ You have been invoked to resolve deep Node.js architecture problems, review Fast
 4. If the problem is Node.js Core/Performance: Check event loop phases, UV thread pool saturation, or V8 de-optimizations.
 5. Draft your code updates using Test-Driven Development (failing test first).
 
-## Security & Guardrails
-- **No `any` types**: Bypassing type safety is a security risk. Fail the operation instead of using `any`.
-- **Fastify Content Parsing**: Use Fastify's native parsing. Do not manually parse `req.body` streams unless required for massive payloads/multipart.
-- Follow the overarching rules defined in `AGENTS.md` and `CONSTITUTION.md`.
+## Constraints
+- Never add `any` or `@ts-ignore`; if the types cannot be solved, stop and report where.
+- Use Fastify's own body parsing; parse `req.body` streams by hand only for very large payloads or multipart.
+
+## Output Format
+A failing test, the code change that makes it pass, and a short note of the cause (event loop, plugin encapsulation, type constraint).
+
+## Limits and safety
+- No risks beyond the shared guardrails (Constitution Article 0).

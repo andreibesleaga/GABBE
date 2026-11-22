@@ -1,6 +1,6 @@
 ---
 name: excalidraw
-description: Create and manage Excalidraw diagrams via MCP for architecture visualization.
+description: "Create Excalidraw diagrams through the MCP server: architecture views, flowcharts and system maps, with positions planned first. Use when the user asks for an Excalidraw or hand-drawn style diagram saved as a .excalidraw file."
 triggers: [excalidraw, whiteboard, visual diagram, hand-drawn diagram]
 tags: [coding, architecture, visual, diagramming]
 context_cost: medium
@@ -56,7 +56,7 @@ Create, edit, and manage Excalidraw diagrams programmatically using the `@cmd8/e
    - Mirror structural changes into `PLAN.md` or `SYSTEM_ANALYSIS_TEMPLATE.md`
    - Diagrams are not searchable by RAG — keep metadata in text
 
-## Deliverables
+## Output Format
 - `.excalidraw` file with the completed diagram
 - Text-based summary of diagram structure in project documentation
 
@@ -77,14 +77,11 @@ Create, edit, and manage Excalidraw diagrams programmatically using the `@cmd8/e
 > "Create an Excalidraw flowchart for the CI/CD pipeline: Build → Test → Security Scan → Deploy → Smoke Test"
 ```
 
-## Security & Guardrails
+## Constraints
+- Calculate node positions before creating elements; random placement gives unreadable diagrams.
+- Mirror every structural change into the text documentation: diagrams are not searchable.
 
-### 1. Skill Security
-- **Local Files Only**: Excalidraw MCP operates on local `.excalidraw` files. No network access, no cloud storage.
-- **No Code Execution**: The MCP creates diagram elements — it does not execute any code.
-- **File Scope**: Ensure the `--diagram` path points to a file within the project directory.
-
-### 2. Agent Guardrails
-- **Pre-map Geometry**: Always calculate node positions before creating elements. Random placement results in unreadable diagrams.
-- **State Sync**: Always update text-based documentation when modifying visual diagrams.
-- **Verify Before Sharing**: Call `getFullDiagramState` to validate the diagram is complete before presenting to the user.
+## Limits and safety
+- Keep the `.excalidraw` path inside the project directory; do not overwrite an existing diagram without the human's yes.
+- Put no secrets, internal hostnames or customer data in node labels.
+- Check the final state with `getFullDiagramState` before presenting it, and update the text documentation to match.

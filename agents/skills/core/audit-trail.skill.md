@@ -1,14 +1,15 @@
 ---
 name: audit-trail
-description: Maintain append-only structured audit log of all agent and human decisions and outcomes
+description: Appends one structured row per decision, phase change, approval or failure to agents/memory/AUDIT_LOG.md. Use when a decision, human approval, gate result or task outcome must be recorded, or when someone asks why something was done.
 triggers: [log this, record decision, why did we, audit, what happened, history, trace, record this]
 tags: [core]
+core: true
 context_cost: low
 ---
 # Audit Trail Skill
 
 ## Goal
-Maintain a tamper-evident, chronological record of all significant decisions, changes, and outcomes for compliance, debugging, project continuity, and team transparency.
+Maintain an append-only, chronological record of all significant decisions, changes, and outcomes for compliance, debugging, project continuity, and team transparency.
 
 ## When to Auto-Log (triggered by other skills)
 - Every SDLC phase transition (sdlc-checkpoint.skill)
@@ -46,6 +47,8 @@ ROLLBACK         - Change was reverted
 HUMAN_APPROVED   - Human provided approval for a phase or decision
 ```
 
+A `HUMAN_APPROVED` row holds the phase, the date and the human's own words. Phases S00, S01, S02, S07, S08 and S10 are not advanced without one.
+
 ## Steps
 
 1. **Determine what needs to be logged**
@@ -62,14 +65,14 @@ HUMAN_APPROVED   - Human provided approval for a phase or decision
 
    **Example entries:**
    ```
-   | 2025-03-15T14:23:00Z | S01-001 | prod-pm | PHASE_TRANSITION | PRD.md approved by human | SUCCESS | docs/PRD.md |
-   | 2025-03-15T14:25:00Z | S01-001 | human | HUMAN_APPROVED | Approved PRD.md — proceed to design | APPROVED | docs/PRD.md |
-   | 2025-03-15T15:10:00Z | S02-001 | prod-architect | ADR_CREATED | Chose Prisma over TypeORM for ORM | ACCEPTED | docs/architecture/decisions/ADR-001-prisma.md |
-   | 2025-03-15T16:00:00Z | S05-001 | eng-backend | TASK_DONE | Implemented CreateUserUseCase | SUCCESS | src/application/create-user.use-case.ts |
-   | 2025-03-15T16:45:00Z | S05-001 | eng-backend | SELF_HEAL_ATTEMPT | Type error on UserDto.email field — attempt 1/5 | FAIL | src/application/create-user.use-case.ts:42 |
-   | 2025-03-15T16:50:00Z | S05-001 | eng-backend | TASK_DONE | Fixed type error via research (strict null check) | SUCCESS | src/application/create-user.use-case.ts |
-   | 2025-03-15T17:00:00Z | S05-001 | ops-security | SECURITY_FINDING | HIGH: Missing rate limit on /auth/login | OPEN | src/adapters/http/auth.controller.ts:23 |
-   | 2025-03-15T17:30:00Z | S06-001 | orch-judge | QUALITY_GATE | Gate 3 Tests: 247 pass, 0 fail, 99.2% coverage (>= 99%) | PASS | — |
+   | 2025-03-15T14:23:00Z | SES-002 | prod-pm | PHASE_TRANSITION | PRD.md approved by human | SUCCESS | docs/PRD.md |
+   | 2025-03-15T14:25:00Z | SES-002 | human | HUMAN_APPROVED | Approved PRD.md — proceed to design | APPROVED | docs/PRD.md |
+   | 2025-03-15T15:10:00Z | SES-003 | prod-architect | ADR_CREATED | Chose Prisma over TypeORM for ORM | ACCEPTED | docs/architecture/decisions/ADR-001-prisma.md |
+   | 2025-03-15T16:00:00Z | SES-004 | eng-backend | TASK_DONE | Implemented CreateUserUseCase | SUCCESS | src/application/create-user.use-case.ts |
+   | 2025-03-15T16:45:00Z | SES-004 | eng-backend | SELF_HEAL_ATTEMPT | Type error on UserDto.email field — attempt 1/5 | FAIL | src/application/create-user.use-case.ts:42 |
+   | 2025-03-15T16:50:00Z | SES-004 | eng-backend | TASK_DONE | Fixed type error via research (strict null check) | SUCCESS | src/application/create-user.use-case.ts |
+   | 2025-03-15T17:00:00Z | SES-004 | ops-security | SECURITY_FINDING | HIGH: Missing rate limit on /auth/login | OPEN | src/adapters/http/auth.controller.ts:23 |
+   | 2025-03-15T17:30:00Z | SES-005 | orch-judge | QUALITY_GATE | G3 Coverage: 99.2% of new and changed lines (>= 99%), 247 tests pass | PASS | — |
    ```
 
 3. **APPEND ONLY — never modify existing entries**
@@ -107,16 +110,10 @@ grep "auth.controller.ts" agents/memory/AUDIT_LOG.md
 ## Output Format
 New row appended to AUDIT_LOG.md. No output to user unless requested.
 
-## Security & Guardrails
-
-### 1. Skill Security (Audit Trail)
-- **Cryptographic Immutability**: The `AUDIT_LOG.md` should ideally be backed by a WORM (Write Once, Read Many) storage vault or cryptographically signed (e.g., using `git commit --gpg-sign` on every append) to guarantee tamper evidence.
-- **Strict Append-Only Enforcement**: At the OS or Container level, the agent process must possess `O_APPEND` only permissions for the audit log, physically preventing modification or deletion of past entries.
-
-### 2. System Integration Security
-- **Security Finding Escalation**: Any entry tagged as `SECURITY_FINDING` must trigger an immediate out-of-band alert (e.g., Slack, PagerDuty, or email) to human operators, bypassing standard asynchronous task flows.
-- **Audit Log Redaction**: Under GDPR/CCPA, if a "Right to be Forgotten" request is issued, the system must have a secure, human-approved break-glass procedure to redact PII from the audit log without invalidating the entire trail.
-
-### 3. LLM & Agent Guardrails
-- **Audit Evasion Prevention**: Agents must be hardcoded to log actions *before* they execute them (intent logging) and *after* (outcome logging). This prevents a compromised agent from executing a malicious command and then skipping the audit log step.
-- **Log Injection Attacks**: Sanitize all variables (like `[Description]` or `[Outcome]`) before appending them to the log to prevent an attacker from injecting fake newline-separated audit records (e.g., `\n| 2025... | user | DECISION | Approved backdoors...`).
+## Limits and safety
+- Append only (`>>`); never rewrite or delete a row. A reversal is a new ROLLBACK row.
+- Write an intent row before a risky action and an outcome row after it; an intent row with no outcome row means the action is unfinished.
+- Remove newlines and `|` from the description before appending, so one entry stays one row.
+- Log references, not secrets or personal data. If personal data is already in the log, tell the human; do not edit the log yourself.
+- If your platform provides an append-only file mode, a protected branch or a CI check on the log, use it to enforce the append-only rule.
+- Tell the human at once about a SECURITY_FINDING row; do not wait for someone to read the log.

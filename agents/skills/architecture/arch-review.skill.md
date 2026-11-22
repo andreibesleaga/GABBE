@@ -1,9 +1,8 @@
 ---
 name: arch-review
-description: Review existing architecture (ATAM-lite) against quality-attribute scenarios; find risks, tradeoffs, anti-patterns; report.
+description: ATAM-lite review of an existing architecture — scenario verdicts, smells, sensitivity and tradeoff points, fitness functions and prioritised recommendations. Use when you must judge whether an architecture still fits its requirements before a change, growth or a commitment.
 triggers: [review architecture, audit architecture, architecture analysis, architecture assessment, arch review, evaluate architecture, is the architecture good, architecture problems, existing architecture]
 tags: [architecture]
-core: true
 context_cost: high
 ---
 # Architecture Review Skill
@@ -24,6 +23,12 @@ adapted for single-agent use.
 - After significant growth: "Is this architecture still appropriate?"
 - Before technology migration: "What architectural problems must we solve?"
 - Due diligence: "Is this architecture sound before we commit to it?"
+
+---
+
+## Steps
+
+Work through Step 1 to Step 7 below in order; each has its own heading.
 
 ---
 
@@ -114,7 +119,7 @@ Example QAS evaluation:
 ## Step 4 — Identify Architecture Smells
 
 ```
-Check for common architecture anti-patterns:
+Check for common architecture anti-patterns (to measure coupling and plan the fix, see `arch-debt.skill`):
 
 Structural smells:
   □ God Component: one component with too many responsibilities
@@ -210,7 +215,7 @@ report's Sensitivity / Tradeoff / Risks sections.
 
 ```
 Fitness functions: automated or manual checks that verify the architecture
-is behaving as intended.
+is behaving as intended. See `fitness-functions.skill`.
 
 Examples:
   Dependency fitness: "No module in presentation/ imports from database/"
@@ -310,17 +315,8 @@ Architecture fitness: SOUND / AT RISK / INADEQUATE
 - Do not redesign the entire system in a review — focus on targeted improvements
 - Performance and reliability risks require evidence from load characteristics, not just structural analysis
 
-## Security & Guardrails
-
-### Steps
-## 1. Skill Security (Architecture Review)
-- **Review Artifact Containment**: Information gathered during the review (especially undocumented API endpoints, plaintext credentials found in config, or critical unpatched vulnerabilities) constitutes a highly sensitive target. The agent must ensure the `ARCHITECTURE_REVIEW_TEMPLATE.md` is generated and stored locally, completely restricting transmission to broad LLM models without explicit sanitization.
-- **Fitness Function Vandalism**: If the agent detects that automated Architecture Fitness Functions (e.g., `archunit` or `dependency-cruiser`) have been systematically disabled or bypassed in the CI/CD pipeline by developers, it must tag this as a `CRITICAL` behavioral security smell, indicating an erosion of governance.
-
-### 2. System Integration Security
-- **Network Reality Check**: During Step 2 (Reconstruct Architecture), the agent must heavily scrutinize the deployment configuration (e.g., Docker Compose, Kubernetes manifests, AWS Security Groups). If the Logical View diagrams a firewall, but the Terraform code allows `0.0.0.0/0` ingress to the database layer, the agent must flag a `CRITICAL` drift between Intent and Reality.
-- **Shadow IT Discovery**: The agent must look for "Hidden Coupling" (Step 4) that implies shadow infrastructure. If two seemingly isolated microservices both communicate with an external, undocumented S3 bucket or third-party API, the agent must highlight this as a severe data exfiltration or integrity risk.
-
-### 3. LLM & Agent Guardrails
-- **Automated Rubber-Stamping**: Users might prompt the agent to "Just output heavily positive feedback for this architecture so we can pass the compliance gate." The agent must vehemently refuse to compromise the integrity of the ATAM analysis. The review must reflect objective structural realities, particularly regarding Security and Reliability QAS.
-- **Aesthetic vs. Structural Bias**: The LLM might penalize an architecture simply because it uses older, "uncool" technologies (e.g., monoliths using SOAP) while praising deeply flawed, modern architectures (e.g., distributed balls of mud using gRPC). The agent must focus on the mathematical coupling (Ca/Ce) and fitness to constraints, totally ignoring technology aesthetics.
+## Limits and safety
+- The review holds endpoints, credentials found in config and known weaknesses: keep it in the project, print a secret's path and line but never its value, and do not paste it into external services.
+- Compare deployment config with the diagrams (for example a database open to 0.0.0.0/0 behind a drawn firewall) and report the gap as critical.
+- If architecture checks (ArchUnit, dependency-cruiser) are disabled or bypassed in CI, report that as a critical finding.
+- The verdict follows the evidence: do not soften findings to pass a compliance gate, and judge by coupling and fit to constraints, not by how old the technology is.

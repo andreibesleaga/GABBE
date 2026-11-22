@@ -169,15 +169,21 @@ A release is cut from `main` by pushing a version tag; the workflows publish.
    git push origin vX.Y.Z
    ```
 
-   The tag starts three workflows (see [TESTING.md](TESTING.md#ci)):
-   `publish-npm.yml` publishes `gabbe-kit` with npm trusted publishing (it fails when the
-   tag is not `v` + the `package.json` version; tags with a `-` are not published);
-   `release.yml` builds the GitHub release assets and, when the `PYPI_API_TOKEN` secret is
-   set, publishes to PyPI and verifies the published package on three OSes;
-   `publish-github-packages.yml` mirrors the npm package to GitHub Packages.
+   The tag starts three workflows (see [TESTING.md](TESTING.md#ci)). Each first runs the
+   shared gate (`gate.yml`): the tag must equal the version in `pyproject.toml`,
+   `gabbe/__init__.py`, `package.json`, `server.json` (twice) and `CITATION.cff`, and the
+   Python and Node tests must pass. Nothing is published or attached to the release when
+   the gate fails. Then: `publish-npm.yml` publishes `gabbe-kit` with npm trusted
+   publishing (tags with a `-` are not published); `release.yml` builds the GitHub release
+   assets, publishes to PyPI and verifies the published package on three OSes; the PyPI
+   job uses `PYPI_API_TOKEN` when that secret is set and otherwise PyPI trusted
+   publishing, and it fails when neither works; `publish-github-packages.yml` mirrors the
+   npm package to GitHub Packages.
 6. If only the npm publish failed, run `publish-npm.yml` by hand (Actions → Publish npm →
-   Run workflow, optional `dist_tag`): it publishes without a new tag and without
-   re-running the PyPI publish.
+   Run workflow; under "Use workflow from" choose the tag, for example `v1.2.0`, not a
+   branch; optional `dist_tag`). It publishes without a new tag and without re-running
+   the PyPI publish. A run started from a branch is refused with an error message, and
+   the gate runs again first.
 
 ---
 

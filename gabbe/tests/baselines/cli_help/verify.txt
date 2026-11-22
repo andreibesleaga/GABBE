@@ -1,6 +1,8 @@
-usage: main.py verify [-h] [--chaos]
+usage: main.py verify [-h] [--chaos] [--allow-empty]
 
 options:
-  -h, --help  show this help message and exit
-  --chaos     Run fault-injection self-checks (fail-closed tools, hard-stop,
-              escalation)
+  -h, --help     show this help message and exit
+  --chaos        Run fault-injection self-checks (fail-closed tools, hard-
+                 stop, escalation)
+  --allow-empty  Exit 0 even when no test command is set (default: exit 3,
+                 nothing verified)

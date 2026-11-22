@@ -11,23 +11,28 @@
 | Field | Value |
 |---|---|
 | **Project** | [Project Name] |
-| **Current Phase** | S[XX] — [Phase Name, e.g., INITIALIZED, REQUIREMENTS, DESIGN] |
+| **Current Phase** | S<NN> — [Phase Name, e.g., STRATEGY_DISCOVERY, REQUIREMENTS, ARCHITECTURE] |
 | **Status** | [NOT_STARTED / IN_PROGRESS / BLOCKED / DONE] |
 | **Last Updated** | [YYYY-MM-DD] |
 
-<!-- Valid phases (Day-0 → build loop → Day-2):
-     S00 STRATEGY_DISCOVERY (Day-0, human GO/NO-GO),
+<!-- Valid phases: exactly 14, S00–S13 (canonical table: agents/guides/processes/loki-sdlc-phases.md)
+     S00 STRATEGY_DISCOVERY (Day 0),
      S01 REQUIREMENTS, S02 ARCHITECTURE, S03 TECH_SPEC, S04 TASK_DECOMP,
      S05 IMPLEMENTATION, S06 TESTING, S07 SECURITY, S08 HUMAN_REVIEW,
-     S09 STAGING, S10 PRODUCTION,
-     S11 OPERATE_MAINTAIN (Day-2), S12 EVOLVE_IMPROVE (Day-2), S13 DECOMMISSION_SUNSET (Day-2) -->
+     S09 STAGING, S10 PRODUCTION (Day 1),
+     S11 OPERATE_MAINTAIN, S12 EVOLVE_IMPROVE, S13 DECOMMISSION_SUNSET (Day 2).
+     Human gates (six): S00 go / no-go, S01, S02, S07, S08, S10 ("deploy now").
+     S03: prod-tech-lead. S04, S06: orch-judge (quality gates G1–G9 at S06).
+     S05: verify green. S09: smoke green. S11, S12: recurring review.
+     S13 is entered on the human's decision to retire the system.
+     Status words: NOT_STARTED, IN_PROGRESS, BLOCKED, DONE. -->
 
 ## Phase History
-- [YYYY-MM-DD] S00 — STRATEGY_DISCOVERY (Day-0, GO/NO-GO)
+- [YYYY-MM-DD] S00 — STRATEGY_DISCOVERY (Day 0, human go / no-go)
 - [YYYY-MM-DD] S01 — REQUIREMENTS (IN_PROGRESS)
-- [YYYY-MM-DD] S11 — OPERATE_MAINTAIN (Day-2, after S10)
-- [YYYY-MM-DD] S12 — EVOLVE_IMPROVE (Day-2)
-- [YYYY-MM-DD] S13 — DECOMMISSION_SUNSET (Day-2)
+- [YYYY-MM-DD] S11 — OPERATE_MAINTAIN (Day 2, after S10)
+- [YYYY-MM-DD] S12 — EVOLVE_IMPROVE (Day 2)
+- [YYYY-MM-DD] S13 — DECOMMISSION_SUNSET (Day 2)
 
 ## Active Tasks
 - T-001: [Task description] (IN_PROGRESS)

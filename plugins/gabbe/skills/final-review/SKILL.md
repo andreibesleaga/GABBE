@@ -1,6 +1,6 @@
 ---
 name: final-review
-description: "Expert end-of-work review — catch errors/gaps/risks and propose optimizations before declaring done. Use when: final review, expert review, review everything, anything missing, make it better, optimize, simplify, sanity check, ship check, is it good."
+description: "Runs an independent expert review of finished work and returns a verdict (SHIP, FIX-FIRST or NEEDS-DECISION) with must-fix items and simplifications. Use when work is about to be called done, or before a human gate."
 license: CC-BY-SA-4.0
 metadata:
   source: "agents/skills/core/final-review.skill.md"
@@ -31,6 +31,12 @@ you did not write the code.
 9. **All-agents / portability** — if the kit's emitted artifacts changed, do they still emit cleanly for every target (Claude Code, Cursor, Antigravity, OpenCode, Gemini, Copilot, …) and stay backward-compatible (golden additive)?
 10. **Tests & gates** — tests exist for the new behavior; the backward-compat gates and validators are green; baselines regenerated + reviewed if intentionally changed.
 
+## Steps
+1. Read the diff as if you did not write it.
+2. Run the tests, validators and gates yourself and keep the output.
+3. Score each review dimension OK, FIX or CONSIDER with the evidence.
+4. Write the verdict in the Output Format below.
+
 ## Method
 - Re-read the diff with fresh eyes; assume nothing is correct until checked.
 - Prefer **evidence over assertion** — run the test/command rather than claim it passes (`verify_all.sh`).
@@ -53,16 +59,8 @@ you did not write the code.
 - Review independently — do not rubber-stamp your own implementation.
 - Leave the system better than you found it, but scope improvements to the task (no opportunistic rewrites).
 
-## Security & Guardrails
-
-### 1. Skill Security (Final-Review)
-- **Adversarial mindset:** actively try to break the change (hostile inputs, auth bypass, egress) — a review that only confirms the happy path is not a review.
-- **No silent gate-weakening:** flag any change that lowers a quality/security gate, coverage threshold, or autonomy bound as must-fix.
-
-### 2. System Integration Security
-- **Regression focus:** confirm backward-compat (API/CLI/config/db/emitter gates) and that baselines were regenerated *and reviewed* (additive/content-only), not blindly overwritten.
-- **Supply-chain:** any newly imported/external artifact must have passed validation; re-confirm provenance.
-
-### 3. LLM & Agent Guardrails
-- **Evidence over confidence:** a confident "looks good" is not proof; attach the actual command output.
-- **Independence:** resist anchoring on the implementer's intent; review what the code *does*, not what it was *meant* to do.
+## Limits and safety
+- Run the checks yourself and quote their output; "looks good" is not evidence.
+- A change that lowers a quality gate, a coverage threshold or an autonomy limit is a must-fix.
+- When baselines or golden files changed, read the diff; do not accept a regenerated baseline unread.
+- Review what the code does, not what its author meant; try at least one hostile input.

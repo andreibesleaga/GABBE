@@ -3,88 +3,173 @@
 # GABBE bootstrap installer (Windows PowerShell).
 #
 #   irm https://raw.githubusercontent.com/andreibesleaga/GABBE/main/install.ps1 | iex
+#   .\install.ps1 [-Agents claude,cursor] [-Yes] [-Force] [-Dir PATH] [-Help]
 #
 # Picks the best available installer:
-#   1. Node present  -> `npx --yes gabbe-kit init` (Python-independent path).
-#   2. Else python   -> `python scripts/init.py` (the interactive wizard).
+#   1. Node present  -> `npx --yes gabbe-kit@<this release> init` (Python-independent path).
+#   2. Else python   -> `python scripts/init.py` (the interactive wizard), only from a
+#                       GABBE checkout: run the script from a file, not piped.
 #
-# No destructive operations: it only runs an installer that copies the kit into
-# the current directory. Extra args pass through to the installer.
+# No destructive operations: it only runs an installer that copies the kit into the
+# current directory (or -Dir). -Agents, -Yes and -Force become --agents, --yes and --force; any
+# other argument is passed on as it is (for example: .\install.ps1 init --agents claude --yes).
+#
+# npx runs from a new, empty temporary folder, never from the project: a project's own .npmrc
+# (registry, node-options) and node_modules then do not decide what runs. The project is passed
+# as `--dir <absolute path>`. Your own user .npmrc still applies (it is yours).
 
 [CmdletBinding()]
 param(
     [switch]$Help,
+    [switch]$Force,
+    [switch]$Yes,
+    [string]$Agents,
+    [string]$Dir,
     [Parameter(ValueFromRemainingArguments = $true)]
-    [string[]]$Args
+    [string[]]$InstallerArgs
 )
 
 $ErrorActionPreference = 'Stop'
+
+# The kit version this script belongs to (the release gate checks this line against
+# package.json). $env:GABBE_KIT_VERSION overrides it; `latest` means the newest release.
+$GabbeKitDefaultVersion = '1.1.4'
 
 function Show-Usage {
     @'
 GABBE bootstrap installer (PowerShell)
 
 Usage:
-  .\install.ps1 [installer-args...]
+  .\install.ps1 [-Agents claude,cursor] [-Yes] [-Force] [-Dir PATH] [-Help] [installer-args...]
 
 Behavior:
-  - If Node is installed, runs:   npx --yes gabbe-kit init [args...]
-  - Else if Python is installed:  python scripts/init.py
+  - If Node is installed, runs:   npx --yes gabbe-kit@<this release> init [args...] --dir <project>
+    from a new empty temporary folder (removed afterwards), so the project's own .npmrc and
+    node_modules decide nothing. The project is the current folder, or -Dir (made absolute).
+  - Else if Python is installed and this script is run from a GABBE checkout:
+                                  python scripts/init.py [--force] [--hooks]
+    (the wizard has only --force and --hooks; other arguments are ignored and listed)
   - Otherwise, prints how to install Node or Python and exits non-zero.
 
+Environment:
+  GABBE_KIT_VERSION   Install that exact gabbe-kit version (for example 1.2.0) instead of
+                      the release this script belongs to. `latest` means the newest
+                      release on npm, unpinned.
+
 Examples:
-  .\install.ps1 init --agents claude,cursor --yes
+  .\install.ps1 -Agents claude,cursor -Yes
   irm https://raw.githubusercontent.com/andreibesleaga/GABBE/main/install.ps1 | iex
 '@ | Write-Output
-}
-
-if ($Help -or ($Args -contains '--help') -or ($Args -contains '-h')) {
-    Show-Usage
-    exit 0
 }
 
 function Test-Cmd([string]$name) {
     return [bool](Get-Command $name -ErrorAction SilentlyContinue)
 }
 
+# Arguments for the installer: a leading `init` is dropped (it is the default command).
+$rest = @($InstallerArgs | Where-Object { $_ })
+if ($rest.Count -gt 0 -and $rest[0] -eq 'init') {
+    if ($rest.Count -gt 1) { $rest = @($rest[1..($rest.Count - 1)]) } else { $rest = @() }
+}
+
+if ($Help -or ($rest -contains '--help') -or ($rest -contains '-h')) {
+    Show-Usage
+    exit 0
+}
+
+# The npm package spec: the release this script belongs to, unless GABBE_KIT_VERSION says
+# otherwise. Only a plain version (1.2.0, 1.2.0-rc.1) or `latest` is accepted, so the value
+# cannot add anything to the command.
+$kitVersion = if ($env:GABBE_KIT_VERSION) { $env:GABBE_KIT_VERSION } else { $GabbeKitDefaultVersion }
+$kitSpec = 'gabbe-kit'
+if ($kitVersion -ne 'latest') {
+    if ($kitVersion -notmatch '^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z]+(\.[0-9A-Za-z]+)*)?$') {
+        Write-Host 'Error: GABBE_KIT_VERSION must be a version such as 1.2.0, or latest.'
+        exit 1
+    }
+    $kitSpec = "gabbe-kit@$kitVersion"
+}
+
+# The project: -Dir, or `--dir PATH` among the other arguments, else the current folder. It is made
+# absolute here, because npx runs from another folder.
+$projectDir = $Dir
+$passOn = @()
+for ($i = 0; $i -lt $rest.Count; $i++) {
+    if ($rest[$i] -eq '--dir') {
+        if ($i + 1 -ge $rest.Count) { Write-Host 'install.ps1: --dir needs a path'; exit 2 }
+        $projectDir = $rest[$i + 1]
+        $i++
+    }
+    elseif ($rest[$i] -like '--dir=*') { $projectDir = $rest[$i].Substring(6) }
+    else { $passOn += $rest[$i] }
+}
+$rest = $passOn
+$projectAbs = (Get-Location).ProviderPath
+if ($projectDir) {
+    if (-not (Test-Path -LiteralPath $projectDir -PathType Container)) {
+        Write-Host "install.ps1: --dir: there is no such folder: $projectDir"
+        exit 2
+    }
+    $projectAbs = (Resolve-Path -LiteralPath $projectDir).ProviderPath
+}
+
+$toolArgs = @()
+if ($Force) { $toolArgs += '--force' }
+if ($Yes) { $toolArgs += '--yes' }
+if ($Agents) { $toolArgs += '--agents'; $toolArgs += $Agents }
+$toolArgs += $rest
+
 Write-Output 'GABBE installer: detecting runtime...'
 
-$passthru = @()
-if ($Args) { $passthru = $Args }
-
-if ((Test-Cmd 'node') -and (Test-Cmd 'npx')) {
-    $ver = (& node --version)
-    Write-Output "-> Node detected ($ver). Using: npx --yes gabbe-kit init"
-    & npx --yes gabbe-kit init @passthru
-    exit $LASTEXITCODE
-}
-
 if (Test-Cmd 'npx') {
-    Write-Output '-> npx detected. Using: npx --yes gabbe-kit init'
-    & npx --yes gabbe-kit init @passthru
-    exit $LASTEXITCODE
+    Write-Output "-> Node (npx) detected. Using: npx --yes $kitSpec init"
+    # npx reads the .npmrc of the folder it runs in and prefers a gabbe-kit of the same name and
+    # version in that folder's node_modules. So it runs from a new empty folder, never from the
+    # project, and the project is named with --dir. The version is fixed as well.
+    $workDir = Join-Path ([System.IO.Path]::GetTempPath()) ('gabbe-' + [System.Guid]::NewGuid().ToString('N'))
+    New-Item -ItemType Directory -Path $workDir | Out-Null
+    Push-Location -LiteralPath $workDir
+    try {
+        & npx --yes $kitSpec init @toolArgs --dir $projectAbs
+        $npxExit = $LASTEXITCODE
+    }
+    finally {
+        Pop-Location
+        Remove-Item -LiteralPath $workDir -Recurse -Force -ErrorAction SilentlyContinue
+    }
+    exit $npxExit
 }
-
-$scriptDir = if ($PSScriptRoot) { $PSScriptRoot } else { (Get-Location).Path }
-$initPy = Join-Path $scriptDir 'scripts/init.py'
 
 foreach ($py in @('python', 'python3')) {
-    if (Test-Cmd $py) {
-        if (Test-Path $initPy) {
-            Write-Output "-> Node not found; $py detected. Using: $py $initPy"
-            & $py $initPy
-            exit $LASTEXITCODE
-        }
-        else {
-            Write-Output "-> $py detected but $initPy was not found."
-            Write-Output '   Run this from a GABBE checkout, or install Node and re-run.'
-            exit 1
-        }
+    if (-not (Test-Cmd $py)) { continue }
+    $initPy = if ($PSScriptRoot) { Join-Path $PSScriptRoot 'scripts/init.py' } else { '' }
+    if (-not $initPy -or -not (Test-Path $initPy)) {
+        Write-Host 'Python was found but Node was not, and there is no GABBE checkout here'
+        Write-Host '(this script was piped, or scripts/init.py is not next to it).'
+        Write-Host 'Install Node.js >= 16 and re-run, or clone the repository and run:'
+        Write-Host '  git clone https://github.com/andreibesleaga/GABBE; python GABBE/scripts/init.py'
+        exit 1
     }
+    if ([Console]::IsInputRedirected) {
+        Write-Host 'The Python wizard asks questions and needs a terminal; input is redirected.'
+        Write-Host 'Install Node.js >= 16 for an install without questions: npx gabbe-kit init --yes'
+        exit 1
+    }
+    $ignored = @($toolArgs | Where-Object { $_ -ne '--force' -and $_ -ne '--hooks' })
+    if ($ignored.Count -gt 0) {
+        Write-Host ("! The wizard does not take these arguments; ignored: " + ($ignored -join ' '))
+    }
+    $wizardArgs = @()
+    if ($Force -or ($toolArgs -contains '--force')) { $wizardArgs += '--force' }
+    if ($toolArgs -contains '--hooks') { $wizardArgs += '--hooks' }
+    Write-Output "-> Node not found; $py detected. Using: $py $initPy"
+    Set-Location -LiteralPath $projectAbs   # the wizard installs into its current folder
+    & $py $initPy @wizardArgs
+    exit $LASTEXITCODE
 }
 
-Write-Error 'Neither Node nor Python was found on PATH.'
-Write-Output 'Install one of the following, then re-run install.ps1:'
-Write-Output '  - Node.js >= 16   (https://nodejs.org)  then: npx gabbe-kit init'
-Write-Output '  - Python >= 3.9   (https://python.org)   then: python scripts/init.py'
+Write-Host 'Neither Node nor Python was found on PATH.'
+Write-Host 'Install one of the following, then re-run install.ps1:'
+Write-Host '  - Node.js >= 16   (https://nodejs.org)  then: npx gabbe-kit init'
+Write-Host '  - Python >= 3.9   (https://python.org)   then: python scripts/init.py'
 exit 1

@@ -3,8 +3,8 @@
 
 ## Role
 
-Owns the Day-2 feedback loop that runs after the system is in production (phases S11/S12,
-the continuous-improvement phases that extend beyond the core S01–S10 lifecycle). Owns
+Owns the Day-2 feedback loop that runs after the system is in production (lead of phase S12,
+Evolve & Improve; `ops-sre` leads S11, Operate & Maintain). Owns
 product analytics (instrumentation, funnels, retention), A/B experiments and feature-flag-driven
 rollouts, delivery metrics (DORA and SPACE), and the continuous-improvement loop that turns
 observed reality back into prioritized backlog items. Closes the golden thread by checking
@@ -120,7 +120,7 @@ When reading out:
 
 ```
 loki-mode → prod-product-ops:
-  Phase: S11 (Day-2 — Measure & Improve)
+  Phase: S12 (Day 2 — Evolve & Improve)
   Goal: "We shipped one-click checkout last sprint. Did it move conversion?"
   Inputs: EARS requirement for checkout, production analytics export, flag registry
   Output: experiment readout (ship/hold/roll-back) + DORA trend note + backlog proposals

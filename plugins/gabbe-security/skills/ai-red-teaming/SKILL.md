@@ -13,11 +13,15 @@ metadata:
 ## Goal
 Proactively attack your own AI/agent system to discover failures before an adversary does. This is the offensive complement to the defensive skills: `prompt-injection-defense.skill` builds the layered controls and `ai-safety-guardrails.skill` builds the rails — this skill tries to break both. Red teaming is threat-led: it designs scenarios from a model of who would attack and why, executes them as concrete attacks, scores the attack-success-rate (ASR), and gates CI on it so regressions are caught automatically. Stated honestly: red teaming *reduces* risk by finding failures, but it can never *prove* safety — absence of a successful attack in your suite is not evidence the system is safe.
 
+## Where it fits
+Phase and gate: S06 and S07 for tier 3 AI software, and again after any model, prompt, tool or retrieval change (S11, S12). Evidence: the red-team plan and ASR scorecard in `docs/security/RED_TEAM_REPORT.md`.
+
 ## Steps
 
 1. **Design threat-led scenarios mapped to OWASP LLM Top 10**
    - Start from threat actors and goals (insider, untrusted external content author, compromised tool/MCP server, end user seeking disallowed output), not from a generic checklist. Reuse the surface enumeration from `threat-model.skill` rather than re-deriving it.
-   - Map each scenario to the relevant OWASP LLM Top 10 category (e.g. LLM01 Prompt Injection, LLM02 Sensitive Information Disclosure, LLM06 Excessive Agency, LLM07 System Prompt Leakage) so coverage is auditable and gaps are visible.
+   - Map each scenario to the relevant OWASP LLM Top 10 category (e.g. LLM01 Prompt Injection, LLM02 Sensitive Information Disclosure, LLM06 Excessive Agency, LLM07 System Prompt Leakage) so coverage is auditable and gaps are visible. The ids are those of the 2025 edition (genai.owasp.org, checked 2026-11-21).
+   - For agent software also map to the OWASP Top 10 for Agentic Applications (released 9 Dec 2025): ASI01 Agent Goal Hijack, ASI02 Tool Misuse and Exploitation, ASI03 Identity and Privilege Abuse, ASI04 Agentic Supply Chain Vulnerabilities, ASI05 Unexpected Code Execution (RCE), ASI06 Memory & Context Poisoning, ASI07 Insecure Inter-Agent Communication, ASI08 Cascading Failures, ASI09 Human-Agent Trust Exploitation, ASI10 Rogue Agents.
 
 2. **Build the attack technique library**
    - **Direct injection**: malicious instructions in the user's own prompt.
@@ -61,16 +65,9 @@ A red-team plan plus an ASR scorecard:
 - **Findings & fixes**: each successful attack, its severity, the owning defensive skill, and remediation status.
 - **Residual risk & honesty statement**: what was not tested and the explicit caveat that this suite reduces but cannot prove safety.
 
-## Security & Guardrails
-
-### 1. Skill Security
-- **Risk**: The attack corpus this skill produces is itself a weapon — if leaked it hands adversaries a working playbook against the live system. Mitigation: store the corpus and findings as restricted artifacts with access control, keep them out of public repos and model training data, and treat unresolved high-severity findings as embargoed until fixed.
-- **Risk**: Tests run with real production credentials or against production data cause real harm (data leakage, side effects) in the name of testing. Mitigation: run against isolated, synthetic-data environments with scoped throwaway credentials; require explicit authorization and a blast-radius review before any test touches production.
-
-### 2. System Integration Security
-- **Risk**: A red-team agent driving live tools can trigger genuine external actions — sends, writes, commits, payments — turning a simulated attack into a real incident. Mitigation: execute tool-abuse and exfiltration scenarios against mocked or sandboxed tool endpoints with egress disabled, and gate any real external call behind a human approval even in the test harness.
-- **Risk**: A passing CI gate creates false assurance, letting teams ship on the belief the system is "red-team clean". Mitigation: surface the honesty caveat on the scorecard itself, pair the ASR gate with the defensive controls of `prompt-injection-defense.skill`, and require human sign-off for high-impact releases regardless of ASR.
-
-### 3. LLM & Agent Guardrails
-- **Risk**: An LLM judge scoring attack success can itself be jailbroken or biased, producing an inflated (too-safe) ASR. Mitigation: validate the judge against human-labeled samples per `llm-as-judge.skill`, isolate it from the attacker model's output channel, and periodically re-audit judge accuracy.
-- **Risk**: Optimizing to drive ASR to zero on a fixed suite overfits the system to known attacks while real-world novel attacks still succeed. Mitigation: continuously rotate and expand the corpus, fold human-red-team discoveries back in, and never treat a zero-ASR snapshot as a terminal state.
+## Limits and safety
+- Attack only systems and data you are authorised to test, in an isolated environment with synthetic data and mocked or sandboxed tools. No real sends, writes or payments.
+- Keep the attack corpus and unfixed findings out of public repositories.
+- Report a pass as "no successful attack in this suite on this date", never as proof of safety.
+- Validate the judge against human labels before trusting the ASR gate.
+- A real external call during a test needs the human's yes.

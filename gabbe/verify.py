@@ -77,7 +77,8 @@ def run_command(cmd: str, name: str) -> bool:
     if "[PLACEHOLDER" in cmd:
         print(
             f"  {Colors.FAIL}x {name} command is an unfilled placeholder: {cmd!r}\n"
-            f"    Fill it in agents/AGENTS.md (or run: python scripts/fill_placeholders.py)"
+            f"    Fill in the fields of agents/AGENTS.md (or ask your agent to do it:\n"
+            f"    it is a step of BOOTSTRAP_MISSION.md)"
             f"{Colors.ENDC}"
         )
         return False
@@ -101,8 +102,16 @@ def run_command(cmd: str, name: str) -> bool:
         return False
 
 
+EXIT_NOTHING_VERIFIED = 3
+
+
 def run_verification() -> bool:
-    """Run all integrity checks."""
+    """Run all integrity checks (True = pass; "nothing to verify" is not a pass)."""
+    return verification_exit_code() == 0
+
+
+def verification_exit_code(allow_empty: bool = False) -> int:
+    """Run all integrity checks. Returns 0 (passed), 1 (failed) or 3 (nothing was verified)."""
     print(f"{Colors.HEADER}Running Integrity Checks...{Colors.ENDC}")
     all_passed = True
 
@@ -123,10 +132,12 @@ def run_verification() -> bool:
     # 3. Dynamic Checks (Tests/Lint)
     config = parse_agents_config()
 
+    nothing_verified = False
     if "test" in config and config["test"]:
         if not run_command(config["test"], "Tests"):
             all_passed = False
     else:
+        nothing_verified = True
         print(
             f"  {Colors.YELLOW}No test command found in AGENTS.md [## Commands] section{Colors.ENDC}"
         )
@@ -140,12 +151,18 @@ def run_verification() -> bool:
             all_passed = False
 
     # Summary
-    if all_passed:
-        print(f"\n{Colors.GREEN}Verification PASSED.{Colors.ENDC}")
-        return True
-    else:
+    if not all_passed:
         print(f"\n{Colors.FAIL}Verification FAILED.{Colors.ENDC}")
-        return False
+        return 1
+    if nothing_verified and not allow_empty:
+        print(
+            f"\n{Colors.WARNING}Nothing was verified: no test command is set. Add "
+            f"'test: <your command>' under '## Commands' in agents/AGENTS.md "
+            f"(or pass --allow-empty to accept this).{Colors.ENDC}"
+        )
+        return EXIT_NOTHING_VERIFIED
+    print(f"\n{Colors.GREEN}Verification PASSED.{Colors.ENDC}")
+    return 0
 
 
 def run_chaos_checks() -> bool:

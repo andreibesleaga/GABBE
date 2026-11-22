@@ -87,6 +87,7 @@ def test_tools_list_advertises_the_bounded_schema(tmp_project, monkeypatch):
     from gabbe.mcp_server import serve
 
     monkeypatch.setenv("GABBE_MCP_INSECURE", "1")
+    monkeypatch.setenv("GABBE_MCP_ENABLE_RUN_COMMAND", "1")
     outputs = []
     with (
         patch("gabbe.mcp_server.RunContext") as MockCtx,

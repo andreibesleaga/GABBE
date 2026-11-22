@@ -198,7 +198,7 @@ if [ ! -f "${MEMORY_DIR}/PROJECT_STATE.md" ]; then
 ## Current SDLC Phase
 
 ```
-Phase: S00_INITIALIZED
+Phase: NOT_STARTED
 Status: NOT_STARTED
 Last checkpoint: [DATE]
 Last checkpoint by: [agent/human]
@@ -206,18 +206,25 @@ Last checkpoint by: [agent/human]
 
 ## SDLC Progress
 
+Phases S00–S13 (canonical table: agents/guides/processes/loki-sdlc-phases.md).
+Status words: NOT_STARTED, IN_PROGRESS, BLOCKED, DONE.
+
 | Phase | Status | Started | Completed | Gate Criteria Met |
 |---|---|---|---|---|
+| S00 Strategy & Discovery | NOT_STARTED | — | — | — |
 | S01 Requirements | NOT_STARTED | — | — | — |
-| S02 Design | NOT_STARTED | — | — | — |
-| S03 Specification | NOT_STARTED | — | — | — |
-| S04 Tasks | NOT_STARTED | — | — | — |
+| S02 Architecture | NOT_STARTED | — | — | — |
+| S03 Technical Spec | NOT_STARTED | — | — | — |
+| S04 Task Decomposition | NOT_STARTED | — | — | — |
 | S05 Implementation | NOT_STARTED | — | — | — |
-| S06 Testing | NOT_STARTED | — | — | — |
-| S07 Security | NOT_STARTED | — | — | — |
-| S08 Review | NOT_STARTED | — | — | — |
+| S06 Testing & Quality | NOT_STARTED | — | — | — |
+| S07 Security Review | NOT_STARTED | — | — | — |
+| S08 Human Review | NOT_STARTED | — | — | — |
 | S09 Staging | NOT_STARTED | — | — | — |
 | S10 Production | NOT_STARTED | — | — | — |
+| S11 Operate & Maintain | NOT_STARTED | — | — | — |
+| S12 Evolve & Improve | NOT_STARTED | — | — | — |
+| S13 Decommission & Sunset | NOT_STARTED | — | — | — |
 
 ## Current Blockers
 
@@ -226,7 +233,7 @@ _None yet_
 ## Next Actions
 
 1. Fill in AGENTS.md placeholders for this project
-2. Run spec-writer.skill to create initial PRD.md
+2. Start at S00 (discovery) unless the human says "skip discovery"; then spec-writer.skill creates PRD.md at S01
 
 ## Open Human Decisions
 

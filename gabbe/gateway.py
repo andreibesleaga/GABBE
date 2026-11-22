@@ -40,6 +40,17 @@ class ToolDefinition:
     circuit_breaker_threshold: int = 3
 
 
+@dataclass
+class ReadOnlyToolDefinition(ToolDefinition):
+    """A tool that changes nothing and exposes only files of the project the server runs in.
+
+    It is not subject to the operator's tool allow-list in project/policies.yml (which
+    exists to gate tools that act); it is still role-checked, rate-limited,
+    schema-validated and traced."""
+
+    read_only: bool = True
+
+
 # Seconds an open circuit stays closed to calls before one trial call is let
 # through (half-open). A successful trial closes the circuit again.
 _CIRCUIT_COOLDOWN_S = 30.0
@@ -85,6 +96,21 @@ class ToolGateway:
         # circuit with a fresh cool-down; a success closes it (see execute).
         self._opened_at[name] = now
 
+    @staticmethod
+    def _check_policy(name: str, arguments: Dict[str, Any], role: str, run_context: Any) -> None:
+        if run_context.policy is None:
+            raise PolicyDenied("No policy engine configured; refusing tool call (fail-closed).")
+        policy_res = run_context.policy.evaluate(
+            {"tool": name, "arguments": arguments, "role": role}
+        )
+        if not policy_res.allowed:
+            hint = (
+                ". Add run_command to tools.allowed in project/policies.yml."
+                if name == "run_command"
+                else ""
+            )
+            raise PolicyDenied(f"Policy denied: {policy_res.reason}{hint}")
+
     def execute(self, name: str, arguments: Dict[str, Any], role: str, run_context: Any) -> Any:
         span_ctx = run_context.tracer.start_span(
             "tool_call", name, {"arguments": arguments, "role": role}
@@ -106,13 +132,8 @@ class ToolGateway:
             # rather than silently skipping policy. RunContext always installs a
             # deny-all default (PolicyEngine.from_yaml), so this only triggers
             # when a caller explicitly passes policy=None.
-            if run_context.policy is None:
-                raise PolicyDenied("No policy engine configured; refusing tool call (fail-closed).")
-            policy_res = run_context.policy.evaluate(
-                {"tool": name, "arguments": arguments, "role": role}
-            )
-            if not policy_res.allowed:
-                raise PolicyDenied(f"Policy denied: {policy_res.reason}")
+            if not isinstance(tool_def, ReadOnlyToolDefinition):
+                self._check_policy(name, arguments, role, run_context)
 
             # Rate Limits & Circuit Breaker (gate BEFORE consuming budget)
             self._check_rate_limit(name)

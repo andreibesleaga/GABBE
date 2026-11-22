@@ -1,13 +1,16 @@
 ---
 name: neuroscience-foundations
-description: Apply biological brain patterns to agent design
-triggers: [neuroscience, brain, cognitive, thalamus, basal ganglia]
+description: Describes thalamic gating, basal-ganglia action selection and prompt-population selection as design analogies. Use when you want a named analogy for routing signals, choosing among candidate plans or evolving prompts.
+triggers: [neuroscience, thalamus, basal ganglia, gated action selection, neural darwinism]
 tags: [brain, architecture, theory]
 context_cost: low
 ---
 # Neuroscience Foundations for Agents
 
 Apply biological brain patterns to agentic software design: Cortico-Thalamic loops, Basal Ganglia gating, Neural Darwinism.
+
+## Goal
+Offer three named analogies for agent design (a signal filter, a gated action selector, a population of prompts). They are analogies, not evidence about how agents work.
 
 ## 1. Cortico-Thalamic Loops (Feedback/Feedforward Engine)
 The **Thalamus** is a central relay; the **Cortex** processes. Their loop drives consciousness and attention.
@@ -37,16 +40,21 @@ Brain function is evolutionary — neurons that fire together, wire together.
 - Edelman, G. M. (1987). *Neural Darwinism: The Theory of Neuronal Group Selection*.
 - Izhikevich, E. M. (2007). *Dynamical Systems in Neuroscience*.
 
-## Security & Guardrails
+## Steps
+1. Decide which design question you have: filtering signals, choosing among plans, or improving prompts.
+2. Take the matching analogy (thalamic gateway, gated action selector, prompt population).
+3. Write it as concrete instructions or code with a limit, and test it with `cognitive-testing.skill`.
 
-### 1. Skill Security (Neuroscience Foundations)
-- **Thalamic Gateway Hijacking (Attention Sabotage)**: a malformed payload could crash or infinitely loop `calculate_salience`, blinding the Cortex to all later legitimate inputs. Enforce strict timeout and exception handling so signal relay continues under malicious load.
-- **Basal Ganglia Disinhibition Exploit**: an overly simple reward metric (e.g. "fast execution") lets an attacker trigger the Direct Pathway for a destructive action. Make adherence to explicit Human Identity/Authorization a boolean prerequisite for any "Go", overriding heuristic reward.
+## Constraints
+- State that the analogy is a design aid; do not use it as an argument that the design is safe.
+- No safety control may rest on the analogy.
 
-### 2. System Integration Security
-- **Cortico-Thalamic Feedback Loop Poisoning**: a compromised cortical module could feed back "ignore all future Security Alerts," perpetually compromising the system. Mandate an immutable minimum attention threshold for security/anomaly signals.
-- **Evolutionary Prompt Mutation (Darwinian Degradation)**: mutation will naturally strip verbose security constraints that slow success rates. Enforce "Somatic Conservation" — anchor core security rules (e.g. "Do not bypass IAM") outside the mutable prompt population.
+## Output Format
+A short design note: the question, the analogy chosen, the concrete rule or code, and its limit.
 
-### 3. LLM & Agent Guardrails
-- **Hallucinated Action Disinhibition**: the LLM-as-Basal-Ganglia might release a No-Go action by hallucinating a safe context ("we're in test, so `DROP TABLE` is fine"). Cross-reference environment state with cryptographic OS-level reality (AWS tags, hardcoded env vars) before disinhibiting destructive actions.
-- **Simulated Neuroscience Bias**: the LLM may overcommit to the neuroscience persona and ignore real security practice for biological metaphors ("the immune system will handle the malware later"). Continuously ground metaphors in concrete, deterministic code constraints.
+## Limits and safety
+- This is analogy only; no safety control rests on it.
+- A destructive action needs the human's yes; a high expected-reward score does not release it.
+- Security and anomaly signals keep a minimum priority whatever the salience score says.
+- Keep the core rules (access control, no bypass of checks) outside the prompts you rank or mutate.
+- Before deciding "this is only a test", check the environment (branch, host, variables); never infer it from a story.

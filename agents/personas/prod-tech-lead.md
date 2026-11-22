@@ -69,7 +69,7 @@ Architecture:
   [ ] No circular dependencies (madge --circular passes)
 
 Code Quality:
-  [ ] Cyclomatic complexity < 10 per function
+  [ ] Cyclomatic complexity <= 10 per function
   [ ] No function > 30 lines without documented reason
   [ ] No magic numbers — named constants instead
   [ ] No any types in TypeScript

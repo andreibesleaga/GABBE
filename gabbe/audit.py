@@ -4,6 +4,7 @@ from __future__ import annotations
 import json
 import logging
 import os
+import re
 import sqlite3
 import time
 import uuid
@@ -12,7 +13,7 @@ from typing import Any
 
 from .config import GABBE_DIR, GABBE_OTEL_ENABLED
 from .config import SECRET_PATTERNS as _SECRET_PATTERNS
-from .database import get_db
+from .database import StateLinkError, create_private_file, get_db, state_path_problem
 
 # Set up local text logger
 logger = logging.getLogger("gabbe.audit")
@@ -73,11 +74,18 @@ GEN_AI_DEFAULT_SYSTEM = "gabbe"
 _REDACTION = "[REDACTED]"
 
 
+def _replacement(match: re.Match[str]) -> str:
+    """Keep the name of a `NAME=value` pair (group `head`); replace the whole match otherwise."""
+    if "head" in match.re.groupindex:
+        return match.group("head") + _REDACTION
+    return _REDACTION
+
+
 def _redact_text(value: str) -> str:
     from .config import PII_PATTERNS
 
     for pat in list(PII_PATTERNS) + list(_SECRET_PATTERNS):
-        value = pat.sub(_REDACTION, value)
+        value = pat.sub(_replacement, value)
     return value
 
 
@@ -187,8 +195,11 @@ class AuditTracer:
         else:
             self.db_conn = db_conn
 
+        problem = state_path_problem(GABBE_DIR)
+        if problem:
+            raise StateLinkError(problem)
         self.log_dir = GABBE_DIR / "logs"
-        self.log_dir.mkdir(parents=True, exist_ok=True)
+        self.log_dir.mkdir(mode=0o700, parents=True, exist_ok=True)
         self.jsonl_path = self.log_dir / f"run_{self.run_id}.jsonl"
 
     def __del__(self) -> None:
@@ -197,6 +208,7 @@ class AuditTracer:
 
     def _log_jsonl(self, record: dict[str, Any]) -> None:
         try:
+            create_private_file(self.jsonl_path)
             with open(self.jsonl_path, "a", encoding="utf-8") as f:
                 f.write(json.dumps(_redact(record), default=str) + "\n")
         except Exception as e:

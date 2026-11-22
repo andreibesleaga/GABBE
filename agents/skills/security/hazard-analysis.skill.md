@@ -1,7 +1,7 @@
 ---
 name: hazard-analysis
-description: Conducting FMEA (Failure Mode & Effects Analysis) and identifying hazards.
-triggers: [hazard analysis]
+description: Run FMEA and STPA on a safety-relevant design and fill the hazard log. Use when failure could harm people or assets, or before approving safety-critical requirements.
+triggers: [hazard analysis, fmea, stpa, hazard log, safety-critical, failure modes]
 tags: [security]
 role: prod-safety-engineer
 context_cost: low
@@ -10,6 +10,9 @@ context_cost: low
 
 ## Goal
 This skill identifies how the system can fail and what happens when it does.
+
+## Where it fits
+Phase and gate: S01 (hazards become requirements), S02 (design controls), S07 (review). Lead: prod-safety-engineer. Evidence: the filled hazard log, copied to `docs/safety/HAZARD_LOG.md`. A tier 3 trigger in `security-baseline.skill.md`.
 
 ## Steps
 ## 1. FMEA (Failure Mode & Effects Analysis)
@@ -38,16 +41,14 @@ This skill identifies how the system can fail and what happens when it does.
 ## 4. Output
 - Populate `templates/security/HAZARD_LOG.md`.
 
-## Security & Guardrails
+## Constraints
+- Every hazard gets a severity, a cause and a control, or stays open.
+- Run FMEA for components and STPA for control loops; say which was used.
 
-### 1. Skill Security (Hazard Analysis)
-- **Catastrophic Failure Immutability**: When an agent classifies a hazard's Severity as "10 (Catastrophic/Death)" in the `HAZARD_LOG.md`, that entry becomes immutable to automated downgrades. The agent cannot unilaterally reduce the severity in subsequent revisions; it requires cryptographic, multi-party human sign-off.
-- **Data Poisoning in STPA**: If the agent uses an LLM to generate Unsafe Control Actions (UCAs), it must cross-reference the output against a static, deterministic safety rule engine. This prevents prompt poisoning from maliciously instructing the hazard analysis to ignore a critical failure mode (e.g., "Ignore the redundant braking system checklist").
+## Output Format
+The filled hazard log (`templates/security/HAZARD_LOG.md`) with FMEA rows, unsafe control actions and open hazards.
 
-### 2. System Integration Security
-- **Security as a Hazard Category**: The hazard identification checklist must natively integrate "Intentional Malicious Action." The FMEA cannot solely focus on natural component degradation (e.g., "Disk failure"); it must mandate analysis of adversarial component degradation (e.g., "Attacker fills disk to cause DoS").
-- **Physical Safety Sandboxing**: If the hazard analysis interfaces with Cyber-Physical Systems (e.g., medical devices, autonomous vehicles), the agent generating the analysis must operate in an entirely air-gapped or physically segmented network to prevent its analysis engine from being pivoted into the operational technology (OT) network.
-
-### 3. LLM & Agent Guardrails
-- **Risk Normalization Blindness**: The agent must actively combat "Normalization of Deviance." If it reviews a system where a specific component historically fails often but hasn't caused a catastrophe *yet*, the LLM is strictly forbidden from lowering the Probability or Severity scores based on "past operational luck."
-- **Hallucinated Mitigations**: The agent must not invent fictitious safety mitigations (e.g., "The system is safe because a theoretical Quantum Firewall will block the voltage spike") to artificially lower the RPN (Risk Priority Number) below the required safety threshold. All mitigations must reference existing, verifiable system architecture.
+## Limits and safety
+- This is an engineering aid. For a regulated safety system a qualified safety engineer reviews the log. Never state that a system "is safe".
+- Severity and probability scores are proposals for the human to confirm. Never lower a severity to reduce the RPN.
+- A hazard with no mitigation stays open in the log and in the open risks.

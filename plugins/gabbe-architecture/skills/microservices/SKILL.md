@@ -1,6 +1,6 @@
 ---
 name: microservices
-description: "Design and implement microservices architecture. Use when: design microservices, split monolith, architect distributed system."
+description: "Service boundaries, API contracts, data ownership and failure isolation for a microservices design. Use when splitting a monolith or designing a distributed system with several deployable services."
 license: CC-BY-SA-4.0
 metadata:
   source: "agents/skills/architecture/microservices.skill.md"
@@ -19,16 +19,16 @@ Design, decouple, and orchestrate microservices architectures using bounded cont
 3. **Data Segregation**: Assign each service its own dedicated database schema to prevent coupling.
 4. **Verification**: Verify that the failure of Service A does not synchronously bring down Service B (circuit breaking).
 
-## Security & Guardrails
+## Constraints
+- Each service owns its data.
+- No circular dependencies between services.
 
-### 1. Skill Security
-- **Config Sprawl**: Restrict unbounded creation of new service template folders to prevent filesystem exhaustion.
-- **Dependency Hell**: Forbid circular dependencies between microservices during the design phase.
+## Output Format
+The service boundary list, the API or message contracts, and a table of which service owns which data.
 
-### 2. System Integration Security
-- **Service-to-Service Auth**: Require mutual TLS (mTLS) or internal JWT validation for all inter-service traffic. No implicit trust boundaries.
-- **Data Leakage**: Ensure that aggregated edge-responses do not accidentally expose internal service identifiers or foreign keys.
-
-### 3. LLM & Agent Guardrails
-- **Distributed Monolith Hallucination**: Prevent the LLM from designing tightly-coupled synchronous systems masquerading as microservices.
-- **Simplification Bias**: The LLM must not omit critical distributed systems concerns (network latency, retries, eventual consistency) from its proposed architecture.
+## Limits and safety
+- Reject services that share a database, unbounded or circular synchronous call chains, and a synchronous call without a timeout, a retry limit and a circuit breaker: label those a distributed monolith. A bounded synchronous call that has all three is allowed.
+- Every service-to-service call is authenticated (mutual TLS or signed internal tokens); no implicit trust inside the network.
+- Aggregated edge responses expose no internal ids or foreign keys.
+- State network latency, retries and eventual consistency; allow no circular service dependencies.
+- Create scaffolds only for services in the approved decomposition.

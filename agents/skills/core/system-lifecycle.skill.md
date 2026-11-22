@@ -1,6 +1,6 @@
 ---
 name: system-lifecycle
-description: Orchestrate the full SDLC from Requirement to Code to Test (Traceability).
+description: Keeps a traceability matrix from requirement ID to design, code and test, and checks the Definition of Done. Use when asked what a change affects, whether every requirement has a test, or whether a task is done.
 triggers: [lifecycle, traceability, requirement, golden thread, definition of done, verify requirements]
 tags: [core]
 context_cost: medium
@@ -36,16 +36,16 @@ To ensure every line of code has a reason (Requirement) and a verification metho
 -   `TRACEABILITY_MATRIX.md`: The living map of the system.
 -   `impact-analysis.md`: Report on proposed changes.
 
-## Security & Guardrails
+## Constraints
+- Write code only for requirements that are in the approved PRD; if none matches, stop and ask.
+- A requirement counts as covered only when a test carrying its ID exists and you ran it.
+- Update `TRACEABILITY_MATRIX.md` only from a trace you just recomputed.
 
-### 1. Skill Security (System Lifecycle)
-- **Matrix Immutability**: The `TRACEABILITY_MATRIX.md` must be write-protected against ad-hoc modifications; it can only be updated through verified, systematic agent workflows to prevent tampering with compliance mappings.
-- **Traceability Chain of Custody**: Every link in the Golden Thread (Req -> Design -> Code -> Test) must retain the ID of the agent or human that approved the connection, providing definitive forensic accountability.
+## Output Format
+`TRACEABILITY_MATRIX.md` (one row per requirement: design element, code, test, status) and, for a proposed change, `impact-analysis.md` listing the requirements it touches.
 
-### 2. System Integration Security
-- **Compliance Gap Sniffing**: The system must run periodic automated queries against the traceability matrix to surface "Orphan Code" (code with no requirement) which is a strong indicator of backdoors, scope creep, or unauthorized feature injection.
-- **Impact Radius Containment**: When performing a Change Impact Analysis, the system must aggressively highlight if a proposed change traces back to a requirement tagged with high security/compliance risk (e.g., PCI-DSS, HIPAA), triggering mandatory elevated human review.
-
-### 3. LLM & Agent Guardrails
-- **Requirement Fabrication Defense**: Agents must be block-listed from writing code to satisfy hallucinated requirements that do not exist in the officially approved PRD, effectively short-circuiting AI-driven scope creep.
-- **False Coverage Hallucination**: The LLM must not be allowed to simply assert that a requirement is covered by a test. It must use AST (Abstract Syntax Tree) parsing or test-suite metadata (e.g., `@req()` tags in execution output) to mathematically prove the link exists.
+## Limits and safety
+- Do not write code for a requirement that is not in the approved PRD; ask the human instead.
+- Say a requirement is covered only after you listed the tests that carry its ID (for example with `grep -rn "REQ-001" tests/`) and ran them.
+- A change that traces to a security or compliance requirement (for example PCI-DSS or HIPAA) goes to the human for review.
+- Report code with no requirement ("orphan code") as a finding at each checkpoint.

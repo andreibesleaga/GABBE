@@ -1,6 +1,6 @@
 ---
 name: visual-whiteboarding
-description: "Use spatial-canvas MCP servers (Miro, Draw.io, Figma) to map architectures, user flows, and wireframes. Use when: whiteboard, miro, draw.io, figma, canvas, spatial, wireframe."
+description: "Drawing architecture or flows on a Miro, Draw.io or Figma board through their MCP tools, with a plan first and a re-read afterwards. Use when the human asks for a board or canvas, or for design-to-code from Figma."
 license: CC-BY-SA-4.0
 metadata:
   source: "agents/skills/architecture/visual-whiteboarding.skill.md"
@@ -10,6 +10,7 @@ metadata:
 ---
 # Visual Whiteboarding Skill
 
+## Goal
 To be used when the user requests generating diagrams onto a physical board, canvas, or using external visual diagramming tools (Miro, Draw.io, Figma).
 
 ## 1. When to Use Visual Whiteboarding
@@ -25,29 +26,23 @@ To be used when the user requests generating diagrams onto a physical board, can
 | **Figma** | High-fidelity UI Design, Component Specs, UI/UX tokens | Read-only extraction of visual semantics to output React/HTML/CSS code. |
 | **Mermaid (Image)** | Quick, stateless, text-to-image rendering | Translates Markdown blocks to SVG/PNG images. |
 
-## 3. Workflow for Generating Canvas Architecture
+## Steps
+### Workflow for Generating Canvas Architecture
 1.  **Understand Requirements**: Read the `PLAN.md` or `SYSTEM_ANALYSIS_TEMPLATE.md`.
 2.  **Define Nodes and Edges**: Before calling the visual MCP tools, formulate the topology using the `WHITEBOARD_DESIGN_TEMPLATE.md`.
 3.  **Execute the Drawing**: Use the specific MCP server tool (e.g., `create_shape` in Miro or `write_drawio_xml` in Draw.io) to instantiate the diagram on the board.
 4.  **Verification**: Re-read the canvas or generated XML to ensure no relationships were hallucinated or omitted.
 
-## 4. Avoiding Hallucinations
+## Constraints
+### Avoiding Hallucinations
 *   **Spatial Overlap**: Agents must calculate X/Y coordinates carefully to avoid stacking nodes on top of each other. Add an arbitrary offset (e.g., +200px) per new node in a sequence.
 *   **Secret Leakage**: NEVER write API keys, database credentials, or real user data onto shared visual canvases like Miro or Figma. Redact all tokens.
 
-## Security & Guardrails
+## Output Format
+The diagram on the named board or in the `.drawio` file, plus the topology plan made with `WHITEBOARD_DESIGN_TEMPLATE.md`.
 
-### 1. Skill Security
-
-* **No secrets on canvases**: Boards and design files are shared with everyone who has the link. Never place API keys, credentials, internal hostnames or real user data on them; use labelled placeholders.
-* **Sanitize labels**: Treat user-provided node names as untrusted text. Escape them before writing `.drawio` XML or board items, so a label cannot break the file or inject markup.
-
-### 2. System Integration Security
-
-* **Least-privilege MCP tokens**: Give the Miro, Draw.io or Figma MCP server a token scoped to the one board or file it needs, read-only where the task only reads (Figma extraction).
-* **Respect board permissions**: Do not change sharing settings or invite users; ask the human to do it.
-
-### 3. LLM & Agent Guardrails
-
-* **Draw only what exists**: Render the verified architecture from the plan or the code. Do not add components (WAF, KMS, queues) that the system does not have.
-* **Human review before sharing**: Present the generated diagram for approval before it is posted to a shared board.
+## Limits and safety
+- No secrets, credentials, internal hostnames or real user data on a board; use labelled placeholders.
+- Escape user-provided labels before writing `.drawio` XML or board items.
+- Give the MCP server a token limited to one board or file, read-only where the task only reads; do not change sharing settings or invite people.
+- Draw only what exists, and show the generated diagram to the human before it is posted to a shared board.

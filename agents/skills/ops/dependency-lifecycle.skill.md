@@ -1,14 +1,7 @@
 ---
 name: dependency-lifecycle
-description: Define a dependency lifecycle policy — patch/minor/major upgrade cadence, SBOM refresh, CVE triage, EOL tracking, automated PRs, lockfile hygiene, and supply-chain pinning.
-triggers:
-  - define our dependency upgrade cadence
-  - set up a dependency lifecycle policy
-  - triage these cve advisories
-  - refresh the sbom for the next release
-  - track end-of-life dependencies
-  - configure automated dependency pull requests
-  - enforce lockfile and pinning hygiene
+description: Set the policy for keeping dependencies current - patch, minor and major cadence, SBOM refresh, CVE triage, EOL tracking, automated update PRs, lockfiles and pinning. Use when you define or review how a project handles updates and advisories.
+triggers: [define our dependency upgrade cadence, set up a dependency lifecycle policy, triage these cve advisories, refresh the sbom for the next release, track end-of-life dependencies, enforce lockfile and pinning hygiene]
 tags: [ops, dependencies, supply-chain, maintenance]
 core: false
 context_cost: medium
@@ -27,7 +20,7 @@ Produce a dependency lifecycle policy that keeps a project's third-party depende
 6. **Automate dependency PRs.** Configure automated update PRs (grouped by class to reduce noise), with CI gates that must pass before merge. Auto-merge is permissible only for patch/dev updates with green CI and human review reserved for minor/major.
 7. **Enforce lockfile hygiene.** Require committed, deterministic lockfiles; every dependency change updates the lockfile in the same PR. Reject PRs that change manifests without the corresponding lockfile update. Verify resolved versions match the lockfile in CI.
 8. **Pin the supply chain.** Pin dependencies (and CI actions/base images) to exact versions or integrity hashes/digests rather than floating ranges or mutable tags, so builds are reproducible and a hijacked upstream tag cannot silently change resolved code.
-9. **Assign ownership and write the policy.** Name owners for each class and for EOL tracking, then assemble the Output Format below.
+9. **Assign ownership and write the policy.** Name owners for each class and for EOL tracking, then assemble the Output Format below. For the procedure of one single upgrade, see `dependency-upgrade.skill`.
 
 ## Constraints
 - Patch/security updates are adopted promptly; majors are always planned migration work, never auto-merged.
@@ -48,16 +41,9 @@ A dependency lifecycle policy in Markdown:
 - **Lockfile & pinning** — hygiene rules and pinning policy (versions/digests).
 - **Owners** — named owners per class and for EOL.
 
-## Security & Guardrails
-
-### 1. Skill Security
-- **Risk**: Adopting a malicious or typosquatted package during an "upgrade." Mitigation: verify package provenance/integrity hashes, restrict installs to approved registries, and review new transitive additions in dependency PRs.
-- **Risk**: A CVE dismissed as "not exploitable" without evidence, leaving a real hole. Mitigation: require a documented reachability/exploitability justification recorded in the audit trail for any advisory marked as accepted-risk.
-
-### 2. System Integration Security
-- **Risk**: Floating version ranges or mutable CI action tags letting a hijacked upstream inject code into the build. Mitigation: pin to exact versions or commit/digest hashes and verify integrity in CI; treat un-pinning as a security-reviewed change.
-- **Risk**: Auto-merge bots merging a poisoned or breaking update with weak CI. Mitigation: gate all auto-merge on the full CI suite plus SCA scan; restrict auto-merge to patch/dev classes with required status checks under branch protection.
-
-### 3. LLM & Agent Guardrails
-- **Risk**: The agent bumping a major version and "fixing" the breakage by deleting tests or loosening assertions. Mitigation: major upgrades are human-reviewed migration tasks; the agent may not weaken test coverage to make an upgrade pass.
-- **Risk**: The agent suppressing or down-ranking a security advisory to keep a PR green. Mitigation: CVE severity may not be edited by the agent; unresolved advisories above the policy threshold block merge and escalate to a human.
+## Limits and safety
+- Accept a CVE as not exploitable only with a written reachability reason in `AUDIT_LOG.md`; the agent does not lower an advisory's severity.
+- Major upgrades are separate tasks reviewed by the human; never loosen or delete tests to make an upgrade pass.
+- Check new transitive packages in an update PR against the approved registry before accepting it.
+- If your platform provides branch protection and required checks, restrict auto-merge to patch and dev updates with green CI and a scan.
+- Pin CI actions and base images to exact versions or digests.

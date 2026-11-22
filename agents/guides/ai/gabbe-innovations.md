@@ -83,12 +83,12 @@ pure-markdown runtime. So the structure is real; the discipline that fills it is
 ## 5. The Loki swarm SDLC
 
 **The claim.** "Loki mode" orchestrates a swarm of specialized personas through a phased software
-lifecycle (S01–S10, plus Day-2 phases S11/S12), with gates and human checkpoints between phases.
+lifecycle (14 phases, S00–S13), with gates and six human checkpoints between phases.
 
-**What is real and working.** The phase specifications (S01 Requirements through S10 Production
-Deployment), the persona roster, the per-phase checkpoints that write to memory, and the
+**What is real and working.** The phase specifications (S00 Strategy & Discovery through S13 Decommission
+& Sunset), the persona roster, the per-phase checkpoints that write to memory, and the
 human-approval gates are all defined in the kit and are followed by an agent that loads them. The
-phase validator even recognizes the extended Day-2 phases (S11/S12) as legitimate. The persona
+phase validator recognizes all phases S00–S13 as legitimate. The persona
 specialization (each persona's Role / Does NOT / Context Scope / Outputs / RARV cycle) is concrete
 and usable.
 

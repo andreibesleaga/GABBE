@@ -1,6 +1,6 @@
 ---
 name: arch-patterns
-description: "Recommends and analyzes system architecture patterns (Microservices, EDA, Serverless, etc.) based on requirements. Use when: architecture, system design, scalability, microservices, event-driven, serverless."
+description: "Shortlist of one or two architecture patterns (modular monolith, microservices, event-driven, serverless, CQRS) with pros and cons for the project. Use when someone asks which architecture style fits the requirements."
 license: CC-BY-SA-4.0
 metadata:
   source: "agents/skills/architecture/arch-patterns.skill.md"
@@ -29,6 +29,7 @@ When designing a system or component:
     -   **Event-Driven (EDA)**: For decoupled, reactive systems.
     -   **Space-Based**: For extreme concurrency (in-memory data grids).
     -   **CQRS**: For separate read/write scaling profiles.
+    -   **Local-first / offline-first**: see `adaptive-architecture.skill`.
 
 3.  **Recommend**:
     -   Propose 1-2 patterns.
@@ -40,16 +41,14 @@ When designing a system or component:
 -   **Defer Complexity**: Don't use Microservices until you have a specific problem they solve.
 -   **Evolutionary Arch**: Design for change. Use "Fitness Functions" to measure architectural drift.
 
-## Security & Guardrails
+## Constraints
+- Propose one or two patterns, each with pros and cons for this project.
+- A modular monolith is the default unless a stated requirement needs more.
 
-### 1. Skill Security (Architecture Patterns)
-- **Security Pattern Coupling**: The agent must inextricably link security patterns to their corresponding structural patterns. If proposing `Microservices`, it MUST propose `API Gateway + mTLS` for inter-service auth. If proposing `Event-Driven (EDA)`, it MUST propose `Message Signing + Payload Encryption` to prevent Kafka/RabbitMQ spoofing.
-- **Serverless Blast Radius**: When recommending `Serverless`, the agent must emphasize that while operational security overhead decreases, the IAM (Identity and Access Management) complexity explodes. Every Lambda/Function must have a surgically precise, least-privilege execution role, strongly advised against in the `arch-patterns` recommendation.
+## Output Format
+The choice documented with `ARCH_DECISION_FRAMEWORK.md` (`templates/architecture/`).
 
-### 2. System Integration Security
-- **State-Based vs. Event-Based Threats**: The agent must recognize the differing threat vectors. For *State-Based* (CRUD Monoliths), the primary threat is SQLi/BOLA. For *Event-Based* (Space-Based, CQRS), the primary threats are Replay Attacks, Poison Pill messages, and Eventual Consistency exploits (e.g., double-spending before the read-model updates).
-- **Synchronous vs. Asynchronous DoS**: The agent must highlight how the chosen pattern handles Denial of Service. A layered monolith might fall over immediately, while an EDA pattern might gracefully queue the load but exhaust disk space. The recommendation must include the matching resiliency pattern (Circuit Breaker vs. Backpressure).
-
-### 3. LLM & Agent Guardrails
-- **Pattern Dogmatism Defense**: The agent must not treat any architectural pattern as a "Silver Bullet." If a user requests a Microservices architecture for a simple 3-page CRUD app, the agent must challenge the decision using cost, complexity, and security surface area as primary arguments.
-- **Hallucinated "Secure-by-Default" Claims**: The LLM might falsely claim that a specific pattern (e.g., Serverless) makes the application immune to traditional attacks like XSS or SQLi. The agent must correct this; application-layer vulnerabilities exist entirely independently of the underlying execution architecture.
+## Limits and safety
+- Pair each pattern with its security and resilience part: microservices with service authentication, event-driven with message authenticity, replay and poison-message handling and backpressure, serverless with a least-privilege role per function.
+- Never claim a pattern removes application flaws such as XSS or SQL injection.
+- For a small system, challenge a heavy pattern with cost and complexity; if the human insists, record the choice in an ADR.

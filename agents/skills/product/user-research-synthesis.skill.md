@@ -59,27 +59,8 @@ Produce a synthesis package containing:
 - A prioritized list of insight statements (observation → implication → opportunity), each tagged with its
   evidence strength (participant count / method) and a confidence level.
 
-## Security & Guardrails
-
-### 1. Skill Security
-- **Risk**: Confirmation-biased synthesis — the agent surfaces only patterns matching a stakeholder's prior
-  hypothesis and buries disconfirming data; mitigation: the agent MUST report contradicting observations
-  alongside supporting ones and never drop a cluster solely because it conflicts with a desired conclusion.
-- **Risk**: Evidence inflation — a single anecdote is presented as a widespread pattern; mitigation: every
-  finding carries its participant count and the agent refuses to label an n=1 observation as a "pattern."
-
-### 2. System Integration Security
-- **Risk**: PII exposure — raw research contains real names, contact details, recordings, and sensitive
-  disclosures; mitigation: the agent strips and pseudonymizes all participant identifiers before any
-  persona or insight is emitted, and keeps raw transcripts in a restricted working artifact only.
-- **Risk**: Re-identification — a "synthetic" persona reproduces one participant closely enough to identify
-  them; mitigation: the agent composites across multiple participants and removes uniquely identifying
-  detail so no persona maps to a single real person.
-
-### 3. LLM & Agent Guardrails
-- **Risk**: Hallucinated evidence — the model fabricates a verbatim quote or statistic to support a tidy
-  insight; mitigation: quotes are used only verbatim from source and any number must trace to data, with
-  unsupported claims marked as inference rather than fact.
-- **Risk**: Sampling and demographic bias — synthesis over-represents the loudest or most available segment
-  and erases under-served users; mitigation: the agent reports who is and is not represented in the sample
-  and flags segments with no coverage as gaps rather than silently generalizing.
+## Limits and safety
+- Remove names, contact details and recording identifiers before emitting any persona or insight; raw transcripts stay in a restricted working file.
+- Personas are composites of several participants; no persona maps to one person.
+- Quote only verbatim text from the source, trace each number to data, and mark inference as inference.
+- Report contradicting observations and who is missing from the sample; show the participant count, since n=1 is not a pattern.

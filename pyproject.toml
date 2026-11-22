@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=77.0.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -68,6 +68,8 @@ gabbe = "gabbe.main:main"
 
 [tool.setuptools.packages.find]
 include = ["gabbe*"]
+# The test suite is not installed: nothing at run time imports gabbe.tests.
+exclude = ["gabbe.tests", "gabbe.tests.*"]
 
 # The Markdown agentic kit (agents/, docs/, scripts/init.py) lives OUTSIDE the
 # importable `gabbe*` package, so MANIFEST.in bundles it into the **sdist** only —
@@ -77,6 +79,10 @@ include = ["gabbe*"]
 # packages.find selection above.
 [tool.setuptools]
 include-package-data = true
+
+# Keep gabbe/tests (and its baselines) out of the wheel; the sdist still carries them.
+[tool.setuptools.exclude-package-data]
+gabbe = ["tests/*", "tests/**/*"]
 
 [tool.pytest.ini_options]
 testpaths = ["gabbe/tests", "scripts/tests"]

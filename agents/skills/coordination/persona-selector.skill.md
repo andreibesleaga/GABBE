@@ -3,13 +3,18 @@ name: persona-selector
 description: Rank/select the best Loki persona(s) per task; persona delegation, consensus voting, bounded self-refinement — cost-gated.
 triggers: [persona selector, best persona, which agent, pick persona, delegate to persona, route task, assign persona, who should do this, persona voting]
 tags: [coordination]
-core: true
 context_cost: medium
 ---
 # Persona-Selector Skill
 
 ## Goal
 Pick the **best persona(s)** for each task instead of relying only on the fixed per-phase assignments in `loki-mode.skill`. The phase defaults remain the baseline; this skill lets the orchestrator adapt — choosing a more relevant persona, tiering by cost, delegating between personas under a contract, voting on high-stakes decisions, and letting personas refine themselves within bounds. Everything here is cost-gated by `GABBE_AUTONOMY` + budget.
+
+## Steps
+1. Rank the candidate personas (Selection).
+2. If work passes from one persona to another, write the contract (Delegation).
+3. For a high-stakes decision, decide whether to convene a panel (Voting).
+4. Report the result in the Output Format below.
 
 ## Selection (semantic routing — markdown-heuristic by default)
 Rank candidate personas for the task using the persona registry (`agents/personas/00-index.md`) — no new embedding infra required:
@@ -63,16 +68,9 @@ Personas may improve over time within tight bounds (markdown-level, via `brain/l
 - Persona core mandate, phase boundaries, and security scope are immutable to self-refinement.
 - The fixed `loki-mode` phase assignments remain the safe default when selection is uncertain.
 
-## Security & Guardrails
-
-### 1. Skill Security (Persona-Selector)
-- **Approved-target enum:** every selected/delegated persona must exist in `agents/personas/` — reject hallucinated or out-of-scope targets, failing safe back to the coordinator (mirrors loki-mode's Delegation-Hallucination guard).
-- **Scope lock:** selection cannot grant a persona permissions outside its mandate (e.g. an `eng-qa` persona never gains deploy/merge rights by being "selected").
-
-### 2. System Integration Security
-- **Contract integrity:** the delegation contract (constraints, eval metric, budget) is binding; a subcontract cannot relax its parent's security/phase constraints.
-- **Vote tampering:** consensus tallies must come from actual independent persona outputs, not a single model asserting a count — otherwise voting is theatre that can be gamed.
-
-### 3. LLM & Agent Guardrails
-- **Cost-gate integrity:** tier/voting decisions use live budget, not model-asserted budget, so the selector cannot talk itself into an expensive panel.
-- **No self-promotion:** a persona's bounded self-refinement must never expand its own authority, budget, or security scope — those are human-only changes.
+## Limits and safety
+- Choose or delegate only to personas that exist in `agents/personas/`; if a name is not there, fall back to the coordinator and say so.
+- Selecting a persona gives it no rights beyond its mandate (an `eng-qa` persona gets no deploy or merge right). A subcontract cannot relax its parent's security or phase constraints.
+- A panel counts as a vote only when the votes come from separate subagent contexts or the human; otherwise it is a REVIEW (see `swarm-consensus.skill`).
+- Read the budget from the real config or usage data, not from the model's own estimate.
+- Self-refinement never widens a persona's authority, budget or security scope; only a human does.

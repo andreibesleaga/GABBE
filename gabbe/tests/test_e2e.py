@@ -152,7 +152,7 @@ class TestGabbeE2E(unittest.TestCase):
     # ------------------------------------------------------------------
     def test_06_verify(self):
         """Integrity check passes with all required files and fails without."""
-        from gabbe.verify import run_verification
+        from gabbe.verify import run_verification, verification_exit_code
 
         # Create required files
         agents = self.project_root / "agents"
@@ -161,7 +161,7 @@ class TestGabbeE2E(unittest.TestCase):
         (agents / "CONSTITUTION.md").touch()
         self.tasks_file.touch()
 
-        self.assertTrue(run_verification())
+        self.assertEqual(verification_exit_code(allow_empty=True), 0)
 
         # Remove a file → should fail
         self.tasks_file.unlink()

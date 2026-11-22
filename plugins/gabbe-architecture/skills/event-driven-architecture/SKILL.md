@@ -1,6 +1,6 @@
 ---
 name: event-driven-architecture
-description: "Design and implement Event-Driven and Async Architectures. Use when: design event-driven system, implement eda, setup message broker topology."
+description: "Event-driven design — events, producers and consumers, broker choice, schemas and idempotent consumers. Use when services should communicate through events or queues instead of direct calls."
 license: CC-BY-SA-4.0
 metadata:
   source: "agents/skills/architecture/event-driven-architecture.skill.md"
@@ -19,16 +19,16 @@ Architect distributed, decoupled systems using Event-Driven Architecture (EDA) p
 3. **Schema Registry**: Define strongly typed schemas (Avro, Protobuf, JSON Schema) for all events.
 4. **Verification**: Validate that idempotent consumers are implemented to handle at-least-once delivery semantics.
 
-## Security & Guardrails
+## Constraints
+- Every consumer is idempotent (at-least-once delivery).
+- Every event has a typed schema.
 
-### 1. Skill Security
-- **Schema Poisoning**: Prevent the skill from executing dynamic code attached to event payloads when simulating event flows.
-- **Topology Overload**: Limit the visual diagram generation (e.g., Mermaid) to prevent generating massively complex graphs that crash the markdown renderer.
+## Output Format
+The event model (producer and consumer map), the broker choice with its reason, and the event schemas.
 
-### 2. System Integration Security
-- **Event Tampering**: All events traversing untrusted boundaries must be digitally signed to guarantee origin and integrity.
-- **Dead Letter Security**: Ensure sensitive data (PII/PCI) in failed events is masked or encrypted before being dumped into a Dead Letter Queue (DLQ).
-
-### 3. LLM & Agent Guardrails
-- **Ordering Hallucination**: The LLM must not assume guaranteed global ordering of events unless explicitly supported by the selected broker (e.g., Kafka partitions).
-- **Consistency Fallacies**: Explicitly warn the user about eventual consistency side-effects; do not falsely claim that distributed EDA systems provide ACID guarantees out-of-the-box.
+## Limits and safety
+- Do not assume global event order; state the ordering the chosen broker gives (for example per partition).
+- State the cost of eventual consistency; an event-driven system has no ACID guarantees by itself.
+- Events that cross an untrusted boundary must be verifiable: use the broker's or platform's message signing, or a signature added by the producing service and checked by the consumer. If the design has neither, it fails review.
+- Mask or encrypt personal and payment data before it goes into a dead letter queue.
+- Never execute code carried in an event payload when simulating flows; keep generated diagrams small enough to render.

@@ -13,6 +13,9 @@ metadata:
 ## Goal
 Verify that the codebase and system configuration meet applicable regulatory requirements. Produce a gap report with specific remediation actions.
 
+## Where it fits
+Phase and gate: S01 (find which rules apply), S07 (gap check), S11 (periodic). Evidence: `docs/compliance/[regulation]-gap-report.md` and the saved raw outputs under `docs/compliance/evidence/`.
+
 ## Steps
 
 1. **Identify applicable regulations**
@@ -24,6 +27,8 @@ Verify that the codebase and system configuration meet applicable regulatory req
    - ISO 27001: general information security management
 
 2. **Run the applicable checklist**
+
+   > The criteria ids below (CC6.x, A1.x, C1.x) and the PCI requirement numbers are from memory of the standards. Check each against the AICPA Trust Services Criteria and the PCI DSS document before you rely on it; they are not re-verified.
 
    ### SOC2 Type II — Trust Service Criteria
    ```
@@ -46,16 +51,16 @@ Verify that the codebase and system configuration meet applicable regulatory req
    [ ] C1.3: Data disposal procedure for end-of-lifecycle
    ```
 
-   ### PCI-DSS v4.0 — Key Requirements
+   ### PCI-DSS v4.0.1 — Key Requirements (v4.0.1 is the version listed on pcisecuritystandards.org on 2026-11-21)
    ```
    [ ] Req 1: Firewall/network security controls installed and documented
    [ ] Req 2: No default passwords or vendor-supplied defaults
    [ ] Req 3: Card data (PAN) never stored in plaintext — tokenize or don't store
-   [ ] Req 4: Encryption in transit (TLS 1.2+ for cardholder data)
+   [ ] Req 4: Encryption in transit (TLS version: see `cryptography-standards.skill.md`; check PCI DSS for its own minimum)
    [ ] Req 6: Secure development policy — SAST/SCA in CI/CD pipeline
    [ ] Req 7: Least privilege access to cardholder data systems
    [ ] Req 8: MFA for all access to cardholder data environment
-   [ ] Req 10: Audit log of all access to cardholder data (90 days online, 1 year archived)
+   [ ] Req 10: Audit log of all access to cardholder data (keep the period the standard sets in requirement 10.5; read it, do not rely on this list)
    [ ] Req 11: Vulnerability scanning and penetration testing schedule
    [ ] Req 12: Incident response plan for data breach
    ```
@@ -82,7 +87,7 @@ Verify that the codebase and system configuration meet applicable regulatory req
 3. **Check audit trail completeness**
    - Every mutation of regulated data must be logged with: user ID, timestamp, action, record ID
    - Log format: append-only (no updates or deletes to audit log)
-   - Log retention: SOC2/PCI = 90 days online + 1 year archived; HIPAA = 6 years; GDPR = per policy
+   - Log retention: the period each regulation or the project policy sets. Write the period and its source in the report; do not use a number from this skill.
    - Log access: restricted to security/compliance team only
    - Check: does AUDIT_LOG.md cover all regulated data mutations?
 
@@ -94,7 +99,7 @@ Verify that the codebase and system configuration meet applicable regulatory req
 
 5. **Check incident response plan**
    - Is there a documented incident response procedure?
-   - Are breach notification timeframes defined? (GDPR: 72 hours; HIPAA: 60 days)
+   - Are breach notification timeframes defined? (GDPR Article 33: 72 hours to the supervisory authority where feasible; HIPAA 45 CFR 164.404: individual notice without unreasonable delay and within 60 days; both checked 2026-11-21)
    - Is there a contact list for regulatory notification?
    - Has the plan been tested (tabletop exercise)?
 
@@ -140,16 +145,9 @@ Verify that the codebase and system configuration meet applicable regulatory req
 ## Output Format
 Compliance gap report at `docs/compliance/[regulation]-gap-report.md` with priority-ordered remediation plan.
 
-## Security & Guardrails
-
-### 1. Skill Security (Compliance Review)
-- **Auditor Independence Validation**: The agent performing the compliance review must operate in an isolated, read-only context. It must not possess the necessary IAM permissions to alter the system configuration it is actively auditing. This enforces separation of duties and prevents the agent from autonomously masking compliance failures.
-- **Evidence Immutability**: The telemetry, logs, and configuration states ingested by the agent to generate the `[regulation]-gap-report.md` must be cryptographically hashed upon ingestion. The generated report must include these hashes to ensure the raw evidence cannot be altered post-review to challenge the findings.
-
-### 2. System Integration Security
-- **PCI-DSS Scope Containment**: When auditing PCI-DSS Req 1 & 7, the agent must aggressively map the network boundaries. If the agent detects that the Cardholder Data Environment (CDE) shares a subnet, database, or lateral trust relationship with a non-compliant tertiary system, it must immediately flag this as a critical scope-bleed violation.
-- **Audit Defeat Mechanics Detection**: The agent must proactively search the codebase for sophisticated audit-bypass logic (e.g., developers wrapping regulated data mutations in `try-catch` blocks that suppress the generation of an audit log entry upon failure, or using highly privileged service accounts that bypass application-level logging hooks).
-
-### 3. LLM & Agent Guardrails
-- **Compliance Hallucination Avoidance**: The LLM is strictly prohibited from inventing false interpretations of regulatory frameworks. If a specific technical implementation is ambiguous under SOC2 or HIPAA guidelines, the agent must not synthesize a definitive "Compliant" ruling. It must escalate the ambiguity to human legal counsel.
-- **Risk Acceptance Abuse**: An authorized user might prompt the agent to "auto-generate a risk acceptance memo for all missing MFA controls to pass the audit today." The agent must refuse this directive. Risk acceptance for critical constraints (like MFA for PCI-DSS) is explicitly forbidden by the frameworks and constitutes fraudulent compliance reporting.
+## Limits and safety
+- This is a gap check, not an audit or a certification. "Compliant" is for the human or an assessor to say. Escalate ambiguous points.
+- Read-only: do not change the system you review.
+- Do not write a risk-acceptance memo for a control the standard requires (for example MFA where it is required). List it as a gap.
+- Save raw evidence files unchanged with the command and date.
+- Flag regulated data stores that share a network or database with out-of-scope systems.

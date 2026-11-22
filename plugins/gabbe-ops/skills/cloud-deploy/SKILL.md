@@ -1,6 +1,6 @@
 ---
 name: cloud-deploy
-description: "Deploy applications to modern cloud platforms (Vercel, Railway, AWS). Use when: deploy, vercel, railway, aws, sst, serverless, lambda, flightcontrol, neon, supabase."
+description: "Configure and deploy an app to Vercel, Railway or AWS (SST) with config files in the repo, parity of environments and no hand-set options. Use when you pick a hosting platform or write vercel.json, railway.toml or sst.config.ts."
 license: CC-BY-SA-4.0
 metadata:
   source: "agents/skills/ops/cloud-deploy.skill.md"
@@ -36,23 +36,22 @@ To configure rapid, developer-friendly deployments on modern PaaS and Serverless
     -   **Docker/Stateful/Backend**: Railway.
     -   **Enterprise/Complex/Serverless**: AWS (via SST).
 2.  **Environment Parity**: Ensure `.env` vars match across local and cloud (but values differ).
-3.  **Infrastructure as Code**: Always define the deployment config locally (don't click-ops settings).
+3.  **Infrastructure as Code**: Always define the deployment config locally (don't click-ops settings). For Terraform, Kubernetes and pipeline files see `infra-devops.skill`.
 
 ## Deliverables
 -   `vercel.json`
 -   `railway.toml`
 -   `sst.config.ts`
 
-## Security & Guardrails
+## Constraints
+- Deployment settings live in files in the repository, not in a web console.
+- Environment variable names match across environments; values and secrets do not live in the repository.
 
-### 1. Skill Security (Cloud Deploy)
-- **Declarative Infrastructure Validation**: The agent must run security linters (e.g., `checkov`, `tfsec`, `cfn-lint`) against generated `sst.config.ts` or `railway.toml` files locally before they are ever committed, detecting overly permissive IAM roles or public buckets early.
-- **Immutable Artifacts**: Ensure deployment pipelines treat builds as immutable artifacts. The exact container or bundle built in Staging must be promoted to Production, preventing "works on my machine" hidden vulnerabilities.
+## Output Format
+The platform config file(s) named under Deliverables, plus a short note in the project docs with the target environment, the command to deploy and the command to roll back.
 
-### 2. System Integration Security
-- **Least Privilege Deployments**: CI/CD runners executing the cloud deployment commands must operate under scoped roles (e.g., AWS IAM OIDC) with the minimum permissions required, eliminating the use of long-lived, omnipotent Admin Access Keys.
-- **Secret Zero Strategy**: Hardcoded API keys, DB passwords, or certificates in `vercel.json` or `.env` files are strictly forbidden. The deploy skill must orchestrate the secure retrieval of variables from a designated Secret Manager (e.g., AWS Secrets Manager, Doppler) at runtime.
-
-### 3. LLM & Agent Guardrails
-- **Blind Configuration Defense**: The agent must explicitly refuse user requests to generate blanket open network security groups (e.g., `Allow 0.0.0.0/0 on Port 22/3306`) even if the user claims it is "just for testing."
-- **Deployment Confirmation Gates**: When tasked with modifying Production deployment configurations via PaaS APIs, the agent must output a dry-run confirmation plan and halt execution, requiring explicit human intervention to verify that the target environment is correct.
+## Limits and safety
+- Show the exact deploy command and a dry run or plan for production, then wait for the human to confirm the target environment.
+- If a linter for the config exists in the project (checkov, tfsec, cfn-lint), run it on the generated files before they are committed.
+- Do not open ports such as 22 or 3306 to 0.0.0.0/0, even for a test; propose a narrow source range.
+- Use short-lived or scoped credentials for the pipeline where the platform provides them; keys and passwords are not written into config files.

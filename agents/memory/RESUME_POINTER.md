@@ -6,7 +6,7 @@
 
 - Updated: [ISO timestamp]
 - Current task: [task id / one-line]
-- SDLC phase: [S0X or —]
+- SDLC phase: [S<NN> or —]
 - Last completed step: [what just finished + commit hash if any]
 - NEXT ACTION: [the precise next step a new agent should take]
 - Open questions (blocking): [list or none]

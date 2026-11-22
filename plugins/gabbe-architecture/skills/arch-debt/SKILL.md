@@ -1,6 +1,6 @@
 ---
 name: arch-debt
-description: "Identify architectural anti-patterns — coupling, circular dependencies, God objects — and propose concrete migration paths. Use when: architecture debt, coupling, God object, Big Ball of Mud, circular dependency, spaghetti, modularize, arch debt."
+description: "Architecture debt report with coupling metrics, dependency cycles, layer violations and a phased migration plan. Use when modules depend on each other in circles, one class does everything, or structure blocks change."
 license: CC-BY-SA-4.0
 metadata:
   source: "agents/skills/architecture/arch-debt.skill.md"
@@ -20,10 +20,10 @@ Identify architectural anti-patterns through dependency analysis and propose con
    **JavaScript/TypeScript:**
    ```bash
    # Circular dependency detection
-   npx madge --circular --extensions ts,js,tsx src/
+   npx madge@8.0.0 --circular --extensions ts,js,tsx src/
 
    # Full dependency graph visualization
-   npx madge --image dependency-graph.svg --extensions ts,js src/
+   npx madge@8.0.0 --image dependency-graph.svg --extensions ts,js src/
 
    # Dependency rules enforcement
    npx dependency-cruiser --config .dependency-cruiser.cjs src/
@@ -70,7 +70,7 @@ Identify architectural anti-patterns through dependency analysis and propose con
    - Cross-cutting concerns not in dedicated layer
 
    **Behavioral Debt** (wrong responsibilities):
-   - God classes (> 500 lines, > 20 public methods)
+   - God classes (> 20 public methods, several unrelated responsibilities)
    - Fat controllers (business logic in HTTP layer)
    - Service classes doing everything
 
@@ -114,7 +114,7 @@ Identify architectural anti-patterns through dependency analysis and propose con
    Step 1: Add facade/gateway in front of legacy code
    Step 2: Route NEW requests to new module
    Step 3: Gradually migrate existing logic to new module
-   Step 4: Remove legacy code when fully migrated
+   Step 4: Remove legacy code when fully migrated (propose the exact removal command; run it only after the human confirms)
    ```
 
 5. **Prioritize architecture debt**
@@ -146,7 +146,7 @@ Identify architectural anti-patterns through dependency analysis and propose con
      Fix: Apply Dependency Inversion (create repository interface in domain)
 
    ### God Objects
-   - [HIGH] UserService.ts: 843 lines, 28 public methods
+   - [HIGH] UserService.ts: 28 public methods, 4 unrelated responsibilities
      Fix: Extract into 4 specialized services
 
    ### Instability Analysis
@@ -168,16 +168,10 @@ Identify architectural anti-patterns through dependency analysis and propose con
 ## Output Format
 Architecture debt report + prioritized migration roadmap + ADR for major changes + tasks in project/TASKS.md.
 
-## Security & Guardrails
-
-### 1. Skill Security (Architecture Debt)
-- **Debt Exfiltration via Graphing**: When the agent uses `madge` or `pydeps` to generate visual dependency graphs, the resulting SVG or JSON files maps the entire internal intellectual property of the application. The agent must ensure these artifacts are saved to isolated, local `.gitignored` directories and never transmitted to external, third-party visualization SaaS tools.
-- **Migration Path Exploitation**: During the Strangler Fig migration (Step 4), the system exists in a hybrid state where both legacy and new code run simultaneously. The agent must mandate that the authorization and input validation layers are strictly enforced at the routing gateway, preventing attackers from bypassing security by targeting the deprecated legacy endpoints.
-
-### 2. System Integration Security
-- **Security Debt Equivalence**: The agent must elevate "Security Architecture Debt" (e.g., hardcoded cryptographic salts, custom pseudo-random auth tokens scattered across modules) to a `CRITICAL` priority, placing it above purely structural concerns like Layer Violations. A God Object is a maintenance problem; scattered, outdated crypto is an imminent breach.
-- **Dependency Confusion during Refactor**: As the agent proposes splitting a monolith into modules or microservices, it must verify the new package names or internal dependencies cannot succumb to Dependency Confusion attacks (e.g., ensuring local registries take strict precedence over public npm/PyPI registries for newly extracted modules).
-
-### 3. LLM & Agent Guardrails
-- **Automated Demolition Guardrail**: The LLM might enthusiastically propose immediately deleting massive blocks of "legacy" code that appear highly coupled. The agent is strictly forbidden from executing destructive file deletions without human approval; it may only propose the extraction and the subsequent deprecation plan.
-- **Hallucinated Refactoring Patterns**: The agent must not propose overly complex, unproven architectural patterns to solve simple coupling issues (e.g., suggesting a full CQRS/Event-Sourcing rewrite to fix a circular dependency between two basic CRUD services). It must anchor its proposals in the principle of Least Complex Refactoring.
+## Limits and safety
+- Dependency graphs (madge, pydeps) describe the internal structure: write them to a git-ignored folder and do not upload them to online tools.
+- Propose, never delete or move legacy code here; extraction and deprecation are separate, human-approved steps with tests.
+- During a strangler-fig migration old and new routes are both live: confirm that authentication and validation apply on the legacy routes too.
+- Rank security debt (hard-coded salts, home-made tokens) above structural debt.
+- Before splitting into packages, check that the new internal package names cannot be claimed on a public registry.
+- Prefer the simplest fix that removes the coupling.

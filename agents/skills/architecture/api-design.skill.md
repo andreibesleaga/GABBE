@@ -1,6 +1,6 @@
 ---
 name: api-design
-description: Design REST/GraphQL/OpenAPI contracts before implementation — API-first approach
+description: API contract (OpenAPI, GraphQL SDL or proto) written before code, with resources, errors, pagination and authentication. Use when a new endpoint or API is needed or the contract of an existing one must change.
 triggers: [API, endpoint, REST, GraphQL, OpenAPI, API contract, API design, HTTP endpoint, grpc, soap]
 tags: [architecture]
 core: true
@@ -36,7 +36,7 @@ Design and document API contracts before writing implementation code. API-first 
    - **Versioning**: URI Versioning (`/v1/...`) or Header Versioning (`Accept: application/vnd.app.v1+json`).
    - **Fields**: camelCase for JSON, snake_case for query params (standard choice).
 
-4. **Define error responses (RFC 7807 Problem Details)**
+4. **Define error responses (RFC 9457 Problem Details, which obsoletes RFC 7807)**
    ```json
    {
      "type": "https://example.com/probs/out-of-credit",
@@ -49,7 +49,7 @@ Design and document API contracts before writing implementation code. API-first 
 
 5. **Write the Spec**
    - **REST**: OpenAPI 3.1 (YAML preferred).
-   - **GraphQL**: Schema Definition Language (SDL).
+   - **GraphQL**: Schema Definition Language (SDL); see `graphql-schema.skill`.
    - **gRPC**: Protocol Buffers (.proto).
 
 6. **Security considerations**
@@ -68,6 +68,7 @@ Design and document API contracts before writing implementation code. API-first 
 9. **Store and share**
    - Save spec to: `docs/api/`.
    - Lint with Spectral.
+   - For standards that apply across many APIs, see `api-standards.skill`.
 
 ## Constraints
 - **Breaking Changes**: Strictly forbidden without version bump.
@@ -77,16 +78,9 @@ Design and document API contracts before writing implementation code. API-first 
 ## Output Format
 API Spec file + summary of design decisions.
 
-## Security & Guardrails
-
-### 1. Skill Security (API Design)
-- **Implicit "Any" Blocking**: The agent must strictly forbid the use of unstructured types (e.g., `any` in OpenAPI, or `JSON` scalar types in GraphQL) in the API contract. Every payload must be rigidly bounded and typed to allow code generators and WAFs to automatically reject malformed or exceptionally large payloads (JSON bombing).
-- **Wildcard Scope Denial**: When defining OAuth2 or JWT scopes for the API, the agent is strictly prohibited from generating "admin" or wildcard (`*`) scopes. It must decompose authorization down to the resource and action level (e.g., `orders:read`, `orders:write`).
-
-### 2. System Integration Security
-- **BOLA/IDOR by Design Validation**: The agent must verify that every single endpoint targeting a specific resource ID (e.g., `GET /users/{id}/billing`) includes a documented authorization pre-condition stating that the authenticated caller has explicit ownership or admin rights to `{id}`. Lack of this documented constraint is an architectural flaw.
-- **Rate Limit Blueprinting**: The API design cannot be finalized without explicit rate limiting headers and HTTP 429 schemas defined. The agent must attach quota assumptions to the OpenAPI spec, ensuring the infrastructure team knows the expected burst limits to mitigate L7 DDoS attacks.
-
-### 3. LLM & Agent Guardrails
-- **Security-by-Obscurity Hallucination**: The LLM might suggest hiding sensitive internal APIs by placing them on non-standard ports or giving them obfuscated URIs (e.g., `/api/v1/_hidden_debug_77`). The agent must reject this. All endpoints, regardless of intended audience, must enforce explicit Authentication and Authorization layers.
-- **REST vs. GraphQL Exposure**: If the agent designs a GraphQL API, it must automatically append mandatory security constraints for depth limiting, complexity analysis, and pagination to prevent resource exhaustion attacks. It cannot output a "raw" GraphQL schema without these defensive properties.
+## Limits and safety
+- No `any` or free-form JSON types in the contract: every payload is typed and bounded (maximum sizes and array lengths).
+- Every endpoint that takes a resource id documents who may access that id (owner or role); no admin or wildcard scopes.
+- Rate limits and the 429 response are in the spec before the design is final.
+- Hidden or obscure URLs are not access control: every endpoint has authentication and authorization.
+- A GraphQL design carries depth, cost and pagination limits (see `graphql-schema.skill`).

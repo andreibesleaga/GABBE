@@ -1,7 +1,7 @@
 ---
 name: agent-ui
-description: Build specialized user interfaces for interacting with Agents
-triggers: [build agent ui, create tracing dashboard, implement agent front-end]
+description: Build a UI that shows what an agent thinks, calls and does - traces, tool calls, streamed markdown or JSON. Use when you add a tracing view, an approval screen or a front end for an agent.
+triggers: [build agent ui, create tracing dashboard, implement agent front-end, show agent tool calls]
 tags: [ai]
 context_cost: low
 ---
@@ -16,16 +16,15 @@ Create specialized, responsive, and intuitive UI elements for tracing, visualizi
 3. **UX Enhancement**: Add micro-animations to indicate agent "thinking" or "executing" states.
 4. **Verification**: Verify that the UI flawlessly parses and renders unstructured or partially streamed markdown / JSON.
 
-## Security & Guardrails
+## Constraints
+- Agent output is untrusted text: render it escaped, never as raw HTML.
+- Actions with effects (approve, deploy, delete) need a human click and a signed-in user with the right role.
 
-### 1. Skill Security
-- **XSS Prevention**: Vigorously encode all agent output before rendering it in the UI, as LLM responses can contain malicious payloads.
-- **Markdown Sandbox**: Ensure the markdown parser disables executable scripts or insecure HTML tags.
+## Output Format
+The UI components and a test that renders partial and malformed agent output without errors.
 
-### 2. System Integration Security
-- **Access Control**: Hide administrative agent actions (e.g., "approve PR", "deploy") behind rigorous user authentication/RBAC.
-- **Secret Masking**: The UI must automatically detect and mask sensitive data (like API keys) that the agent might accidentally log or stream.
-
-### 3. LLM & Agent Guardrails
-- **Hallucinated Actions**: The UI must not blindly execute client-side functions suggested by the LLM without human confirmation.
-- **Status Transparency**: Ensure the UI clearly distinguishes between "Agent generated this" and "Human authored this" for clear accountability.
+## Limits and safety
+- Encode agent output before rendering and turn off script and unsafe HTML in the markdown parser; test with a payload that contains a script tag.
+- Actions such as approve or deploy appear only for signed-in users with the right role, and a suggested client-side action never runs without a human click.
+- Mask anything that looks like a key or token before it is shown; test with a fake key in the stream.
+- Mark agent-written and human-written content differently.

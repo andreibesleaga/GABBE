@@ -27,7 +27,7 @@ Design, decouple, and orchestrate microservices architectures using bounded cont
 The service boundary list, the API or message contracts, and a table of which service owns which data.
 
 ## Limits and safety
-- Reject services that call each other in synchronous chains or share a database: label that a distributed monolith.
+- Reject services that share a database, unbounded or circular synchronous call chains, and a synchronous call without a timeout, a retry limit and a circuit breaker: label those a distributed monolith. A bounded synchronous call that has all three is allowed.
 - Every service-to-service call is authenticated (mutual TLS or signed internal tokens); no implicit trust inside the network.
 - Aggregated edge responses expose no internal ids or foreign keys.
 - State network latency, retries and eventual consistency; allow no circular service dependencies.

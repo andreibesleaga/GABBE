@@ -107,3 +107,16 @@ def test_a_fifo_at_the_entry_path_is_a_miss_and_does_not_block(tmp_path):
     key = content_key("z")
     os.mkfifo(cache._path(key))
     assert cache.get(key) is None
+
+
+def test_the_cache_is_off_where_files_cannot_be_opened_without_following_links(
+    tmp_path, monkeypatch
+):
+    import gabbe.cache as cache_mod
+
+    monkeypatch.setattr(cache_mod, "_NOFOLLOW", None)
+    cache = cache_mod.ContentCache(tmp_path / "c", namespace="n")
+    key = cache_mod.content_key("w")
+    cache.set(key, {"a": 1})
+    assert cache.get(key) is None
+    assert not (tmp_path / "c").exists()

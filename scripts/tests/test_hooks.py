@@ -273,6 +273,31 @@ def test_install_never_overwrites_foreign_hook(repo):
     assert foreign.exists()
 
 
+def test_install_never_writes_through_a_dangling_hook_link(repo, tmp_path):
+    hooks = repo / ".git" / "hooks"
+    hooks.mkdir(exist_ok=True)
+    outside = tmp_path / "outside-hook"
+    os.symlink(outside, hooks / "pre-commit")
+    r = _install(repo)
+    assert r.returncode == 1
+    assert "is a link" in r.stderr
+    assert not outside.exists()
+
+
+def test_install_reports_a_copy_that_failed(repo):
+    hooks = repo / ".git" / "hooks"
+    hooks.mkdir(exist_ok=True)
+    if getattr(os, "geteuid", lambda: 1)() == 0:
+        pytest.skip("root can write into a read-only folder")
+    hooks.chmod(0o500)  # cp cannot create the hook files
+    try:
+        r = _install(repo)
+    finally:
+        hooks.chmod(0o755)
+    assert r.returncode == 1
+    assert "could not install" in r.stderr
+
+
 def test_install_stops_when_hooks_path_is_set(repo):
     _git(repo, "config", "core.hooksPath", ".githooks")
     r = _install(repo)
@@ -513,6 +538,19 @@ def test_claude_edit_protected_list(rel, tmp_path):
     assert (
         _decision(_run_node(CLAUDE, "guard-edit", payload, tmp_path))["permissionDecision"] == "ask"
     )
+
+
+@needs_node
+def test_claude_edit_of_a_new_file_through_a_linked_folder_is_matched_where_it_lands(tmp_path):
+    project = tmp_path / "project"
+    (project / "agents").mkdir(parents=True)
+    os.symlink(project / "agents", project / "alias")
+    payload = {
+        "tool_name": "Write",
+        "tool_input": {"file_path": str(project / "alias" / "CONSTITUTION.md")},
+    }
+    decision = _decision(_run_node(CLAUDE, "guard-edit", payload, project))
+    assert decision is not None and decision["permissionDecision"] == "ask"
 
 
 @needs_node

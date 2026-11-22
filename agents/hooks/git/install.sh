@@ -19,17 +19,28 @@ for h in pre-commit pre-push; do
   t="$dest/$h"
   case $mode in
     uninstall)
-      if [ -f "$t" ] && grep -q "$mark" "$t"; then rm -f "$t" && echo "removed $t"
+      if [ -f "$t" ] && [ ! -L "$t" ] && grep -q "$mark" "$t"; then rm -f "$t" && echo "removed $t"
       elif [ -e "$t" ]; then echo "left $t alone (not installed by GABBE)"
       fi ;;
     install)
+      # A link (also a dangling one: [ -e ] is false for it) is never written through.
+      if [ -L "$t" ]; then
+        echo "gabbe hooks: $t is a link. Not overwritten; nothing is written through it." >&2
+        status=1
+        continue
+      fi
       if [ -e "$t" ] && ! grep -q "$mark" "$t"; then
         echo "gabbe hooks: $t already exists and is not GABBE's. Not overwritten." >&2
         echo "  To chain: add a line to it that runs  $here/$h \"\$@\"  (pre-push: keep stdin flowing, e.g. use exec or tee)." >&2
         status=1
         continue
       fi
-      mkdir -p "$dest" && cp "$here/$h" "$t" && chmod +x "$t" && echo "installed $t" ;;
+      if mkdir -p "$dest" && cp "$here/$h" "$t" && chmod +x "$t"; then
+        echo "installed $t"
+      else
+        echo "gabbe hooks: could not install $t." >&2
+        status=1
+      fi ;;
     *) echo "usage: sh install.sh [install|uninstall]" >&2; exit 2 ;;
   esac
 done

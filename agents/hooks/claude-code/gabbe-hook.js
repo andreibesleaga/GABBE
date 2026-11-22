@@ -64,16 +64,31 @@ function guardBash(input) {
   if (what) decide('ask', reasonFor(what));
 }
 
+// The real place a path leads to, also for a file that does not exist yet: the nearest existing
+// folder above it is resolved (following links) and the missing rest is added back. So an Edit or
+// Write through a linked parent folder is matched where it would really land.
+function resolvedThroughLinks(abs) {
+  let base = abs;
+  const rest = [];
+  for (;;) {
+    try { return path.join(fs.realpathSync(base), ...rest); } catch (e) { /* not there yet */ }
+    const up = path.dirname(base);
+    if (up === base) return abs;
+    rest.unshift(path.basename(base));
+    base = up;
+  }
+}
+
 function guardEdit(input, projectDir) {
   if (input.tool_name !== 'Edit' && input.tool_name !== 'Write') return;
   const file = input.tool_input && input.tool_input.file_path;
   if (typeof file !== 'string' || file === '') throw new Error('no file_path');
   const cfg = loadConfig();
   const abs = path.resolve(input.cwd || projectDir, file);
-  const candidates = [abs];
-  try { candidates.push(fs.realpathSync(abs)); } catch (e) { /* new file: nothing to resolve */ }
-  for (const p of candidates) {
-    const rel = path.relative(projectDir, p).split(path.sep).join('/');
+  const candidates = [abs, resolvedThroughLinks(abs)];
+  const roots = [projectDir, resolvedThroughLinks(projectDir)];
+  for (const p of candidates) for (const root of roots) {
+    const rel = path.relative(root, p).split(path.sep).join('/');
     const outside = rel.startsWith('..') || path.isAbsolute(rel);
     if (matches(cfg.protected, rel, outside) && !matches(cfg.allow, rel, outside)) {
       decide(cfg.action, `GABBE hook: ${rel} is on the protected list (agents/hooks/claude-code/protected-paths.json). Article 0: destructive or sensitive changes need the human's yes.`);

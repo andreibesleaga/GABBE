@@ -24,6 +24,10 @@ from typing import Any
 
 logger = logging.getLogger("gabbe.cache")
 
+# Reads and writes must not follow a link planted at an entry path. Where the platform has no
+# O_NOFOLLOW (Windows), that cannot be guaranteed, so the cache is switched off there.
+_NOFOLLOW = getattr(os, "O_NOFOLLOW", None)
+
 
 def content_key(*parts: Any) -> str:
     """Stable sha256 over the canonical JSON of the given parts."""
@@ -40,6 +44,10 @@ class ContentCache:
 
     def __init__(self, root: Path, namespace: str = "default"):
         self.dir: Path | None = Path(root) / namespace
+        if _NOFOLLOW is None:
+            logger.info("cache disabled: this platform cannot open files without following links")
+            self.dir = None
+            return
         try:
             self.dir.mkdir(parents=True, exist_ok=True)
             # Cached values can include raw LLM responses (PII/secrets). Restrict
@@ -72,7 +80,7 @@ class ContentCache:
         try:
             # O_NOFOLLOW: a link planted at the entry path is a miss, never read through.
             # O_NONBLOCK: a FIFO planted there does not make the read wait.
-            flags = os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_NONBLOCK", 0)
+            flags = os.O_RDONLY | (_NOFOLLOW or 0) | getattr(os, "O_NONBLOCK", 0)
             fd = os.open(p, flags)
         except OSError:
             return None
@@ -94,7 +102,7 @@ class ContentCache:
                 logger.warning("cache entry %s is a link; not written through it", p.name[:12])
                 return
             # O_NOFOLLOW closes the gap between the check above and the open.
-            flags = os.O_WRONLY | os.O_CREAT | os.O_TRUNC | getattr(os, "O_NOFOLLOW", 0)
+            flags = os.O_WRONLY | os.O_CREAT | os.O_TRUNC | (_NOFOLLOW or 0)
             fd = os.open(p, flags, 0o600)
             with os.fdopen(fd, "w", encoding="utf-8") as f:
                 f.write(json.dumps({"value": value}, ensure_ascii=False))

@@ -66,4 +66,4 @@ Updated or new `project/TASKS.md` file. Report the number of tasks created.
 - Tag tasks that touch authentication, payments or personal data `SECURITY-HIGH` and never mark them `[PARALLEL]` with the endpoints that depend on them.
 - Add only tasks that trace to `PRD.md` or `SPEC.md`. If the human asks for a task with no requirement, add the requirement first or ask.
 - Limit batches to 20 tasks and splitting to two levels; if a task still needs splitting, stop and ask.
-- Re-read `project/TASKS.md` before writing it and merge with changes made by another agent; do not overwrite them.
+- When several agents can write `project/TASKS.md`, update it only while holding a lock: create `project/.tasks.lock` with an atomic exclusive create (for example `set -o noclobber`, or `gabbe sync`, which takes its own lock), re-read the file, merge, write, then remove the lock. If the lock exists, wait and retry; never write without it.

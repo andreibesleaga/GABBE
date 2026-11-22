@@ -287,6 +287,11 @@ property tests found the defects below. All are fixed and pinned by tests.
   release. The shell guard also asks before about thirty more publish and deploy commands (`gh workflow
   run`, `docker build --push`, `twine upload`, `npm unpublish`, `terraform destroy`, `kubectl delete` …); the
   pre-commit check knows `github_pat_`, `npm_`, `glpat-` and `AIza` tokens and reads UTF-16 files.
+- From the second review of the pull request: the edit guard resolves a linked parent folder before it
+  matches protected paths, so a new file written through a link is matched where it lands; the git hook
+  installer never writes through a hook that is a link (also a dangling one) and returns an error when a
+  copy fails; the content cache is switched off on platforms that cannot open a file without following a
+  link (Windows); the task-splitting skill updates `project/TASKS.md` only under a lock.
 - **Publish workflows** no longer leave the job token in the checkout while `npm publish` runs; a manual
   npm publish validates the dist-tag and uses `next` for a prerelease tag.
 - **Package launchers pinned.** Every `npx` line in the MCP template and guide and in the skills names an

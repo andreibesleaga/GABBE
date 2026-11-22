@@ -1,6 +1,6 @@
 {
   "name": "gabbe-brain",
-  "version": "1.1.4",
+  "version": "1.2.0",
   "description": "GABBE brain skills (16): Brain Mode internals: cognitive architectures, active inference, global workspace, working and episodic memory, self-improvement.",
   "author": {
     "name": "Andrei Nicolae Besleaga",

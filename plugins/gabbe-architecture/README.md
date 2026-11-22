@@ -17,7 +17,7 @@ Or install single skills with the skills CLI (skills.sh):
 npx skills@1.9.0 add andreibesleaga/GABBE -a claude-code
 ```
 
-Version 1.1.4. Generated from `agents/skills/` by `scripts/build_claude_plugin.py`; edit the sources, not these files.
+Version 1.2.0. Generated from `agents/skills/` by `scripts/build_claude_plugin.py`; edit the sources, not these files.
 
 ## Skills
 

@@ -1,6 +1,6 @@
 {
   "name": "gabbe",
-  "version": "1.1.4",
+  "version": "1.2.0",
   "description": "The overall GABBE plugin: 49 skills for building software with an AI agent under human control. A start-here skill carries the operating rules; then the 14-phase lifecycle with six human gates, test-first work, existing-project onboarding, security, assurance levels, research and session memory. The other GABBE skills are in the GitHub repository andreibesleaga/GABBE.",
   "author": {
     "name": "Andrei Nicolae Besleaga",

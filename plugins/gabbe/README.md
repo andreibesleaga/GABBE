@@ -4,7 +4,7 @@ The overall GABBE plugin: 49 skills for building software with an AI agent under
 
 ## What it is
 
-GABBE (Generative Architectural Brain Base Engine) is an open kit of rules, skills, guides and templates for software work with an AI agent. This plugin is its overall plugin: 49 skills in the Agent Skills format that cover the whole system. Claude loads a skill when the task matches its description, or you call it by name. Version 1.1.4.
+GABBE (Generative Architectural Brain Base Engine) is an open kit of rules, skills, guides and templates for software work with an AI agent. This plugin is its overall plugin: 49 skills in the Agent Skills format that cover the whole system. Claude loads a skill when the task matches its description, or you call it by name. Version 1.2.0.
 
 ## How to start
 

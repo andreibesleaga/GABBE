@@ -1,6 +1,6 @@
 # GABBE roadmap
 
-What is planned after 1.1.4, in the order it should be built. Nothing here ships until it is written, tested and released; the [CHANGELOG](../CHANGELOG.md) records what did.
+What is planned after 1.2.0, in the order it should be built. Nothing here ships until it is written, tested and released; the [CHANGELOG](../CHANGELOG.md) records what did.
 
 ## 1. Agent hooks
 

@@ -100,7 +100,7 @@ npx gabbe-kit init --force               # re-template even preserved files (eac
 curl -fsSL https://raw.githubusercontent.com/andreibesleaga/GABBE/main/install.sh | sh
 ```
 
-To fix the version, use the pinned form: `npx gabbe-kit@1.1.4 init`. The pinned form does not change when a new release appears. To move a project from 1.1.x to 1.2.0, read [`docs/UPGRADING.md`](docs/UPGRADING.md).
+To fix the version, use the pinned form: `npx gabbe-kit@1.2.0 init`. The pinned form does not change when a new release appears. To move a project from 1.1.x to 1.2.0, read [`docs/UPGRADING.md`](docs/UPGRADING.md).
 
 > **Safe on existing projects (since 1.1.4).** A file you already have is kept or backed up first (`<name>.gabbe-bak`; a backup is never overwritten). Your root `AGENTS.md` and other instruction files stay yours: the installer adds a short block that points to `agents/AGENTS.md`. Your `docs/` folder is not touched. Every path is recorded in `.gabbe/manifest.json`, so `gabbe uninstall` removes exactly what was installed. Details: [`docs/INSTALL.md`](docs/INSTALL.md).
 

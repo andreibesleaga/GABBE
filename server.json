@@ -8,13 +8,13 @@
     "source": "github"
   },
   "websiteUrl": "https://andreibesleaga.github.io/GABBE/",
-  "version": "1.1.4",
+  "version": "1.2.0",
   "packages": [
     {
       "registryType": "pypi",
       "registryBaseUrl": "https://pypi.org",
       "identifier": "gabbe",
-      "version": "1.1.4",
+      "version": "1.2.0",
       "runtimeHint": "uvx",
       "transport": {
         "type": "stdio"

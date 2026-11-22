@@ -399,5 +399,5 @@ spikes, errors loop or requirements drift. Both use the spine of §5 and §13.
 ---
 
 *Last updated: [DATE]*
-*GABBE Kit version: 1.1.4*
+*GABBE Kit version: 1.2.0*
 *This file is maintained by the team and updated when project conventions change.*

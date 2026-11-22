@@ -731,6 +731,10 @@
     }
   },
   "gabbe.sync": {
+    "ensure_task_file": {
+      "kind": "function",
+      "signature": "() -> 'bool'"
+    },
     "export_to_md": {
       "kind": "function",
       "signature": "(c: 'sqlite3.Cursor') -> 'None'"

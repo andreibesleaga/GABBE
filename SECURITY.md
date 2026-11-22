@@ -156,9 +156,11 @@ registry are untrusted input. Since 1.2.0:
 - The wizard runs the skill compiler of the kit being installed, never a
   `compile_skills.py` found in the target project.
 - The uninstall scripts never import a `gabbe/` package from the current folder. The
-  bootstrap scripts pin the npm package to their own release. `npx` still prefers a
-  project-local `node_modules/gabbe-kit` of the same name and version, so run them in a
-  folder you trust.
+  bootstrap scripts pin the npm package to their own release and run `npx` from an empty
+  temporary folder with `--dir <project>`, so a project's `.npmrc` (`registry=`,
+  `node-options`) and its `node_modules` do not decide what runs. Your own `~/.npmrc`
+  still applies. If you type `npx gabbe-kit …` inside a project yourself, that project's
+  `.npmrc` applies: run it from another folder with `--dir /path/to/project`.
 - `state_import.sh` refuses a bundle whose member names contain a backslash or a control
   character, and any path that would leave `agents/memory`.
 - Imported skill packs stay untrusted: the registry scan is a heuristic safety net, not a

@@ -6,18 +6,26 @@ Comprehensive installation, configuration, and usage guide for every MCP (Model 
 
 > **Config file**: `agents/templates/core/MCP_CONFIG_TEMPLATE.json`
 > **How to apply**: Copy the relevant server entry into your tool's MCP config (Claude `.mcp.json`, VS Code `.vscode/mcp.json`, Cursor settings, etc.) and restart.
-> **Prerequisites**: Node.js 18+ and `npx` available in PATH for all `npx`-based servers.
+> **Prerequisites**: Node.js 18+ and `npx` in PATH for the `npx`-based servers; [`uv`](https://docs.astral.sh/uv/) (`uvx`) for the PyPI servers; Docker for the container-image servers; a client that supports remote (`"type": "http"`) servers for the hosted ones.
 
 > [!WARNING]
-> **Versions pinned on 2026-11-21.** Every launcher line below names an exact version
-> (`npx -y <package>@<x.y.z>`), the same one as in the template. A pinned version does not update
-> itself: before you enable a server, check its current version and its publisher on the registry,
-> then re-pin on purpose. A launcher without a version runs whatever the registry serves that day,
-> with your tokens. The packages the 2026-10-29 re-check lists as missing, and the entries the
-> template marks `_review`, could not be verified on 2026-11-21 and are left without a version: check
-> the package before use. Packages npm marks deprecated (`server-brave-search`, `server-github`,
-> `server-postgres`, `server-gitlab`, `server-redis`, `@stripe/mcp`) are pinned to their last version
-> only so that the line is reproducible.
+> **Versions pinned on 2026-11-21 and 2026-11-22.** Every launcher line below names an exact
+> version, the same one as in the template: `npx -y <package>@<x.y.z>` and `uvx <package>@<x.y.z>`
+> for packages, `docker run ... <image>:<tag>` for container images (never `latest`), and a plain
+> `https://` URL for hosted servers. The npm packages were pinned on 2026-11-21. The 28 entries that
+> npm could not resolve on 2026-11-21 were pointed on 2026-11-22 at the vendor's own server (PyPI,
+> container image, hosted URL or a renamed npm package); each carries `_source` in the template with
+> the page that documents the install form. A pinned version does not update itself: before you
+> enable a server, check its current version and its publisher on the registry, then re-pin on
+> purpose. A launcher without a version runs whatever the registry serves that day, with your tokens.
+>
+> **Still marked `_review` and disabled in the template (10 entries):**
+> `image-recognition` (unmaintained since 2025-04), `gitleaks` and `shell` (no published
+> distribution found), `docker` (the version is the one of Docker Desktop), and the five
+> deprecated npm packages `server-brave-search`, `server-github`, `server-postgres` (two entries),
+> `server-gitlab` and `server-redis`, pinned to their last version only so that the line is
+> reproducible; each names its maintained successor. Hosted servers use OAuth: run `/mcp` in Claude
+> Code to sign in.
 
 > [!IMPORTANT]
 > **Package names verified 2026-06-10** against the npm/PyPI registries. Several
@@ -28,26 +36,19 @@ Comprehensive installation, configuration, and usage guide for every MCP (Model 
 > successors where they exist (e.g. the GitHub MCP is now the Go
 > `github-mcp-server`/Docker image).
 >
-> **Hosted / desktop servers (no `npx` package)** — connect via the vendor's URL
-> or app instead of installing: **Zapier** (per-user URL at `mcp.zapier.com`),
-> **Vercel** (hosted MCP + `@vercel/mcp-adapter` to build your own), **Datadog**
-> (hosted MCP), **Figma** (Dev Mode MCP in the Figma desktop app), **Docker**
-> (MCP Toolkit in Docker Desktop). **AWS** ships `awslabs.*` servers on PyPI;
-> **Grafana** ships the Go `mcp-grafana`; **HashiCorp Terraform** ships a
-> Docker/Go `terraform-mcp-server`; **Confluence/Jira** use community Atlassian
-> servers (e.g. `mcp-atlassian`, `@aashari/mcp-server-atlassian-*`). The
-> `@anthropic/mcp-server-shell` entry has no published package and should not be
-> used.
+> **Hosted servers** (an `https://` URL, no package): Vercel, Datadog, Figma, Miro, Slack, Zapier,
+> Stripe, PagerDuty and Atlassian (Confluence). **PyPI servers** (`uvx`): GreptimeDB, ClickHouse,
+> Grafana, Jupyter, DuckDuckGo, AWS (through `mcp-proxy-for-aws-cli`). **Container images**
+> (`docker run -i --rm`): HashiCorp Terraform, SonarQube. The `@anthropic/mcp-server-shell` entry has
+> no published package and should not be used.
 >
-> **Re-check 2026-10-29.** The npm registry returns 404 for
-> `@anthropic/mcp-server-shell`, `@zapier/mcp-server`, `@vercel/mcp-server`,
-> `@modelcontextprotocol/server-confluence`, `@mirohq/miro-mcp-server`,
-> `@hashicorp/terraform-mcp-server`, `@grafana/mcp-server`,
-> `@googlecloud/mcp-server`, `@figma/mcp-server`, `@docker/mcp-server`,
-> `@datadog/mcp-server` and `@aws/mcp-server-core`: use the hosted or
-> vendor-specific route above for those. npm marks
-> `@modelcontextprotocol/server-github`, `-postgres`, `-brave-search`,
-> `-redis` and `-gitlab` as deprecated (no longer supported).
+> **Re-check 2026-10-29, closed 2026-11-22.** npm returned 404 for the packages these entries
+> named (`@zapier/mcp-server`, `@vercel/mcp-server`, `@hashicorp/terraform-mcp-server`,
+> `@grafana/mcp-server`, `@googlecloud/mcp-server`, `@figma/mcp-server`, `@docker/mcp-server`,
+> `@datadog/mcp-server`, `@aws/mcp-server-core` and others). On 2026-11-22 each entry was pointed
+> at the vendor's own distribution, see its `Source` row below. npm marks
+> `@modelcontextprotocol/server-github`, `-postgres`, `-brave-search`, `-redis` and `-gitlab` as
+> deprecated (no longer supported); each section names a maintained successor.
 
 ---
 
@@ -146,6 +147,7 @@ Authoritative web research with source filtering. Powers the `research.skill`.
 | Property | Value |
 |---|---|
 | **Package** | `@modelcontextprotocol/server-brave-search` |
+| **Status** | Deprecated on npm, disabled in the template. Successor: Brave: [brave/brave-search-mcp-server](https://github.com/brave/brave-search-mcp-server) (checked 2026-11-22) |
 | **Website** | [brave.com/search/api](https://brave.com/search/api/) |
 | **API Key** | **Required**: `BRAVE_API_KEY` |
 | **Get API Key** | [api.search.brave.com/register](https://api.search.brave.com/register) (free tier available) |
@@ -210,6 +212,7 @@ PR review, code search, issue management, and git history.
 | Property | Value |
 |---|---|
 | **Package** | `@modelcontextprotocol/server-github` |
+| **Status** | Deprecated on npm, disabled in the template. Successor: GitHub's official [github/github-mcp-server](https://github.com/github/github-mcp-server) (checked 2026-11-22) |
 | **Website** | [github.com/modelcontextprotocol/servers](https://github.com/modelcontextprotocol/servers) |
 | **API Key** | **Required**: `GITHUB_TOKEN` (Personal Access Token with `repo` scope) |
 | **Get API Key** | GitHub → Settings → Developer Settings → Personal Access Tokens |
@@ -286,6 +289,7 @@ GitLab alternative to the GitHub MCP. Same capabilities for GitLab-hosted repos.
 | Property | Value |
 |---|---|
 | **Package** | `@modelcontextprotocol/server-gitlab` |
+| **Status** | Deprecated on npm, disabled in the template. Successor: GitLab's [MCP server](https://docs.gitlab.com/user/model_context_protocol/mcp_server/) (checked 2026-11-22) |
 | **Website** | [github.com/modelcontextprotocol/servers](https://github.com/modelcontextprotocol/servers) |
 | **API Key** | **Required**: `GITLAB_TOKEN` (Personal Access Token) |
 | **Get API Key** | GitLab → Preferences → Access Tokens |
@@ -317,6 +321,7 @@ Read-write PostgreSQL access for development environments.
 | Property | Value |
 |---|---|
 | **Package** | `@modelcontextprotocol/server-postgres` |
+| **Status** | Deprecated on npm, disabled in the template. Successor: [DBHub](https://github.com/bytebase/dbhub) (the DBHub entry below) (checked 2026-11-22) |
 | **Website** | [github.com/modelcontextprotocol/servers](https://github.com/modelcontextprotocol/servers) |
 | **API Key** | **Required**: `DATABASE_URL_DEV` (connection string) |
 | **GABBE Skill** | `data/db-migration.skill`, `data/sql-optimization.skill` |
@@ -346,6 +351,7 @@ Read-only PostgreSQL for production schema introspection. Enable only when neede
 | Property | Value |
 |---|---|
 | **Package** | `@modelcontextprotocol/server-postgres` |
+| **Status** | Deprecated on npm, disabled in the template. Successor: [DBHub](https://github.com/bytebase/dbhub) (the DBHub entry below), read-only (checked 2026-11-22) |
 | **API Key** | **Required**: `DATABASE_URL_PROD_READONLY` |
 | **Security** | Read-only access enforced by database user permissions |
 
@@ -370,7 +376,8 @@ Time-series analytics and robust metrics logging.
 
 | Property | Value |
 |---|---|
-| **Package** | `greptimedb-mcp-server` |
+| **Package** | `greptimedb-mcp-server` (PyPI, `uvx`) |
+| **Source** | <https://github.com/GreptimeTeam/greptimedb-mcp-server> (checked 2026-11-22) |
 | **Website** | [greptime.com](https://greptime.com) |
 | **API Key** | **Required**: `GREPTIME_HOST`, `GREPTIME_DB`, `GREPTIME_USERNAME`, `GREPTIME_PASSWORD` |
 
@@ -378,13 +385,13 @@ Time-series analytics and robust metrics logging.
 ```json
 {
   "greptime": {
-    "command": "npx",
-    "args": ["-y", "greptimedb-mcp-server"],
+    "command": "uvx",
+    "args": ["greptimedb-mcp-server@0.6.1"],
     "env": {
-      "GREPTIME_HOST": "${GREPTIME_HOST}",
-      "GREPTIME_DB": "${GREPTIME_DB}",
-      "GREPTIME_USERNAME": "${GREPTIME_USERNAME}",
-      "GREPTIME_PASSWORD": "${GREPTIME_PASSWORD}"
+      "GREPTIMEDB_HOST": "${GREPTIME_HOST}",
+      "GREPTIMEDB_DATABASE": "${GREPTIME_DB}",
+      "GREPTIMEDB_USER": "${GREPTIME_USERNAME}",
+      "GREPTIMEDB_PASSWORD": "${GREPTIME_PASSWORD}"
     }
   }
 }
@@ -398,18 +405,19 @@ Agentic OLAP and real-time reporting.
 
 | Property | Value |
 |---|---|
-| **Package** | `mcp-clickhouse` |
+| **Package** | `mcp-clickhouse` (PyPI, `uvx`) |
+| **Source** | <https://github.com/ClickHouse/mcp-clickhouse> (checked 2026-11-22) |
 | **Website** | [clickhouse.com](https://clickhouse.com) |
-| **API Key** | **Required**: `CLICKHOUSE_URL`, `CLICKHOUSE_USER`, `CLICKHOUSE_PASSWORD` |
+| **API Key** | **Required**: `CLICKHOUSE_HOST`, `CLICKHOUSE_USER`, `CLICKHOUSE_PASSWORD` |
 
 **Install & Config:**
 ```json
 {
   "clickhouse": {
-    "command": "npx",
-    "args": ["-y", "mcp-clickhouse"],
+    "command": "uvx",
+    "args": ["mcp-clickhouse@0.7.0"],
     "env": {
-      "CLICKHOUSE_URL": "${CLICKHOUSE_URL}",
+      "CLICKHOUSE_HOST": "${CLICKHOUSE_HOST}",
       "CLICKHOUSE_USER": "${CLICKHOUSE_USER}",
       "CLICKHOUSE_PASSWORD": "${CLICKHOUSE_PASSWORD}"
     }
@@ -425,18 +433,19 @@ MongoDB exploration, queries, and collection management.
 
 | Property | Value |
 |---|---|
-| **Package** | `mongodb-lens` |
+| **Package** | `mongodb-mcp-server` |
+| **Source** | <https://github.com/mongodb-js/mongodb-mcp-server> (checked 2026-11-22) |
 | **Website** | [mongodb.com](https://www.mongodb.com) |
-| **API Key** | **Required**: `MONGODB_URI` (connection string) |
+| **API Key** | **Required**: `MONGODB_URI` |
 
 **Install & Config:**
 ```json
 {
   "mongodb": {
     "command": "npx",
-    "args": ["-y", "mongodb-lens@9.2.0"],
+    "args": ["-y", "mongodb-mcp-server@3.3.0"],
     "env": {
-      "MONGODB_CONNECTION_STRING": "${MONGODB_URI}"
+      "MDB_MCP_CONNECTION_STRING": "${MONGODB_URI}"
     }
   }
 }
@@ -451,6 +460,7 @@ Redis key-value interaction and management.
 | Property | Value |
 |---|---|
 | **Package** | `@modelcontextprotocol/server-redis` |
+| **Status** | Deprecated on npm, disabled in the template. Successor: Redis's official [redis/mcp-redis](https://github.com/redis/mcp-redis) (PyPI `redis-mcp-server`) (checked 2026-11-22) |
 | **Website** | [redis.io](https://redis.io) |
 | **API Key** | **Required**: `REDIS_URL` (e.g., `redis://localhost:6379`) |
 | **GABBE Skill** | `ops/caching-strategy.skill` |
@@ -501,15 +511,16 @@ Universal database client supporting MySQL, MariaDB, PostgreSQL, and SQL Server.
 | Property | Value |
 |---|---|
 | **Package** | `@bytebase/dbhub` |
+| **Source** | <https://github.com/bytebase/dbhub> (checked 2026-11-22) |
 | **Website** | [github.com/modelcontextprotocol/servers](https://github.com/modelcontextprotocol/servers) |
-| **API Key** | None (uses local DB connections) |
+| **API Key** | **Required**: `DBHUB_DSN` (connection string) |
 
 **Install & Config:**
 ```json
 {
   "dbhub": {
     "command": "npx",
-    "args": ["-y", "@bytebase/dbhub@2.1.0"],
+    "args": ["-y", "@bytebase/dbhub@2.1.0", "--dsn", "${DBHUB_DSN}"],
     "env": {}
   }
 }
@@ -609,7 +620,8 @@ Vulnerability scanning for code and dependencies.
 
 | Property | Value |
 |---|---|
-| **Package** | `snyk-mcp-server` |
+| **Package** | `snyk` (CLI with `mcp` command) |
+| **Source** | <https://docs.snyk.io/agent-security/agentic-security-with-snyk-studio/quickstart-guides/cline-guide> (checked 2026-11-22) |
 | **Website** | [snyk.io](https://snyk.io) |
 | **API Key** | **Required**: `SNYK_TOKEN` |
 | **Get API Key** | [app.snyk.io/account](https://app.snyk.io/account) |
@@ -620,7 +632,7 @@ Vulnerability scanning for code and dependencies.
 {
   "snyk": {
     "command": "npx",
-    "args": ["-y", "snyk-mcp-server"],
+    "args": ["-y", "snyk@1.1309.0", "mcp", "-t", "stdio"],
     "env": {
       "SNYK_TOKEN": "${SNYK_TOKEN}"
     }
@@ -636,7 +648,8 @@ Code quality and security analysis.
 
 | Property | Value |
 |---|---|
-| **Package** | `sonarqube-mcp` |
+| **Package** | `sonarsource/sonarqube-mcp` (Docker image) |
+| **Source** | <https://github.com/SonarSource/sonarqube-mcp-server> (checked 2026-11-22) |
 | **Website** | [sonarqube.org](https://www.sonarsource.com/products/sonarqube/) |
 | **API Key** | **Required**: `SONAR_URL`, `SONAR_TOKEN` |
 
@@ -644,11 +657,11 @@ Code quality and security analysis.
 ```json
 {
   "sonarqube": {
-    "command": "npx",
-    "args": ["-y", "sonarqube-mcp"],
+    "command": "docker",
+    "args": ["run", "--init", "-i", "--rm", "-e", "SONARQUBE_TOKEN", "-e", "SONARQUBE_URL", "sonarsource/sonarqube-mcp:1.33.0.5260"],
     "env": {
-      "SONAR_URL": "${SONAR_URL}",
-      "SONAR_TOKEN": "${SONAR_TOKEN}"
+      "SONARQUBE_URL": "${SONAR_URL}",
+      "SONARQUBE_TOKEN": "${SONAR_TOKEN}"
     }
   }
 }
@@ -666,6 +679,9 @@ Secret detection in git repositories. No API key required.
 | **Website** | [gitleaks.io](https://gitleaks.io) |
 | **API Key** | None required |
 | **GABBE Skill** | `security/secrets-management.skill` |
+
+> [!NOTE]
+> No published distribution found on 2026-11-22 (npm search "gitleaks mcp", PyPI gitleaks-mcp, the gitleaks README and the GitHub repository search show no MCP server from gitleaks or a maintained community one); kept for reference.
 
 **Install & Config:**
 ```json
@@ -719,20 +735,21 @@ Monitoring, alerts, and observability queries.
 
 | Property | Value |
 |---|---|
-| **Package** | `@datadog/mcp-server` |
+| **Package** | Hosted server `https://mcp.datadoghq.com/v1/mcp` |
+| **Source** | <https://docs.datadoghq.com/mcp_server/setup.md> (checked 2026-11-22) |
 | **Website** | [datadoghq.com](https://www.datadoghq.com) |
-| **API Key** | **Required**: `DATADOG_API_KEY`, `DATADOG_APP_KEY` |
+| **API Key** | **Required**: `DATADOG_API_KEY`, `DATADOG_APP_KEY` (or OAuth sign-in) |
 | **Get API Key** | Datadog → Organization Settings → API Keys |
 
 **Install & Config:**
 ```json
 {
   "datadog": {
-    "command": "npx",
-    "args": ["-y", "@datadog/mcp-server"],
-    "env": {
+    "type": "http",
+    "url": "https://mcp.datadoghq.com/v1/mcp",
+    "headers": {
       "DD_API_KEY": "${DATADOG_API_KEY}",
-      "DD_APP_KEY": "${DATADOG_APP_KEY}"
+      "DD_APPLICATION_KEY": "${DATADOG_APP_KEY}"
     }
   }
 }
@@ -746,20 +763,21 @@ Dashboard search, datasource queries, and incident management.
 
 | Property | Value |
 |---|---|
-| **Package** | `@grafana/mcp-server` |
+| **Package** | `mcp-grafana` (PyPI, `uvx`) |
+| **Source** | <https://github.com/grafana/mcp-grafana> (checked 2026-11-22) |
 | **Website** | [grafana.com](https://grafana.com) |
-| **API Key** | **Required**: `GRAFANA_URL`, `GRAFANA_API_KEY` |
+| **API Key** | **Required**: `GRAFANA_URL`, `GRAFANA_API_KEY` (a service account token) |
 | **Get API Key** | Grafana → Administration → Service Accounts → Add Token |
 
 **Install & Config:**
 ```json
 {
   "grafana": {
-    "command": "npx",
-    "args": ["-y", "@grafana/mcp-server"],
+    "command": "uvx",
+    "args": ["mcp-grafana@2.2.0"],
     "env": {
       "GRAFANA_URL": "${GRAFANA_URL}",
-      "GRAFANA_API_KEY": "${GRAFANA_API_KEY}"
+      "GRAFANA_SERVICE_ACCOUNT_TOKEN": "${GRAFANA_API_KEY}"
     }
   }
 }
@@ -856,18 +874,22 @@ Vision API proxy for image analysis — sketch recognition, diagram interpretati
 
 | Property | Value |
 |---|---|
-| **Package** | `mcp-image-recognition` |
+| **Package** | `mcp-image-recognition` (PyPI, `uvx`; unmaintained) |
+| **Source** | <https://pypi.org/project/mcp-image-recognition/> (checked 2026-11-22) |
 | **Website** | [github.com/mario-andreschak/mcp-image-recognition](https://github.com/mario-andreschak/mcp-image-recognition) |
 | **API Key** | **Required** (one of): `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, or `CLOUDFLARE_API_TOKEN` |
 | **Optional** | Tesseract OCR installed for text extraction |
 | **GABBE Skill** | `coding/sketch-to-diagram.skill` |
 
+> [!NOTE]
+> Unmaintained community package: PyPI mcp-image-recognition 1.2.2 (2025-03), repository untouched since 2025-04, no official vendor server; checked 2026-11-22; kept for reference, disabled.
+
 **Install & Config:**
 ```json
 {
   "image-recognition": {
-    "command": "npx",
-    "args": ["-y", "mcp-image-recognition"],
+    "command": "uvx",
+    "args": ["mcp-image-recognition@1.2.2"],
     "env": {
       "ANTHROPIC_API_KEY": "${ANTHROPIC_API_KEY}"
     }
@@ -892,7 +914,8 @@ Privacy-focused web search. No API key required.
 
 | Property | Value |
 |---|---|
-| **Package** | `duckduckgo-mcp-server` |
+| **Package** | `duckduckgo-mcp-server` (PyPI, `uvx`) |
+| **Source** | <https://github.com/nickclyde/duckduckgo-mcp-server> (checked 2026-11-22) |
 | **Website** | [duckduckgo.com](https://duckduckgo.com) |
 | **API Key** | None required |
 
@@ -900,8 +923,8 @@ Privacy-focused web search. No API key required.
 ```json
 {
   "duckduckgo": {
-    "command": "npx",
-    "args": ["-y", "duckduckgo-mcp-server@0.1.2"],
+    "command": "uvx",
+    "args": ["duckduckgo-mcp-server@0.7.0"],
     "env": {}
   }
 }
@@ -919,19 +942,20 @@ Agentic Infrastructure as Code (IaC) via HashiCorp.
 
 | Property | Value |
 |---|---|
-| **Package** | `@hashicorp/terraform-mcp-server` |
+| **Package** | `hashicorp/terraform-mcp-server` (Docker image) |
+| **Source** | <https://github.com/hashicorp/terraform-mcp-server> (checked 2026-11-22) |
 | **Website** | [terraform.io](https://www.terraform.io) |
-| **API Key** | Optional: `TERRAFORM_CLOUD_TOKEN` |
+| **API Key** | **Required**: `TERRAFORM_CLOUD_TOKEN` (passed to the container as `TFE_TOKEN`) |
 | **GABBE Skill** | `ops/infra-devops.skill` |
 
 **Install & Config:**
 ```json
 {
   "terraform": {
-    "command": "npx",
-    "args": ["-y", "@hashicorp/terraform-mcp-server"],
+    "command": "docker",
+    "args": ["run", "-i", "--rm", "-e", "TFE_TOKEN", "hashicorp/terraform-mcp-server:1.4.1"],
     "env": {
-      "TERRAFORM_CLOUD_TOKEN": "${TERRAFORM_CLOUD_TOKEN}"
+      "TFE_TOKEN": "${TERRAFORM_CLOUD_TOKEN}"
     }
   }
 }
@@ -945,18 +969,22 @@ Docker daemon integration — manage containers, images, and read local logs.
 
 | Property | Value |
 |---|---|
-| **Package** | `@docker/mcp-server` |
+| **Package** | Docker MCP Toolkit (`docker mcp gateway run`) |
+| **Source** | <https://github.com/docker/mcp-gateway> (checked 2026-11-22) |
 | **Website** | [docker.com](https://www.docker.com) |
 | **API Key** | None (uses local Docker daemon) |
 | **Prerequisite** | Docker Desktop or Docker Engine running |
 | **GABBE Skill** | `ops/docker-dev.skill` |
 
+> [!NOTE]
+> The version is that of the installed Docker Desktop (`docker mcp` plugin), not set here; kept disabled.
+
 **Install & Config:**
 ```json
 {
   "docker": {
-    "command": "npx",
-    "args": ["-y", "@docker/mcp-server"],
+    "command": "docker",
+    "args": ["mcp", "gateway", "run"],
     "env": {}
   }
 }
@@ -970,7 +998,8 @@ AWS core services — documentation, CDK, Lambda.
 
 | Property | Value |
 |---|---|
-| **Package** | `@aws/mcp-server-core` |
+| **Package** | `mcp-proxy-for-aws-cli` (PyPI, `uvx`) to the AWS MCP Server |
+| **Source** | <https://github.com/aws/agent-toolkit-for-aws> (checked 2026-11-22) |
 | **Website** | [aws.amazon.com](https://aws.amazon.com) |
 | **API Key** | **Required**: `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_REGION` |
 | **GABBE Skill** | `ops/cloud-deploy.skill` |
@@ -979,8 +1008,8 @@ AWS core services — documentation, CDK, Lambda.
 ```json
 {
   "aws-core": {
-    "command": "npx",
-    "args": ["-y", "@aws/mcp-server-core"],
+    "command": "uvx",
+    "args": ["mcp-proxy-for-aws-cli@2.0.0", "https://aws-mcp.us-east-1.api.aws/mcp", "--metadata", "AWS_REGION=us-west-2"],
     "env": {
       "AWS_ACCESS_KEY_ID": "${AWS_ACCESS_KEY_ID}",
       "AWS_SECRET_ACCESS_KEY": "${AWS_SECRET_ACCESS_KEY}",
@@ -998,7 +1027,8 @@ Google Cloud Platform — Firebase, Cloud Run, GKE, BigQuery.
 
 | Property | Value |
 |---|---|
-| **Package** | `@googlecloud/mcp-server` |
+| **Package** | `@google-cloud/gcloud-mcp` |
+| **Source** | <https://github.com/googleapis/gcloud-mcp> (checked 2026-11-22) |
 | **Website** | [cloud.google.com](https://cloud.google.com) |
 | **API Key** | **Required**: `GOOGLE_APPLICATION_CREDENTIALS` (path to service account JSON) |
 
@@ -1007,7 +1037,7 @@ Google Cloud Platform — Firebase, Cloud Run, GKE, BigQuery.
 {
   "google-cloud": {
     "command": "npx",
-    "args": ["-y", "@googlecloud/mcp-server"],
+    "args": ["-y", "@google-cloud/gcloud-mcp@0.5.3"],
     "env": {
       "GOOGLE_APPLICATION_CREDENTIALS": "${GOOGLE_APPLICATION_CREDENTIALS}"
     }
@@ -1024,6 +1054,7 @@ Azure Resource management — Key Vault, CosmosDB, Azure Storage.
 | Property | Value |
 |---|---|
 | **Package** | `@azure/mcp` |
+| **Source** | <https://github.com/microsoft/mcp/blob/main/servers/Azure.Mcp.Server/README.md> (checked 2026-11-22) |
 | **Website** | [azure.microsoft.com](https://azure.microsoft.com) |
 | **API Key** | **Required**: `AZURE_CLIENT_ID`, `AZURE_CLIENT_SECRET`, `AZURE_TENANT_ID` |
 
@@ -1032,7 +1063,7 @@ Azure Resource management — Key Vault, CosmosDB, Azure Storage.
 {
   "azure": {
     "command": "npx",
-    "args": ["-y", "@azure/mcp@4.0.0-beta.9"],
+    "args": ["-y", "@azure/mcp@3.0.0", "server", "start"],
     "env": {
       "AZURE_CLIENT_ID": "${AZURE_CLIENT_ID}",
       "AZURE_CLIENT_SECRET": "${AZURE_CLIENT_SECRET}",
@@ -1050,20 +1081,18 @@ Vercel deployments, aliases, and serverless log integration.
 
 | Property | Value |
 |---|---|
-| **Package** | `@vercel/mcp-server` |
+| **Package** | Hosted server `https://mcp.vercel.com` |
+| **Source** | <https://vercel.com/docs/agent-resources/vercel-mcp> (checked 2026-11-22) |
 | **Website** | [vercel.com](https://vercel.com) |
-| **API Key** | **Required**: `VERCEL_API_TOKEN` |
+| **API Key** | None (OAuth sign-in: run `/mcp` in Claude Code) |
 | **Get API Key** | Vercel → Settings → Tokens |
 
 **Install & Config:**
 ```json
 {
   "vercel": {
-    "command": "npx",
-    "args": ["-y", "@vercel/mcp-server"],
-    "env": {
-      "VERCEL_API_TOKEN": "${VERCEL_API_TOKEN}"
-    }
+    "type": "http",
+    "url": "https://mcp.vercel.com"
   }
 }
 ```
@@ -1109,9 +1138,10 @@ UI/UX semantic understanding, component specs, and design-to-code.
 
 | Property | Value |
 |---|---|
-| **Package** | `@figma/mcp-server` |
+| **Package** | Hosted server `https://mcp.figma.com/mcp` |
+| **Source** | <https://developers.figma.com/docs/figma-mcp-server/remote-server-installation/> (checked 2026-11-22) |
 | **Website** | [figma.com](https://www.figma.com) |
-| **API Key** | **Required**: `FIGMA_ACCESS_TOKEN` |
+| **API Key** | None (OAuth sign-in) |
 | **Get API Key** | Figma → Account Settings → Personal Access Tokens |
 | **GABBE Skill** | `coding/visual-design.skill`, `architecture/visual-whiteboarding.skill` |
 
@@ -1119,11 +1149,8 @@ UI/UX semantic understanding, component specs, and design-to-code.
 ```json
 {
   "figma": {
-    "command": "npx",
-    "args": ["-y", "@figma/mcp-server"],
-    "env": {
-      "FIGMA_ACCESS_TOKEN": "${FIGMA_ACCESS_TOKEN}"
-    }
+    "type": "http",
+    "url": "https://mcp.figma.com/mcp"
   }
 }
 ```
@@ -1136,7 +1163,8 @@ Programmatic generation and editing of C4, UML, and network diagrams.
 
 | Property | Value |
 |---|---|
-| **Package** | `drawio-mcp-server` |
+| **Package** | `@drawio/mcp` |
+| **Source** | <https://github.com/jgraph/drawio-mcp> (checked 2026-11-22) |
 | **Website** | [draw.io](https://www.drawio.com) |
 | **API Key** | None required |
 | **GABBE Skill** | `architecture/visual-whiteboarding.skill` |
@@ -1146,7 +1174,7 @@ Programmatic generation and editing of C4, UML, and network diagrams.
 {
   "drawio": {
     "command": "npx",
-    "args": ["-y", "drawio-mcp-server@2.4.0"],
+    "args": ["-y", "@drawio/mcp@1.13.0"],
     "env": {}
   }
 }
@@ -1231,20 +1259,18 @@ Read context from virtual whiteboards and sync architecture PRDs.
 
 | Property | Value |
 |---|---|
-| **Package** | `@mirohq/miro-mcp-server` |
+| **Package** | Hosted server `https://mcp.miro.com/` |
+| **Source** | <https://developers.miro.com/docs/connecting-to-miro-mcp> (checked 2026-11-22) |
 | **Website** | [miro.com](https://miro.com) |
-| **API Key** | **Required**: `MIRO_ACCESS_TOKEN` |
+| **API Key** | None (OAuth sign-in) |
 | **GABBE Skill** | `architecture/visual-whiteboarding.skill` |
 
 **Install & Config:**
 ```json
 {
   "miro": {
-    "command": "npx",
-    "args": ["-y", "@mirohq/miro-mcp-server"],
-    "env": {
-      "MIRO_ACCESS_TOKEN": "${MIRO_ACCESS_TOKEN}"
-    }
+    "type": "http",
+    "url": "https://mcp.miro.com/"
   }
 }
 ```
@@ -1446,21 +1472,17 @@ Confluence pages and spaces.
 
 | Property | Value |
 |---|---|
-| **Package** | `@modelcontextprotocol/server-confluence` |
+| **Package** | Hosted server `https://mcp.atlassian.com/v2/mcp` |
+| **Source** | <https://support.atlassian.com/atlassian-rovo-mcp-server/docs/getting-started-with-the-atlassian-remote-mcp-server/> (checked 2026-11-22) |
 | **Website** | [atlassian.com/confluence](https://www.atlassian.com/software/confluence) |
-| **API Key** | **Required**: `CONFLUENCE_URL`, `CONFLUENCE_EMAIL`, `CONFLUENCE_TOKEN` |
+| **API Key** | None (OAuth sign-in with your Atlassian account) |
 
 **Install & Config:**
 ```json
 {
   "confluence": {
-    "command": "npx",
-    "args": ["-y", "@modelcontextprotocol/server-confluence"],
-    "env": {
-      "ATLASSIAN_URL": "${CONFLUENCE_URL}",
-      "ATLASSIAN_USERNAME": "${CONFLUENCE_EMAIL}",
-      "ATLASSIAN_API_TOKEN": "${CONFLUENCE_TOKEN}"
-    }
+    "type": "http",
+    "url": "https://mcp.atlassian.com/v2/mcp"
   }
 }
 ```
@@ -1525,21 +1547,18 @@ Workspace channels, DMs, and message history.
 
 | Property | Value |
 |---|---|
-| **Package** | `slack-mcp-server` |
+| **Package** | Hosted server `https://mcp.slack.com/mcp` |
+| **Source** | <https://docs.slack.dev/ai/mcp-server> (checked 2026-11-22) |
 | **Website** | [api.slack.com](https://api.slack.com) |
-| **API Key** | **Required**: `SLACK_BOT_TOKEN`, `SLACK_TEAM_ID` |
+| **API Key** | None (OAuth sign-in; the Slack app must be registered or listed in the directory) |
 | **Get API Key** | [api.slack.com/apps](https://api.slack.com/apps) → Create App → Bot Token |
 
 **Install & Config:**
 ```json
 {
   "slack": {
-    "command": "npx",
-    "args": ["-y", "slack-mcp-server@1.3.0"],
-    "env": {
-      "SLACK_BOT_TOKEN": "${SLACK_BOT_TOKEN}",
-      "SLACK_TEAM_ID": "${SLACK_TEAM_ID}"
-    }
+    "type": "http",
+    "url": "https://mcp.slack.com/mcp"
   }
 }
 ```
@@ -1556,8 +1575,9 @@ GraphQL schema introspection, query validation, and documentation.
 
 | Property | Value |
 |---|---|
-| **Package** | `graphql-mcp-server` |
-| **API Key** | **Required**: `GRAPHQL_ENDPOINT`, Optional: `GRAPHQL_TOKEN` |
+| **Package** | `mcp-graphql` |
+| **Source** | <https://github.com/blurrah/mcp-graphql> (checked 2026-11-22) |
+| **API Key** | **Required**: `GRAPHQL_ENDPOINT`, optional `GRAPHQL_TOKEN` |
 | **GABBE Skill** | `architecture/graphql-schema.skill` |
 
 **Install & Config:**
@@ -1565,10 +1585,10 @@ GraphQL schema introspection, query validation, and documentation.
 {
   "graphql": {
     "command": "npx",
-    "args": ["-y", "graphql-mcp-server"],
+    "args": ["-y", "mcp-graphql@2.0.4"],
     "env": {
-      "GRAPHQL_ENDPOINT": "${GRAPHQL_ENDPOINT}",
-      "GRAPHQL_HEADERS": "{\"Authorization\": \"Bearer ${GRAPHQL_TOKEN}\"}"
+      "ENDPOINT": "${GRAPHQL_ENDPOINT}",
+      "HEADERS": "{\"Authorization\": \"Bearer ${GRAPHQL_TOKEN}\"}"
     }
   }
 }
@@ -1610,6 +1630,9 @@ Execute shell commands for local build, test, and system introspection.
 | **Package** | `@anthropic/mcp-server-shell` |
 | **API Key** | None required |
 
+> [!NOTE]
+> No published distribution found on 2026-11-22 (it is not a published package; the vendor-neutral shell servers are community code with no official source); kept for reference.
+
 **Install & Config:**
 ```json
 {
@@ -1632,7 +1655,8 @@ Execute Python code in Jupyter notebooks.
 
 | Property | Value |
 |---|---|
-| **Package** | `jupyter-mcp-server` |
+| **Package** | `jupyter-mcp-server` (PyPI, `uvx`) |
+| **Source** | <https://github.com/datalayer/jupyter-mcp-server> (checked 2026-11-22) |
 | **Prerequisite** | Jupyter installed locally |
 | **API Key** | None required |
 
@@ -1640,9 +1664,12 @@ Execute Python code in Jupyter notebooks.
 ```json
 {
   "jupyter": {
-    "command": "npx",
-    "args": ["-y", "jupyter-mcp-server"],
-    "env": {}
+    "command": "uvx",
+    "args": ["jupyter-mcp-server@2.2.6"],
+    "env": {
+      "JUPYTER_URL": "${JUPYTER_URL}",
+      "JUPYTER_TOKEN": "${JUPYTER_TOKEN}"
+    }
   }
 }
 ```
@@ -1659,19 +1686,20 @@ Search and manage Stripe payment resources.
 
 | Property | Value |
 |---|---|
-| **Package** | `@stripe/mcp` |
+| **Package** | Hosted server `https://mcp.stripe.com` |
+| **Source** | <https://docs.stripe.com/mcp> (checked 2026-11-22) |
 | **Website** | [stripe.com](https://stripe.com) |
-| **API Key** | **Required**: `STRIPE_SECRET_KEY` |
+| **API Key** | OAuth sign-in, or **Required** for a key: `STRIPE_AGENT_API_KEY` (an agent API key; full-access secret keys stop working on 2027-01-11) |
 | **Get API Key** | Stripe Dashboard → Developers → API Keys |
 
 **Install & Config:**
 ```json
 {
   "stripe": {
-    "command": "npx",
-    "args": ["-y", "@stripe/mcp@0.3.4"],
-    "env": {
-      "STRIPE_API_KEY": "${STRIPE_SECRET_KEY}"
+    "type": "http",
+    "url": "https://mcp.stripe.com",
+    "headers": {
+      "Authorization": "Bearer ${STRIPE_AGENT_API_KEY}"
     }
   }
 }
@@ -1688,20 +1716,18 @@ Connect to 6,000+ apps via Zapier Natural Language Actions.
 
 | Property | Value |
 |---|---|
-| **Package** | `@zapier/mcp-server` |
+| **Package** | Hosted server `https://mcp.zapier.com/api/v1/connect` |
+| **Source** | <https://docs.zapier.com/mcp/get-started/connect/claude-code.md> (checked 2026-11-22) |
 | **Website** | [zapier.com](https://zapier.com) |
-| **API Key** | **Required**: `ZAPIER_NLA_API_KEY` |
+| **API Key** | None (OAuth sign-in) |
 | **Get API Key** | [nla.zapier.com/credentials](https://nla.zapier.com/credentials) |
 
 **Install & Config:**
 ```json
 {
   "zapier": {
-    "command": "npx",
-    "args": ["-y", "@zapier/mcp-server"],
-    "env": {
-      "ZAPIER_NLA_API_KEY": "${ZAPIER_NLA_API_KEY}"
-    }
+    "type": "http",
+    "url": "https://mcp.zapier.com/api/v1/connect"
   }
 }
 ```
@@ -1740,6 +1766,7 @@ All credentials should be set as environment variables in your shell profile or 
 | `DATABASE_URL_DEV` | PostgreSQL connection string (dev) | PostgreSQL Dev |
 | `DATABASE_URL_PROD_READONLY` | PostgreSQL read-only connection (prod) | PostgreSQL Prod |
 | `MONGODB_URI` | MongoDB connection string | MongoDB |
+| `DBHUB_DSN` | Database connection string | DBHub |
 | `REDIS_URL` | Redis URL (e.g., `redis://localhost:6379`) | Redis |
 
 ### Security & Code Quality
@@ -1764,7 +1791,7 @@ All credentials should be set as environment variables in your shell profile or 
 | `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` / `AWS_REGION` | AWS IAM credentials | AWS Core |
 | `GOOGLE_APPLICATION_CREDENTIALS` | Path to GCP service account JSON | Google Cloud |
 | `AZURE_CLIENT_ID` / `AZURE_CLIENT_SECRET` / `AZURE_TENANT_ID` | Azure AD app registration | Azure |
-| `VERCEL_API_TOKEN` | Vercel token | Vercel |
+| none (OAuth sign-in) | `/mcp` in Claude Code | Vercel |
 | `TERRAFORM_CLOUD_TOKEN` | Terraform Cloud | Terraform |
 
 ### Collaboration
@@ -1772,16 +1799,16 @@ All credentials should be set as environment variables in your shell profile or 
 |---|---|---|
 | `GITLAB_TOKEN` | GitLab → Preferences → Access Tokens | GitLab |
 | `JIRA_SITE` / `JIRA_EMAIL` / `JIRA_API_TOKEN` | Atlassian API tokens | Jira |
-| `CONFLUENCE_URL` / `CONFLUENCE_EMAIL` / `CONFLUENCE_TOKEN` | Atlassian | Confluence |
+| none (OAuth sign-in) | `/mcp` in Claude Code | Confluence |
 | `NOTION_TOKEN` | [notion.so/my-integrations](https://www.notion.so/my-integrations) | Notion |
 | `LINEAR_API_KEY` | Linear → Settings → API | Linear |
-| `SLACK_BOT_TOKEN` / `SLACK_TEAM_ID` | [api.slack.com/apps](https://api.slack.com/apps) | Slack |
+| none (OAuth sign-in) | [docs.slack.dev/ai/mcp-server](https://docs.slack.dev/ai/mcp-server) | Slack |
 
 ### Design & Visual
 | Variable | Source | Required By |
 |---|---|---|
-| `FIGMA_ACCESS_TOKEN` | Figma → Account Settings | Figma |
-| `MIRO_ACCESS_TOKEN` | Miro developer portal | Miro |
+| none (OAuth sign-in) | `/mcp` in Claude Code | Figma |
+| none (OAuth sign-in) | `/mcp` in Claude Code | Miro |
 
 ### Vector Databases
 | Variable | Description | Required By |
@@ -1794,8 +1821,8 @@ All credentials should be set as environment variables in your shell profile or 
 ### Payments & Automation
 | Variable | Source | Required By |
 |---|---|---|
-| `STRIPE_SECRET_KEY` | Stripe Dashboard → Developers | Stripe |
-| `ZAPIER_NLA_API_KEY` | [nla.zapier.com/credentials](https://nla.zapier.com/credentials) | Zapier |
+| `STRIPE_AGENT_API_KEY` | Stripe Dashboard → agent API keys (or OAuth) | Stripe |
+| none (OAuth sign-in) | `/mcp` in Claude Code | Zapier |
 | `FIRECRAWL_API_KEY` | firecrawl.dev | Firecrawl |
 
 ---

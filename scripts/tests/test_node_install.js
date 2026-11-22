@@ -1142,7 +1142,8 @@ test('RA-02 table and RA-01: a hostile record leaves every user file as it was (
     assert.ok(res.stderr.includes("warning: skipped backup_of of 'e': it is a link"), res.stderr);
     assertUserFilesIntact(target, parent, outsideBefore, 'uninstall');
 
-    // The same record through `update`: nothing of the user's changes either.
+    // The same record through `update`: nothing of the user's changes either. (Uninstall removed .gabbe/.)
+    fs.mkdirSync(path.join(target, '.gabbe'), { recursive: true });
     fs.writeFileSync(path.join(target, '.gabbe', 'manifest.json'), JSON.stringify({ schema_version: 1, agents: [], entries: [] }));
     run(target, ['init', '--yes', '--agents', 'claude']);
     editRecord(target, (r) => r.entries.push(...hostileProjectEntries()));

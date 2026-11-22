@@ -31,3 +31,4 @@ The hybrid pipeline code, the rule set as a file under version control, and a te
 - Run dynamic formulas or generated code from the model in a sandbox, never with eval in the main process.
 - The model has no write access to the rule files; check the file permissions or the diff.
 - Log which part (LLM or rule engine) made the final decision for each result.
+- The rule engine and the reasoner read data through the same access checks and tenant boundaries as the rest of the system; they get no wider read access than the caller has.

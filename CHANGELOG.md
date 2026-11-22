@@ -260,7 +260,11 @@ property tests found the defects below. All are fixed and pinned by tests.
   stop with one line and exit 1.
 - **Bootstrap scripts.** `uninstall.sh` and `uninstall.ps1` no longer import a `gabbe/` package from the
   project folder. All four scripts run `gabbe-kit@<their release>` instead of the newest version (override
-  with `GABBE_KIT_VERSION`; `latest` gives the old behaviour).
+  with `GABBE_KIT_VERSION`; `latest` gives the old behaviour), and they run `npx` from an empty temporary
+  folder with `--dir <project>`, so a project's `.npmrc` cannot choose the registry or add code to run.
+  `npx gabbe-kit init`, `update`, `uninstall` and `doctor` take `--dir`.
+- The Node installer follows the same rules for an untrusted record as the Python one (above), and its skill
+  emitter collapses line breaks in descriptions and copies only known frontmatter keys.
 - **Tool server**: the allow-list, size limits and token fixes listed under "tool server" above.
 - **Audit trail.** Redaction now covers assignments whose name contains `password`, `secret`, `token` or
   `api_key` (`OPENAI_API_KEY=`, `AWS_SECRET_ACCESS_KEY=`), JSON members named like secrets, `Authorization`
@@ -286,9 +290,14 @@ property tests found the defects below. All are fixed and pinned by tests.
 - **Publish workflows** no longer leave the job token in the checkout while `npm publish` runs; a manual
   npm publish validates the dist-tag and uses `next` for a prerelease tag.
 - **Package launchers pinned.** Every `npx` line in the MCP template and guide and in the skills names an
-  exact version, verified on npm on 21 November 2026 (35 MCP servers pinned). 28 template entries name
-  packages that npm does not have: they are marked `_review` and switched off. Five deprecated servers are
-  pinned to their last version and marked. A Semgrep line that named the wrong npm package and a
+  exact version, verified on npm on 21 November 2026 (35 MCP servers pinned). 28 template entries named
+  npm packages that do not exist; each now points to where the server really is, checked on 22 November
+  2026 and with its source page in the entry: a vendor's hosted endpoint (Vercel, Datadog, Slack, Figma,
+  Miro, Atlassian, Zapier, Stripe, PagerDuty), a PyPI package run with `uvx` (GreptimeDB, ClickHouse,
+  Grafana, Jupyter and others), an official container image (Terraform, SonarQube) or the vendor's real
+  npm package (Google Cloud, Azure, draw.io, MongoDB, DBHub, Snyk). Three with no published server are kept
+  for reference and switched off. Five deprecated servers are
+  pinned to their last version and switched off, each with its successor named. A Semgrep line that named the wrong npm package and a
   `curl … | sh` line for Lean are replaced by pointers to the official install pages.
 - Still open, and said so in `SECURITY.md`: git tags are not signed, the release assets have no checksums
   file, and `npx` prefers a project-local `gabbe-kit` of the same version.

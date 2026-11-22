@@ -243,10 +243,17 @@ gabbe uninstall --purge            # same as a plain uninstall since 1.1.4 (kept
 
 `npx gabbe-kit uninstall` takes `--dry-run`, `--agents a,b` and `--purge`, follows the same
 rules as `gabbe uninstall`, prints the same "Removed N path(s)" line and uses the same exit
-statuses. Run it in the project folder (it has no `--dir`). `npx gabbe-kit doctor` is a
+statuses. Since 1.2.0 `init`, `update`, `uninstall` and `doctor` take `--dir <path>` to act on another
+folder than the current one. `npx gabbe-kit doctor` is a
 read-only check: is there a kit, is the install record readable, how many recorded paths are
 missing or changed, which agents are wired, how many `[PLACEHOLDER` fields are left, which
 links dangle. It exits 0 when the install is consistent and 1 when not.
+
+**Installing into a repository you do not trust.** `npx` reads the `.npmrc` of the folder it runs in, so
+a cloned project can choose the registry `npx` downloads from, or add `node-options` that run its own code.
+The bootstrap scripts (`install.sh`, `uninstall.sh` and the PowerShell pair) therefore run `npx` from an
+empty temporary folder and pass the project with `--dir`. When you type the command yourself, do the same:
+`cd` to another folder and run `npx gabbe-kit@<version> init --dir /path/to/project`.
 
 `--agents` takes the same short names in both commands (`claude` for `claude-code`, and so on); a name that matches no recorded agent prints one note naming the recorded agents. When `init`, `update` or the wizard re-emits skills, a generated skill or rule file that an earlier install recorded and the kit no longer emits (a renamed skill) is removed if it is unchanged and sits in a folder that run emitted into; one you changed is kept and reported.
 

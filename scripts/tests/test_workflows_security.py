@@ -77,6 +77,22 @@ def test_workflow_files_are_found():
     assert len(_files()) >= 8
 
 
+def test_scorecard_analysis_publishes_and_uploads_sarif():
+    job = _load(WORKFLOWS / "scorecard.yml")["jobs"]["analysis"]
+    steps = _steps(job)
+    analysis = next(s for s in steps if s.get("name") == "Run analysis")
+    assert analysis["uses"].startswith("ossf/scorecard-action@")
+    assert analysis["with"] == {
+        "results_file": "results.sarif",
+        "results_format": "sarif",
+        "publish_results": True,
+    }
+    artifact = next(s for s in steps if s.get("name") == "Upload artifact")
+    code_scanning = next(s for s in steps if s.get("name") == "Upload to code-scanning")
+    assert artifact["with"]["path"] == analysis["with"]["results_file"]
+    assert code_scanning["with"]["sarif_file"] == analysis["with"]["results_file"]
+
+
 @pytest.mark.parametrize("path", _files(), ids=lambda p: p.name)
 def test_every_uses_is_pinned_to_a_commit_sha_with_a_version_comment(path):
     bad = []

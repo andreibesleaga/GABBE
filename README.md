@@ -76,6 +76,8 @@ It contains:
 
 *Example project where GABBE is used: [Agentic AI Medical Imagery Diagnostic Helper](https://github.com/andreibesleaga/AgenticMedicalImagingHelper)*
 
+GABBE is discussed in the book *Agentic AI Architectures: Multi-Agent System Patterns with TypeScript* by Andrei N. Besleaga (Wiley; publication planned for 2026): https://agenticaiarchitectures.com
+
 ---
 
 ### ⚡ Automated Setup (Recommended)
